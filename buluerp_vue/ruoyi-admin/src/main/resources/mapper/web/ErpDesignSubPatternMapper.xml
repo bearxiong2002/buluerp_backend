@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.ErpDesignSubPatternMapper">
+    
+    <resultMap type="ErpDesignSubPattern" id="ErpDesignSubPatternResult">
+        <result property="id"    column="id"    />
+        <result property="designPatternId"    column="design_pattern_id"    />
+        <result property="mouldNumber"    column="mould_number"    />
+        <result property="lddNumber"    column="ldd_number"    />
+        <result property="mouldCategory"    column="mould_category"    />
+        <result property="mouldId"    column="mould_id"    />
+        <result property="pictureUrl"    column="picture_url"    />
+        <result property="color"    column="color"    />
+        <result property="productName"    column="product_name"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="material"    column="material"    />
+    </resultMap>
+
+    <sql id="selectErpDesignSubPatternVo">
+        select id, design_pattern_id, mould_number, ldd_number, mould_category, mould_id, picture_url, color, product_name, quantity, material from erp_design_sub_pattern
+    </sql>
+
+    <select id="selectErpDesignSubPatternList" parameterType="ErpDesignSubPattern" resultMap="ErpDesignSubPatternResult">
+        <include refid="selectErpDesignSubPatternVo"/>
+        <where>  
+            <if test="designPatternId != null "> and design_pattern_id = #{designPatternId}</if>
+            <if test="mouldNumber != null  and mouldNumber != ''"> and mould_number = #{mouldNumber}</if>
+            <if test="lddNumber != null  and lddNumber != ''"> and ldd_number = #{lddNumber}</if>
+            <if test="mouldCategory != null  and mouldCategory != ''"> and mould_category = #{mouldCategory}</if>
+            <if test="mouldId != null  and mouldId != ''"> and mould_id = #{mouldId}</if>
+            <if test="pictureUrl != null  and pictureUrl != ''"> and picture_url = #{pictureUrl}</if>
+            <if test="color != null  and color != ''"> and color = #{color}</if>
+            <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="material != null  and material != ''"> and material = #{material}</if>
+        </where>
+    </select>
+    
+    <select id="selectErpDesignSubPatternById" parameterType="Long" resultMap="ErpDesignSubPatternResult">
+        <include refid="selectErpDesignSubPatternVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertErpDesignSubPattern" parameterType="ErpDesignSubPattern" useGeneratedKeys="true" keyProperty="id">
+        insert into erp_design_sub_pattern
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="designPatternId != null">design_pattern_id,</if>
+            <if test="mouldNumber != null and mouldNumber != ''">mould_number,</if>
+            <if test="lddNumber != null and lddNumber != ''">ldd_number,</if>
+            <if test="mouldCategory != null and mouldCategory != ''">mould_category,</if>
+            <if test="mouldId != null and mouldId != ''">mould_id,</if>
+            <if test="pictureUrl != null">picture_url,</if>
+            <if test="color != null">color,</if>
+            <if test="productName != null and productName != ''">product_name,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="material != null and material != ''">material,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="designPatternId != null">#{designPatternId},</if>
+            <if test="mouldNumber != null and mouldNumber != ''">#{mouldNumber},</if>
+            <if test="lddNumber != null and lddNumber != ''">#{lddNumber},</if>
+            <if test="mouldCategory != null and mouldCategory != ''">#{mouldCategory},</if>
+            <if test="mouldId != null and mouldId != ''">#{mouldId},</if>
+            <if test="pictureUrl != null">#{pictureUrl},</if>
+            <if test="color != null">#{color},</if>
+            <if test="productName != null and productName != ''">#{productName},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="material != null and material != ''">#{material},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErpDesignSubPattern" parameterType="ErpDesignSubPattern">
+        update erp_design_sub_pattern
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="designPatternId != null">design_pattern_id = #{designPatternId},</if>
+            <if test="mouldNumber != null and mouldNumber != ''">mould_number = #{mouldNumber},</if>
+            <if test="lddNumber != null and lddNumber != ''">ldd_number = #{lddNumber},</if>
+            <if test="mouldCategory != null and mouldCategory != ''">mould_category = #{mouldCategory},</if>
+            <if test="mouldId != null and mouldId != ''">mould_id = #{mouldId},</if>
+            <if test="pictureUrl != null">picture_url = #{pictureUrl},</if>
+            <if test="color != null">color = #{color},</if>
+            <if test="productName != null and productName != ''">product_name = #{productName},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="material != null and material != ''">material = #{material},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteErpDesignSubPatternById" parameterType="Long">
+        delete from erp_design_sub_pattern where id = #{id}
+    </delete>
+
+    <delete id="deleteErpDesignSubPatternByIds" parameterType="String">
+        delete from erp_design_sub_pattern where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
