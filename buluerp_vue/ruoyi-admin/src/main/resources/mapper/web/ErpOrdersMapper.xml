@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.ErpOrdersMapper">
+    
+    <resultMap type="ErpOrders" id="ErpOrdersResult">
+        <result property="id"    column="id"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="operatorId"    column="operator_id"    />
+        <result property="quantity"    column="quantity"    />
+        <result property="deliveryDeadline"    column="delivery_deadline"    />
+        <result property="deliveryTime"    column="delivery_time"    />
+        <result property="status"    column="status"    />
+        <result property="customerId"    column="customer_id"    />
+        <result property="productId"    column="product_id"    />
+        <result property="productionId"    column="production_id"    />
+        <result property="purchaseId"    column="purchase_id"    />
+        <result property="subcontractId"    column="subcontract_id"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectErpOrdersVo">
+        select id, create_time, operator_id, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, update_time from erp_orders
+    </sql>
+
+    <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
+        <include refid="selectErpOrdersVo"/>
+        <where>  
+            <if test="operatorId != null "> and operator_id = #{operatorId}</if>
+            <if test="quantity != null "> and quantity = #{quantity}</if>
+            <if test="deliveryDeadline != null "> and delivery_deadline = #{deliveryDeadline}</if>
+            <if test="deliveryTime != null "> and delivery_time = #{deliveryTime}</if>
+            <if test="status != null "> and status = #{status}</if>
+            <if test="customerId != null "> and customer_id = #{customerId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
+            <if test="productionId != null "> and production_id = #{productionId}</if>
+            <if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>
+            <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
+        </where>
+    </select>
+    
+    <select id="selectErpOrdersById" parameterType="Long" resultMap="ErpOrdersResult">
+        <include refid="selectErpOrdersVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
+        insert into erp_orders
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">create_time,</if>
+            <if test="operatorId != null">operator_id,</if>
+            <if test="quantity != null">quantity,</if>
+            <if test="deliveryDeadline != null">delivery_deadline,</if>
+            <if test="deliveryTime != null">delivery_time,</if>
+            <if test="status != null">status,</if>
+            <if test="customerId != null">customer_id,</if>
+            <if test="productId != null">product_id,</if>
+            <if test="productionId != null">production_id,</if>
+            <if test="purchaseId != null">purchase_id,</if>
+            <if test="subcontractId != null">subcontract_id,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="createTime != null">#{createTime},</if>
+            <if test="operatorId != null">#{operatorId},</if>
+            <if test="quantity != null">#{quantity},</if>
+            <if test="deliveryDeadline != null">#{deliveryDeadline},</if>
+            <if test="deliveryTime != null">#{deliveryTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="customerId != null">#{customerId},</if>
+            <if test="productId != null">#{productId},</if>
+            <if test="productionId != null">#{productionId},</if>
+            <if test="purchaseId != null">#{purchaseId},</if>
+            <if test="subcontractId != null">#{subcontractId},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErpOrders" parameterType="ErpOrders">
+        update erp_orders
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="deliveryDeadline != null">delivery_deadline = #{deliveryDeadline},</if>
+            <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productionId != null">production_id = #{productionId},</if>
+            <if test="purchaseId != null">purchase_id = #{purchaseId},</if>
+            <if test="subcontractId != null">subcontract_id = #{subcontractId},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteErpOrdersById" parameterType="Long">
+        delete from erp_orders where id = #{id}
+    </delete>
+
+    <delete id="deleteErpOrdersByIds" parameterType="String">
+        delete from erp_orders where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>
