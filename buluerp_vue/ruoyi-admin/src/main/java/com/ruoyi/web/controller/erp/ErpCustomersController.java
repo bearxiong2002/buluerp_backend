@@ -38,7 +38,7 @@ public class ErpCustomersController extends BaseController
     private IErpCustomersService erpCustomersService;
 
     /**
-     * 查询【请填写功能名称】列表
+     * 查询客户列表
      */
     @PreAuthorize("@ss.hasPermi('system:customers:list')")
     @GetMapping("/list")
@@ -51,56 +51,61 @@ public class ErpCustomersController extends BaseController
     }
 
     /**
-     * 导出【请填写功能名称】列表
+     * 导出客户列表
      */
     @PreAuthorize("@ss.hasPermi('system:customers:export')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.EXPORT)
+    @Log(title = "客户", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
+    @ApiOperation(value = "导出客户列表", notes = "导出客户列表")
     public void export(HttpServletResponse response, ErpCustomers erpCustomers)
     {
         List<ErpCustomers> list = erpCustomersService.selectErpCustomersList(erpCustomers);
         ExcelUtil<ErpCustomers> util = new ExcelUtil<ErpCustomers>(ErpCustomers.class);
-        util.exportExcel(response, list, "【请填写功能名称】数据");
+        util.exportExcel(response, list, "客户数据");
     }
 
     /**
-     * 获取【请填写功能名称】详细信息
+     * 获取客户详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:customers:query')")
     @GetMapping(value = "/{id}")
+    @ApiOperation(value = "获取客户详细信息", notes = "获取客户详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
         return success(erpCustomersService.selectErpCustomersById(id));
     }
 
     /**
-     * 新增【请填写功能名称】
+     * 新增客户
      */
     @PreAuthorize("@ss.hasPermi('system:customers:add')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.INSERT)
+    @Log(title = "客户", businessType = BusinessType.INSERT)
     @PostMapping
+    @ApiOperation(value = "新增客户", notes = "新增客户")
     public AjaxResult add(@RequestBody ErpCustomers erpCustomers)
     {
         return toAjax(erpCustomersService.insertErpCustomers(erpCustomers));
     }
 
     /**
-     * 修改【请填写功能名称】
+     * 修改客户
      */
     @PreAuthorize("@ss.hasPermi('system:customers:edit')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.UPDATE)
+    @Log(title = "客户", businessType = BusinessType.UPDATE)
     @PutMapping
+    @ApiOperation(value = "修改客户", notes = "修改客户")
     public AjaxResult edit(@RequestBody ErpCustomers erpCustomers)
     {
         return toAjax(erpCustomersService.updateErpCustomers(erpCustomers));
     }
 
     /**
-     * 删除【请填写功能名称】
+     * 删除客户
      */
     @PreAuthorize("@ss.hasPermi('system:customers:remove')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.DELETE)
+    @Log(title = "客户", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
+    @ApiOperation(value = "删除客户", notes = "删除客户")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(erpCustomersService.deleteErpCustomersByIds(ids));
