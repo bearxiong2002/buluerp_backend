@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.ErpPurchaseInfoMapper">
+    
+    <resultMap type="ErpPurchaseInfo" id="ErpPurchaseInfoResult">
+        <result property="purchaseCode"    column="purchase_code"    />
+        <result property="pictureUrl"    column="picture_url"    />
+        <result property="mouldNumber"    column="mould_number"    />
+        <result property="singleWeight"    column="single_weight"    />
+        <result property="unitPrice"    column="unit_price"    />
+        <result property="material"    column="material"    />
+        <result property="supplier"    column="supplier"    />
+        <result property="specificationName"    column="specification_name"    />
+    </resultMap>
+
+    <sql id="selectErpPurchaseInfoVo">
+        select purchase_code, picture_url, mould_number, single_weight, unit_price, material, supplier, specification_name from erp_purchase_info
+    </sql>
+
+    <select id="selectErpPurchaseInfoList" parameterType="ErpPurchaseInfo" resultMap="ErpPurchaseInfoResult">
+        <include refid="selectErpPurchaseInfoVo"/>
+        <where>  
+            <if test="pictureUrl != null  and pictureUrl != ''"> and picture_url = #{pictureUrl}</if>
+            <if test="mouldNumber != null  and mouldNumber != ''"> and mould_number = #{mouldNumber}</if>
+            <if test="singleWeight != null "> and single_weight = #{singleWeight}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="material != null  and material != ''"> and material = #{material}</if>
+            <if test="supplier != null  and supplier != ''"> and supplier = #{supplier}</if>
+            <if test="specificationName != null  and specificationName != ''"> and specification_name like concat('%', #{specificationName}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectErpPurchaseInfoByPurchaseCode" parameterType="String" resultMap="ErpPurchaseInfoResult">
+        <include refid="selectErpPurchaseInfoVo"/>
+        where purchase_code = #{purchaseCode}
+    </select>
+
+    <insert id="insertErpPurchaseInfo" parameterType="ErpPurchaseInfo">
+        insert into erp_purchase_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="purchaseCode != null">purchase_code,</if>
+            <if test="pictureUrl != null">picture_url,</if>
+            <if test="mouldNumber != null">mould_number,</if>
+            <if test="singleWeight != null">single_weight,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="material != null">material,</if>
+            <if test="supplier != null">supplier,</if>
+            <if test="specificationName != null">specification_name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="purchaseCode != null">#{purchaseCode},</if>
+            <if test="pictureUrl != null">#{pictureUrl},</if>
+            <if test="mouldNumber != null">#{mouldNumber},</if>
+            <if test="singleWeight != null">#{singleWeight},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="material != null">#{material},</if>
+            <if test="supplier != null">#{supplier},</if>
+            <if test="specificationName != null">#{specificationName},</if>
+         </trim>
+    </insert>
+
+    <update id="updateErpPurchaseInfo" parameterType="ErpPurchaseInfo">
+        update erp_purchase_info
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="pictureUrl != null">picture_url = #{pictureUrl},</if>
+            <if test="mouldNumber != null">mould_number = #{mouldNumber},</if>
+            <if test="singleWeight != null">single_weight = #{singleWeight},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="material != null">material = #{material},</if>
+            <if test="supplier != null">supplier = #{supplier},</if>
+            <if test="specificationName != null">specification_name = #{specificationName},</if>
+        </trim>
+        where purchase_code = #{purchaseCode}
+    </update>
+
+    <delete id="deleteErpPurchaseInfoByPurchaseCode" parameterType="String">
+        delete from erp_purchase_info where purchase_code = #{purchaseCode}
+    </delete>
+
+    <delete id="deleteErpPurchaseInfoByPurchaseCodes" parameterType="String">
+        delete from erp_purchase_info where purchase_code in 
+        <foreach item="purchaseCode" collection="array" open="(" separator="," close=")">
+            #{purchaseCode}
+        </foreach>
+    </delete>
+</mapper>
