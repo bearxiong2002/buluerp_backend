@@ -33,12 +33,7 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
     @Override
     public ErpCustomers selectErpCustomersById(Long id)
     {
-        ErpCustomers erpCustomers = erpCustomersMapper.selectErpCustomersById(id);
-        if (erpCustomers == null)
-        {
-            throw new ServiceException("客户不存在", 400);
-        }
-        return erpCustomers;
+        return erpCustomersMapper.selectErpCustomersById(id);
     }
 
     /**

@@ -72,7 +72,7 @@ public class ErpCustomersController extends BaseController
     @ApiOperation(value = "获取客户详细信息", notes = "获取客户详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(erpCustomersService.selectErpCustomersById(id));
+        return success(requiresNotNull(erpCustomersService.selectErpCustomersById(id)));
     }
 
     /**

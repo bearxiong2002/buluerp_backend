@@ -56,7 +56,14 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int insertErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setCreateTime(DateUtils.getNowDate());
-        return erpOrdersMapper.insertErpOrders(erpOrders);
+        int res = erpOrdersMapper.insertErpOrders(erpOrders);
+        if (res < 0) {
+            return 0;
+        } else {
+            erpOrders.setInnerId(erpOrders.generateInnerId());
+            erpOrders.setOuterId(erpOrders.generateOuterId());
+            return erpOrdersMapper.updateErpOrders(erpOrders);
+        }
     }
 
     /**

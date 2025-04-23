@@ -6,6 +6,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="ErpOrders" id="ErpOrdersResult">
         <result property="id"    column="id"    />
+        <result property="innerId"    column="inner_id"    />
+        <result property="outerId"    column="outer_id"    />
         <result property="createTime"    column="create_time"    />
         <result property="operatorId"    column="operator_id"    />
         <result property="quantity"    column="quantity"    />
@@ -21,12 +23,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErpOrdersVo">
-        select id, create_time, operator_id, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, update_time from erp_orders
+        select id, inner_id, outer_id, create_time, operator_id, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, update_time from erp_orders
     </sql>
 
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
         <include refid="selectErpOrdersVo"/>
-        <where>  
+        <where>
+            <if test="innerId != null "> and inner_id = #{innerId}</if>
+            <if test="outerId != null "> and outer_id = #{outerId}</if>
             <if test="operatorId != null "> and operator_id = #{operatorId}</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
             <if test="deliveryDeadline != null "> and delivery_deadline = #{deliveryDeadline}</if>
@@ -48,6 +52,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders
         <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="innerId != null">inner_id,</if>
+            <if test="outerId != null">outer_id,</if>
             <if test="createTime != null">create_time,</if>
             <if test="operatorId != null">operator_id,</if>
             <if test="quantity != null">quantity,</if>
@@ -62,6 +68,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="innerId != null">#{innerId},</if>
+            <if test="outerId != null">#{outerId},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="operatorId != null">#{operatorId},</if>
             <if test="quantity != null">#{quantity},</if>
@@ -80,6 +88,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErpOrders" parameterType="ErpOrders">
         update erp_orders
         <trim prefix="SET" suffixOverrides=",">
+            <if test="innerId != null">inner_id = #{innerId},</if>
+            <if test="outerId != null">outer_id = #{outerId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="operatorId != null">operator_id = #{operatorId},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
