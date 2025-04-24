@@ -1,2 +1,3 @@
 "# buluerp_backend" 
-自动化测试01
+自动化测试01 fail
+自动测试02
