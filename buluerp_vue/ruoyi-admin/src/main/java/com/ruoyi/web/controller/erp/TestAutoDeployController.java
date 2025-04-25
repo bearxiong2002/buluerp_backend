@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/erp/test")
-public class TestController {
+public class TestAutoDeployController {
 
     @ApiOperation(value = "自动部署测试接口", notes = "自动部署测试接口")
     @GetMapping("/helloWorld")
