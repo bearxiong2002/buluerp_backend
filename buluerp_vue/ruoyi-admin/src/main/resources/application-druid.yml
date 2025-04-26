@@ -31,7 +31,7 @@ spring:
         druid:
             # 主库数据源
             master:
-                url: jdbc:mysql://154.201.77.135:3306/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
+                url: jdbc:mysql://154.201.77.135:29783/ry-vue?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=true&serverTimezone=GMT%2B8
                 username: root
                 password: 1pReYZavtS5tZvyRfFxD
             # 从库数据源
