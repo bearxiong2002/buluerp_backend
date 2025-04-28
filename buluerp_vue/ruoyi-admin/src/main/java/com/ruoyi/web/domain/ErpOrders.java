@@ -1,7 +1,10 @@
 package com.ruoyi.web.domain;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -19,6 +22,12 @@ public class ErpOrders extends BaseEntity
 
     /** 主键ID */
     private Long id;
+
+    @Excel(name = "内部ID")
+    private String innerId;
+
+    @Excel(name = "外部ID")
+    private String outerId;
 
     /** 操作人ID（外键引用用户表） */
     @Excel(name = "操作人ID", readConverterExp = "外=键引用用户表")
@@ -189,5 +198,37 @@ public class ErpOrders extends BaseEntity
             .append("subcontractId", getSubcontractId())
             .append("updateTime", getUpdateTime())
             .toString();
+    }
+
+    public String generateInnerId() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String date = sdf.format(getCreateTime());
+        return "BLK"
+                + date
+                + String.format("%06d", getId());
+    }
+
+    public String generateOuterId() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
+        String date = sdf.format(getCreateTime());
+        return "OUT"
+                + date
+                + String.format("%06d", getId());
+    }
+
+    public String getInnerId() {
+        return innerId;
+    }
+
+    public void setInnerId(String innerId) {
+        this.innerId = innerId;
+    }
+
+    public String getOuterId() {
+        return outerId;
+    }
+
+    public void setOuterId(String outerId) {
+        this.outerId = outerId;
     }
 }

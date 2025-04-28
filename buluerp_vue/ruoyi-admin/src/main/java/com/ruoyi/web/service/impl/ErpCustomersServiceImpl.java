@@ -1,6 +1,9 @@
 package com.ruoyi.web.service.impl;
 
+import java.util.Date;
 import java.util.List;
+
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
@@ -54,6 +57,9 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
     @Override
     public int insertErpCustomers(ErpCustomers erpCustomers)
     {
+        Date now = DateUtils.getNowDate();
+        erpCustomers.setCreatTime(now);
+        erpCustomers.setUpdateTime(now);
         return erpCustomersMapper.insertErpCustomers(erpCustomers);
     }
 

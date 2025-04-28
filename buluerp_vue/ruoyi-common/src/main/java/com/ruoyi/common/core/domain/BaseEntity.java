@@ -21,6 +21,18 @@ public class BaseEntity implements Serializable
     @JsonIgnore
     private String searchValue;
 
+    /** 分页页数参数 */
+    private Integer pageNum;
+
+    /** 分页每页条数参数 */
+    private Integer pageSize;
+
+    /** 排序列 */
+    private String orderByColumn;
+
+    /** 排序的方向  */
+    private String isAsc;
+
     /** 创建者 */
     private String createBy;
 
@@ -114,5 +126,37 @@ public class BaseEntity implements Serializable
     public void setParams(Map<String, Object> params)
     {
         this.params = params;
+    }
+
+    public Integer getPageSize() {
+        return pageSize;
+    }
+
+    public void setPageSize(Integer pageSize) {
+        this.pageSize = pageSize;
+    }
+
+    public Integer getPageNum() {
+        return pageNum;
+    }
+
+    public void setPageNum(Integer pageNum) {
+        this.pageNum = pageNum;
+    }
+
+    public String getOrderByColumn() {
+        return orderByColumn;
+    }
+
+    public void setOrderByColumn(String orderByColumn) {
+        this.orderByColumn = orderByColumn;
+    }
+
+    public String getIsAsc() {
+        return isAsc;
+    }
+
+    public void setIsAsc(String isAsc) {
+        this.isAsc = isAsc;
     }
 }
