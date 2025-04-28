@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
-import com.ruoyi.web.request.AddDesignRequest;
-import com.ruoyi.web.request.LIstDesignRequest;
-import com.ruoyi.web.request.UpdateDesignRequest;
+import com.ruoyi.web.request.design.AddDesignRequest;
+import com.ruoyi.web.request.design.LIstDesignRequest;
+import com.ruoyi.web.request.design.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,7 +46,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Override
     public List<ErpDesignStyle> selectErpDesignStyleList(LIstDesignRequest lIstDesignRequest)
     {
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(lIstDesignRequest.getDesignPatternId(), lIstDesignRequest.getGroupId());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(lIstDesignRequest.getId(), lIstDesignRequest.getDesignPatternId(), lIstDesignRequest.getGroupId());
         return erpDesignStyleMapper.selectErpDesignStyleList(erpDesignStyle);
     }
 
@@ -75,7 +75,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Override
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest)
     {
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), updateDesignRequest.getPictureUrl(), updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), updateDesignRequest.getPictureUrl(), updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateErpDesignStyle(erpDesignStyle);
     }
 

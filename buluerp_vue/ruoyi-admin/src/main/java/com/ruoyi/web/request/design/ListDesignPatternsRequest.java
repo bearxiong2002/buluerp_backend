@@ -1,4 +1,4 @@
-package com.ruoyi.web.request;
+package com.ruoyi.web.request.design;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

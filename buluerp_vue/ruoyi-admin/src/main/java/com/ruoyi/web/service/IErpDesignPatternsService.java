@@ -1,10 +1,10 @@
 package com.ruoyi.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.ruoyi.web.request.AddDesignPatternsRequest;
+import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
-import com.ruoyi.web.request.ListDesignPatternsRequest;
-import com.ruoyi.web.request.UpdateDesignPatternsRequest;
+import com.ruoyi.web.request.design.ListDesignPatternsRequest;
+import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param id 【请填写功能名称】主键
      * @return 【请填写功能名称】
      */
-    public DesignPatternsResult selectErpDesignPatternsById(Long id);
+    DesignPatternsResult selectErpDesignPatternsById(Long id);
 
     /**
      * 查询【请填写功能名称】列表
@@ -32,7 +32,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param listDesignPatternsRequest 【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<ErpDesignPatterns> selectErpDesignPatternsList(ListDesignPatternsRequest listDesignPatternsRequest);
+    List<ErpDesignPatterns> selectErpDesignPatternsList(ListDesignPatternsRequest listDesignPatternsRequest);
 
     /**
      * 新增【请填写功能名称】
@@ -40,7 +40,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param addDesignPatternsRequest 【请填写功能名称】
      * @return 结果
      */
-    public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest);
+    int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest);
 
     /**
      * 修改【请填写功能名称】
@@ -48,7 +48,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param updateDesignPatternsRequest 【请填写功能名称】
      * @return 结果
      */
-    public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest);
+    int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest);
 
     /**
      * 批量删除【请填写功能名称】
@@ -56,7 +56,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param ids 需要删除的【请填写功能名称】主键集合
      * @return 结果
      */
-    public int deleteErpDesignPatternsByIds(Long[] ids);
+    int deleteErpDesignPatternsByIds(Long[] ids);
 
     /**
      * 删除【请填写功能名称】信息
@@ -64,5 +64,9 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param id 【请填写功能名称】主键
      * @return 结果
      */
-    public int deleteErpDesignPatternsById(Long id);
+    int deleteErpDesignPatternsById(Long id);
+
+    int confirmErpDesignPatternsById(Long id);
+
+    int cancelConfirmById(Long id);
 }

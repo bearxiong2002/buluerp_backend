@@ -1,10 +1,13 @@
-package com.ruoyi.web.request;
+package com.ruoyi.web.request.design;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "获取造型表列表请求类")
 public class LIstDesignRequest {
+
+    @ApiModelProperty(dataType = "Long",value = "造型表id(可选)",required = false)
+    private Long id;
 
     @ApiModelProperty(dataType = "Long",value = "造型表分组编号",required = false)
     private Long GroupId;
@@ -49,6 +52,14 @@ public class LIstDesignRequest {
 //    @ApiModelProperty(dataType = "String",value = "模具的材料",required = true)
 //    private String material;
 
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
 
     public Long getGroupId() {
         return GroupId;

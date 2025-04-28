@@ -196,7 +196,23 @@ public class ErpDesignStyle extends BaseEntity
         this.material = material;
     }
 
-    public ErpDesignStyle(Long designPatternId, Long groupId) {
+    public ErpDesignStyle(Long id, Long designPatternId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
+        this.id = id;
+        this.designPatternId = designPatternId;
+        this.groupId = groupId;
+        this.mouldNumber = mouldNumber;
+        this.lddNumber = lddNumber;
+        this.mouldCategory = mouldCategory;
+        this.mouldId = mouldId;
+        this.pictureUrl = pictureUrl;
+        this.color = color;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.material = material;
+    }
+
+    public ErpDesignStyle(Long id,Long designPatternId, Long groupId) {
+        this.id=id;
         this.designPatternId = designPatternId;
         this.groupId = groupId;
     }

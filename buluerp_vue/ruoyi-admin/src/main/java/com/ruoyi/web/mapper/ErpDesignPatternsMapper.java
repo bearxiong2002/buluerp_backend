@@ -22,7 +22,7 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param id 【请填写功能名称】主键
      * @return 【请填写功能名称】
      */
-    public ErpDesignPatterns selectErpDesignPatternsById(Long id);
+    ErpDesignPatterns selectErpDesignPatternsById(Long id);
 
     /**
      * 查询【请填写功能名称】列表
@@ -30,7 +30,7 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param erpDesignPatterns 【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
-    public List<ErpDesignPatterns> selectErpDesignPatternsList(ErpDesignPatterns erpDesignPatterns);
+    List<ErpDesignPatterns> selectErpDesignPatternsList(ErpDesignPatterns erpDesignPatterns);
 
     /**
      * 新增【请填写功能名称】
@@ -38,7 +38,7 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param erpDesignPatterns 【请填写功能名称】
      * @return 结果
      */
-    public int insertErpDesignPatterns(ErpDesignPatterns erpDesignPatterns);
+    int insertErpDesignPatterns(ErpDesignPatterns erpDesignPatterns);
 
     /**
      * 修改【请填写功能名称】
@@ -46,7 +46,7 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param erpDesignPatterns 【请填写功能名称】
      * @return 结果
      */
-    public int updateErpDesignPatterns(ErpDesignPatterns erpDesignPatterns);
+    int updateErpDesignPatterns(ErpDesignPatterns erpDesignPatterns);
 
     /**
      * 删除【请填写功能名称】
@@ -54,7 +54,7 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param id 【请填写功能名称】主键
      * @return 结果
      */
-    public int deleteErpDesignPatternsById(Long id);
+    int deleteErpDesignPatternsById(Long id);
 
     /**
      * 批量删除【请填写功能名称】
@@ -62,5 +62,9 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteErpDesignPatternsByIds(Long[] ids);
+    int deleteErpDesignPatternsByIds(Long[] ids);
+
+    int confirmErpDesignPatternsById(Long id);
+
+    int cancelConfirmById(Long id);
 }

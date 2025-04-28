@@ -14,7 +14,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErpDesignPatternsVo">
-        select id, product_id, create_user_id, order_id, create_time from erp_design_patterns
+        select id, product_id, create_user_id, order_id, create_time,confirm from erp_design_patterns
     </sql>
 
     <select id="selectErpDesignPatternsList" parameterType="ErpDesignPatterns" resultMap="ErpDesignPatternsResult">
@@ -23,7 +23,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productId != null "> and product_id = #{productId}</if>
             <if test="createUserId != null "> and create_user_id = #{createUserId}</if>
             <if test="orderId != null "> and order_id = #{orderId}</if>
-            <if test="orderId != null "> and confirm = #{confirm}</if>
+            <if test="confirm != null "> and confirm = #{confirm}</if>
         </where>
     </select>
     
@@ -56,6 +56,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="orderId != null">order_id = #{orderId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
         </trim>
+        where id = #{id}
+    </update>
+
+    <update id="confirmErpDesignPatternsById" parameterType="Long">
+        update erp_design_patterns
+        set confirm = 1
+        where id = #{id}
+    </update>
+
+    <update id="cancelConfirmById" parameterType="Long">
+        update erp_design_patterns
+        set confirm = 0
         where id = #{id}
     </update>
 

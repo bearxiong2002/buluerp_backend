@@ -1,4 +1,4 @@
-package com.ruoyi.web.request;
+package com.ruoyi.web.request.design;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -9,6 +9,9 @@ import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "修改造型表请求类")
 public class UpdateDesignRequest {
+
+    @ApiModelProperty(dataType = "Long",value = "需要修改的造型表id",required = true)
+    private Long id;
 
     @ApiModelProperty(dataType = "Long",value = "造型表分组编号",required = false)
     private Long GroupId;
@@ -139,5 +142,13 @@ public class UpdateDesignRequest {
 
     public void setMaterial(String material) {
         this.material = material;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 }

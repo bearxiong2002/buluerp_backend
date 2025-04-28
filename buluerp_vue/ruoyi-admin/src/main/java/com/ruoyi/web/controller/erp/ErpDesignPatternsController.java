@@ -4,15 +4,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
-import com.ruoyi.web.request.AddDesignPatternsRequest;
-import com.ruoyi.web.request.AddDesignRequest;
+import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
-import com.ruoyi.web.request.ListDesignPatternsRequest;
-import com.ruoyi.web.request.UpdateDesignPatternsRequest;
+import com.ruoyi.web.request.design.ListDesignPatternsRequest;
+import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -113,7 +111,7 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * 删除设计总表
      */
-    @ApiOperation(value = "删除设计总表 /{ids}")
+    @ApiOperation(value = "删除设计总表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:remove')")
     @Log(title = "删除设计总表", businessType = BusinessType.DELETE)
@@ -121,5 +119,31 @@ public class ErpDesignPatternsController extends BaseController
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(erpDesignPatternsService.deleteErpDesignPatternsByIds(ids));
+    }
+
+    /**
+     * pmc确认设计总表
+     */
+    @ApiOperation(value = "pmc确认设计总表")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:patterns:confirm')")
+    @Log(title = "pmc确认设计总表", businessType = BusinessType.UPDATE)
+    @PutMapping("/{id}")
+    public AjaxResult confirm(@PathVariable Long id)
+    {
+        return toAjax(erpDesignPatternsService.confirmErpDesignPatternsById(id));
+    }
+
+    /**
+     * pmc确认设计总表
+     */
+    @ApiOperation(value = "pmc取消确认设计总表")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:patterns:confirm')")
+    @Log(title = "pmc取消确认设计总表", businessType = BusinessType.UPDATE)
+    @PutMapping("/cancel/{id}")
+    public AjaxResult cancel(@PathVariable Long id)
+    {
+        return toAjax(erpDesignPatternsService.cancelConfirmById(id));
     }
 }

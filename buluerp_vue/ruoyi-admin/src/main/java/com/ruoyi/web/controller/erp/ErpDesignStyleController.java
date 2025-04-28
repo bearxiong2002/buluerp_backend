@@ -5,14 +5,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.web.domain.ErpDesignStyle;
-import com.ruoyi.web.request.AddDesignRequest;
-import com.ruoyi.web.request.LIstDesignRequest;
-import com.ruoyi.web.request.UpdateDesignRequest;
+import com.ruoyi.web.request.design.AddDesignRequest;
+import com.ruoyi.web.request.design.LIstDesignRequest;
+import com.ruoyi.web.request.design.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -113,7 +111,7 @@ public class ErpDesignStyleController extends BaseController
     /**
      * 删除设计造型
      */
-    @ApiOperation(value = "删除造型表 /{ids}")
+    @ApiOperation(value = "删除造型表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:style:remove')")
     @Log(title = "设计造型", businessType = BusinessType.DELETE)

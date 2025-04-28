@@ -23,7 +23,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      * @param id 设计造型主键
      * @return 设计造型
      */
-    public ErpDesignStyle selectErpDesignStyleById(Long id);
+    ErpDesignStyle selectErpDesignStyleById(Long id);
 
     /**
      * 查询设计造型列表
@@ -31,7 +31,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      * @param erpDesignStyle 设计造型
      * @return 设计造型集合
      */
-    public List<ErpDesignStyle> selectErpDesignStyleList(ErpDesignStyle erpDesignStyle);
+    List<ErpDesignStyle> selectErpDesignStyleList(ErpDesignStyle erpDesignStyle);
 
     /**
      * 新增设计造型
@@ -39,7 +39,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      * @param erpDesignStyle 设计造型
      * @return 结果
      */
-    public int insertErpDesignStyle(ErpDesignStyle erpDesignStyle);
+    int insertErpDesignStyle(ErpDesignStyle erpDesignStyle);
 
     /**
      * 修改设计造型
@@ -47,7 +47,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      * @param erpDesignStyle 设计造型
      * @return 结果
      */
-    public int updateErpDesignStyle(ErpDesignStyle erpDesignStyle);
+    int updateErpDesignStyle(ErpDesignStyle erpDesignStyle);
 
     /**
      * 删除设计造型
@@ -55,7 +55,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      * @param id 设计造型主键
      * @return 结果
      */
-    public int deleteErpDesignStyleById(Long id);
+    int deleteErpDesignStyleById(Long id);
 
     /**
      * 批量删除设计造型
@@ -82,4 +82,5 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
     Set<String> selectMaterialSet(Long id);
 
     int sumQuantityById(Long id);
+
 }

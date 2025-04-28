@@ -6,16 +6,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
-import com.ruoyi.web.request.AddDesignPatternsRequest;
-import com.ruoyi.web.request.AddDesignRequest;
+import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
-import com.ruoyi.web.domain.ErpDesignSubPattern;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
-import com.ruoyi.web.mapper.ErpDesignSubPatternMapper;
-import com.ruoyi.web.request.ListDesignPatternsRequest;
-import com.ruoyi.web.request.UpdateDesignPatternsRequest;
+import com.ruoyi.web.request.design.ListDesignPatternsRequest;
+import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +98,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Override
     public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest)
     {
-        ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns(updateDesignPatternsRequest.getProductId(),null, updateDesignPatternsRequest.getOrderId());
+        ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns(updateDesignPatternsRequest.getId(),updateDesignPatternsRequest.getProductId(),null, updateDesignPatternsRequest.getOrderId());
         return erpDesignPatternsMapper.updateById(erpDesignPatterns);
     }
 
@@ -129,4 +125,13 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     {
         return erpDesignPatternsMapper.deleteErpDesignPatternsById(id);
     }
+
+    public int confirmErpDesignPatternsById(Long id){
+        return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
+    }
+
+    public int cancelConfirmById(Long id){
+        return erpDesignPatternsMapper.cancelConfirmById(id);
+    }
+
 }
