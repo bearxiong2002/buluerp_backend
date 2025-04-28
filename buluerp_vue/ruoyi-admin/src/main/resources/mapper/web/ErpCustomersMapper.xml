@@ -47,7 +47,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErpCustomers" parameterType="ErpCustomers">
         update erp_customers
         <trim prefix="SET" suffixOverrides=",">
-            <if test="creatTime != null">creat_time = #{creatTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="name != null">name = #{name},</if>
         </trim>

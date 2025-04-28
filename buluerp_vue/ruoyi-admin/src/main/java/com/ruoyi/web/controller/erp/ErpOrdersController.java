@@ -1,20 +1,17 @@
 package com.ruoyi.web.controller.erp;
 
+import java.io.IOException;
 import java.util.List;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.service.IErpOrdersService;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -22,6 +19,7 @@ import com.ruoyi.common.enums.BusinessType;
 
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 订单Controller
@@ -41,6 +39,7 @@ public class ErpOrdersController extends BaseController
      */
     @PreAuthorize("@ss.hasPermi('system:orders:list')")
     @GetMapping("/list")
+    @ApiOperation(value = "查询订单列表", notes = "查询订单列表")
     public TableDataInfo list(ErpOrders erpOrders)
     {
         startPage();
@@ -54,6 +53,7 @@ public class ErpOrdersController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:orders:export')")
     @Log(title = "订单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
+    @ApiOperation(value = "导出订单列表", notes = "导出订单列表")
     public void export(HttpServletResponse response, ErpOrders erpOrders)
     {
         List<ErpOrders> list = erpOrdersService.selectErpOrdersList(erpOrders);
@@ -62,13 +62,32 @@ public class ErpOrdersController extends BaseController
     }
 
     /**
+     * 导出订单列表
+     */
+    @PreAuthorize("@ss.hasPermi('system:orders:import')")
+    @Log(title = "订单", businessType = BusinessType.IMPORT)
+    @PostMapping("/import")
+    @ApiOperation(value = "导入订单列表", notes = "导入订单列表")
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
+        ExcelUtil<ErpOrders> util = new ExcelUtil<ErpOrders>(ErpOrders.class);
+        List<ErpOrders> erpOrders = util.importExcel(file.getInputStream());
+        int count = 0;
+        for (ErpOrders erpOrders1 : erpOrders) {
+            erpOrdersService.insertErpOrders(erpOrders1);
+            count++;
+        }
+        return success(count);
+    }
+
+    /**
      * 获取订单详细信息
      */
     @PreAuthorize("@ss.hasPermi('system:orders:query')")
     @GetMapping(value = "/{id}")
+    @ApiOperation(value = "获取订单详细信息", notes = "获取订单详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
-        return success(erpOrdersService.selectErpOrdersById(id));
+        return success(requiresNotNull(erpOrdersService.selectErpOrdersById(id)));
     }
 
     /**
@@ -77,6 +96,7 @@ public class ErpOrdersController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:orders:add')")
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
+    @ApiOperation(value = "新增订单", notes = "新增订单")
     public AjaxResult add(@RequestBody ErpOrders erpOrders)
     {
         return toAjax(erpOrdersService.insertErpOrders(erpOrders));
@@ -88,6 +108,7 @@ public class ErpOrdersController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:orders:edit')")
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
+    @ApiOperation(value = "修改订单", notes = "修改订单")
     public AjaxResult edit(@RequestBody ErpOrders erpOrders)
     {
         return toAjax(erpOrdersService.updateErpOrders(erpOrders));
@@ -99,6 +120,7 @@ public class ErpOrdersController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:orders:remove')")
     @Log(title = "订单", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
+    @ApiOperation(value = "删除订单", notes = "删除订单")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
         return toAjax(erpOrdersService.deleteErpOrdersByIds(ids));
