@@ -1,8 +1,11 @@
 package com.ruoyi.web.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.web.domain.ErpDesignStyle;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -11,7 +14,8 @@ import java.util.List;
  * @author ruoyi
  * @date 2025-04-09
  */
-public interface ErpDesignStyleMapper 
+@Mapper
+public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
 {
     /**
      * 查询设计造型
@@ -59,5 +63,23 @@ public interface ErpDesignStyleMapper
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteErpDesignStyleByIds(Long[] ids);
+    int deleteErpDesignStyleByIds(Long[] ids);
+
+    Set<String> selectMouldNumberSet(Long id);
+
+    Set<String> selectLddNumberSet(Long id);
+
+    Set<String> selectMouldCategorySet(Long id);
+
+    Set<String> selectMouldIdSet(Long id);
+
+    Set<String> selectPictureUrlSet(Long id);
+
+    Set<String> selectColorSet(Long id);
+
+    Set<String> selectProductNameSet(Long id);
+
+    Set<String> selectMaterialSet(Long id);
+
+    int sumQuantityById(Long id);
 }

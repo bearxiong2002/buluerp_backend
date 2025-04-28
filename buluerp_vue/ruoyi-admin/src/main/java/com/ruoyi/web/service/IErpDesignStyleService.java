@@ -1,6 +1,9 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpDesignStyle;
+import com.ruoyi.web.request.AddDesignRequest;
+import com.ruoyi.web.request.LIstDesignRequest;
+import com.ruoyi.web.request.UpdateDesignRequest;
 
 import java.util.List;
 
@@ -24,26 +27,26 @@ public interface IErpDesignStyleService
     /**
      * 查询设计造型列表
      * 
-     * @param erpDesignStyle 设计造型
+     * @param lIstDesignRequest 设计造型
      * @return 设计造型集合
      */
-    public List<ErpDesignStyle> selectErpDesignStyleList(ErpDesignStyle erpDesignStyle);
+    public List<ErpDesignStyle> selectErpDesignStyleList(LIstDesignRequest lIstDesignRequest);
 
     /**
      * 新增设计造型
      * 
-     * @param erpDesignStyle 设计造型
+     * @param addDesignRequest 设计造型
      * @return 结果
      */
-    public int insertErpDesignStyle(ErpDesignStyle erpDesignStyle);
+    public int insertErpDesignStyle(AddDesignRequest addDesignRequest);
 
     /**
      * 修改设计造型
      * 
-     * @param erpDesignStyle 设计造型
+     * @param updateDesignRequest 设计造型
      * @return 结果
      */
-    public int updateErpDesignStyle(ErpDesignStyle erpDesignStyle);
+    public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest);
 
     /**
      * 批量删除设计造型

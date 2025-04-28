@@ -3,8 +3,15 @@ package com.ruoyi.web.controller.erp;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.web.domain.ErpDesignStyle;
+import com.ruoyi.web.request.AddDesignRequest;
+import com.ruoyi.web.request.LIstDesignRequest;
+import com.ruoyi.web.request.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,6 +38,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/system/style")
+@Api(value = "造型表相关")
 public class ErpDesignStyleController extends BaseController
 {
     @Autowired
@@ -39,24 +47,27 @@ public class ErpDesignStyleController extends BaseController
     /**
      * 查询设计造型列表
      */
-    @PreAuthorize("@ss.hasPermi('system:style:list')")
+    @ApiOperation(value = "获取造型表列表")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:list')")
     @GetMapping("/list")
-    public TableDataInfo list(ErpDesignStyle erpDesignStyle)
+    public TableDataInfo list(LIstDesignRequest lIstDesignRequest)
     {
         startPage();
-        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(erpDesignStyle);
+        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(lIstDesignRequest);
         return getDataTable(list);
     }
 
     /**
      * 导出设计造型列表
      */
-    @PreAuthorize("@ss.hasPermi('system:style:export')")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:export')")
     @Log(title = "设计造型", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ErpDesignStyle erpDesignStyle)
+    public void export(HttpServletResponse response, LIstDesignRequest lIstDesignRequest)
     {
-        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(erpDesignStyle);
+        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(lIstDesignRequest);
         ExcelUtil<ErpDesignStyle> util = new ExcelUtil<ErpDesignStyle>(ErpDesignStyle.class);
         util.exportExcel(response, list, "设计造型数据");
     }
@@ -64,7 +75,9 @@ public class ErpDesignStyleController extends BaseController
     /**
      * 获取设计造型详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:style:query')")
+    @ApiOperation(value = "获取造型表详细信息")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -74,29 +87,35 @@ public class ErpDesignStyleController extends BaseController
     /**
      * 新增设计造型
      */
-    @PreAuthorize("@ss.hasPermi('system:style:add')")
-    @Log(title = "设计造型", businessType = BusinessType.INSERT)
+    @ApiOperation(value = "新增造型表")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:add')")
+    @Log(title = "新增造型表", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody ErpDesignStyle erpDesignStyle)
+    public AjaxResult add(@RequestBody AddDesignRequest addDesignRequest)
     {
-        return toAjax(erpDesignStyleService.insertErpDesignStyle(erpDesignStyle));
+        return toAjax(erpDesignStyleService.insertErpDesignStyle(addDesignRequest));
     }
 
     /**
      * 修改设计造型
      */
-    @PreAuthorize("@ss.hasPermi('system:style:edit')")
-    @Log(title = "设计造型", businessType = BusinessType.UPDATE)
+    @ApiOperation(value = "修改造型表")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:edit')")
+    @Log(title = "修改造型", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody ErpDesignStyle erpDesignStyle)
+    public AjaxResult edit(@RequestBody UpdateDesignRequest updateDesignRequest)
     {
-        return toAjax(erpDesignStyleService.updateErpDesignStyle(erpDesignStyle));
+        return toAjax(erpDesignStyleService.updateErpDesignStyle(updateDesignRequest));
     }
 
     /**
      * 删除设计造型
      */
-    @PreAuthorize("@ss.hasPermi('system:style:remove')")
+    @ApiOperation(value = "删除造型表 /{ids}")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:remove')")
     @Log(title = "设计造型", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)

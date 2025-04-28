@@ -45,6 +45,60 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </select>
 
+    <select id="sumQuantityById" resultType="java.lang.Integer" parameterType="java.lang.Long">
+        SELECT SUM(quantity)
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectMouldNumberSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT mould_number
+        from buluerp.erp_design_style
+        where id = #{id}
+    </select>
+
+    <select id="selectMouldIdSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT mould_id
+        from buluerp.erp_design_style
+        where id = #{id}
+    </select>
+
+    <select id="selectLddNumberSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT ldd_number
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectMaterialSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT material
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectColorSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT color
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectProductNameSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT product_name
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectPictureUrlSet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT picture_url
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
+    <select id="selectMouldCategorySet" resultType="java.lang.String" parameterType="java.lang.Long">
+        SELECT DISTINCT mould_category
+        FROM buluerp.erp_design_style
+        WHERE id = #{id}
+    </select>
+
     <insert id="insertErpDesignStyle" parameterType="ErpDesignStyle" useGeneratedKeys="true" keyProperty="id">
         insert into erp_design_style
         <trim prefix="(" suffix=")" suffixOverrides=",">

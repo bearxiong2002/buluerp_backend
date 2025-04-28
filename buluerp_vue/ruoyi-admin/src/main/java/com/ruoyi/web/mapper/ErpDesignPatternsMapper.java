@@ -1,6 +1,8 @@
 package com.ruoyi.web.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.web.domain.ErpDesignPatterns;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -11,7 +13,8 @@ import java.util.List;
  * @author ruoyi
  * @date 2025-04-09
  */
-public interface ErpDesignPatternsMapper 
+@Mapper
+public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
 {
     /**
      * 查询【请填写功能名称】
