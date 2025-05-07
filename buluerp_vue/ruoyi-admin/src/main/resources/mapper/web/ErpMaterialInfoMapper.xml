@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.web.mapper.ErpMaterialInfoMapper">
+    <resultMap id="ErpMaterialInfoResult" type="ErpMaterialInfo">
+        <result property="id" column="id" />
+        <result property="creatTime" column="creat_time" />
+        <result property="updateTime" column="update_time" />
+        <result property="drawingReference" column="drawing_reference" />
+        <result property="mouldNumber" column="mould_number" />
+        <result property="specificationName" column="specification_name" />
+        <result property="cavityCount" column="cavity_count" />
+        <result property="materialType" column="material_type" />
+        <result property="standardCode" column="standard_code" />
+        <result property="singleWeight" column="single_weight" />
+        <result property="mouldStatus" column="mould_status" />
+        <result property="mouldManufacturer" column="mould_manufacturer" />
+        <result property="cycleTime" column="cycle_time" />
+        <result property="sampleLocation" column="sample_location" />
+        <result property="remarks" column="remarks" />
+        <result property="spareCode" column="spare_code" />
+    </resultMap>
+    <sql id="selectErpMaterialPurchase">
+        select id,creat_time,update_time,drawing_reference,mould_number,specification_name,cavity_count,material_type,standard_code,single_weight,mould_status,mould_manufacturer,cycle_time,sample_location,remarks,spare_code
+        from erp_material_purchase_info
+    </sql>
+    <insert id="insertErpMaterialInfo" useGeneratedKeys="true" keyProperty="id">
+        insert into erp_material_purchase_info
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            is_purchased,
+            <if test="creatTime != null">
+                creat_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="drawingReference != null">
+                drawing_reference,
+            </if>
+            <if test="mouldNumber != null">
+                mould_number,
+            </if>
+            <if test="specificationName != null">
+                specification_name,
+            </if>
+            <if test="cavityCount != null">
+                cavity_count,
+            </if>
+            <if test="materialType != null">
+                material_type,
+            </if>
+            <if test="standardCode != null">
+                standard_code,
+            </if>
+            <if test="singleWeight != null">
+                single_weight,
+            </if>
+            <if test="mouldStatus != null">
+                mould_status,
+            </if>
+            <if test="mouldManufacturer != null">
+                mould_manufacturer,
+            </if>
+            <if test="cycleTime != null">
+                cycle_time,
+            </if>
+            <if test="sampleLocation != null">
+                sample_location,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+            <if test="spareCode != null">
+                spare_code,
+            </if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            0,
+            <if test="creatTime != null">
+                #{creatTime},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime},
+            </if>
+            <if test="drawingReference != null">
+                #{drawingReference},
+            </if>
+            <if test="mouldNumber != null">
+                #{mouldNumber},
+            </if>
+            <if test="specificationName != null">
+                #{specificationName},
+            </if>
+            <if test="cavityCount != null">
+                #{cavityCount},
+            </if>
+            <if test="materialType != null">
+                #{materialType},
+            </if>
+            <if test="standardCode != null">
+                #{standardCode},
+            </if>
+            <if test="singleWeight != null">
+                #{singleWeight},
+            </if>
+            <if test="mouldStatus != null">
+                #{mouldStatus},
+            </if>
+            <if test="mouldManufacturer != null">
+                #{mouldManufacturer},
+            </if>
+            <if test="cycleTime != null">
+                #{cycleTime},
+            </if>
+            <if test="sampleLocation != null">
+                #{sampleLocation},
+            </if>
+            <if test="remarks != null">
+                #{remarks},
+            </if>
+            <if test="spareCode != null">
+                #{spareCode},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateErpMaterialInfo">
+        update erp_material_purchase_info
+        <set>
+            <if test="updateTime != null">
+                update_time = #{updateTime},
+            </if>
+            <if test="drawingReference != null">
+                drawing_reference = #{drawingReference},
+            </if>
+            <if test="mouldNumber != null">
+                mould_number = #{mouldNumber},
+            </if>
+            <if test="specificationName != null">
+                specification_name = #{specificationName},
+            </if>
+            <if test="cavityCount != null">
+                cavity_count = #{cavityCount},
+            </if>
+            <if test="materialType != null">
+                material_type = #{materialType},
+            </if>
+            <if test="standardCode != null">
+                standard_code = #{standardCode},
+            </if>
+            <if test="singleWeight != null">
+                single_weight = #{singleWeight},
+            </if>
+            <if test="mouldStatus != null">
+                mould_status = #{mouldStatus},
+            </if>
+            <if test="mouldManufacturer != null">
+                mould_manufacturer = #{mouldManufacturer},
+            </if>
+            <if test="cycleTime != null">
+                cycle_time = #{cycleTime},
+            </if>
+            <if test="sampleLocation != null">
+                sample_location = #{sampleLocation},
+            </if>
+            <if test="remark != null">
+                remark = #{remark},
+            </if>
+            <if test="spareCode != null">
+                spare_code = #{spareCode},
+            </if>
+        </set>
+        where id = #{id}
+    </update>
+    <delete id="deleteErpMaterialInfoById">
+        delete from erp_material_purchase_info where id = #{id} and is_purchased = 0
+    </delete>
+    <delete id="deleteErpMaterialInfoByIds">
+        delete from erp_material_purchase_info
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectErpMaterialInfoList" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialPurchase"/>
+        <where>
+            is_purchased = 0
+            <if test="id != null and id != ''">
+                and id = #{id}
+            </if>
+            <if test="creatTime != null and creatTime != ''">
+                and creat_time = #{creatTime}
+            </if>
+            <if test="updateTime != null and updateTime != ''">
+                and update_time = #{updateTime}
+            </if>
+            <if test="drawingReference != null and drawingReference != ''">
+                and drawing_reference = #{drawingReference}
+            </if>
+        </where>
+    </select>
+    <select id="selectErpMaterialInfoById" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialPurchase"/>
+        where id = #{id} and is_purchased = 0
+    </select>
+</mapper>
