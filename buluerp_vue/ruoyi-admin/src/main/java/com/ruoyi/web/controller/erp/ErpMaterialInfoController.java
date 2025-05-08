@@ -23,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-@RequestMapping("/material-info")
+@RequestMapping("/system/material-info")
 @Api(value = "物料信息相关")
 public class ErpMaterialInfoController extends BaseController {
     @Autowired

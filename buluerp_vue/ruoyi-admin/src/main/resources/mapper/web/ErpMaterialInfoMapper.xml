@@ -169,7 +169,7 @@
                 spare_code = #{spareCode},
             </if>
         </set>
-        where id = #{id}
+        where id = #{id} and is_purchased = 0
     </update>
     <delete id="deleteErpMaterialInfoById">
         delete from erp_material_purchase_info where id = #{id} and is_purchased = 0
@@ -180,26 +180,63 @@
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+        and is_purchased = 0
     </delete>
-    <select id="selectErpMaterialInfoList" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+    <select id="selectErpMaterialInfoList" resultMap="ErpMaterialInfoResult">
         <include refid="selectErpMaterialPurchase"/>
         <where>
             is_purchased = 0
-            <if test="id != null and id != ''">
+            <if test="id != null">
                 and id = #{id}
             </if>
-            <if test="creatTime != null and creatTime != ''">
+            <if test="creatTime != null">
                 and creat_time = #{creatTime}
             </if>
-            <if test="updateTime != null and updateTime != ''">
+            <if test="updateTime != null">
                 and update_time = #{updateTime}
             </if>
             <if test="drawingReference != null and drawingReference != ''">
-                and drawing_reference = #{drawingReference}
+                and drawing_reference like concat('%', #{drawingReference}, '%')
+            </if>
+            <if test="mouldNumber != null and mouldNumber != ''">
+                and mould_number like concat('%', #{mouldNumber}, '%')
+            </if>
+            <if test="specificationName != null and specificationName != ''">
+                and specification_name like concat('%', #{specificationName}, '%')
+            </if>
+            <if test="cavityCount != null">
+                and cavity_count = #{cavityCount}
+            </if>
+            <if test="materialType != null and materialType != ''">
+                and material_type like concat('%', #{materialType}, '%')
+            </if>
+            <if test="standardCode != null and standardCode != ''">
+                and standard_code like concat('%', #{standardCode}, '%')
+            </if>
+            <if test="singleWeight != null">
+                and single_weight = #{singleWeight}
+            </if>
+            <if test="mouldStatus != null and mouldStatus != ''">
+                and mould_status like concat('%', #{mouldStatus}, '%')
+            </if>
+            <if test="mouldManufacturer != null and mouldManufacturer != ''">
+                and mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
+            </if>
+            <if test="cycleTime != null">
+                and cycle_time = #{cycleTime}
+            </if>
+            <if test="sampleLocation != null and sampleLocation != ''">
+                and sample_location like concat('%', #{sampleLocation}, '%')
+            </if>
+            <if test="remarks != null and remarks != ''">
+                and remarks like concat('%', #{remarks}, '%')
+            </if>
+            <if test="spareCode != null and spareCode != ''">
+                and spare_code like concat('%', #{spareCode}, '%')
             </if>
         </where>
     </select>
-    <select id="selectErpMaterialInfoById" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+    <select id="selectErpMaterialInfoById" resultMap="ErpMaterialInfoResult">
         <include refid="selectErpMaterialPurchase"/>
         where id = #{id} and is_purchased = 0
     </select>
