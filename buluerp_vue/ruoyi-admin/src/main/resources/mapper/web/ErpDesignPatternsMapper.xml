@@ -60,9 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <update id="confirmErpDesignPatternsById" parameterType="Long">
-        update erp_design_patterns
-        set confirm = 1
-        where id = #{id}
+        update erp_design_patterns set confirm = 1 where id = #{id}
     </update>
 
     <update id="cancelConfirmById" parameterType="Long">

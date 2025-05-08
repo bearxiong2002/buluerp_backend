@@ -59,15 +59,16 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * 导出【请填写功能名称】列表
      */
+    @ApiOperation(value = "导出设计总表列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:export')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.EXPORT)
+    @Log(title = "导出", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, ListDesignPatternsRequest listDesignPatternsRequest)
     {
         List<ErpDesignPatterns> list = erpDesignPatternsService.selectErpDesignPatternsList(listDesignPatternsRequest);
         ExcelUtil<ErpDesignPatterns> util = new ExcelUtil<ErpDesignPatterns>(ErpDesignPatterns.class);
-        util.exportExcel(response, list, "【请填写功能名称】数据");
+        util.exportExcel(response, list, "设计总表数据");
     }
 
     /**

@@ -1,7 +1,9 @@
 package com.ruoyi.web.request.design;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 创建设计总表请求
@@ -10,56 +12,67 @@ import io.swagger.annotations.ApiModelProperty;
 @ApiModel(value = "新增造型表请求类")
 public class AddDesignRequest {
 
+    @Excel(name = "不同造型表的分组表示")
     @ApiModelProperty(dataType = "Long",value = "造型表分组编号",required = true)
-    private Long GroupId;
+    private Long groupId;
 
     /** 主设计编号 */
+    @Excel(name = "主设记编号")
     @ApiModelProperty(dataType = "Long",value = "主设计编号",required = true)
     private Long designPatternId;
 
     /** 模具编号，用于唯一标识模具 */
+    @Excel(name = "模具编号，用于唯一标识模具")
     @ApiModelProperty(dataType = "String",value = "模具编号",required = true)
     private String mouldNumber;
 
     /** LDD编号，与模具相关的编号 */
+    @Excel(name = "LDD编号，与模具相关的编号")
     @ApiModelProperty(dataType = "String",value = "LDD编号",required = true)
     private String lddNumber;
 
     /** 模具类别，如注塑模具、冲压模具等 */
+    @Excel(name = "模具类别，如注塑模具、冲压模具等")
     @ApiModelProperty(dataType = "String",value = "模具类别",required = true)
     private String mouldCategory;
 
     /** 模具ID，用于内部标识模具 */
+    @Excel(name = "模具ID，用于内部标识模具")
     @ApiModelProperty(dataType = "String",value = "模具id",required = true)
     private String mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @ApiModelProperty(dataType = "String",value = "模具图片的URL链接，用于存储模具外观图片 ")
-    private String pictureUrl;
+    @Excel(name = "模具图片")
+    @ApiModelProperty(dataType = "String",value = "模具图片 ")
+    private MultipartFile picture;
 
     /** 模具的颜色描述 */
+    @Excel(name = "模具的颜色描述")
     @ApiModelProperty(dataType = "String",value = "模具颜色描述")
     private String color;
 
     /** 模具生产的产品名称 */
+    @Excel(name = "模具生产的产品名称")
     @ApiModelProperty(dataType = "String",value = "模具生产的产品名称",required = true)
     private String productName;
 
     /** 模具的数量 */
+    @Excel(name = "模具的数量")
     @ApiModelProperty(dataType = "Long",value = "模具数量",required = true)
     private Long quantity;
 
     /** 模具的用料，如钢材、铝合金等 */
+    @Excel(name = "模具的用料，如钢材、铝合金等")
     @ApiModelProperty(dataType = "String",value = "模具的材料",required = true)
     private String material;
 
 
     public Long getGroupId() {
-        return GroupId;
+        return groupId;
     }
 
     public void setGroupId(Long groupId) {
-        GroupId = groupId;
+        this.groupId = groupId;
     }
 
     public Long getDesignPatternId() {
@@ -102,12 +115,12 @@ public class AddDesignRequest {
         this.mouldId = mouldId;
     }
 
-    public String getPictureUrl() {
-        return pictureUrl;
+    public MultipartFile getPicture() {
+        return picture;
     }
 
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
     }
 
     public String getColor() {

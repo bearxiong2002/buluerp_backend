@@ -5,6 +5,7 @@ import com.ruoyi.web.request.design.AddDesignRequest;
 import com.ruoyi.web.request.design.LIstDesignRequest;
 import com.ruoyi.web.request.design.UpdateDesignRequest;
 
+import java.io.IOException;
 import java.util.List;
 
 
@@ -38,7 +39,7 @@ public interface IErpDesignStyleService
      * @param addDesignRequest 设计造型
      * @return 结果
      */
-    int insertErpDesignStyle(AddDesignRequest addDesignRequest);
+    int insertErpDesignStyle(AddDesignRequest addDesignRequest) throws IOException;
 
     /**
      * 修改设计造型
@@ -46,7 +47,7 @@ public interface IErpDesignStyleService
      * @param updateDesignRequest 设计造型
      * @return 结果
      */
-    int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest);
+    int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException;
 
     /**
      * 批量删除设计造型

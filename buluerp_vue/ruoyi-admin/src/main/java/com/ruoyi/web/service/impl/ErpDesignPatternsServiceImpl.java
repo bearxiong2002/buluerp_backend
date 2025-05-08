@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
+import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
@@ -32,6 +33,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
     @Autowired
     private ErpDesignStyleMapper erpDesignStyleMapper;
+
+    @Autowired
+    private ErpProductsMapper erpProductsMapper;
 
     /**
      * 查询总表详情
@@ -127,10 +131,14 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     }
 
     public int confirmErpDesignPatternsById(Long id){
+        Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
+        erpProductsMapper.updateStatusById(proId,1L);
         return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
     }
 
     public int cancelConfirmById(Long id){
+        Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
+        erpProductsMapper.updateStatusById(proId,0L);
         return erpDesignPatternsMapper.cancelConfirmById(id);
     }
 
