@@ -2,6 +2,7 @@ package com.ruoyi.web.request.design;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 创建设计总表请求
@@ -37,8 +38,8 @@ public class UpdateDesignRequest {
     private String mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @ApiModelProperty(dataType = "String",value = "模具图片的URL链接，用于存储模具外观图片 ")
-    private String pictureUrl;
+    @ApiModelProperty(dataType = "String",value = "模具图片 ")
+    private MultipartFile picture;
 
     /** 模具的颜色描述 */
     @ApiModelProperty(dataType = "String",value = "模具颜色描述")
@@ -104,12 +105,12 @@ public class UpdateDesignRequest {
         this.mouldId = mouldId;
     }
 
-    public String getPictureUrl() {
-        return pictureUrl;
+    public MultipartFile getPicture() {
+        return picture;
     }
 
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
     }
 
     public String getColor() {

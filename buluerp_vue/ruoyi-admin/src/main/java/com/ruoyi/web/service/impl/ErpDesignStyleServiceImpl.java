@@ -1,7 +1,9 @@
 package com.ruoyi.web.service.impl;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.request.design.AddDesignRequest;
@@ -57,11 +59,11 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
-    public int insertErpDesignStyle(AddDesignRequest addDesignRequest)
-    {
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getDesignPatternId(),addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), addDesignRequest.getPictureUrl(), addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
+    public int insertErpDesignStyle(AddDesignRequest addDesignRequest) throws IOException {
 
-        erpDesignStyleMapper.insertErpDesignStyle(erpDesignStyle);
+        String url= FileUploadUtils.upload(addDesignRequest.getPicture());
+
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getDesignPatternId(),addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
         return erpDesignStyleMapper.insertErpDesignStyle(erpDesignStyle);
     }
@@ -73,9 +75,9 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
-    public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest)
-    {
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), updateDesignRequest.getPictureUrl(), updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
+    public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
+        String url= FileUploadUtils.upload(updateDesignRequest.getPicture());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateErpDesignStyle(erpDesignStyle);
     }
 

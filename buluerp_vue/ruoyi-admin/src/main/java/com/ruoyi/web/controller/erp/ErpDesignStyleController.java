@@ -1,10 +1,12 @@
 package com.ruoyi.web.controller.erp;
 
+import java.io.IOException;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.web.domain.ErpDesignStyle;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.request.design.AddDesignRequest;
 import com.ruoyi.web.request.design.LIstDesignRequest;
 import com.ruoyi.web.request.design.UpdateDesignRequest;
@@ -12,14 +14,8 @@ import com.ruoyi.web.service.IErpDesignStyleService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -27,6 +23,7 @@ import com.ruoyi.common.enums.BusinessType;
 
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.common.core.page.TableDataInfo;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 设计造型Controller
@@ -59,6 +56,7 @@ public class ErpDesignStyleController extends BaseController
     /**
      * 导出设计造型列表
      */
+    @ApiOperation(value = "导出造型表列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:style:export')")
     @Log(title = "设计造型", businessType = BusinessType.EXPORT)
@@ -90,9 +88,23 @@ public class ErpDesignStyleController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:style:add')")
     @Log(title = "新增造型表", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody AddDesignRequest addDesignRequest)
-    {
+    public AjaxResult add(@RequestBody AddDesignRequest addDesignRequest) throws IOException {
         return toAjax(erpDesignStyleService.insertErpDesignStyle(addDesignRequest));
+    }
+
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:style:import')")
+    @PostMapping("/import")
+    @ApiOperation(value = "导入造型表")
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
+        ExcelUtil<AddDesignRequest> util = new ExcelUtil<AddDesignRequest>(AddDesignRequest.class);
+        List<AddDesignRequest> addDesignRequestList = util.importExcel(file.getInputStream());
+        int count = 0;
+        for (AddDesignRequest addDesignRequest : addDesignRequestList) {
+            erpDesignStyleService.insertErpDesignStyle(addDesignRequest);
+            count++;
+        }
+        return success(count);
     }
 
     /**
@@ -103,8 +115,7 @@ public class ErpDesignStyleController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:style:edit')")
     @Log(title = "修改造型", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody UpdateDesignRequest updateDesignRequest)
-    {
+    public AjaxResult edit(@RequestBody UpdateDesignRequest updateDesignRequest) throws IOException {
         return toAjax(erpDesignStyleService.updateErpDesignStyle(updateDesignRequest));
     }
 
