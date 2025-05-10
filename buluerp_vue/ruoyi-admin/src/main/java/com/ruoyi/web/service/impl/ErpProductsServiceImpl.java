@@ -9,7 +9,9 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
@@ -67,6 +69,21 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
 
     @Override
     public int deleteErpProductsByIds(List<Integer> ids) {
+        List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
+        for(ErpProducts erpProducts:erpProductsList){
+            String url=erpProducts.getPictureUrl();
+            File file=new File(url);
+            if (file.exists() && file.isFile()) {
+                boolean deleted = file.delete();
+                if (deleted) {
+                    System.out.println(url+"File deleted successfully.");
+                } else {
+                    System.out.println(url+"Failed to delete file.");
+                }
+            } else {
+                System.out.println(url+"File does not exist.");
+            }
+        }
         return erpProductsMapper.deleteBatchIds(ids);
     }
 }
