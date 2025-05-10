@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ruoyi.web.mapper.ErpPurchaseCollectionMapper">
+    <resultMap id="ErpPurchaseCollectionResult" type="ErpPurchaseCollection">
+        <result property="id" column="id"/>
+        <result property="orderCode" column="order_code"/>
+        <result property="creationTime" column="creation_time"/>
+        <result property="operator" column="operator"/>
+        <result property="productNumber" column="product_number"/>
+        <result property="orderTime" column="order_time"/>
+        <result property="pictureUrl" column="picture_url"/>
+        <result property="purchaseCode" column="purchase_code"/>
+        <result property="mouldNumber" column="mould_number"/>
+        <result property="specification" column="specification"/>
+        <result property="purchaseQuantity" column="purchase_quantity"/>
+        <result property="colorCode" column="color_code"/>
+        <result property="materialType" column="material_type"/>
+        <result property="singleWeight" column="single_weight"/>
+        <result property="purchaseWeight" column="purchase_weight"/>
+        <result property="deliveryTime" column="delivery_time"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="supplier" column="supplier"/>
+        <result property="remarks" column="remarks"/>
+    </resultMap>
+    <sql id="selectErpPurchaseCollection">
+        select id,order_code,creation_time,operator,product_number,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks
+        from erp_purchase_collection
+    </sql>
+    <insert id="insertErpPurchaseCollection" useGeneratedKeys="true" keyProperty="id">
+        insert into erp_purchase_collection
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                order_code,
+            </if>
+            <if test="creationTime != null">
+                creation_time,
+            </if>
+            <if test="operator != null">
+                operator,
+            </if>
+            <if test="productNumber != null">
+                product_number,
+            </if>
+            <if test="orderTime != null">
+                order_time,
+            </if>
+            <if test="pictureUrl != null">
+                picture_url,
+            </if>
+            <if test="purchaseCode != null">
+                purchase_code,
+            </if>
+            <if test="mouldNumber != null">
+                mould_number,
+            </if>
+            <if test="specification != null">
+                specification,
+            </if>
+            <if test="purchaseQuantity != null">
+                purchase_quantity,
+            </if>
+            <if test="colorCode != null">
+                color_code,
+            </if>
+            <if test="materialType != null">
+                material_type,
+            </if>
+            <if test="singleWeight != null">
+                single_weight,
+            </if>
+            <if test="purchaseWeight != null">
+                purchase_weight,
+            </if>
+            <if test="deliveryTime != null">
+                delivery_time,
+            </if>
+            <if test="deliveryDate != null">
+                delivery_date,
+            </if>
+            <if test="supplier != null">
+                supplier,
+            </if>
+            <if test="remarks != null">
+                remarks,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="orderCode != null">
+                #{orderCode},
+            </if>
+            <if test="creationTime != null">
+                #{creationTime},
+            </if>
+            <if test="operator != null">
+                #{operator},
+            </if>
+            <if test="productNumber != null">
+                #{productNumber},
+            </if>
+            <if test="orderTime != null">
+                #{orderTime},
+            </if>
+            <if test="pictureUrl != null">
+                #{pictureUrl},
+            </if>
+            <if test="purchaseCode != null">
+                #{purchaseCode},
+            </if>
+            <if test="mouldNumber != null">
+                #{mouldNumber},
+            </if>
+            <if test="specification != null">
+                #{specification},
+            </if>
+            <if test="purchaseQuantity != null">
+                #{purchaseQuantity},
+            </if>
+            <if test="colorCode != null">
+                #{colorCode},
+            </if>
+            <if test="materialType != null">
+                #{materialType},
+            </if>
+            <if test="singleWeight != null">
+                #{singleWeight},
+            </if>
+            <if test="purchaseWeight != null">
+                #{purchaseWeight},
+            </if>
+            <if test="deliveryTime != null">
+                #{deliveryTime},
+            </if>
+            <if test="deliveryDate != null">
+                #{deliveryDate},
+            </if>
+            <if test="supplier != null">
+                #{supplier},
+            </if>
+            <if test="remarks != null">
+                #{remarks},
+            </if>
+        </trim>
+    </insert>
+    <update id="updateErpPurchaseCollection">
+        update erp_purchase_collection
+        <trim prefix="set" suffixOverrides=",">
+            <if test="orderCode != null">
+                order_code = #{orderCode},
+            </if>
+            <if test="creationTime != null">
+                creation_time = #{creationTime},
+            </if>
+            <if test="operator != null">
+                operator = #{operator},
+            </if>
+            <if test="productNumber != null">
+                product_number = #{productNumber},
+            </if>
+            <if test="orderTime != null">
+                order_time = #{orderTime},
+            </if>
+            <if test="pictureUrl != null">
+                picture_url = #{pictureUrl},
+            </if>
+            <if test="purchaseCode != null">
+                purchase_code = #{purchaseCode},
+            </if>
+            <if test="mouldNumber != null">
+                mould_number = #{mouldNumber},
+            </if>
+            <if test="specification != null">
+                specification = #{specification},
+            </if>
+            <if test="purchaseQuantity != null">
+                purchase_quantity = #{purchaseQuantity},
+            </if>
+            <if test="colorCode != null">
+                color_code = #{colorCode},
+            </if>
+            <if test="materialType != null">
+                material_type = #{materialType},
+            </if>
+            <if test="singleWeight != null">
+                single_weight = #{singleWeight},
+            </if>
+            <if test="purchaseWeight != null">
+                purchase_weight = #{purchaseWeight},
+            </if>
+            <if test="deliveryTime != null">
+                delivery_time = #{deliveryTime},
+            </if>
+            <if test="deliveryDate != null">
+                delivery_date = #{deliveryDate},
+            </if>
+            <if test="supplier != null">
+                supplier = #{supplier},
+            </if>
+            <if test="remarks != null">
+                remarks = #{remarks},
+            </if>
+        </trim>
+        where id = #{id}
+    </update>
+    <delete id="deleteErpPurchaseCollectionById">
+        delete from erp_purchase_collection where id = #{id}
+    </delete>
+    <delete id="deleteErpPurchaseCollectionByIds">
+        delete from erp_purchase_collection where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+    <select id="selectErpPurchaseCollectionById" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        where id = #{id}
+    </select>
+    <select id="selectErpPurchaseCollectionList" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        <where>
+            <if test="orderCode != null and orderCode != ''">
+                and order_code like concat('%', #{orderCode}, '%')
+            </if>
+            <if test="creationTime != null">
+                and creation_time = #{creationTime}
+            </if>
+            <if test="operator != null and operator != ''">
+                and operator like concat('%', #{operator}, '%')
+            </if>
+            <if test="productNumber != null and productNumber != ''">
+                and product_number like concat('%', #{productNumber}, '%')
+            </if>
+            <if test="orderTime != null">
+                and order_time = #{orderTime}
+            </if>
+            <if test="pictureUrl != null and pictureUrl != ''">
+                and picture_url like concat('%', #{pictureUrl}, '%')
+            </if>
+            <if test="purchaseCode != null and purchaseCode != ''">
+                and purchase_code like concat('%', #{purchaseCode}, '%')
+            </if>
+            <if test="mouldNumber != null and mouldNumber != ''">
+                and mould_number like concat('%', #{mouldNumber}, '%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and specification like concat('%', #{specification}, '%')
+            </if>
+            <if test="purchaseQuantity != null">
+                and purchase_quantity = #{purchaseQuantity}
+            </if>
+            <if test="colorCode != null and colorCode != ''">
+                and color_code like concat('%', #{colorCode}, '%')
+            </if>
+            <if test="materialType != null and materialType != ''">
+                and material_type like concat('%', #{materialType}, '%')
+            </if>
+            <if test="singleWeight != null">
+                and single_weight = #{singleWeight}
+            </if>
+            <if test="purchaseWeight != null">
+                and purchase_weight = #{purchaseWeight}
+            </if>
+            <if test="deliveryTime != null">
+                and delivery_time = #{deliveryTime}
+            </if>
+            <if test="deliveryDate != null">
+                and delivery_date = #{deliveryDate}
+            </if>
+            <if test="supplier != null and supplier != ''">
+                and supplier like concat('%', #{supplier}, '%')
+            </if>
+            <if test="remarks != null and remarks != ''">
+                and remarks like concat('%', #{remarks}, '%')
+            </if>
+        </where>
+    </select>
+</mapper>
