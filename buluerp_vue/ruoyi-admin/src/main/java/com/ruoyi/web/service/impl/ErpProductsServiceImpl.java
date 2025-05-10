@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
@@ -22,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -59,6 +62,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         ErpProducts erpProducts = new ErpProducts();
         erpProducts.setId(updateProductRequest.getId());
         if(updateProductRequest.getPicture()!=null){
+            //删除原先的图片
+            String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
+            url1=parseActualPath(url1);
+            FileUtils.deleteFile(url1);
+            //保存后来的图片
             String url=FileUploadUtils.upload(updateProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
         }
@@ -72,18 +80,25 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){
             String url=erpProducts.getPictureUrl();
-            File file=new File(url);
-            if (file.exists() && file.isFile()) {
-                boolean deleted = file.delete();
-                if (deleted) {
-                    System.out.println(url+"File deleted successfully.");
-                } else {
-                    System.out.println(url+"Failed to delete file.");
-                }
-            } else {
-                System.out.println(url+"File does not exist.");
-            }
+            url=parseActualPath(url);
+            FileUtils.deleteFile(url);
         }
         return erpProductsMapper.deleteBatchIds(ids);
+    }
+
+    public static String parseActualPath(String url) {
+        // 1. 验证URL是否以资源前缀开头
+        if (!url.startsWith(Constants.RESOURCE_PREFIX)) {
+            throw new IllegalArgumentException("文件URL必须以 " + Constants.RESOURCE_PREFIX + " 开头");
+        }
+
+        // 2. 移除资源前缀（保留后续路径部分）
+        String relativePath = url.substring(Constants.RESOURCE_PREFIX.length());
+
+        // 3. 拼接实际存储路径
+        return Paths.get(
+                RuoYiConfig.getProfile(), // 基础路径（如 D:/ruoyi/uploadPath）
+                relativePath.split("/")   // 拆分路径部分（如 ["", "2025", "05", "10", "xxx.txt"]）
+        ).toString();
     }
 }
