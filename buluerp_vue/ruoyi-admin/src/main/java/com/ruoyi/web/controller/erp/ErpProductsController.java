@@ -13,6 +13,7 @@ import com.ruoyi.web.service.IErpProductsService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
@@ -58,16 +59,16 @@ public class ErpProductsController extends BaseController {
     @ApiOperation(value = "新增产品")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:add')")
-    @PostMapping
-    public AjaxResult add(@RequestBody AddProductRequest addProductRequest) throws IOException {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AjaxResult add(@ModelAttribute AddProductRequest addProductRequest) throws IOException {
         return toAjax(erpProductsService.insertErpProducts(addProductRequest));
     }
 
     @ApiOperation(value = "修改产品")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:edit')")
-    @PutMapping
-    public AjaxResult edit(@RequestBody UpdateProductRequest updateProductRequest) throws IOException {
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AjaxResult edit(@ModelAttribute UpdateProductRequest updateProductRequest) throws IOException {
         return toAjax(erpProductsService.updateErpProducts(updateProductRequest));
     }
 

@@ -19,14 +19,17 @@ public class UpdatePurchaseOrderRequest extends BaseEntity {
     @ApiModelProperty(value = "订单金额",required = false)
     private Double amount;
 
-    @ApiModelProperty(value = "发票",dataType = "File",required = false)
-    private List<MultipartFile> invoice;
+    @ApiModelProperty(
+            value = "发票文件(支持多个)",
+            dataType = "__file"
+    )
+    private MultipartFile[] invoice;
 
-    public List<MultipartFile> getInvoice() {
+    public MultipartFile[] getInvoice() {
         return invoice;
     }
 
-    public void setInvoice(List<MultipartFile> invoice) {
+    public void setInvoice(MultipartFile[] invoice) {
         this.invoice = invoice;
     }
 

@@ -16,8 +16,11 @@ public class AddPurchaseOrderRequest extends BaseEntity {
     @ApiModelProperty(value = "订单金额",dataType = "int",required = true)
     private Double amount;
 
-    @ApiModelProperty(value = "发票",dataType = "File",required = false)
-    private List<MultipartFile> invoice;
+    @ApiModelProperty(
+            value = "发票文件(支持多个)",
+            dataType = "__file"
+    )
+    private MultipartFile[] invoice;
 
     // Getters and Setters
     public Integer getPurchaseId() {
@@ -36,11 +39,11 @@ public class AddPurchaseOrderRequest extends BaseEntity {
         this.amount = amount;
     }
 
-    public List<MultipartFile> getInvoice() {
+    public MultipartFile[] getInvoice() {
         return invoice;
     }
 
-    public void setInvoice(List<MultipartFile> invoice) {
+    public void setInvoice(MultipartFile[] invoice) {
         this.invoice = invoice;
     }
 }
