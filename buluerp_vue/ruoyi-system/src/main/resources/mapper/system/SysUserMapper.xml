@@ -43,7 +43,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<result property="createBy" column="create_by"/>
 		<result property="createTime" column="create_time"/>
 		<result property="remark" column="remark"/>
-		<result property="roleNames" column="role_names" typeHandler="com.ruoyi.common.core.domain.handler.StringToArrayTypeHandler"/>
+		<result property="roleIds" column="role_ids"
+				typeHandler="com.ruoyi.common.core.domain.handler.LongToArrayTypeHandler"/>
+		<result property="roleNames" column="role_names"
+				typeHandler="com.ruoyi.common.core.domain.handler.StringToArrayTypeHandler"/>
 		<association property="dept"    javaType="SysDept"         resultMap="deptResult" />
 	</resultMap>
 	
@@ -180,7 +183,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		u.remark,
 		d.dept_name,
 		d.leader,
-		GROUP_CONCAT(r.role_name) AS role_names
+		GROUP_CONCAT(r.role_name) AS role_names,
+		GROUP_CONCAT(r.role_id) AS role_ids
 		FROM
 		sys_user u
 		LEFT JOIN
