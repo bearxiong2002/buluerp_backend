@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.core.domain.entity.SysUserVo;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -69,6 +70,18 @@ public class SysUserController extends BaseController
     {
         startPage();
         List<SysUser> list = userService.selectUserList(user);
+        return getDataTable(list);
+    }
+
+    /**
+     * 获取用户列表.同时获取角色信息
+     */
+    @PreAuthorize("@ss.hasPermi('system:user:list')")
+    @GetMapping("/urlist")
+    @ApiOperation("获取用户并附带所有角色的名字列表,如需分页，传pageSize和pageNum")
+    public TableDataInfo userAndRoleList(SysUser user){
+        startPage();
+        List<SysUserVo> list = userService.selectUserAndRoleList(user);
         return getDataTable(list);
     }
 
