@@ -82,6 +82,16 @@ public class SysUserVo extends BaseEntity
     /** 角色组 */
     private String[] roleNames;
 
+    public Long[] getRoleIds() {
+        return roleIds;
+    }
+
+    public void setRoleIds(Long[] roleIds) {
+        this.roleIds = roleIds;
+    }
+
+    private Long[] roleIds;
+
 
 
     public SysUserVo()
