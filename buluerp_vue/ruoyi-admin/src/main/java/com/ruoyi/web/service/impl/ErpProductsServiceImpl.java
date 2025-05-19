@@ -11,6 +11,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
+import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
@@ -34,10 +35,18 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     @Autowired
     private ErpProductsMapper erpProductsMapper;
 
+    @Autowired
+    private SysUserMapper sysUserMapper;
+
     @Override
     public List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest) {
         LambdaQueryWrapper<ErpProducts> wrapper= Wrappers.lambdaQuery();
+        if(listProductRequest.getId()!=null) wrapper.eq(ErpProducts::getId,listProductRequest.getId());
         if(!StringUtils.isBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
+        if(!StringUtils.isBlank(listProductRequest.getCreateUsername())) wrapper.like(ErpProducts::getCreateUsername,listProductRequest.getCreateUsername());
+        if(listProductRequest.getTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getTimeTo());
+        if(listProductRequest.getTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getTimeFrom());
+        if(listProductRequest.getDesign_status()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesign_status());
         return erpProductsMapper.selectList(wrapper);
     }
 
@@ -50,6 +59,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
 
         String url=FileUploadUtils.upload(addProductRequest.getPicture());
         ErpProducts erpProducts = new ErpProducts();
+        erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
         erpProducts.setName(addProductRequest.getName());
         erpProducts.setPictureUrl(url);
         erpProducts.setCreateTime(LocalDateTime.now());
