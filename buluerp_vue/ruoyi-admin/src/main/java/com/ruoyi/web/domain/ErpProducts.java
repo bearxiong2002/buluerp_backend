@@ -35,6 +35,17 @@ public class ErpProducts {
     @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
     private Integer designStatus;
 
+    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    private String createUsername;
+
+    public String getCreateUsername() {
+        return createUsername;
+    }
+
+    public void setCreateUsername(String createUsername) {
+        this.createUsername = createUsername;
+    }
+
     public Integer getDesignStatus() {
         return designStatus;
     }
