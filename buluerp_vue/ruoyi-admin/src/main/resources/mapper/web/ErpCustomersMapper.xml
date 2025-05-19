@@ -9,10 +9,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="creatTime"    column="creat_time"    />
         <result property="updateTime"    column="update_time"    />
         <result property="name"    column="name"    />
+        <result property="contact" column="contact" />
+        <result property="email" column="email" />
+        <result property="remarks" column="remarks" />
     </resultMap>
 
     <sql id="selectErpCustomersVo">
-        select id, creat_time, update_time, name from erp_customers
+        select id, creat_time, update_time, name, contact, email, remarks from erp_customers
     </sql>
 
     <select id="selectErpCustomersList" parameterType="ErpCustomers" resultMap="ErpCustomersResult">
@@ -20,6 +23,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>  
             <if test="creatTime != null "> and creat_time = #{creatTime}</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+            <if test="contact != null  and contact != ''"> and contact like concat('%', #{contact}, '%')</if>
+            <if test="email != null  and email != ''"> and email like concat('%', #{email}, '%')</if>
+            <if test="remarks != null  and remarks != ''"> and remarks like concat('%', #{remarks}, '%')</if>
         </where>
     </select>
     
@@ -35,12 +41,18 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="creatTime != null">creat_time,</if>
             <if test="updateTime != null">update_time,</if>
             <if test="name != null">name,</if>
+            <if test="contact != null">contact,</if>
+            <if test="email != null">email,</if>
+            <if test="remarks != null">remarks,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="id != null">#{id},</if>
             <if test="creatTime != null">#{creatTime},</if>
             <if test="updateTime != null">#{updateTime},</if>
             <if test="name != null">#{name},</if>
+            <if test="contact != null">#{contact},</if>
+            <if test="email != null">#{email},</if>
+            <if test="remarks != null">#{remarks},</if>
          </trim>
     </insert>
 
@@ -49,6 +61,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="name != null">name = #{name},</if>
+            <if test="contact != null">contact = #{contact},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="remarks != null">remarks = #{remarks},</if>
         </trim>
         where id = #{id}
     </update>

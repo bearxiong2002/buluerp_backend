@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.erp;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpCustomersService;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +41,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 查询客户列表
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:list')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:list')")
+    @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "查询客户列表", notes = "查询客户列表")
     public TableDataInfo list(ErpCustomers erpCustomers)
@@ -53,7 +55,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 导出客户列表
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:export')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:export')")
+    @Anonymous
     @Log(title = "客户", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ApiOperation(value = "导出客户列表", notes = "导出客户列表")
@@ -67,7 +70,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 获取客户详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:query')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:query')")
+    @Anonymous
     @GetMapping(value = "/{id}")
     @ApiOperation(value = "获取客户详细信息", notes = "获取客户详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -78,7 +82,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 新增客户
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:add')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:add')")
+    @Anonymous
     @Log(title = "客户", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增客户", notes = "新增客户")
@@ -90,7 +95,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 修改客户
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:edit')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:edit')")
+    @Anonymous
     @Log(title = "客户", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改客户", notes = "修改客户")
@@ -102,7 +108,8 @@ public class ErpCustomersController extends BaseController
     /**
      * 删除客户
      */
-    @PreAuthorize("@ss.hasPermi('system:customers:remove')")
+    // @PreAuthorize("@ss.hasPermi('system:customers:remove')")
+    @Anonymous
     @Log(title = "客户", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     @ApiOperation(value = "删除客户", notes = "删除客户")
