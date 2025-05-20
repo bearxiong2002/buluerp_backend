@@ -34,6 +34,8 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      */
     List<ErpDesignPatterns> selectErpDesignPatternsList(ListDesignPatternsRequest listDesignPatternsRequest);
 
+    List<ErpDesignPatterns> selectErpDesignPatternsListByIds(Long[] ids);
+
     /**
      * 新增【请填写功能名称】
      * 

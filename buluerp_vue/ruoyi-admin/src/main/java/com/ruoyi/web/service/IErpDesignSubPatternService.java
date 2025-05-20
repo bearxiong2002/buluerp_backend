@@ -29,6 +29,8 @@ public interface IErpDesignSubPatternService
      */
     public List<ErpDesignSubPattern> selectErpDesignSubPatternList(ErpDesignSubPattern erpDesignSubPattern);
 
+    List<ErpDesignSubPattern> selectErpDesignSubPatternListByIds(Long[] ids);
+
     /**
      * 新增模具信息，用于存储模具的基本信息和相关数据
      * 

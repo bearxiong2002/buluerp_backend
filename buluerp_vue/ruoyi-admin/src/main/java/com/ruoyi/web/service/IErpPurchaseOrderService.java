@@ -33,6 +33,8 @@ public interface IErpPurchaseOrderService extends IService<ErpPurchaseOrder> {
      */
     List<PurchaseOrderResult> selectErpPurchaseOrderList(ListPurchaseOrderRequest listPurchaseOrderRequest);
 
+    List<PurchaseOrderResult> selectErpPurchaseOrderListByIds(Integer[] ids);
+
     /**
      * 新增采购订单
      *

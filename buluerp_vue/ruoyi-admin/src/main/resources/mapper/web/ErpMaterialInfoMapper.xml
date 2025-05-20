@@ -240,4 +240,11 @@
         <include refid="selectErpMaterialPurchase"/>
         where id = #{id} and is_purchased = 0
     </select>
+    <select id="selectErpMaterialInfoListByIds" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialPurchase"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

@@ -48,6 +48,11 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
         return erpCustomersMapper.selectErpCustomersList(erpCustomers);
     }
 
+    @Override
+    public List<ErpCustomers> selectErpCustomersListByIds(Long[] ids) {
+        return erpCustomersMapper.selectErpCustomersListByIds(ids);
+    }
+
     /**
      * 新增【请填写功能名称】
      * 

@@ -27,6 +27,8 @@ public interface IErpPurchaseInfoService
      */
     public List<ErpPurchaseInfo> selectErpPurchaseInfoList(ErpPurchaseInfo erpPurchaseInfo);
 
+    List<ErpPurchaseInfo> selectErpPurchaseInfoListByIds(Integer[] ids);
+
     /**
      * 新增外购资料，用于存储外购物料的基本信息和相关数据
      * 

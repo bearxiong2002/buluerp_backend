@@ -45,6 +45,11 @@ public class ErpPurchaseInfoServiceImpl implements IErpPurchaseInfoService
         return erpPurchaseInfoMapper.selectErpPurchaseInfoList(erpPurchaseInfo);
     }
 
+    @Override
+    public List<ErpPurchaseInfo> selectErpPurchaseInfoListByIds(Integer[] ids) {
+        return erpPurchaseInfoMapper.selectErpPurchaseInfoListByIds(ids);
+    }
+
     /**
      * 新增外购资料，用于存储外购物料的基本信息和相关数据
      * 

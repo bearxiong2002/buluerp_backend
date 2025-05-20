@@ -29,6 +29,8 @@ public interface IErpManufacturerService {
      */
     public List<ErpManufacturer> selectErpManufacturerList(ListManufacturerRequest listDesignPatternsRequest);
 
+    List<ErpManufacturer> selectErpManufacturerListByIds(Long[] ids);
+
     /**
      * 新增【请填写功能名称】
      *

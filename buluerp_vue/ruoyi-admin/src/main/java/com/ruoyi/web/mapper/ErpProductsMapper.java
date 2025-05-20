@@ -18,4 +18,6 @@ import java.util.List;
 public interface ErpProductsMapper extends BaseMapper<ErpProducts>
 {
     int updateStatusById(Long id,Long design_status);
+
+    List<ErpProducts> selectErpProductsListByIds(Integer[] ids);
 }

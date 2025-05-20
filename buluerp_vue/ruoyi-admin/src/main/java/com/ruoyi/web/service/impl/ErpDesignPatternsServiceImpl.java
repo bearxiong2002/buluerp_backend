@@ -73,6 +73,11 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.selectErpDesignPatternsList(erpDesignPatterns);
     }
 
+    @Override
+    public List<ErpDesignPatterns> selectErpDesignPatternsListByIds(Long[] ids) {
+        return erpDesignPatternsMapper.selectErpDesignPatternsListByIds(ids);
+    }
+
     /**
      * 新增【请填写功能名称】
      * 

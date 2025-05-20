@@ -21,6 +21,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
+    public List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids) {
+        return erpMaterialInfoMapper.selectErpMaterialInfoListByIds(ids);
+    }
+
+    @Override
     public ErpMaterialInfo selectErpMaterialInfoById(Long id) {
         return erpMaterialInfoMapper.selectErpMaterialInfoById(id);
     }

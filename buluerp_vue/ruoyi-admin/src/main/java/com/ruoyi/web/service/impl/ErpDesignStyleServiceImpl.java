@@ -52,6 +52,11 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         return erpDesignStyleMapper.selectErpDesignStyleList(erpDesignStyle);
     }
 
+    @Override
+    public List<ErpDesignStyle> selectErpDesignStyleListByIds(Long[] ids) {
+        return erpDesignStyleMapper.selectErpDesignStyleListByIds(ids);
+    }
+
     /**
      * 新增设计造型
      * 

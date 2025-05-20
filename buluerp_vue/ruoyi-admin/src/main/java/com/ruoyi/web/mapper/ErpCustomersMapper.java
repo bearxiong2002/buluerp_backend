@@ -21,9 +21,11 @@ public interface ErpCustomersMapper
      */
     public ErpCustomers selectErpCustomersById(Long id);
 
+    List<ErpCustomers> selectErpCustomersListByIds(Long[] ids);
+
     /**
      * 查询【请填写功能名称】列表
-     * 
+     *
      * @param erpCustomers 【请填写功能名称】
      * @return 【请填写功能名称】集合
      */
@@ -31,7 +33,7 @@ public interface ErpCustomersMapper
 
     /**
      * 新增【请填写功能名称】
-     * 
+     *
      * @param erpCustomers 【请填写功能名称】
      * @return 结果
      */
@@ -39,7 +41,7 @@ public interface ErpCustomersMapper
 
     /**
      * 修改【请填写功能名称】
-     * 
+     *
      * @param erpCustomers 【请填写功能名称】
      * @return 结果
      */
@@ -47,7 +49,7 @@ public interface ErpCustomersMapper
 
     /**
      * 删除【请填写功能名称】
-     * 
+     *
      * @param id 【请填写功能名称】主键
      * @return 结果
      */
@@ -55,7 +57,7 @@ public interface ErpCustomersMapper
 
     /**
      * 批量删除【请填写功能名称】
-     * 
+     *
      * @param ids 需要删除的数据主键集合
      * @return 结果
      */

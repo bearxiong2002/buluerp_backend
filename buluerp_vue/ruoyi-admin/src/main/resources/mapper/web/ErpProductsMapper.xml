@@ -6,4 +6,25 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateStatusById">
         update erp_products set design_status=#{design_status} where id=#{id}
     </update>
+    <!--CREATE TABLE `erp_products` (-->
+    <!--`id` int NOT NULL AUTO_INCREMENT,-->
+    <!--`create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',-->
+    <!--`update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',-->
+    <!--`name` varchar(255) COLLATE utf8mb3_bin NOT NULL COMMENT '产品名',-->
+    <!--`picture_url` varchar(255) COLLATE utf8mb3_bin DEFAULT NULL COMMENT '图片url',-->
+    <!--`design_status` int DEFAULT NULL COMMENT '产品设计完成状态 0未完成 1已完成',-->
+    <!--`create_username` varchar(30) COLLATE utf8mb3_bin DEFAULT NULL,-->
+    <!--PRIMARY KEY (`id`) USING BTREE-->
+    <!--) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin-->
+
+    <sql id="selectErpProducts">
+        select id,name,picture_url,design_status,create_time,update_time from erp_products
+    </sql>
+    <select id="selectErpProductsListByIds" resultType="com.ruoyi.web.domain.ErpProducts">
+        <include refid="selectErpProducts"/>
+        where id in
+        <foreach item="item" collection="array" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+    </select>
 </mapper>

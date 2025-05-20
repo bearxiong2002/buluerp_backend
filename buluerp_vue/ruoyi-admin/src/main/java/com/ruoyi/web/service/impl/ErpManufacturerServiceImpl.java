@@ -67,6 +67,11 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
         return erpManufacturerMapper.selectErpManufacturerList(erpManufacturer);
     }
 
+    @Override
+    public List<ErpManufacturer> selectErpManufacturerListByIds(Long[] ids) {
+        return erpManufacturerMapper.selectErpManufacturerListByIds(ids);
+    }
+
     public ErpManufacturer selectErpManufacturerById(Long id){
         return erpManufacturerMapper.selectById(id);
     }

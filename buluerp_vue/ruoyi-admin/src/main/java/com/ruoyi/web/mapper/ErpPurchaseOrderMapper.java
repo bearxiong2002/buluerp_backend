@@ -18,4 +18,5 @@ import java.util.List;
 public interface ErpPurchaseOrderMapper extends BaseMapper<ErpPurchaseOrder>
 {
     List<String> selectUrl(Integer order_id);
+    List<ErpPurchaseOrder> selectErpPurchaseOrderListByIds(Integer[] ids);
 }

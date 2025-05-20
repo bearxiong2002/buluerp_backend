@@ -12,4 +12,5 @@ public interface ErpManufacturerMapper extends BaseMapper<ErpManufacturer> {
     int deleteManufacturerByIds(Long[] ids);
 
     List<ErpManufacturer> selectErpManufacturerList(ErpManufacturer erpManufacturer);
+    List<ErpManufacturer> selectErpManufacturerListByIds(Long[] ids);
 }

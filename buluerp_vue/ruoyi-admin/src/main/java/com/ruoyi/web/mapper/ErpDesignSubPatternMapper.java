@@ -21,6 +21,8 @@ public interface ErpDesignSubPatternMapper
      */
     public ErpDesignSubPattern selectErpDesignSubPatternById(Long id);
 
+    public List<ErpDesignSubPattern> selectErpDesignSubPatternListByIds(Long[] ids);
+
     /**
      * 查询模具信息，用于存储模具的基本信息和相关数据列表
      * 

@@ -41,8 +41,8 @@ public class ErpProductsController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ListProductRequest listProductRequest) {
-        List<ErpProducts> list = erpProductsService.selectErpProductsList(listProductRequest);
+    public void export(HttpServletResponse response, Integer[] ids) {
+        List<ErpProducts> list = erpProductsService.selectErpProductsListByIds(ids);
         ExcelUtil<ErpProducts> util = new ExcelUtil<ErpProducts>(ErpProducts.class);
         util.exportExcel(response, list, "产品数据");
     }

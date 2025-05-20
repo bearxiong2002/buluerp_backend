@@ -26,9 +26,10 @@ public class ErpCustomers extends BaseEntity
     private Date creatTime;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "姓名", readConverterExp = "$column.readConverterExp()")
     private String name;
 
+    @Excel(name = "联系方式")
     private String contact;
 
     public String getContact() {
@@ -55,8 +56,10 @@ public class ErpCustomers extends BaseEntity
         this.remarks = remarks;
     }
 
+    @Excel(name = "邮箱")
     private String email;
 
+    @Excel(name = "备注")
     private String remarks;
 
     public void setId(Long id) 

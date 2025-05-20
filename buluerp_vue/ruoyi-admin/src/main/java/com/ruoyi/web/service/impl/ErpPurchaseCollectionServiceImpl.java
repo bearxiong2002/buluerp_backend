@@ -11,7 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class IErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionService {
+public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionService {
     @Autowired
     private ErpPurchaseCollectionMapper erpPurchaseCollectionMapper;
 
@@ -58,5 +58,10 @@ public class IErpPurchaseCollectionServiceImpl implements IErpPurchaseCollection
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection) {
         return erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(erpPurchaseCollection);
+    }
+
+    @Override
+    public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids) {
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids);
     }
 }
