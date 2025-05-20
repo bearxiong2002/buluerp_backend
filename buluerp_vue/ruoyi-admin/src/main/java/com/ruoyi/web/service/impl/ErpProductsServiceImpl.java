@@ -14,6 +14,7 @@ import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
@@ -22,6 +23,7 @@ import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +38,9 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     private ErpProductsMapper erpProductsMapper;
 
     @Autowired
+    private ErpPackagingListMapper erpPackagingListMapper;
+
+    @Autowired
     private SysUserMapper sysUserMapper;
 
     @Override
@@ -48,6 +53,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getTimeFrom());
         if(listProductRequest.getDesign_status()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesign_status());
         return erpProductsMapper.selectList(wrapper);
+    }
+
+    @Override
+    public List<ErpProducts> selectErpProductsListByIds(Integer[] ids) {
+        return erpProductsMapper.selectErpProductsListByIds(ids);
     }
 
     @Override
@@ -86,12 +96,14 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
+    @Transactional
     public int deleteErpProductsByIds(List<Integer> ids) {
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){
             String url=erpProducts.getPictureUrl();
             url=parseActualPath(url);
             FileUtils.deleteFile(url);
+            erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
         }
         return erpProductsMapper.deleteBatchIds(ids);
     }

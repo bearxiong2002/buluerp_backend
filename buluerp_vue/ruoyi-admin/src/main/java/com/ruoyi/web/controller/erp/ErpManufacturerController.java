@@ -50,9 +50,9 @@ public class ErpManufacturerController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:export')")
     @Log(title = "【请填写功能名称】", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ListManufacturerRequest listManufacturerRequest)
+    public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerList(listManufacturerRequest);
+        List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerListByIds(ids);
         ExcelUtil<ErpManufacturer> util = new ExcelUtil<ErpManufacturer>(ErpManufacturer.class);
         util.exportExcel(response, list, "【请填写功能名称】数据");
     }

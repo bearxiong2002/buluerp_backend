@@ -46,6 +46,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         return erpOrdersMapper.selectErpOrdersList(erpOrders);
     }
 
+    @Override
+    public List<ErpOrders> selectErpOrdersListByIds(Long[] ids) {
+        return erpOrdersMapper.selectErpOrdersListByIds(ids);
+    }
+
     /**
      * 新增订单
      * 

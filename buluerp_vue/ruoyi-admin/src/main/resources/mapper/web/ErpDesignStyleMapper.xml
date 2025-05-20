@@ -98,6 +98,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         FROM buluerp.erp_design_style
         WHERE id = #{id}
     </select>
+    <select id="selectErpDesignStyleListByIds" resultType="com.ruoyi.web.domain.ErpDesignStyle">
+        <include refid="selectErpDesignStyleVo" />
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <insert id="insertErpDesignStyle" parameterType="ErpDesignStyle" useGeneratedKeys="true" keyProperty="id">
         insert into erp_design_style

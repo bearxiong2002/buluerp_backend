@@ -273,4 +273,11 @@
             </if>
         </where>
     </select>
+    <select id="selectErpPurchaseCollectionListByIds" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

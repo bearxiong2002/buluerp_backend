@@ -29,6 +29,8 @@ public interface ErpOrdersMapper
      */
     public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders);
 
+    List<ErpOrders> selectErpOrdersListByIds(Long[] ids);
+
     /**
      * 新增订单
      * 

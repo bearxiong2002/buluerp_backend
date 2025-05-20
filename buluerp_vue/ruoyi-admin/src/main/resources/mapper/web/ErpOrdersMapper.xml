@@ -48,6 +48,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpOrdersVo"/>
         where id = #{id}
     </select>
+    <select id="selectErpOrdersListByIds" resultType="com.ruoyi.web.domain.ErpOrders">
+        <include refid="selectErpOrdersVo"/>
+        where id in
+        <foreach item="item" collection="array" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
+    </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders

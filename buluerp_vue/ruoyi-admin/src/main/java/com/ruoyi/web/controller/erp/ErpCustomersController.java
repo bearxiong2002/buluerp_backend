@@ -60,9 +60,9 @@ public class ErpCustomersController extends BaseController
     @Log(title = "客户", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ApiOperation(value = "导出客户列表", notes = "导出客户列表")
-    public void export(HttpServletResponse response, ErpCustomers erpCustomers)
+    public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpCustomers> list = erpCustomersService.selectErpCustomersList(erpCustomers);
+        List<ErpCustomers> list = erpCustomersService.selectErpCustomersListByIds(ids);
         ExcelUtil<ErpCustomers> util = new ExcelUtil<ErpCustomers>(ErpCustomers.class);
         util.exportExcel(response, list, "客户数据");
     }

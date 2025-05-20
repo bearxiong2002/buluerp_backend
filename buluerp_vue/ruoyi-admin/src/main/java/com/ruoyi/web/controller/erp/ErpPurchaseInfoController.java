@@ -52,9 +52,9 @@ public class ErpPurchaseInfoController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:info:export')")
     @Log(title = "外购资料，用于存储外购物料的基本信息和相关数据", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ErpPurchaseInfo erpPurchaseInfo)
+    public void export(HttpServletResponse response, Integer[] ids)
     {
-        List<ErpPurchaseInfo> list = erpPurchaseInfoService.selectErpPurchaseInfoList(erpPurchaseInfo);
+        List<ErpPurchaseInfo> list = erpPurchaseInfoService.selectErpPurchaseInfoListByIds(ids);
         ExcelUtil<ErpPurchaseInfo> util = new ExcelUtil<ErpPurchaseInfo>(ErpPurchaseInfo.class);
         util.exportExcel(response, list, "外购资料，用于存储外购物料的基本信息和相关数据数据");
     }

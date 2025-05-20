@@ -54,9 +54,9 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ApiOperation(value = "导出订单列表", notes = "导出订单列表")
-    public void export(HttpServletResponse response, ErpOrders erpOrders)
+    public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpOrders> list = erpOrdersService.selectErpOrdersList(erpOrders);
+        List<ErpOrders> list = erpOrdersService.selectErpOrdersListByIds(ids);
         ExcelUtil<ErpOrders> util = new ExcelUtil<ErpOrders>(ErpOrders.class);
         util.exportExcel(response, list, "订单数据");
     }

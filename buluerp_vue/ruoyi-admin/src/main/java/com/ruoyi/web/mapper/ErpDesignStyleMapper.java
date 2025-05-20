@@ -25,6 +25,8 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
      */
     ErpDesignStyle selectErpDesignStyleById(Long id);
 
+    List<ErpDesignStyle> selectErpDesignStyleListByIds(Long[] ids);
+
     /**
      * 查询设计造型列表
      * 

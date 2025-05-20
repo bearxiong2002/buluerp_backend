@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface IErpMaterialInfoService {
     List<ErpMaterialInfo> selectErpMaterialInfoList(ErpMaterialInfo erpMaterialInfo);
+    List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids);
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
     int insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo);
     int insertErpMaterialInfos(List<ErpMaterialInfo> erpMaterialInfos);

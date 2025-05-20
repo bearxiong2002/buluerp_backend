@@ -46,6 +46,11 @@ public class ErpDesignSubPatternServiceImpl implements IErpDesignSubPatternServi
         return erpDesignSubPatternMapper.selectErpDesignSubPatternList(erpDesignSubPattern);
     }
 
+    @Override
+    public List<ErpDesignSubPattern> selectErpDesignSubPatternListByIds(Long[] ids) {
+        return erpDesignSubPatternMapper.selectErpDesignSubPatternListByIds(ids);
+    }
+
     /**
      * 新增模具信息，用于存储模具的基本信息和相关数据
      * 

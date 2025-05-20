@@ -72,6 +72,20 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     }
 
     @Override
+    public List<PurchaseOrderResult> selectErpPurchaseOrderListByIds(Integer[] ids) {
+        List<PurchaseOrderResult> list=new ArrayList<>();
+        for(ErpPurchaseOrder erpPurchaseOrder:erpPurchaseOrderMapper.selectErpPurchaseOrderListByIds(ids)){
+            PurchaseOrderResult purchaseOrderResult =new PurchaseOrderResult();
+            purchaseOrderResult.setId(erpPurchaseOrder.getId());
+            purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
+            purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
+            purchaseOrderResult.setInvoiceUrl(erpPurchaseOrderMapper.selectUrl(erpPurchaseOrder.getPurchaseId()));
+            list.add(purchaseOrderResult);
+        }
+        return list;
+    }
+
+    @Override
     public int insertErpPurchaseOrder(AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();

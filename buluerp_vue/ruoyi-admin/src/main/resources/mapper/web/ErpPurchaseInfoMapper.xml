@@ -36,8 +36,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpPurchaseInfoVo"/>
         where purchase_code = #{purchaseCode}
     </select>
+    <select id="selectErpPurchaseInfoListByIds" resultType="com.ruoyi.system.domain.ErpPurchaseInfo">
+        <include refid="selectErpPurchaseInfoVo"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
-    <insert id="insertErpPurchaseInfo" parameterType="ErpPurchaseInfo">
+    <insert id="insertErpPurchaseInfo" parameterType="com.ruoyi.system.domain.ErpPurchaseInfo">
         insert into erp_purchase_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="purchaseCode != null">purchase_code,</if>

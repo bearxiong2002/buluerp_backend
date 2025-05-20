@@ -40,8 +40,8 @@ public class ErpPurchaseCollectionController extends BaseController {
     @Anonymous
     @PostMapping("/export")
     @ApiOperation(value = "导出采购计划列表", notes = "导出采购计划列表")
-    public void export(HttpServletResponse response, ErpPurchaseCollection erpPurchaseCollection) {
-        List<ErpPurchaseCollection> list = erpPurchaseCollectionService.selectErpPurchaseCollectionList(erpPurchaseCollection);
+    public void export(HttpServletResponse response, Long[] ids) {
+        List<ErpPurchaseCollection> list = erpPurchaseCollectionService.selectErpPurchaseCollectionListByIds(ids);
         ExcelUtil<ErpPurchaseCollection> util = new ExcelUtil<>(ErpPurchaseCollection.class);
         util.exportExcel(response, list, "采购计划数据");
     }

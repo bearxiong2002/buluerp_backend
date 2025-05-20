@@ -44,5 +44,12 @@
             </if>
         </where>
     </select>
+    <select id="selectErpManufacturerListByIds" resultType="com.ruoyi.web.domain.ErpManufacturer">
+        <include refid="selectErpManufacturerVo"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 
 </mapper>

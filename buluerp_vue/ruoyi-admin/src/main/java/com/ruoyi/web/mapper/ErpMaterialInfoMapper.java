@@ -11,6 +11,8 @@ public interface ErpMaterialInfoMapper {
 
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
 
+    List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids);
+
     int insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo);
 
     int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo);

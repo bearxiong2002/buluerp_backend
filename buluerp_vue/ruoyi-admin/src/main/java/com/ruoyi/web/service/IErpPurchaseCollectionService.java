@@ -12,4 +12,5 @@ public interface IErpPurchaseCollectionService {
     int insertErpPurchaseCollections(List<ErpPurchaseCollection> erpPurchaseCollectionList);
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
 }

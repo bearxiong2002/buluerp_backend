@@ -31,6 +31,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpDesignPatternsVo"/>
         where id = #{id}
     </select>
+    <select id="selectErpDesignPatternsListByIds" resultType="com.ruoyi.web.domain.ErpDesignPatterns">
+        <include refid="selectErpDesignPatternsVo"/>
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </select>
 
     <insert id="insertErpDesignPatterns" parameterType="ErpDesignPatterns" useGeneratedKeys="true" keyProperty="id">
         insert into erp_design_patterns

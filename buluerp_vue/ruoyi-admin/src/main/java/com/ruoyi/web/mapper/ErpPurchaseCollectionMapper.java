@@ -13,4 +13,5 @@ public interface ErpPurchaseCollectionMapper {
     int deleteErpPurchaseCollectionByIds(Long[] ids);
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
 }

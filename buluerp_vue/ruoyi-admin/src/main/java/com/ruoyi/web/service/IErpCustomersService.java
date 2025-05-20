@@ -29,6 +29,8 @@ public interface IErpCustomersService
      */
     public List<ErpCustomers> selectErpCustomersList(ErpCustomers erpCustomers);
 
+    List<ErpCustomers> selectErpCustomersListByIds(Long[] ids);
+
     /**
      * 新增【请填写功能名称】
      * 

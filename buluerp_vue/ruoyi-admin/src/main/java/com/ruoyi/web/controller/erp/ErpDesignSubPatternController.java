@@ -54,9 +54,9 @@ public class ErpDesignSubPatternController extends BaseController
     @PreAuthorize("@ss.hasPermi('system:pattern:export')")
     @Log(title = "模具信息，用于存储模具的基本信息和相关数据", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, ErpDesignSubPattern erpDesignSubPattern)
+    public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpDesignSubPattern> list = erpDesignSubPatternService.selectErpDesignSubPatternList(erpDesignSubPattern);
+        List<ErpDesignSubPattern> list = erpDesignSubPatternService.selectErpDesignSubPatternListByIds(ids);
         ExcelUtil<ErpDesignSubPattern> util = new ExcelUtil<ErpDesignSubPattern>(ErpDesignSubPattern.class);
         util.exportExcel(response, list, "模具信息，用于存储模具的基本信息和相关数据数据");
     }

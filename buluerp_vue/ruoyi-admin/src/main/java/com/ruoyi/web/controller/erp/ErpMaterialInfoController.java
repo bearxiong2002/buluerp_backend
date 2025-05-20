@@ -47,9 +47,9 @@ public class ErpMaterialInfoController extends BaseController {
     @Log(title = "物料资料", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ApiOperation(value = "导出物料资料列表", notes = "导出物料资料列表")
-    public void export(HttpServletResponse response, ErpMaterialInfo erpMaterialInfo)
+    public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpMaterialInfo> list = erpMaterialInfoService.selectErpMaterialInfoList(erpMaterialInfo);
+        List<ErpMaterialInfo> list = erpMaterialInfoService.selectErpMaterialInfoListByIds(ids);
         ExcelUtil<ErpMaterialInfo> util = new ExcelUtil<>(ErpMaterialInfo.class);
         util.exportExcel(response, list, "物料资料数据");
     }
