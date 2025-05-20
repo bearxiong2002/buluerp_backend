@@ -12,6 +12,7 @@ import com.ruoyi.web.service.IErpPurchaseOrderService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
@@ -56,16 +57,16 @@ public class ErpPurchaseOrderController extends BaseController {
     @ApiOperation(value = "新增采购订单")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:add')")
-    @PostMapping
-    public AjaxResult add(@RequestBody AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AjaxResult add(@ModelAttribute AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
         return toAjax(erpPurchaseOrderService.insertErpPurchaseOrder(addPurchaseOrderRequest));
     }
 
     @ApiOperation(value = "修改采购订单")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:edit')")
-    @PutMapping
-    public AjaxResult edit(@RequestBody UpdatePurchaseOrderRequest updatePurchaseOrderRequest) throws IOException {
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AjaxResult edit(@ModelAttribute UpdatePurchaseOrderRequest updatePurchaseOrderRequest) throws IOException {
         return toAjax(erpPurchaseOrderService.updateErpPurchaseOrder(updatePurchaseOrderRequest));
     }
 

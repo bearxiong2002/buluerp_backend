@@ -14,5 +14,5 @@ public interface ErpPackagingListMapper {
     int updateErpPackagingList(ErpPackagingList erpPackagingList);
     int deleteErpPackagingListById(Integer id);
     int deleteErpPackagingListByIds(Integer[] ids);
-    int deleteErpPackagingListByProductId(Integer productId);
+    int deleteErpPackagingListByProductId(Long productId);
 }

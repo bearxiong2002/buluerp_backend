@@ -26,6 +26,29 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <association property="dept"    javaType="SysDept"         resultMap="deptResult" />
         <collection  property="roles"   javaType="java.util.List"  resultMap="RoleResult" />
     </resultMap>
+
+	<resultMap id="SysUserRoleResult" type="SysUserVo">
+		<id property="userId" column="user_id"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="nickName" column="nick_name"/>
+		<result property="userName" column="user_name"/>
+		<result property="email" column="email"/>
+		<result property="avatar" column="avatar"/>
+		<result property="phonenumber" column="phonenumber"/>
+		<result property="sex" column="sex"/>
+		<result property="status" column="status"/>
+		<result property="delFlag" column="del_flag"/>
+		<result property="loginIp" column="login_ip"/>
+		<result property="loginDate" column="login_date"/>
+		<result property="createBy" column="create_by"/>
+		<result property="createTime" column="create_time"/>
+		<result property="remark" column="remark"/>
+		<result property="roleIds" column="role_ids"
+				typeHandler="com.ruoyi.common.core.domain.handler.LongToArrayTypeHandler"/>
+		<result property="roleNames" column="role_names"
+				typeHandler="com.ruoyi.common.core.domain.handler.StringToArrayTypeHandler"/>
+		<association property="dept"    javaType="SysDept"         resultMap="deptResult" />
+	</resultMap>
 	
     <resultMap id="deptResult" type="SysDept">
         <id     property="deptId"    column="dept_id"     />
@@ -141,7 +164,65 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 	<select id="checkEmailUnique" parameterType="String" resultMap="SysUserResult">
 		select user_id, email from sys_user where email = #{email} and del_flag = '0' limit 1
 	</select>
-	
+	<select id="selectUserAndRoleList" resultMap="SysUserRoleResult">
+		SELECT
+		u.user_id,
+		u.dept_id,
+		u.nick_name,
+		u.user_name,
+		u.email,
+		u.avatar,
+		u.phonenumber,
+		u.sex,
+		u.status,
+		u.del_flag,
+		u.login_ip,
+		u.login_date,
+		u.create_by,
+		u.create_time,
+		u.remark,
+		d.dept_name,
+		d.leader,
+		GROUP_CONCAT(r.role_name) AS role_names,
+		GROUP_CONCAT(r.role_id) AS role_ids
+		FROM
+		sys_user u
+		LEFT JOIN
+		sys_dept d ON u.dept_id = d.dept_id
+		LEFT JOIN
+		sys_user_role ur ON u.user_id = ur.user_id
+		LEFT JOIN
+		sys_role r ON ur.role_id = r.role_id
+		WHERE
+		u.del_flag = '0'
+		<if test="userId != null and userId != 0">
+			AND u.user_id = #{userId}
+		</if>
+		<if test="userName != null and userName != ''">
+			AND u.user_name LIKE CONCAT('%', #{userName}, '%')
+		</if>
+		<if test="status != null and status != ''">
+			AND u.status = #{status}
+		</if>
+		<if test="phonenumber != null and phonenumber != ''">
+			AND u.phonenumber LIKE CONCAT('%', #{phonenumber}, '%')
+		</if>
+		<if test="params.beginTime != null and params.beginTime != ''">
+			AND DATE_FORMAT(u.create_time,'%Y%m%d') &gt;= DATE_FORMAT(#{params.beginTime},'%Y%m%d')
+		</if>
+		<if test="params.endTime != null and params.endTime != ''">
+			AND DATE_FORMAT(u.create_time,'%Y%m%d') &lt;= DATE_FORMAT(#{params.endTime},'%Y%m%d')
+		</if>
+		<if test="deptId != null and deptId != 0">
+			AND (u.dept_id = #{deptId} OR u.dept_id IN (SELECT t.dept_id FROM sys_dept t WHERE FIND_IN_SET(#{deptId}, ancestors)))
+		</if>
+		<!-- 数据范围过滤 -->
+		${params.dataScope}
+		GROUP BY
+		u.user_id
+	</select>
+
+
 	<insert id="insertUser" parameterType="SysUser" useGeneratedKeys="true" keyProperty="userId">
  		insert into sys_user(
  			<if test="userId != null and userId != 0">user_id,</if>
