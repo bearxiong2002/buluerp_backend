@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 @ApiModel(value = "新增造型表请求类")
 public class AddDesignRequest {
 
-    @Excel(name = "不同造型表的分组表示")
+    @Excel(name = "造型表的分组")
     @ApiModelProperty(dataType = "Long",value = "造型表分组编号",required = true)
     private Long groupId;
 
@@ -22,22 +22,22 @@ public class AddDesignRequest {
     private Long designPatternId;
 
     /** 模具编号，用于唯一标识模具 */
-    @Excel(name = "模具编号，用于唯一标识模具")
+    @Excel(name = "模具编号")
     @ApiModelProperty(dataType = "String",value = "模具编号",required = true)
     private String mouldNumber;
 
     /** LDD编号，与模具相关的编号 */
-    @Excel(name = "LDD编号，与模具相关的编号")
+    @Excel(name = "LDD编号")
     @ApiModelProperty(dataType = "String",value = "LDD编号",required = true)
     private String lddNumber;
 
     /** 模具类别，如注塑模具、冲压模具等 */
-    @Excel(name = "模具类别，如注塑模具、冲压模具等")
+    @Excel(name = "模具类别")
     @ApiModelProperty(dataType = "String",value = "模具类别",required = true)
     private String mouldCategory;
 
     /** 模具ID，用于内部标识模具 */
-    @Excel(name = "模具ID，用于内部标识模具")
+    @Excel(name = "模具ID")
     @ApiModelProperty(dataType = "String",value = "模具id",required = true)
     private String mouldId;
 
@@ -57,12 +57,12 @@ public class AddDesignRequest {
     private String productName;
 
     /** 模具的数量 */
-    @Excel(name = "模具的数量")
+    @Excel(name = "模具数量")
     @ApiModelProperty(dataType = "Long",value = "模具数量",required = true)
     private Long quantity;
 
     /** 模具的用料，如钢材、铝合金等 */
-    @Excel(name = "模具的用料，如钢材、铝合金等")
+    @Excel(name = "模具用料")
     @ApiModelProperty(dataType = "String",value = "模具的材料",required = true)
     private String material;
 

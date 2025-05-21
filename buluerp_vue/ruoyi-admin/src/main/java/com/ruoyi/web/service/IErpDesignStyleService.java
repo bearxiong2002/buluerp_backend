@@ -2,7 +2,7 @@ package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignRequest;
-import com.ruoyi.web.request.design.LIstDesignRequest;
+import com.ruoyi.web.request.design.ListDesignRequest;
 import com.ruoyi.web.request.design.UpdateDesignRequest;
 
 import java.io.IOException;
@@ -31,7 +31,7 @@ public interface IErpDesignStyleService
      * @param lIstDesignRequest 设计造型
      * @return 设计造型集合
      */
-    List<ErpDesignStyle> selectErpDesignStyleList(LIstDesignRequest lIstDesignRequest);
+    List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest lIstDesignRequest);
 
     List<ErpDesignStyle> selectErpDesignStyleListByIds(Long[] ids);
 

@@ -10,16 +10,11 @@ import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -45,14 +40,30 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * 查询设计总表列表
      */
-    @ApiOperation(value = "获得设计总表列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:list')")
+    @ApiOperation(value = "获得设计总表列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "productId", value = "产品编码", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "createUserId", value = "创建用户ID", dataType = "integer", paramType = "query"),
+            @ApiImplicitParam(name = "orderId", value = "订单ID", dataType = "integer", paramType = "query"),
+            @ApiImplicitParam(name = "confirm", value = "PMC确认状态(0未确认/1已确认)", dataType = "integer", paramType = "query")
+    })
     @GetMapping("/list")
-    public TableDataInfo list(ListDesignPatternsRequest listDesignPatternsRequest)
-    {
+    public TableDataInfo list(
+            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) Long createUserId,
+            @RequestParam(required = false) Long orderId,
+            @RequestParam(required = false) Long confirm) {
+
+        ListDesignPatternsRequest request = new ListDesignPatternsRequest();
+        request.setProductId(productId);
+        request.setCreateUserId(createUserId);
+        request.setOrderId(orderId);
+        request.setConfirm(confirm);
+
         startPage();
-        List<ErpDesignPatterns> list = erpDesignPatternsService.selectErpDesignPatternsList(listDesignPatternsRequest);
+        List<ErpDesignPatterns> list = erpDesignPatternsService.selectErpDesignPatternsList(request);
         return getDataTable(list);
     }
 
