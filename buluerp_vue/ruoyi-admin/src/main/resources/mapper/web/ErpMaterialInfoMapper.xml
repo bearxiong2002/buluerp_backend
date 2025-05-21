@@ -190,7 +190,7 @@
                 and id = #{id}
             </if>
             <if test="creatTime != null">
-                and creat_time = #{creatTime}
+                and DATE(creat_time) = DATE(#{creatTime})
             </if>
             <if test="updateTime != null">
                 and update_time = #{updateTime}

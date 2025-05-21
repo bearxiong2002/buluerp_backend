@@ -21,7 +21,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectErpCustomersList" parameterType="ErpCustomers" resultMap="ErpCustomersResult">
         <include refid="selectErpCustomersVo"/>
         <where>  
-            <if test="creatTime != null "> and creat_time = #{creatTime}</if>
+            <if test="creatTime != null "> and DATE(creat_time) = DATE(#{creatTime})</if>
             <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
             <if test="contact != null  and contact != ''"> and contact like concat('%', #{contact}, '%')</if>
             <if test="email != null  and email != ''"> and email like concat('%', #{email}, '%')</if>
