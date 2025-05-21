@@ -1,28 +1,64 @@
 package com.ruoyi.web.domain;
 
+import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
 import java.math.BigDecimal;
 import java.util.Date;
 
 public class ErpPackagingList extends BaseEntity {
+    @Excel(name = "序号")
     private Integer id;
+
+    @Excel(name = "订单号")
     private String orderCode;
+
+    @Excel(name = "创建时间")
     private Date creationTime;
+
+    @Excel(name = "操作人")
     private String operator;
+
+    @Excel(name = "产品编号")
     private String productNumber;
+
+    @Excel(name = "产品中文名称")
     private String productNameCn;
+
+    @Excel(name = "分包表编号")
     private String packagingListNumber;
+
+    @Excel(name = "发布日期")
     private Date releaseDate;
+
+    @Excel(name = "配件种类")
     private String accessoryType;
+
+    @Excel(name = "配件总数")
     private Integer accessoryTotal;
+
+    @Excel(name = "是否是说明书", readConverterExp = "true=是,false=否")
     private Boolean isManual;
+
+    @Excel(name = "是否是人仔", readConverterExp = "true=是,false=否")
     private Boolean isMinifigure;
+
+    @Excel(name = "是否是起件器", readConverterExp = "true=是,false=否")
     private Boolean isTool;
+
+    @Excel(name = "生产线")
     private String productionLine;
+
+    @Excel(name = "本袋重量")
     private Double bagWeight;
+
+    @Excel(name = "本袋规格")
     private String bagSpecification;
+
+    @Excel(name = "本包配件")
     private String packageAccessories;
+
+    @Excel(name = "本包数量")
     private Integer packageQuantity;
 
     public String getProductNumber() {
