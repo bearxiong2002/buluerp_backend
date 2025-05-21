@@ -33,7 +33,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="outerId != null "> and outer_id = #{outerId}</if>
             <if test="operatorId != null "> and operator_id = #{operatorId}</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
-            <if test="deliveryDeadline != null "> and delivery_deadline = #{deliveryDeadline}</if>
+            <if test="deliveryDeadline != null "> and DATE(delivery_deadline) = DATE(#{deliveryDeadline})</if>
             <if test="deliveryTime != null "> and delivery_time = #{deliveryTime}</if>
             <if test="status != null "> and status = #{status}</if>
             <if test="customerId != null "> and customer_id = #{customerId}</if>

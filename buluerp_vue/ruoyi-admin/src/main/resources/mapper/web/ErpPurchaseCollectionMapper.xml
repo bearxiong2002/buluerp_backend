@@ -221,7 +221,7 @@
                 and order_code like concat('%', #{orderCode}, '%')
             </if>
             <if test="creationTime != null">
-                and creation_time = #{creationTime}
+                and DATE(creation_time) = DATE(#{creationTime})
             </if>
             <if test="operator != null and operator != ''">
                 and operator like concat('%', #{operator}, '%')
@@ -260,10 +260,10 @@
                 and purchase_weight = #{purchaseWeight}
             </if>
             <if test="deliveryTime != null">
-                and delivery_time = #{deliveryTime}
+                and DATE(delivery_time) = DATE(#{deliveryTime})
             </if>
             <if test="deliveryDate != null">
-                and delivery_date = #{deliveryDate}
+                and DATE(delivery_date) = DATE(#{deliveryDate})
             </if>
             <if test="supplier != null and supplier != ''">
                 and supplier like concat('%', #{supplier}, '%')

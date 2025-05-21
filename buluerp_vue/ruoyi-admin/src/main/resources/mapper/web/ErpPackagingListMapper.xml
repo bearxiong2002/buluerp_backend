@@ -62,7 +62,7 @@
 
             <!-- 非字符串字段 - 精确查询 -->
             <if test="creationTime != null">
-                and creation_time = #{creationTime}
+                and DATE(creation_time) = DATE(#{creationTime})
             </if>
             <if test="releaseDate != null">
                 and release_date = #{releaseDate}
