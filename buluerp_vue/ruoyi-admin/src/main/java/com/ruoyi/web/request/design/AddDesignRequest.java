@@ -17,7 +17,7 @@ public class AddDesignRequest {
     private Long groupId;
 
     /** 主设计编号 */
-    @Excel(name = "主设记编号")
+    @Excel(name = "主设计编号")
     @ApiModelProperty(dataType = "Long",value = "主设计编号",required = true)
     private Long designPatternId;
 
