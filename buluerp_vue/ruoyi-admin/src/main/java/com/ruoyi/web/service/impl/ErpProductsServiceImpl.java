@@ -7,15 +7,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.model.LoginUser;
-import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SysUserMapper;
-import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProducts;
-import com.ruoyi.web.mapper.ErpPackagingListMapper;
-import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
@@ -23,9 +19,7 @@ import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -38,9 +32,6 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     private ErpProductsMapper erpProductsMapper;
 
     @Autowired
-    private ErpPackagingListMapper erpPackagingListMapper;
-
-    @Autowired
     private SysUserMapper sysUserMapper;
 
     @Override
@@ -49,15 +40,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getId()!=null) wrapper.eq(ErpProducts::getId,listProductRequest.getId());
         if(!StringUtils.isBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
         if(!StringUtils.isBlank(listProductRequest.getCreateUsername())) wrapper.like(ErpProducts::getCreateUsername,listProductRequest.getCreateUsername());
-        if(listProductRequest.getTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getTimeTo());
-        if(listProductRequest.getTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getTimeFrom());
-        if(listProductRequest.getDesign_status()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesign_status());
+        if(listProductRequest.getCreateTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeTo());
+        if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
+        if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
         return erpProductsMapper.selectList(wrapper);
-    }
-
-    @Override
-    public List<ErpProducts> selectErpProductsListByIds(Integer[] ids) {
-        return erpProductsMapper.selectErpProductsListByIds(ids);
     }
 
     @Override
@@ -67,11 +53,13 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         // 直接获取用户ID
         Long userId = loginUser.getUserId();
 
-        String url=FileUploadUtils.upload(addProductRequest.getPicture());
         ErpProducts erpProducts = new ErpProducts();
+        if(addProductRequest.getPicture()!=null){
+            String url=FileUploadUtils.upload(addProductRequest.getPicture());
+            erpProducts.setPictureUrl(url);
+        }
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
         erpProducts.setName(addProductRequest.getName());
-        erpProducts.setPictureUrl(url);
         erpProducts.setCreateTime(LocalDateTime.now());
         erpProducts.setUpdateTime(LocalDateTime.now());
         return erpProductsMapper.insert(erpProducts);
@@ -96,14 +84,12 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
-    @Transactional
     public int deleteErpProductsByIds(List<Integer> ids) {
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){
             String url=erpProducts.getPictureUrl();
             url=parseActualPath(url);
             FileUtils.deleteFile(url);
-            erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
         }
         return erpProductsMapper.deleteBatchIds(ids);
     }

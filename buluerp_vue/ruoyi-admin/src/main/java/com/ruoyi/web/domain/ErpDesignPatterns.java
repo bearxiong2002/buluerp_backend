@@ -24,18 +24,18 @@ public class ErpDesignPatterns extends BaseEntity
     private Long id;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "产品编号")
     private Long productId;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建用户id")
     private Long createUserId;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "订单id")
     private Long orderId;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "设计是否已确认", readConverterExp = "1=已确认,0=未确认")
     private Long confirm;
 
     public Long getConfirm() {
@@ -69,12 +69,12 @@ public class ErpDesignPatterns extends BaseEntity
         return id;
     }
 
-    public void setProductId(Long productId) 
+    public void setProductId(Long productId)
     {
         this.productId = productId;
     }
 
-    public Long getProductId() 
+    public Long getProductId()
     {
         return productId;
     }

@@ -1,8 +1,11 @@
 package com.ruoyi.web.request.product;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.time.LocalDateTime;
 
 @ApiModel(value = "修改产品请求类")
 public class UpdateProductRequest {
@@ -12,7 +15,6 @@ public class UpdateProductRequest {
     private String name;
     @ApiModelProperty(dataType = "File",value = "产品图片",required = false)
     private MultipartFile picture;
-
 
     public Long getId() {
         return id;

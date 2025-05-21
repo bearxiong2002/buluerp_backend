@@ -2,7 +2,6 @@ package com.ruoyi.web.request.product;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -15,18 +14,19 @@ public class ListProductRequest {
     @ApiModelProperty(dataType = "String",value = "创建用户名称",required = false)
     private String createUsername;
     @ApiModelProperty(dataType = "Datetime",value = "创建时间起始",required = false)
-    private LocalDateTime timeFrom;
-    @ApiModelProperty(dataType = "Datetime",value = "创建时间结束",required = false)
-    private LocalDateTime timeTo;
+    private LocalDateTime createTimeFrom;
+    @ApiModelProperty(dataType = "Datetime",value = "创建时间终止",required = false)
+    private LocalDateTime createTimeTo;
     @ApiModelProperty(dataType = "int",value = "产品设计是否完成 0未完成 1完成",required = false)
-    private Integer design_status;
+    private Integer designStatus;
 
-    public Integer getDesign_status() {
-        return design_status;
+
+    public Integer getDesignStatus() {
+        return designStatus;
     }
 
-    public void setDesign_status(Integer design_status) {
-        this.design_status = design_status;
+    public void setDesignStatus(Integer designStatus) {
+        this.designStatus = designStatus;
     }
 
     public String getCreateUsername() {
@@ -37,20 +37,20 @@ public class ListProductRequest {
         this.createUsername = createUsername;
     }
 
-    public LocalDateTime getTimeFrom() {
-        return timeFrom;
+    public LocalDateTime getCreateTimeFrom() {
+        return createTimeFrom;
     }
 
-    public void setTimeFrom(LocalDateTime timeFrom) {
-        this.timeFrom = timeFrom;
+    public void setCreateTimeFrom(LocalDateTime createTimeFrom) {
+        this.createTimeFrom = createTimeFrom;
     }
 
-    public LocalDateTime getTimeTo() {
-        return timeTo;
+    public LocalDateTime getCreateTimeTo() {
+        return createTimeTo;
     }
 
-    public void setTimeTo(LocalDateTime timeTo) {
-        this.timeTo = timeTo;
+    public void setCreateTimeTo(LocalDateTime createTimeTo) {
+        this.createTimeTo = createTimeTo;
     }
 
     public Long getId() {

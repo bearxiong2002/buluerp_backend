@@ -12,8 +12,6 @@ import java.util.List;
 public interface IErpProductsService extends IService<ErpProducts> {
     List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest);
 
-    List<ErpProducts> selectErpProductsListByIds(Integer[] ids);
-
     int insertErpProducts(AddProductRequest addProductRequest) throws IOException;
 
     int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException;
