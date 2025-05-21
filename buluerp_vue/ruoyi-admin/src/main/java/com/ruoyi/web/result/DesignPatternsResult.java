@@ -9,27 +9,27 @@ import java.util.Set;
 public class DesignPatternsResult {
 
     /** 主设记编号 */
-    @Excel(name = "主设记编号")
+    @Excel(name = "主设计编号")
     private Long id;
 
     /** 模具编号，用于唯一标识模具 */
-    @Excel(name = "模具编号，用于唯一标识模具")
+    @Excel(name = "模具编号")
     private Set<String>  mouldNumber;
 
     /** LDD编号，与模具相关的编号 */
-    @Excel(name = "LDD编号，与模具相关的编号")
+    @Excel(name = "LDD编号")
     private Set<String> lddNumber;
 
     /** 模具类别，如注塑模具、冲压模具等 */
-    @Excel(name = "模具类别，如注塑模具、冲压模具等")
+    @Excel(name = "模具类别")
     private Set<String> mouldCategory;
 
     /** 模具ID，用于内部标识模具 */
-    @Excel(name = "模具ID，用于内部标识模具")
+    @Excel(name = "模具ID")
     private Set<String> mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @Excel(name = "模具图片的URL链接，用于存储模具外观图片")
+    @Excel(name = "模具图片的URL")
     private Set<String> pictureUrl;
 
     /** 模具的颜色描述 */
@@ -41,12 +41,23 @@ public class DesignPatternsResult {
     private Set<String> productName;
 
     /** 模具的数量 */
-    @Excel(name = "模具的数量")
+    @Excel(name = "模具数量")
     private Integer quantity;
 
     /** 模具的用料，如钢材、铝合金等 */
-    @Excel(name = "模具的用料，如钢材、铝合金等")
+    @Excel(name = "模具用料")
     private Set<String> material;
+
+    @Excel(name = "设计是否已确认", readConverterExp = "1=已确认,0=未确认")
+    private Long confirm;
+
+    public Long getConfirm() {
+        return confirm;
+    }
+
+    public void setConfirm(Long confirm) {
+        this.confirm = confirm;
+    }
 
     public void setId(Long id)
     {
@@ -130,7 +141,7 @@ public class DesignPatternsResult {
         this.material = material;
     }
 
-    public DesignPatternsResult(Long id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<String> mouldId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material) {
+    public DesignPatternsResult(Long id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<String> mouldId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material,Long confirm) {
         this.id = id;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
@@ -141,6 +152,7 @@ public class DesignPatternsResult {
         this.productName = productName;
         this.quantity = quantity;
         this.material = material;
+        this.confirm = confirm;
     }
 
     @Override

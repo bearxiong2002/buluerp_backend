@@ -17,7 +17,7 @@ public class AddDesignRequest {
     private Long groupId;
 
     /** 主设计编号 */
-    @Excel(name = "主设记编号")
+    @Excel(name = "主设计编号")
     @ApiModelProperty(dataType = "Long",value = "主设计编号",required = true)
     private Long designPatternId;
 
@@ -42,7 +42,6 @@ public class AddDesignRequest {
     private String mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @Excel(name = "模具图片")
     @ApiModelProperty(dataType = "String",value = "模具图片 ")
     private MultipartFile picture;
 

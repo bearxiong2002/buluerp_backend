@@ -58,7 +58,7 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @param ids 需要删除的【请填写功能名称】主键集合
      * @return 结果
      */
-    int deleteErpDesignPatternsByIds(Long[] ids);
+    int deleteErpDesignPatternsByIds(List<Integer> ids);
 
     /**
      * 删除【请填写功能名称】信息

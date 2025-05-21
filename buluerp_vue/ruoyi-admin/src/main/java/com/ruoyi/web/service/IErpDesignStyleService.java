@@ -57,7 +57,7 @@ public interface IErpDesignStyleService
      * @param ids 需要删除的设计造型主键集合
      * @return 结果
      */
-    int deleteErpDesignStyleByIds(Long[] ids);
+    int deleteErpDesignStyleByIds(List<Integer> ids);
 
     /**
      * 删除设计造型信息

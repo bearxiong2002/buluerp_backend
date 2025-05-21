@@ -141,7 +141,7 @@ public class ErpDesignStyleController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:style:remove')")
     @Log(title = "设计造型", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable List<Integer> ids)
     {
         return toAjax(erpDesignStyleService.deleteErpDesignStyleByIds(ids));
     }

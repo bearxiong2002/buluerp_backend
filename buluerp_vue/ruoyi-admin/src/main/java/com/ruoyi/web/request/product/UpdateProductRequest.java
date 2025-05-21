@@ -15,6 +15,16 @@ public class UpdateProductRequest {
     private String name;
     @ApiModelProperty(dataType = "File",value = "产品图片",required = false)
     private MultipartFile picture;
+    @ApiModelProperty(dataType = "int",value = "设计状态 1=已完成,0=未完成",required = false)
+    private Integer designStatus;
+
+    public Integer getDesignStatus() {
+        return designStatus;
+    }
+
+    public void setDesignStatus(Integer designStatus) {
+        this.designStatus = designStatus;
+    }
 
     public Long getId() {
         return id;

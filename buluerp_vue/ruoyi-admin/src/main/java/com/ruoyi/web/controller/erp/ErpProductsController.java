@@ -74,7 +74,6 @@ public class ErpProductsController extends BaseController {
     public void export(HttpServletResponse response, ListProductRequest listProductRequest) {
         List<ErpProducts> list = erpProductsService.selectErpProductsList(listProductRequest);
         ExcelUtil<ErpProducts> util = new ExcelUtil<ErpProducts>(ErpProducts.class);
-        // 2. 生成动态文件名（示例：产品数据_20231025.xlsx）
         String fileName = "产品数据_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) ;
         util.exportExcel(response, list, fileName);
     }

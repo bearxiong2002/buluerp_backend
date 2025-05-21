@@ -107,15 +107,17 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
-    public int deleteErpDesignStyleByIds(Long[] ids)
+    public int deleteErpDesignStyleByIds(List<Integer> ids)
     {
-        for(Long id:ids){
+        for(Integer id:ids){
             //删除原本的文件
             String preUrl=erpDesignStyleMapper.selectById(id).getPictureUrl();
-            preUrl=parseActualPath(preUrl);
-            FileUtils.deleteFile(preUrl);
+            if(preUrl!=null){
+                preUrl=parseActualPath(preUrl);
+                FileUtils.deleteFile(preUrl);
+            }
         }
-        return erpDesignStyleMapper.deleteErpDesignStyleByIds(ids);
+        return erpDesignStyleMapper.deleteBatchIds(ids);
     }
 
     /**
