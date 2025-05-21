@@ -1,9 +1,14 @@
 package com.ruoyi.web.domain;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+
+import java.io.Serializable;
 
 /**
  * 设计造型对象 erp_design_style
@@ -11,39 +16,40 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2025-04-09
  */
-public class ErpDesignStyle extends BaseEntity
-{
+@TableName(value = "erp_design_style")
+public class ErpDesignStyle implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** 主键，唯一标识每条记录 */
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     /** 主设记编号 */
-    @Excel(name = "主设记编号")
+    @Excel(name = "主设计编号")
     private Long designPatternId;
 
     /** 不同造型表的分组表示 */
-    @Excel(name = "不同造型表的分组表示")
+    @Excel(name = "造型表的分组")
     private Long groupId;
 
     /** 模具编号，用于唯一标识模具 */
-    @Excel(name = "模具编号，用于唯一标识模具")
+    @Excel(name = "模具编号")
     private String mouldNumber;
 
     /** LDD编号，与模具相关的编号 */
-    @Excel(name = "LDD编号，与模具相关的编号")
+    @Excel(name = "LDD编号")
     private String lddNumber;
 
     /** 模具类别，如注塑模具、冲压模具等 */
-    @Excel(name = "模具类别，如注塑模具、冲压模具等")
+    @Excel(name = "模具类别")
     private String mouldCategory;
 
     /** 模具ID，用于内部标识模具 */
-    @Excel(name = "模具ID，用于内部标识模具")
+    @Excel(name = "模具ID")
     private String mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @Excel(name = "模具图片的URL链接，用于存储模具外观图片")
+    @Excel(name = "模具图片的URL")
     private String pictureUrl;
 
     /** 模具的颜色描述 */
@@ -55,11 +61,11 @@ public class ErpDesignStyle extends BaseEntity
     private String productName;
 
     /** 模具的数量 */
-    @Excel(name = "模具的数量")
+    @Excel(name = "模具数量")
     private Long quantity;
 
     /** 模具的用料，如钢材、铝合金等 */
-    @Excel(name = "模具的用料，如钢材、铝合金等")
+    @Excel(name = "模具用料")
     private String material;
 
     public void setId(Long id) 

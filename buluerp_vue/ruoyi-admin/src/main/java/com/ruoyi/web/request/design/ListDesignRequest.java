@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(value = "获取造型表列表请求类")
-public class LIstDesignRequest {
+public class ListDesignRequest {
 
     @ApiModelProperty(dataType = "Long",value = "造型表id(可选)",required = false)
     private Long id;

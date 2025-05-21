@@ -11,13 +11,20 @@ import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.service.IErpProductsService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @RestController
@@ -31,10 +38,32 @@ public class ErpProductsController extends BaseController {
     @ApiOperation(value = "获得产品列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:list')")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "产品ID", dataType = "long", paramType = "query", example = "1"),
+            @ApiImplicitParam(name = "name", value = "产品名称", dataType = "string", paramType = "query", example = "智能手机"),
+            @ApiImplicitParam(name = "createUsername", value = "创建用户名称", dataType = "string", paramType = "query", example = "admin"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
+            @ApiImplicitParam(name = "design_status", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1")})
     @GetMapping("/list")
-    public TableDataInfo list(ListProductRequest listProductRequest) {
+    public TableDataInfo list(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String createUsername,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo,
+            @RequestParam(name = "designStatus", required = false) Integer designStatus) {
+
+        ListProductRequest request = new ListProductRequest();
+        request.setId(id);
+        request.setName(name);
+        request.setCreateUsername(createUsername);
+        request.setCreateTimeFrom(createTimeFrom);
+        request.setCreateTimeTo(createTimeTo);
+        request.setDesignStatus(designStatus);
+
         startPage();
-        List<ErpProducts> list = erpProductsService.selectErpProductsList(listProductRequest);
+        List<ErpProducts> list = erpProductsService.selectErpProductsList(request);
         return getDataTable(list);
     }
 
@@ -42,10 +71,26 @@ public class ErpProductsController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:export')")
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Integer[] ids) {
-        List<ErpProducts> list = erpProductsService.selectErpProductsListByIds(ids);
+    public void export(HttpServletResponse response, ListProductRequest listProductRequest) {
+        List<ErpProducts> list = erpProductsService.selectErpProductsList(listProductRequest);
         ExcelUtil<ErpProducts> util = new ExcelUtil<ErpProducts>(ErpProducts.class);
-        util.exportExcel(response, list, "产品数据");
+        String fileName = "产品数据_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) ;
+        util.exportExcel(response, list, fileName);
+    }
+
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:products:import')")
+    @PostMapping("/import")
+    @ApiOperation(value = "导入产品")
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
+        ExcelUtil<AddProductRequest> util = new ExcelUtil<AddProductRequest>(AddProductRequest.class);
+        List<AddProductRequest> erpProductsList = util.importExcel(file.getInputStream());
+        int count = 0;
+        for (AddProductRequest addProductRequest : erpProductsList) {
+            erpProductsService.insertErpProducts(addProductRequest);
+            count++;
+        }
+        return success(count);
     }
 
     @ApiOperation(value = "获得产品详细信息")

@@ -8,6 +8,9 @@ import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
+import java.io.Serializable;
+import java.time.LocalDateTime;
+
 /**
  * 【请填写功能名称】对象 erp_design_patterns
  * 
@@ -15,8 +18,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @date 2025-04-09
  */
 @TableName(value = "erp_design_patterns")
-public class ErpDesignPatterns extends BaseEntity
-{
+public class ErpDesignPatterns implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /** $column.columnComment */
@@ -24,18 +26,29 @@ public class ErpDesignPatterns extends BaseEntity
     private Long id;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "产品编号")
     private Long productId;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建用户id")
     private Long createUserId;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "订单id")
     private Long orderId;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建时间")
+    private LocalDateTime createTime;
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    @Excel(name = "设计是否已确认", readConverterExp = "1=已确认,0=未确认")
     private Long confirm;
 
     public Long getConfirm() {
@@ -44,6 +57,9 @@ public class ErpDesignPatterns extends BaseEntity
 
     public void setConfirm(Long confirm) {
         this.confirm = confirm;
+    }
+
+    public ErpDesignPatterns() {
     }
 
     public ErpDesignPatterns(Long productId, Long createUserId, Long orderId) {
@@ -69,12 +85,12 @@ public class ErpDesignPatterns extends BaseEntity
         return id;
     }
 
-    public void setProductId(Long productId) 
+    public void setProductId(Long productId)
     {
         this.productId = productId;
     }
 
-    public Long getProductId() 
+    public Long getProductId()
     {
         return productId;
     }

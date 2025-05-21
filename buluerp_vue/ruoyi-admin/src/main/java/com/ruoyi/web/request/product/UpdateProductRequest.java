@@ -1,5 +1,6 @@
 package com.ruoyi.web.request.product;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
@@ -14,6 +15,8 @@ public class UpdateProductRequest {
     private String name;
     @ApiModelProperty(dataType = "File",value = "产品图片",required = false)
     private MultipartFile picture;
+    @ApiModelProperty(dataType = "int",value = "设计状态 1=已完成,0=未完成",required = false)
+    private Integer designStatus;
 
     @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
     private List<Integer> materialIds;
@@ -26,6 +29,13 @@ public class UpdateProductRequest {
         this.materialIds = materialIds;
     }
 
+    public Integer getDesignStatus() {
+        return designStatus;
+    }
+
+    public void setDesignStatus(Integer designStatus) {
+        this.designStatus = designStatus;
+    }
 
     public Long getId() {
         return id;

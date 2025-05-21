@@ -14,30 +14,31 @@ import java.util.List;
 public class ErpProducts {
 
     /** $column.columnComment */
+    @Excel(name = "产品id")
     @TableId(type = IdType.AUTO)
     private Long id;
 
     /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "产品名")
     private String name;
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建时间")
     private LocalDateTime createTime;
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "更新时间")
     private LocalDateTime updateTime;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "图片url")
     private String pictureUrl;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "设计确认状态", readConverterExp = "1=已确认,0=未确认")
     private Integer designStatus;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建人")
     private String createUsername;
 
     @TableField(exist = false)
