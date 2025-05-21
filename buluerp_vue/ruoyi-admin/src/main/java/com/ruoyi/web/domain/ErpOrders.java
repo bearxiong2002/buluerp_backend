@@ -30,7 +30,7 @@ public class ErpOrders extends BaseEntity
     private String outerId;
 
     /** 操作人ID（外键引用用户表） */
-    @Excel(name = "操作人ID", readConverterExp = "外=键引用用户表")
+    @Excel(name = "操作人ID")
     private Long operatorId;
 
     /** 数量 */
@@ -52,23 +52,23 @@ public class ErpOrders extends BaseEntity
     private Integer status;
 
     /** 客户ID（外键引用客户表） */
-    @Excel(name = "客户ID", readConverterExp = "外=键引用客户表")
+    @Excel(name = "客户ID")
     private Long customerId;
 
     /** 产品ID（外键引用产品表） */
-    @Excel(name = "产品ID", readConverterExp = "外=键引用产品表")
+    @Excel(name = "产品ID")
     private Long productId;
 
     /** 布产ID（外键引用布产表） */
-    @Excel(name = "布产ID", readConverterExp = "外=键引用布产表")
+    @Excel(name = "布产ID")
     private Long productionId;
 
     /** 外购ID（外键引用采购表） */
-    @Excel(name = "外购ID", readConverterExp = "外=键引用采购表")
+    @Excel(name = "外购ID")
     private Long purchaseId;
 
     /** 分包ID（外键引用分包商表） */
-    @Excel(name = "分包ID", readConverterExp = "外=键引用分包商表")
+    @Excel(name = "分包ID")
     private Long subcontractId;
 
     public void setId(Long id) 
