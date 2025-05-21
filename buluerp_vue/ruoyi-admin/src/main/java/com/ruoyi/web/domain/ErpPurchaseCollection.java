@@ -22,7 +22,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
-    private String productNumber;
+    private Long productId;
 
     @Excel(name = "下单时间")
     private Date orderTime;
@@ -98,12 +98,12 @@ public class ErpPurchaseCollection extends BaseEntity {
         this.operator = operator;
     }
 
-    public String getProductNumber() {
-        return productNumber;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public Date getOrderTime() {

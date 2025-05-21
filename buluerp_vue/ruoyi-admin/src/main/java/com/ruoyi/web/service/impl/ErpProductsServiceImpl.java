@@ -7,11 +7,14 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
@@ -19,6 +22,7 @@ import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -32,7 +36,22 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     private ErpProductsMapper erpProductsMapper;
 
     @Autowired
+    private ErpPackagingListMapper erpPackagingListMapper;
+
+    @Autowired
     private SysUserMapper sysUserMapper;
+
+    private ErpProducts fillMaterialIds(ErpProducts erpProducts) {
+        erpProducts.setMaterialIds(erpProductsMapper.getProductMaterialIds(erpProducts.getId()));
+        return erpProducts;
+    }
+
+    private List<ErpProducts> fillMaterialIds(List<ErpProducts> erpProductsList) {
+        for(ErpProducts erpProducts:erpProductsList){
+            erpProducts.setMaterialIds(erpProductsMapper.getProductMaterialIds(erpProducts.getId()));
+        }
+        return erpProductsList;
+    }
 
     @Override
     public List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest) {
@@ -43,10 +62,16 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getCreateTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeTo());
         if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
         if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
-        return erpProductsMapper.selectList(wrapper);
+        return fillMaterialIds(erpProductsMapper.selectList(wrapper));
     }
 
     @Override
+    public List<ErpProducts> selectErpProductsListByIds(Integer[] ids) {
+        return erpProductsMapper.selectErpProductsListByIds(ids);
+    }
+
+    @Override
+    @Transactional
     public int insertErpProducts(AddProductRequest addProductRequest) throws IOException {
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -62,10 +87,19 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         erpProducts.setName(addProductRequest.getName());
         erpProducts.setCreateTime(LocalDateTime.now());
         erpProducts.setUpdateTime(LocalDateTime.now());
-        return erpProductsMapper.insert(erpProducts);
+        if (0 >= erpProductsMapper.insert(erpProducts)) {
+            throw new ServiceException("添加失败");
+        }
+        for (Integer materialId : addProductRequest.getMaterialIds()) {
+            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
+                throw new ServiceException("添加失败");
+            }
+        }
+        return 1;
     }
 
     @Override
+    @Transactional
     public int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException {
         ErpProducts erpProducts = new ErpProducts();
         erpProducts.setId(updateProductRequest.getId());
@@ -80,13 +114,27 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
         erpProducts.setUpdateTime(LocalDateTime.now());
-        return erpProductsMapper.updateById(erpProducts);
+        if (0 >= erpProductsMapper.updateById(erpProducts)) {
+            throw new ServiceException("修改失败");
+        }
+        List<Integer> materialIds = updateProductRequest.getMaterialIds();
+        if (materialIds != null) {
+            erpProductsMapper.clearProductMaterial(erpProducts.getId());
+            for (Integer materialId : materialIds) {
+                if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
+                    throw new ServiceException("添加失败");
+                }
+            }
+        }
+        return 1;
     }
 
     @Override
     public int deleteErpProductsByIds(List<Integer> ids) {
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){
+            erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
+            erpProductsMapper.clearProductMaterial(erpProducts.getId());
             String url=erpProducts.getPictureUrl();
             url=parseActualPath(url);
             FileUtils.deleteFile(url);

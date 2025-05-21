@@ -5,7 +5,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @ApiModel(value = "修改产品请求类")
 public class UpdateProductRequest {
@@ -17,6 +17,17 @@ public class UpdateProductRequest {
     private MultipartFile picture;
     @ApiModelProperty(dataType = "int",value = "设计状态 1=已完成,0=未完成",required = false)
     private Integer designStatus;
+
+    @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
+    private List<Integer> materialIds;
+
+    public List<Integer> getMaterialIds() {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<Integer> materialIds) {
+        this.materialIds = materialIds;
+    }
 
     public Integer getDesignStatus() {
         return designStatus;
