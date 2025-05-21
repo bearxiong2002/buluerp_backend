@@ -5,6 +5,7 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.service.IErpOrdersService;
@@ -37,7 +38,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 查询订单列表
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:list')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:list')")
+    @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "查询订单列表", notes = "查询订单列表")
     public TableDataInfo list(ErpOrders erpOrders)
@@ -50,7 +52,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 导出订单列表
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:export')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:export')")
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     @ApiOperation(value = "导出订单列表", notes = "导出订单列表")
@@ -64,7 +67,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 导出订单列表
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:import')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:import')")
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.IMPORT)
     @PostMapping("/import")
     @ApiOperation(value = "导入订单列表", notes = "导入订单列表")
@@ -82,7 +86,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 获取订单详细信息
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:query')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:query')")
+    @Anonymous
     @GetMapping(value = "/{id}")
     @ApiOperation(value = "获取订单详细信息", notes = "获取订单详细信息")
     public AjaxResult getInfo(@PathVariable("id") Long id)
@@ -93,7 +98,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 新增订单
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:add')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:add')")
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增订单", notes = "新增订单")
@@ -105,7 +111,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 修改订单
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:edit')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:edit')")
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改订单", notes = "修改订单")
@@ -117,7 +124,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 删除订单
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:remove')")
+    // @PreAuthorize("@ss.hasPermi('system:orders:remove')")
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.DELETE)
 	@DeleteMapping("/{ids}")
     @ApiOperation(value = "删除订单", notes = "删除订单")
