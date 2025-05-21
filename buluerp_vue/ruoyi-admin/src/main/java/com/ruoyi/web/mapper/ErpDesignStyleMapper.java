@@ -83,6 +83,6 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
 
     Set<String> selectMaterialSet(Long id);
 
-    int sumQuantityById(Long id);
+    Integer sumQuantityById(Long id);
 
 }
