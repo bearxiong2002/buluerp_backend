@@ -42,7 +42,6 @@ public class AddDesignRequest {
     private String mouldId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @Excel(name = "模具图片")
     @ApiModelProperty(dataType = "String",value = "模具图片 ")
     private MultipartFile picture;
 
