@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
@@ -28,6 +29,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Override
     public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) {
         erpPurchaseCollection.setUpdateTime(DateUtils.getNowDate());
+        erpPurchaseCollection.setOperator(
+                SecurityUtils.getLoginUser().getUsername()
+        );
         return erpPurchaseCollectionMapper.updateErpPurchaseCollection(erpPurchaseCollection);
     }
 
@@ -35,6 +39,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) {
         erpPurchaseCollection.setCreateTime(DateUtils.getNowDate());
         erpPurchaseCollection.setUpdateTime(DateUtils.getNowDate());
+        erpPurchaseCollection.setOperator(
+                SecurityUtils.getLoginUser().getUsername()
+        );
         return erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection);
     }
 
@@ -43,9 +50,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public int insertErpPurchaseCollections(List<ErpPurchaseCollection> erpPurchaseCollectionList) {
         int count = 0;
         for (ErpPurchaseCollection erpPurchaseCollectionItem : erpPurchaseCollectionList) {
-            erpPurchaseCollectionItem.setCreateTime(DateUtils.getNowDate());
-            erpPurchaseCollectionItem.setUpdateTime(DateUtils.getNowDate());
-            count += erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollectionItem);
+            count += insertErpPurchaseCollection(erpPurchaseCollectionItem);
         }
         return count;
     }
