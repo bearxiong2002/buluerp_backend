@@ -198,6 +198,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		<if test="userId != null and userId != 0">
 			AND u.user_id = #{userId}
 		</if>
+		<if test="roleId !=null and roleId != 0">
+			AND u.user_id = ur.user_id
+		  	AND ur.role_id = #{roleId}
+		</if>
+		<if test="nickName != null and nickName != ''">
+			And u.nick_name LIKE CONCAT('%', #{nickName}, '%')
+		</if>
 		<if test="userName != null and userName != ''">
 			AND u.user_name LIKE CONCAT('%', #{userName}, '%')
 		</if>
