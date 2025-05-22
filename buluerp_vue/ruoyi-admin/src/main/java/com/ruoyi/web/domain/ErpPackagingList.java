@@ -6,7 +6,6 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
 
 public class ErpPackagingList extends BaseEntity {
-    @Excel(name = "序号")
     private Integer id;
 
     @Excel(name = "订单号")

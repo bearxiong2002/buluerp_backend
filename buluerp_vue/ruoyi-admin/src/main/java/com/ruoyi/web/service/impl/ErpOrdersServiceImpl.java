@@ -69,7 +69,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrders.setOperatorId(loginUser.getUserId());
         }
         int res = erpOrdersMapper.insertErpOrders(erpOrders);
-        if (res < 0) {
+        if (res <= 0) {
             return 0;
         } else {
             erpOrders.setInnerId(erpOrders.generateInnerId());

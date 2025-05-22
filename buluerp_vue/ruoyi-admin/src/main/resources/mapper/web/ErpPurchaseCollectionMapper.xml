@@ -141,6 +141,13 @@
             </if>
         </trim>
     </insert>
+    <insert id="insertErpPurchaseCollectionMaterials">
+        insert into erp_purchase_collection_material(purchase_collection_id,material_id)
+        values
+        <foreach item="item" index="index" collection="materialIds" separator=",">
+            (#{id},#{item})
+        </foreach>
+    </insert>
     <update id="updateErpPurchaseCollection">
         update erp_purchase_collection
         <trim prefix="set" suffixOverrides=",">
@@ -209,6 +216,9 @@
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </delete>
+    <delete id="clearErpPurchaseCollectionMaterials">
+        delete from erp_purchase_collection_material where purchase_collection_id = #{id}
     </delete>
     <select id="selectErpPurchaseCollectionById" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
         <include refid="selectErpPurchaseCollection"/>
@@ -279,5 +289,8 @@
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="getErpPurchaseCollectionMaterialIds" resultType="java.lang.Long">
+        select material_id from erp_purchase_collection_material where purchase_collection_id = #{id}
     </select>
 </mapper>
