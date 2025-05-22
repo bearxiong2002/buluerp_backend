@@ -11,7 +11,9 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SysUserMapper;
+import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
@@ -30,6 +32,9 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
 
     @Autowired
     private ErpProductsMapper erpProductsMapper;
+
+    @Autowired
+    private ErpDesignPatternsMapper erpDesignPatternsMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -79,6 +84,16 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpProducts.setPictureUrl(url);
         }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
+        if(updateProductRequest.getDesignStatus()!=null){
+            LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
+            wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());
+
+            erpProductsMapper.updateStatusById(updateProductRequest.getId(),1L);
+            if(updateProductRequest.getDesignStatus()==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+            if(updateProductRequest.getDesignStatus()==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+        }
+
+
         erpProducts.setUpdateTime(LocalDateTime.now());
         return erpProductsMapper.updateById(erpProducts);
     }
