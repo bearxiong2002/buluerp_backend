@@ -2,8 +2,10 @@ package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -65,6 +67,9 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     @Excel(name = "备注")
     private String remarks;
+
+    @JsonIgnore
+    private MultipartFile picture;
 
     public Integer getId() {
         return id;
@@ -216,5 +221,13 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public MultipartFile getPicture() {
+        return picture;
+    }
+
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
     }
 }
