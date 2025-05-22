@@ -6,7 +6,7 @@
         <result property="orderCode" column="order_code"/>
         <result property="creationTime" column="creation_time"/>
         <result property="operator" column="operator"/>
-        <result property="productNumber" column="product_number"/>
+        <result property="productId" column="product_id"/>
         <result property="orderTime" column="order_time"/>
         <result property="pictureUrl" column="picture_url"/>
         <result property="purchaseCode" column="purchase_code"/>
@@ -23,7 +23,7 @@
         <result property="remarks" column="remarks"/>
     </resultMap>
     <sql id="selectErpPurchaseCollection">
-        select id,order_code,creation_time,operator,product_number,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks
+        select id,order_code,creation_time,operator,product_id,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks
         from erp_purchase_collection
     </sql>
     <insert id="insertErpPurchaseCollection" useGeneratedKeys="true" keyProperty="id">
@@ -38,8 +38,8 @@
             <if test="operator != null">
                 operator,
             </if>
-            <if test="productNumber != null">
-                product_number,
+            <if test="productId != null">
+                product_id,
             </if>
             <if test="orderTime != null">
                 order_time,
@@ -94,8 +94,8 @@
             <if test="operator != null">
                 #{operator},
             </if>
-            <if test="productNumber != null">
-                #{productNumber},
+            <if test="productId != null">
+                #{productId},
             </if>
             <if test="orderTime != null">
                 #{orderTime},
@@ -153,8 +153,8 @@
             <if test="operator != null">
                 operator = #{operator},
             </if>
-            <if test="productNumber != null">
-                product_number = #{productNumber},
+            <if test="productId != null">
+                product_id = #{productId},
             </if>
             <if test="orderTime != null">
                 order_time = #{orderTime},
@@ -226,8 +226,8 @@
             <if test="operator != null and operator != ''">
                 and operator like concat('%', #{operator}, '%')
             </if>
-            <if test="productNumber != null and productNumber != ''">
-                and product_number like concat('%', #{productNumber}, '%')
+            <if test="productId != null and productId != ''">
+                and product_id like concat('%', #{productId}, '%')
             </if>
             <if test="orderTime != null">
                 and order_time = #{orderTime}

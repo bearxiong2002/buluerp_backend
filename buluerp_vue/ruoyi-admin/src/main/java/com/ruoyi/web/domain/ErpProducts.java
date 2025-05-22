@@ -1,12 +1,14 @@
 package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @TableName(value = "erp_products")
 public class ErpProducts {
@@ -38,6 +40,9 @@ public class ErpProducts {
 
     @Excel(name = "创建人")
     private String createUsername;
+
+    @TableField(exist = false)
+    private List<Integer> materialIds;
 
     public String getCreateUsername() {
         return createUsername;
@@ -95,4 +100,11 @@ public class ErpProducts {
         this.pictureUrl = pictureUrl;
     }
 
+    public List<Integer> getMaterialIds() {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<Integer> materialIds) {
+        this.materialIds = materialIds;
+    }
 }
