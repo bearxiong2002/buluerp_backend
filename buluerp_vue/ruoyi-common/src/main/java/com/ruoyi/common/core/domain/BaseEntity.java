@@ -17,6 +17,8 @@ public class BaseEntity implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
+    public static final String DATE_SQL_CONDITION = "DATE(%s) = DATE(#{%s})";
+
     /** 搜索值 */
     @JsonIgnore
     private String searchValue;
