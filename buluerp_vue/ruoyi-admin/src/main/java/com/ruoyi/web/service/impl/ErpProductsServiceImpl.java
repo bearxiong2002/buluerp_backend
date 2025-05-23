@@ -123,8 +123,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());
 
             erpProductsMapper.updateStatusById(updateProductRequest.getId(),1L);
-            if(updateProductRequest.getDesignStatus()==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
-            if(updateProductRequest.getDesignStatus()==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+            if(erpDesignPatternsMapper.selectOne(wrapper)!=null){
+                if(updateProductRequest.getDesignStatus()==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+                if(updateProductRequest.getDesignStatus()==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+            }
         }
 
 
