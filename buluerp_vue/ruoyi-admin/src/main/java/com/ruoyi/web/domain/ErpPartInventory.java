@@ -8,98 +8,48 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@TableName("erp_part_inventory_change")
+@TableName("erp_part_inventory")
 public class ErpPartInventory {
 
-    @TableId(type = IdType.AUTO)
     @Excel(name = "记录ID")
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     @Excel(name = "订单编号")
     @TableField("order_code")
     private String orderCode;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "操作时间")
-    @TableField("creation_time")
-    private LocalDateTime creationTime;
-
-    @Excel(name = "操作人")
-    private String operator;
-
-    @Excel(name = "产品代码")
-    @TableField("product_code")
-    private String productCode;
-
     @Excel(name = "模具编号")
     @TableField("mould_number")
     private String mouldNumber;
 
-    @Excel(name = "颜色代码")
-    @TableField("color_code")
-    private String colorCode;
+    @Excel(name = "入库数量")
+    @TableField("in_quantity")
+    private Integer inQuantity;
 
-    @Excel(name = "数量")
-    @TableField("in_out_quantity")
-    private Integer inOutQuantity;
+    @Excel(name = "出库数量")
+    @TableField("out_quantity")
+    private Integer outQuantity;
 
-    @Excel(name = "备注")
-    private String remarks;
+    @Excel(name = "当前总库存")
+    @TableField("total_quantity")
+    private Integer totalQuantity;
 
+    @Excel(name = "安全库存阈值")
+    @TableField("safe_quantity")
+    private Integer safeQuantity;
+
+    @Excel(name = "库存预警", readConverterExp = "0=正常,1=不足")
+    private Integer warning;
+
+    @Excel(name = "更新时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "变更日期")
-    @TableField("change_date")
-    private Date changeDate;
+    @TableField(value = "update_time")
+    private LocalDateTime updateTime;
 
-    // Builder构造
-    private ErpPartInventory(Builder builder) {
-        this.id = builder.id;
-        this.orderCode = builder.orderCode;
-        this.creationTime = builder.creationTime;
-        this.operator = builder.operator;
-        this.productCode = builder.productCode;
-        this.mouldNumber = builder.mouldNumber;
-        this.colorCode = builder.colorCode;
-        this.inOutQuantity = builder.inOutQuantity;
-        this.remarks = builder.remarks;
-        this.changeDate = builder.changeDate;
-    }
-
-    public ErpPartInventory() {}
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private Long id;
-        private String orderCode;
-        private LocalDateTime creationTime;
-        private String operator;
-        private String productCode;
-        private String mouldNumber;
-        private String colorCode;
-        private Integer inOutQuantity;
-        private String remarks;
-        private Date changeDate;
-
-        // 链式方法（省略部分代码，参考字段赋值）
-        public Builder id(Long id) { this.id = id; return this; }
-        public Builder orderCode(String orderCode) { this.orderCode = orderCode; return this; }
-        public Builder creationTime(LocalDateTime creationTime) { this.creationTime = creationTime; return this; }
-        public Builder operator(String operator) { this.operator = operator; return this; }
-        public Builder productCode(String productCode) { this.productCode = productCode; return this; }
-        public Builder mouldNumber(String mouldNumber) { this.mouldNumber = mouldNumber; return this; }
-        public Builder colorCode(String colorCode) { this.colorCode = colorCode; return this; }
-        public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
-        public Builder remarks(String remarks) { this.remarks = remarks; return this; }
-        public Builder changeDate(Date changeDate) { this.changeDate = changeDate; return this; }
-
-        public ErpPartInventory build() {
-            return new ErpPartInventory(this);
-        }
+    public void total(){
+        this.totalQuantity=this.inQuantity+this.outQuantity;
     }
 
     public Long getId() {
@@ -118,30 +68,6 @@ public class ErpPartInventory {
         this.orderCode = orderCode;
     }
 
-    public LocalDateTime getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(LocalDateTime creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
-    }
-
     public String getMouldNumber() {
         return mouldNumber;
     }
@@ -150,35 +76,51 @@ public class ErpPartInventory {
         this.mouldNumber = mouldNumber;
     }
 
-    public String getColorCode() {
-        return colorCode;
+    public Integer getInQuantity() {
+        return inQuantity;
     }
 
-    public void setColorCode(String colorCode) {
-        this.colorCode = colorCode;
+    public void setInQuantity(Integer inQuantity) {
+        this.inQuantity = inQuantity;
     }
 
-    public Integer getInOutQuantity() {
-        return inOutQuantity;
+    public Integer getOutQuantity() {
+        return outQuantity;
     }
 
-    public void setInOutQuantity(Integer inOutQuantity) {
-        this.inOutQuantity = inOutQuantity;
+    public void setOutQuantity(Integer outQuantity) {
+        this.outQuantity = outQuantity;
     }
 
-    public String getRemarks() {
-        return remarks;
+    public Integer getTotalQuantity() {
+        return totalQuantity;
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
-    public Date getChangeDate() {
-        return changeDate;
+    public Integer getSafeQuantity() {
+        return safeQuantity;
     }
 
-    public void setChangeDate(Date changeDate) {
-        this.changeDate = changeDate;
+    public void setSafeQuantity(Integer safeQuantity) {
+        this.safeQuantity = safeQuantity;
+    }
+
+    public Integer getWarning() {
+        return warning;
+    }
+
+    public void setWarning(Integer warning) {
+        this.warning = warning;
+    }
+
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }

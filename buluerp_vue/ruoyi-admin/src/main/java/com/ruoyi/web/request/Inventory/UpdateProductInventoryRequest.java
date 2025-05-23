@@ -5,8 +5,8 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
-@ApiModel(value = "修改分包库存请求类")
-public class UpdatePackagingMaterialRequest {
+@ApiModel(value = "更新成品库存请求类")
+public class UpdateProductInventoryRequest {
     @ApiModelProperty(
             dataType = "Long",
             value = "记录ID（必填）",
@@ -16,10 +16,33 @@ public class UpdatePackagingMaterialRequest {
 
     @ApiModelProperty(
             dataType = "String",
-            value = "订单编号",
-            required = false
+            value = "订单编号"
     )
     private String orderCode;
+
+    @ApiModelProperty(
+            dataType = "String",
+            value = "产品货号"
+    )
+    private String productPartNumber;
+
+    @ApiModelProperty(
+            dataType = "Integer",
+            value = "出入库数量（正数入库，负数出库）"
+    )
+    private Integer inOutQuantity;
+
+    @ApiModelProperty(
+            dataType = "String",
+            value = "存储位置"
+    )
+    private String storageLocation;
+
+    @ApiModelProperty(
+            dataType = "String",
+            value = "备注信息"
+    )
+    private String remarks;
 
     @ApiModelProperty(
             dataType = "Date",
@@ -27,48 +50,6 @@ public class UpdatePackagingMaterialRequest {
             required = false
     )
     private Date changeDate;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "操作信息",
-            required = false
-    )
-    private String editAction;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "产品货号",
-            required = false
-    )
-    private String productPartNumber;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "包装编号",
-            required = false
-    )
-    private String packagingNumber;
-
-    @ApiModelProperty(
-            dataType = "int",
-            value = "出入库数量",
-            required = false
-    )
-    private Integer inOutQuantity;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "存储位置",
-            required = false
-    )
-    private String storageLocation;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "备注信息",
-            required = false
-    )
-    private String remarks;
 
     public Long getId() {
         return id;
@@ -86,36 +67,12 @@ public class UpdatePackagingMaterialRequest {
         this.orderCode = orderCode;
     }
 
-    public Date getChangeDate() {
-        return changeDate;
-    }
-
-    public void setChangeDate(Date changeDate) {
-        this.changeDate = changeDate;
-    }
-
-    public String getEditAction() {
-        return editAction;
-    }
-
-    public void setEditAction(String editAction) {
-        this.editAction = editAction;
-    }
-
     public String getProductPartNumber() {
         return productPartNumber;
     }
 
     public void setProductPartNumber(String productPartNumber) {
         this.productPartNumber = productPartNumber;
-    }
-
-    public String getPackagingNumber() {
-        return packagingNumber;
-    }
-
-    public void setPackagingNumber(String packagingNumber) {
-        this.packagingNumber = packagingNumber;
     }
 
     public Integer getInOutQuantity() {
@@ -140,5 +97,13 @@ public class UpdatePackagingMaterialRequest {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public Date getChangeDate() {
+        return changeDate;
+    }
+
+    public void setChangeDate(Date changeDate) {
+        this.changeDate = changeDate;
     }
 }

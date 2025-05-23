@@ -6,130 +6,73 @@ import io.swagger.annotations.ApiModelProperty;
 import java.time.LocalDateTime;
 import java.util.Date;
 
-@ApiModel(value = "分包库存查询请求类")
-public class ListPackagingMaterialRequest {
+@ApiModel(value = "成品库存查询请求类")
+public class ListProductInventoryRequest {
     @ApiModelProperty(
             dataType = "Long",
-            value = "记录ID",
-            required = false
+            value = "记录ID"
     )
     private Long id;
 
     @ApiModelProperty(
             dataType = "String",
-            value = "订单编号",
-            required = false
+            value = "订单编号"
     )
     private String orderCode;
 
     @ApiModelProperty(
-            dataType = "Date",
-            value = "变更日期起始",
-            required = false
-    )
-    private Date changeDateFrom;
-
-    @ApiModelProperty(
-            dataType = "Date",
-            value = "变更日期结束",
-            required = false
-    )
-    private Date changeDateTo;
-
-    @ApiModelProperty(
             dataType = "String",
-            value = "产品货号",
-            required = false
+            value = "产品货号"
     )
     private String productPartNumber;
 
     @ApiModelProperty(
             dataType = "String",
-            value = "包装编号",
-            required = false
+            value = "操作人"
     )
-    private String packagingNumber;
+    private String operator;
 
     @ApiModelProperty(
-            dataType = "int",
-            value = "出入库数量",
-            required = false
+            dataType = "Integer",
+            value = "出入库数量"
     )
     private Integer inOutQuantity;
 
     @ApiModelProperty(
             dataType = "String",
-            value = "存储位置",
-            required = false
+            value = "存储位置"
     )
     private String storageLocation;
 
     @ApiModelProperty(
             dataType = "String",
-            value = "操作人",
-            required = false
-    )
-    private String operator;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "备注信息",
-            required = false
+            value = "备注信息"
     )
     private String remarks;
 
     @ApiModelProperty(
             dataType = "LocalDateTime",
-            value = "创建时间起始",
-            required = false
+            value = "创建时间起始"
     )
     private LocalDateTime createTimeFrom;
 
     @ApiModelProperty(
             dataType = "LocalDateTime",
-            value = "创建时间终止",
-            required = false
+            value = "创建时间终止"
     )
     private LocalDateTime createTimeTo;
 
     @ApiModelProperty(
-            dataType = "String",
-            value = "操作信息",
-            required = false
+            dataType = "Date",
+            value = "库存变更日期起始"
     )
-    private String editAction;
+    private Date changeDateFrom;
 
-    public String getEditAction() {
-        return editAction;
-    }
-
-    public void setEditAction(String editAction) {
-        this.editAction = editAction;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public Date getChangeDateFrom() {
-        return changeDateFrom;
-    }
-
-    public void setChangeDateFrom(Date changeDateFrom) {
-        this.changeDateFrom = changeDateFrom;
-    }
-
-    public Date getChangeDateTo() {
-        return changeDateTo;
-    }
-
-    public void setChangeDateTo(Date changeDateTo) {
-        this.changeDateTo = changeDateTo;
-    }
+    @ApiModelProperty(
+            dataType = "Date",
+            value = "库存变更日期结束"
+    )
+    private Date changeDateTo;
 
     public Long getId() {
         return id;
@@ -155,12 +98,12 @@ public class ListPackagingMaterialRequest {
         this.productPartNumber = productPartNumber;
     }
 
-    public String getPackagingNumber() {
-        return packagingNumber;
+    public String getOperator() {
+        return operator;
     }
 
-    public void setPackagingNumber(String packagingNumber) {
-        this.packagingNumber = packagingNumber;
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 
     public Integer getInOutQuantity() {
@@ -201,5 +144,21 @@ public class ListPackagingMaterialRequest {
 
     public void setCreateTimeTo(LocalDateTime createTimeTo) {
         this.createTimeTo = createTimeTo;
+    }
+
+    public Date getChangeDateFrom() {
+        return changeDateFrom;
+    }
+
+    public void setChangeDateFrom(Date changeDateFrom) {
+        this.changeDateFrom = changeDateFrom;
+    }
+
+    public Date getChangeDateTo() {
+        return changeDateTo;
+    }
+
+    public void setChangeDateTo(Date changeDateTo) {
+        this.changeDateTo = changeDateTo;
     }
 }

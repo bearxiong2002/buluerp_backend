@@ -5,28 +5,14 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
-@ApiModel(value = "新增分包库存请求类")
-public class AddPackagingMaterialRequest {
+@ApiModel(value = "新增成品库存请求类")
+public class AddProductInventoryRequest {
     @ApiModelProperty(
             dataType = "String",
             value = "订单编号",
             required = true
     )
     private String orderCode;
-
-    @ApiModelProperty(
-            dataType = "Date",
-            value = "库存变更日期",
-            required = true
-    )
-    private Date changeDate;
-
-    @ApiModelProperty(
-            dataType = "String",
-            value = "操作信息",
-            required = false
-    )
-    private String editAction;
 
     @ApiModelProperty(
             dataType = "String",
@@ -36,15 +22,8 @@ public class AddPackagingMaterialRequest {
     private String productPartNumber;
 
     @ApiModelProperty(
-            dataType = "String",
-            value = "分包号",
-            required = true
-    )
-    private String packagingNumber;
-
-    @ApiModelProperty(
-            dataType = "int",
-            value = "出入库数量(包)",
+            dataType = "Integer",
+            value = "出入库数量",
             required = true
     )
     private Integer inOutQuantity;
@@ -63,13 +42,13 @@ public class AddPackagingMaterialRequest {
     )
     private String remarks;
 
-    public String getOrderCode() {
-        return orderCode;
-    }
+    @ApiModelProperty(
+            dataType = "Date",
+            value = "库存变更日期",
+            required = true
+    )
+    private Date changeDate;
 
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
-    }
 
     public Date getChangeDate() {
         return changeDate;
@@ -79,12 +58,12 @@ public class AddPackagingMaterialRequest {
         this.changeDate = changeDate;
     }
 
-    public String getEditAction() {
-        return editAction;
+    public String getOrderCode() {
+        return orderCode;
     }
 
-    public void setEditAction(String editAction) {
-        this.editAction = editAction;
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 
     public String getProductPartNumber() {
@@ -93,14 +72,6 @@ public class AddPackagingMaterialRequest {
 
     public void setProductPartNumber(String productPartNumber) {
         this.productPartNumber = productPartNumber;
-    }
-
-    public String getPackagingNumber() {
-        return packagingNumber;
-    }
-
-    public void setPackagingNumber(String packagingNumber) {
-        this.packagingNumber = packagingNumber;
     }
 
     public Integer getInOutQuantity() {

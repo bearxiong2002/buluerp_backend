@@ -8,91 +8,40 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
-@TableName("erp_inventory_group2")
+@TableName("erp_product_inventory")
 public class ErpProductInventory {
 
-    @TableId(type = IdType.AUTO)
     @Excel(name = "记录ID")
+    @TableId(type = IdType.AUTO)
     private Long id;
 
     @Excel(name = "订单编号")
     @TableField("order_code")
     private String orderCode;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "操作时间")
-    @TableField("creation_time")
-    private LocalDateTime creationTime;
-
-    @Excel(name = "操作人")
-    private String operator;
-
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "变更日期")
-    @TableField("change_date")
-    private Date changeDate;
-
-    @Excel(name = "产品部件号")
+    @Excel(name = "产品货号")
     @TableField("product_part_number")
     private String productPartNumber;
 
-    @Excel(name = "数量")
-    @TableField("in_out_quantity")
-    private Integer inOutQuantity;
+    @Excel(name = "入库数量")
+    @TableField("in_quantity")
+    private Integer inQuantity;
 
-    @Excel(name = "存储位置")
-    @TableField("storage_location")
-    private String storageLocation;
+    @Excel(name = "出库数量")
+    @TableField("out_quantity")
+    private Integer outQuantity;
 
-    @Excel(name = "备注")
-    private String remarks;
+    @Excel(name = "当前总库存")
+    private Integer totalQuantity;
 
-    // Builder构造
-    private ErpProductInventory(Builder builder) {
-        this.id = builder.id;
-        this.orderCode = builder.orderCode;
-        this.creationTime = builder.creationTime;
-        this.operator = builder.operator;
-        this.changeDate = builder.changeDate;
-        this.productPartNumber = builder.productPartNumber;
-        this.inOutQuantity = builder.inOutQuantity;
-        this.storageLocation = builder.storageLocation;
-        this.remarks = builder.remarks;
-    }
+    @Excel(name = "更新时间",dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @TableField(value = "update_time")
+    private LocalDateTime updateTime;
 
-    public ErpProductInventory() {}
-
-    public static Builder builder() {
-        return new Builder();
-    }
-
-    public static class Builder {
-        private Long id;
-        private String orderCode;
-        private LocalDateTime creationTime;
-        private String operator;
-        private Date changeDate;
-        private String productPartNumber;
-        private Integer inOutQuantity;
-        private String storageLocation;
-        private String remarks;
-
-        // 链式方法（省略部分代码，参考字段赋值）
-        public Builder id(Long id) { this.id = id; return this; }
-        public Builder orderCode(String orderCode) { this.orderCode = orderCode; return this; }
-        public Builder creationTime(LocalDateTime creationTime) { this.creationTime = creationTime; return this; }
-        public Builder operator(String operator) { this.operator = operator; return this; }
-        public Builder changeDate(Date changeDate) { this.changeDate = changeDate; return this; }
-        public Builder productPartNumber(String productPartNumber) { this.productPartNumber = productPartNumber; return this; }
-        public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
-        public Builder storageLocation(String storageLocation) { this.storageLocation = storageLocation; return this; }
-        public Builder remarks(String remarks) { this.remarks = remarks; return this; }
-
-        public ErpProductInventory build() {
-            return new ErpProductInventory(this);
-        }
+    public void total(){
+        this.totalQuantity=this.inQuantity+this.outQuantity;
     }
 
     public Long getId() {
@@ -111,30 +60,6 @@ public class ErpProductInventory {
         this.orderCode = orderCode;
     }
 
-    public LocalDateTime getCreationTime() {
-        return creationTime;
-    }
-
-    public void setCreationTime(LocalDateTime creationTime) {
-        this.creationTime = creationTime;
-    }
-
-    public String getOperator() {
-        return operator;
-    }
-
-    public void setOperator(String operator) {
-        this.operator = operator;
-    }
-
-    public Date getChangeDate() {
-        return changeDate;
-    }
-
-    public void setChangeDate(Date changeDate) {
-        this.changeDate = changeDate;
-    }
-
     public String getProductPartNumber() {
         return productPartNumber;
     }
@@ -143,27 +68,31 @@ public class ErpProductInventory {
         this.productPartNumber = productPartNumber;
     }
 
-    public Integer getInOutQuantity() {
-        return inOutQuantity;
+    public Integer getInQuantity() {
+        return inQuantity;
     }
 
-    public void setInOutQuantity(Integer inOutQuantity) {
-        this.inOutQuantity = inOutQuantity;
+    public void setInQuantity(Integer inQuantity) {
+        this.inQuantity = inQuantity;
     }
 
-    public String getStorageLocation() {
-        return storageLocation;
+    public Integer getOutQuantity() {
+        return outQuantity;
     }
 
-    public void setStorageLocation(String storageLocation) {
-        this.storageLocation = storageLocation;
+    public void setOutQuantity(Integer outQuantity) {
+        this.outQuantity = outQuantity;
     }
 
-    public String getRemarks() {
-        return remarks;
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
+    public LocalDateTime getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(LocalDateTime updateTime) {
+        this.updateTime = updateTime;
     }
 }
