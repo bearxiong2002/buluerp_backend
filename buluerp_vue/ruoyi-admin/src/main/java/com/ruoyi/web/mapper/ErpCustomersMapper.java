@@ -1,6 +1,7 @@
 package com.ruoyi.web.mapper;
 
 import com.ruoyi.web.domain.ErpCustomers;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
@@ -11,6 +12,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2025-04-09
  */
+@Mapper
 public interface ErpCustomersMapper 
 {
     /**
