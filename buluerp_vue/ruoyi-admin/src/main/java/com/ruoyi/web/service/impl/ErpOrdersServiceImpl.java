@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.service.IErpOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 {
     @Autowired
     private ErpOrdersMapper erpOrdersMapper;
+
+    @Autowired
+    private ErpCustomersMapper erpCustomersMapper;
 
     /**
      * 查询订单
@@ -46,7 +50,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders)
     {
-        return erpOrdersMapper.selectErpOrdersList(erpOrders);
+        List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(erpOrders);
+        for (ErpOrders erpOrders1 : list) {
+            erpOrders1.setCustomer(
+                    erpCustomersMapper.selectErpCustomersById(erpOrders1.getCustomerId())
+            );
+        }
+        return list;
     }
 
     @Override
