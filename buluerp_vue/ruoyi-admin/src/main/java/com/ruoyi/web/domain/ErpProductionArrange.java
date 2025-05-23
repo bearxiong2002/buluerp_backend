@@ -19,6 +19,7 @@ create table buluerp.erp_production_arrange
     creation_time          datetime default CURRENT_TIMESTAMP null comment '创建时间，记录创建时的时间戳',
     operator               varchar(50)                        not null comment '操作人，执行排产操作的人员',
     product_id             int                                not null comment '产品编号，产品在系统中的编号',
+    production_id          int                                not null comment '布产编号，对应系统中布产编号',
     production_time        datetime                           null comment '布产时间，计划开始生产的时间',
     product_code           varchar(50)                        not null comment '产品编码，产品的具体编码',
     mould_number           varchar(50)                        null comment '模具编号，使用的模具编号',
@@ -35,6 +36,8 @@ create table buluerp.erp_production_arrange
     completion_time        datetime                           null comment '完成时间，实际完成生产的时间'
 )
     comment '排产表，用于记录生产计划的详细信息';
+
+
 
 
 * */
@@ -67,7 +70,7 @@ public class ErpProductionArrange {
 
     @Excel(name = "布产编号")
     @ApiModelProperty(value = "布产编号", dataType = "Integer", required = true)
-    private Integer productionNumber;
+    private Integer productionId;
 
     @Excel(name = "布产时间")
     @ApiModelProperty(value = "布产时间，计划开始生产的时间", dataType = "Date")
@@ -298,11 +301,11 @@ public class ErpProductionArrange {
         this.picture = picture;
     }
 
-    public Integer getProductionNumber() {
-        return productionNumber;
+    public Integer getProductionId() {
+        return productionId;
     }
 
-    public void setProductionNumber(Integer productionNumber) {
-        this.productionNumber = productionNumber;
+    public void setProductionId(Integer productionId) {
+        this.productionId = productionId;
     }
 }
