@@ -18,7 +18,7 @@ create table buluerp.erp_production_arrange
     order_code             varchar(50)                        not null comment '订单编码，唯一标识订单',
     creation_time          datetime default CURRENT_TIMESTAMP null comment '创建时间，记录创建时的时间戳',
     operator               varchar(50)                        not null comment '操作人，执行排产操作的人员',
-    product_id             int                        not null comment '产品编号，产品在系统中的编号',
+    product_id             int                                not null comment '产品编号，产品在系统中的编号',
     production_time        datetime                           null comment '布产时间，计划开始生产的时间',
     product_code           varchar(50)                        not null comment '产品编码，产品的具体编码',
     mould_number           varchar(50)                        null comment '模具编号，使用的模具编号',
@@ -64,6 +64,10 @@ public class ErpProductionArrange {
     @Excel(name = "产品编号")
     @ApiModelProperty(value = "产品编号，产品在系统中的编号", dataType = "String", required = true)
     private Long productId;
+
+    @Excel(name = "布产编号")
+    @ApiModelProperty(value = "布产编号", dataType = "Integer", required = true)
+    private Integer productionNumber;
 
     @Excel(name = "布产时间")
     @ApiModelProperty(value = "布产时间，计划开始生产的时间", dataType = "Date")
@@ -292,5 +296,13 @@ public class ErpProductionArrange {
 
     public void setPicture(MultipartFile picture) {
         this.picture = picture;
+    }
+
+    public Integer getProductionNumber() {
+        return productionNumber;
+    }
+
+    public void setProductionNumber(Integer productionNumber) {
+        this.productionNumber = productionNumber;
     }
 }
