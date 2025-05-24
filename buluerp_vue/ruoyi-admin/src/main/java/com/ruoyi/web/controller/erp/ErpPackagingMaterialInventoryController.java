@@ -5,6 +5,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpPackagingMaterialInventory;
 import com.ruoyi.web.domain.ErpPackagingMaterialInventoryChange;
 import com.ruoyi.web.request.Inventory.AddPackagingMaterialRequest;
 import com.ruoyi.web.request.Inventory.ListPackagingMaterialRequest;
@@ -144,5 +145,33 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable List<Integer> ids) {
         return toAjax(erpPackagingMaterialInventoryService.deleteByIds(ids));
+    }
+
+    @ApiOperation(value = "查询料包库存")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:store')")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
+            @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
+            @ApiImplicitParam(name = "packingNumber", value = "分包编号", dataType = "string"),
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
+    })
+    @GetMapping("/packaging/list")
+    public TableDataInfo listPackaging(
+            @RequestParam(required = false) String orderCode,
+            @RequestParam(required = false) String productPartNumber,
+            @RequestParam(required = false) String packingNumber,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeTo) {
+
+        ErpPackagingMaterialInventory query = new ErpPackagingMaterialInventory();
+        query.setOrderCode(orderCode);
+        query.setProductPartNumber(productPartNumber);
+        query.setPackingNumber(packingNumber);
+
+        startPage();
+        List<ErpPackagingMaterialInventory> list = erpPackagingMaterialInventoryService.ListStore(query, updateTimeFrom, updateTimeTo);
+        return getDataTable(list);
     }
 }

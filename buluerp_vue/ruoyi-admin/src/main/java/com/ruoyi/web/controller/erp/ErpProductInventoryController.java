@@ -5,6 +5,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpProductInventory;
 import com.ruoyi.web.domain.ErpProductInventoryChange;
 import com.ruoyi.web.request.Inventory.AddProductInventoryRequest;
 import com.ruoyi.web.request.Inventory.ListProductInventoryRequest;
@@ -138,5 +139,30 @@ public class ErpProductInventoryController extends BaseController {
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable List<Integer> ids) {
         return toAjax(productInventoryService.deleteByIds(ids));
+    }
+
+    @ApiOperation(value = "查询成品库存")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:product-inventory:store')")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
+            @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
+    })
+    @GetMapping("/product/list")
+    public TableDataInfo listProduct(
+            @RequestParam(required = false) String orderCode,
+            @RequestParam(required = false) String productPartNumber,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeTo) {
+
+        ErpProductInventory query = new ErpProductInventory();
+        query.setOrderCode(orderCode);
+        query.setProductPartNumber(productPartNumber);
+
+        startPage();
+        List<ErpProductInventory> list = productInventoryService.ListStore(query, updateTimeFrom, updateTimeTo);
+        return getDataTable(list);
     }
 }

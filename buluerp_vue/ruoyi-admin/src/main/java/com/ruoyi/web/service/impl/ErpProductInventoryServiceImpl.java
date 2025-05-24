@@ -5,10 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.web.domain.ErpPackagingMaterialInventory;
-import com.ruoyi.web.domain.ErpPackagingMaterialInventoryChange;
-import com.ruoyi.web.domain.ErpProductInventory;
-import com.ruoyi.web.domain.ErpProductInventoryChange;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpProductInventoryChangeMapper;
 import com.ruoyi.web.mapper.ErpProductInventoryMapper;
 import com.ruoyi.web.request.Inventory.AddProductInventoryRequest;
@@ -87,6 +84,15 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
             refresh(id);
         }
         return erpProductInventoryChangeMapper.deleteBatchIds(ids);
+    }
+
+    public List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo){
+        LambdaQueryWrapper<ErpProductInventory> wrapper= Wrappers.lambdaQuery();
+        wrapper.like(StringUtils.isNotBlank(erpProductInventory.getProductPartNumber()), ErpProductInventory::getProductPartNumber,erpProductInventory.getProductPartNumber())
+                .like(StringUtils.isNotBlank(erpProductInventory.getOrderCode()),ErpProductInventory::getOrderCode,erpProductInventory.getOrderCode())
+                .lt(updateTimeTo!=null,ErpProductInventory::getUpdateTime,updateTimeTo)
+                .gt(updateTimeFrom!=null,ErpProductInventory::getUpdateTime,updateTimeFrom);
+        return inventoryMapper.selectList(wrapper);
     }
 
     private void refresh(Integer id) throws RuntimeException{

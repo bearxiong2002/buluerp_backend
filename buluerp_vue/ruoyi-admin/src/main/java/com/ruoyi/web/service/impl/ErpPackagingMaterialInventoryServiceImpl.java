@@ -118,6 +118,16 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         return erpPackagingMaterialInventoryChangeMapper.deleteBatchIds(ids);
     }
 
+    public List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo){
+        LambdaQueryWrapper<ErpPackagingMaterialInventory> wrapper= Wrappers.lambdaQuery();
+        wrapper.like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getProductPartNumber()),ErpPackagingMaterialInventory::getProductPartNumber,erpPackagingMaterialInventory.getProductPartNumber())
+                .like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getOrderCode()),ErpPackagingMaterialInventory::getOrderCode,erpPackagingMaterialInventory.getOrderCode())
+                .like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getPackingNumber()),ErpPackagingMaterialInventory::getPackingNumber,erpPackagingMaterialInventory.getPackingNumber())
+                .lt(updateTimeTo!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeTo)
+                .gt(updateTimeFrom!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeFrom);
+        return inventoryMapper.selectList(wrapper);
+    }
+
     private void refresh(Integer id) throws RuntimeException{
         ErpPackagingMaterialInventoryChange changeEntity = erpPackagingMaterialInventoryChangeMapper.selectById(id);
         String orderCode=changeEntity.getOrderCode();

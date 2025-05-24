@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.web.domain.ErpPackagingMaterialInventory;
 import com.ruoyi.web.domain.ErpPartInventory;
 import com.ruoyi.web.domain.ErpPartInventoryChange;
 import com.ruoyi.web.mapper.ErpPartInventoryChangeMapper;
@@ -88,6 +89,16 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         return erpPartInventoryChangeMapper.deleteBatchIds(ids);
     }
 
+    public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,LocalDateTime updateTimeFrom,LocalDateTime updateTimeTo){
+        LambdaQueryWrapper<ErpPartInventory> wrapper= Wrappers.lambdaQuery();
+        wrapper.like(StringUtils.isNotBlank(erpPartInventory.getMouldNumber()), ErpPartInventory::getMouldNumber,erpPartInventory.getMouldNumber())
+                .like(StringUtils.isNotBlank(erpPartInventory.getOrderCode()),ErpPartInventory::getOrderCode,erpPartInventory.getOrderCode())
+                .lt(updateTimeTo!=null,ErpPartInventory::getUpdateTime,updateTimeTo)
+                .gt(updateTimeFrom!=null,ErpPartInventory::getUpdateTime,updateTimeFrom);
+        return inventoryMapper.selectList(wrapper);
+    }
+
+
     private void refresh(Integer id) throws RuntimeException{
         ErpPartInventoryChange changeEntity = erpPartInventoryChangeMapper.selectById(id);
         String orderCode=changeEntity.getOrderCode();
@@ -119,5 +130,4 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
             inventoryMapper.updateById(erpPartInventory);
         }
     }
-
 }
