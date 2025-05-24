@@ -24,6 +24,16 @@ public class TreeSelect implements Serializable
     /** 节点名称 */
     private String label;
 
+    public String getPath() {
+        return path;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
+    }
+
+    private String path;
+
     /** 节点禁用 */
     private boolean disabled = false;
 
@@ -49,6 +59,7 @@ public class TreeSelect implements Serializable
         this.id = menu.getMenuId();
         this.label = menu.getMenuName();
         this.children = menu.getChildren().stream().map(TreeSelect::new).collect(Collectors.toList());
+        this.path = menu.getPath();
     }
 
     public Long getId()

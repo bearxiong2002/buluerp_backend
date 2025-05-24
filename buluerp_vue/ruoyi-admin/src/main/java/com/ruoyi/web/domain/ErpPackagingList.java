@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import java.util.Date;
 
 public class ErpPackagingList extends BaseEntity {
+    @Excel(name = "序号")
     private Integer id;
 
     @Excel(name = "订单号")
@@ -35,6 +36,7 @@ public class ErpPackagingList extends BaseEntity {
     @Excel(name = "配件总数")
     private Integer accessoryTotal;
 
+
     @Excel(name = "是否是说明书", readConverterExp = "1=是,0=否")
     private Integer isManual;
 
@@ -43,6 +45,7 @@ public class ErpPackagingList extends BaseEntity {
 
     @Excel(name = "是否是起件器", readConverterExp = "1=是,0=否")
     private Integer isTool;
+
 
     @Excel(name = "生产线")
     private String productionLine;
