@@ -155,8 +155,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
             erpProductsMapper.clearProductMaterial(erpProducts.getId());
             String url=erpProducts.getPictureUrl();
-            url=parseActualPath(url);
-            FileUtils.deleteFile(url);
+            if(!StringUtils.isBlank(url)){
+                url=parseActualPath(url);
+                FileUtils.deleteFile(url);
+            }
         }
         return erpProductsMapper.deleteBatchIds(ids);
     }
