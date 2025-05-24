@@ -6,7 +6,7 @@
         <result property="orderCode" column="order_code" />
         <result property="creationTime" column="creation_time" />
         <result property="operator" column="operator" />
-        <result property="productNumber" column="product_number" />
+        <result property="productId" column="product_id" />
         <result property="productNameCn" column="product_name_cn" />
         <result property="packagingListNumber" column="packaging_list_number" />
         <result property="releaseDate" column="release_date" />
@@ -22,7 +22,7 @@
         <result property="packageQuantity" column="package_quantity" />
     </resultMap>
     <sql id="selectErpPackagingList">
-        select id, order_code, creation_time, operator, product_number, product_name_cn, packaging_list_number, release_date, accessory_type, accessory_total, is_manual, is_minifigure, is_tool, production_line, bag_weight, bag_specification, package_accessories, package_quantity from erp_packaging_list
+        select id, order_code, creation_time, operator, product_id, product_name_cn, packaging_list_number, release_date, accessory_type, accessory_total, is_manual, is_minifigure, is_tool, production_line, bag_weight, bag_specification, package_accessories, package_quantity from erp_packaging_list
     </sql>
     <select id="selectErpPackagingListById" resultType="com.ruoyi.web.domain.ErpPackagingList" resultMap="ErpPackagingListResult">
         <include refid="selectErpPackagingList"/>
@@ -38,8 +38,8 @@
             <if test="operator != null and operator != ''">
                 and operator like concat('%', #{operator}, '%')
             </if>
-            <if test="productNumber != null and productNumber != ''">
-                and product_number like concat('%', #{productNumber}, '%')
+            <if test="productId != null and productId != ''">
+                and product_id like concat('%', #{productId}, '%')
             </if>
             <if test="productNameCn != null and productNameCn != ''">
                 and product_name_cn like concat('%', #{productNameCn}, '%')
@@ -62,7 +62,7 @@
 
             <!-- 非字符串字段 - 精确查询 -->
             <if test="creationTime != null">
-                and creation_time = #{creationTime}
+                and DATE(creation_time) = DATE(#{creationTime})
             </if>
             <if test="releaseDate != null">
                 and release_date = #{releaseDate}
@@ -101,7 +101,7 @@
             <if test="orderCode != null">order_code,</if>
             <if test="creationTime != null">creation_time,</if>
             <if test="operator != null">operator,</if>
-            <if test="productNumber != null">product_number,</if>
+            <if test="productId != null">product_id,</if>
             <if test="productNameCn != null">product_name_cn,</if>
             <if test="packagingListNumber != null">packaging_list_number,</if>
             <if test="releaseDate != null">release_date,</if>
@@ -121,7 +121,7 @@
             <if test="orderCode != null">#{orderCode},</if>
             <if test="creationTime != null">#{creationTime},</if>
             <if test="operator != null">#{operator},</if>
-            <if test="productNumber != null">#{productNumber},</if>
+            <if test="productId != null">#{productId},</if>
             <if test="productNameCn != null">#{productNameCn},</if>
             <if test="packagingListNumber != null">#{packagingListNumber},</if>
             <if test="releaseDate != null">#{releaseDate},</if>
@@ -144,7 +144,7 @@
             <if test="orderCode != null">order_code = #{orderCode},</if>
             <!--<if test="creationTime != null">creation_time = #{creationTime},</if>-->
             <if test="operator != null">operator = #{operator},</if>
-            <if test="productNumber != null">product_number = #{productNumber},</if>
+            <if test="productId != null">product_id = #{productId},</if>
             <if test="productNameCn != null">product_name_cn = #{productNameCn},</if>
             <if test="packagingListNumber != null">packaging_list_number = #{packagingListNumber},</if>
             <if test="releaseDate != null">release_date = #{releaseDate},</if>
@@ -176,7 +176,7 @@
     <delete id="deleteErpPackagingListByProductId">
         delete p
         from erp_packaging_list p
-                 inner join erp_products prod on p.product_number = prod.product_number
+                 inner join erp_products prod on p.product_id = prod.id
         where prod.id = #{productId}
     </delete>
 </mapper>

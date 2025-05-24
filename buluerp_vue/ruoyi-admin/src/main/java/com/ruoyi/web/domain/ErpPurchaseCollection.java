@@ -2,15 +2,17 @@ package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
+import java.util.List;
 
 public class ErpPurchaseCollection extends BaseEntity {
-    @TableId(type = IdType.AUTO)
     @Excel(name = "序号")
-    private Integer id;
+    private Long id;
 
     @Excel(name = "订单编号")
     private String orderCode;
@@ -22,7 +24,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
-    private String productNumber;
+    private Long productId;
 
     @Excel(name = "下单时间")
     private Date orderTime;
@@ -66,11 +68,24 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Excel(name = "备注")
     private String remarks;
 
-    public Integer getId() {
+    @JsonIgnore
+    private MultipartFile picture;
+
+    List<Long> materialIds;
+
+    public List<Long> getMaterialIds() {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<Long> materialIds) {
+        this.materialIds = materialIds;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -98,12 +113,12 @@ public class ErpPurchaseCollection extends BaseEntity {
         this.operator = operator;
     }
 
-    public String getProductNumber() {
-        return productNumber;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public Date getOrderTime() {
@@ -216,5 +231,13 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public MultipartFile getPicture() {
+        return picture;
+    }
+
+    public void setPicture(MultipartFile picture) {
+        this.picture = picture;
     }
 }

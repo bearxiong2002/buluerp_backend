@@ -1,42 +1,59 @@
 package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @TableName(value = "erp_products")
 public class ErpProducts {
 
     /** $column.columnComment */
+    @Excel(name = "产品id")
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** $column.columnComment */
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "订单id")
+    private Integer orderId;
+
+    @Excel(name = "产品名")
     private String name;
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建时间")
     private LocalDateTime createTime;
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "更新时间")
     private LocalDateTime updateTime;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "图片url")
     private String pictureUrl;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "设计确认状态", readConverterExp = "1=已确认,0=未确认")
     private Integer designStatus;
 
-    @Excel(name = "${comment}", readConverterExp = "$column.readConverterExp()")
+    @Excel(name = "创建人")
     private String createUsername;
+
+    @TableField(exist = false)
+    private List<Integer> materialIds;
+
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
 
     public String getCreateUsername() {
         return createUsername;
@@ -94,4 +111,11 @@ public class ErpProducts {
         this.pictureUrl = pictureUrl;
     }
 
+    public List<Integer> getMaterialIds() {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<Integer> materialIds) {
+        this.materialIds = materialIds;
+    }
 }

@@ -1,13 +1,17 @@
 package com.ruoyi.web.service.impl;
 
 import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.List;
 
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.request.design.AddDesignRequest;
-import com.ruoyi.web.request.design.LIstDesignRequest;
+import com.ruoyi.web.request.design.ListDesignRequest;
 import com.ruoyi.web.request.design.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +50,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 设计造型
      */
     @Override
-    public List<ErpDesignStyle> selectErpDesignStyleList(LIstDesignRequest lIstDesignRequest)
+    public List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest lIstDesignRequest)
     {
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(lIstDesignRequest.getId(), lIstDesignRequest.getDesignPatternId(), lIstDesignRequest.getGroupId());
         return erpDesignStyleMapper.selectErpDesignStyleList(erpDesignStyle);
@@ -66,7 +70,8 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Override
     public int insertErpDesignStyle(AddDesignRequest addDesignRequest) throws IOException {
 
-        String url= FileUploadUtils.upload(addDesignRequest.getPicture());
+        String url=null;
+        if(addDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(addDesignRequest.getPicture());
 
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getDesignPatternId(),addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
@@ -81,7 +86,16 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      */
     @Override
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
-        String url= FileUploadUtils.upload(updateDesignRequest.getPicture());
+        String url=null;
+        if(updateDesignRequest.getPicture()!=null){
+
+            //删除原本的文件
+            String preUrl=erpDesignStyleMapper.selectById(updateDesignRequest.getId()).getPictureUrl();
+            preUrl=parseActualPath(preUrl);
+            FileUtils.deleteFile(preUrl);
+
+            url= FileUploadUtils.upload(updateDesignRequest.getPicture());
+        }
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateErpDesignStyle(erpDesignStyle);
     }
@@ -93,9 +107,17 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
-    public int deleteErpDesignStyleByIds(Long[] ids)
+    public int deleteErpDesignStyleByIds(List<Integer> ids)
     {
-        return erpDesignStyleMapper.deleteErpDesignStyleByIds(ids);
+        for(Integer id:ids){
+            //删除原本的文件
+            String preUrl=erpDesignStyleMapper.selectById(id).getPictureUrl();
+            if(preUrl!=null){
+                preUrl=parseActualPath(preUrl);
+                FileUtils.deleteFile(preUrl);
+            }
+        }
+        return erpDesignStyleMapper.deleteBatchIds(ids);
     }
 
     /**
@@ -107,6 +129,26 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Override
     public int deleteErpDesignStyleById(Long id)
     {
+        //删除原本的文件
+        String preUrl=erpDesignStyleMapper.selectById(id).getPictureUrl();
+        preUrl=parseActualPath(preUrl);
+        FileUtils.deleteFile(preUrl);
         return erpDesignStyleMapper.deleteErpDesignStyleById(id);
+    }
+
+    public static String parseActualPath(String url) {
+        // 1. 验证URL是否以资源前缀开头
+        if (!url.startsWith(Constants.RESOURCE_PREFIX)) {
+            throw new IllegalArgumentException("文件URL必须以 " + Constants.RESOURCE_PREFIX + " 开头");
+        }
+
+        // 2. 移除资源前缀（保留后续路径部分）
+        String relativePath = url.substring(Constants.RESOURCE_PREFIX.length());
+
+        // 3. 拼接实际存储路径
+        return Paths.get(
+                RuoYiConfig.getProfile(), // 基础路径（如 D:/ruoyi/uploadPath）
+                relativePath.split("/")   // 拆分路径部分（如 ["", "2025", "05", "10", "xxx.txt"]）
+        ).toString();
     }
 }

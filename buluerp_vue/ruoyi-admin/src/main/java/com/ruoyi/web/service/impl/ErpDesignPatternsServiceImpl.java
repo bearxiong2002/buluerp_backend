@@ -1,7 +1,10 @@
 package com.ruoyi.web.service.impl;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
@@ -56,7 +59,8 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 erpDesignStyleMapper.selectColorSet(id),
                 erpDesignStyleMapper.selectProductNameSet(id),
                 erpDesignStyleMapper.sumQuantityById(id),
-                erpDesignStyleMapper.selectMaterialSet(id)
+                erpDesignStyleMapper.selectMaterialSet(id),
+                erpDesignPatternsMapper.selectById(id).getConfirm()
         );
     }
 
@@ -69,8 +73,12 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Override
     public List<ErpDesignPatterns> selectErpDesignPatternsList(ListDesignPatternsRequest listDesignPatternsRequest)
     {
-        ErpDesignPatterns erpDesignPatterns=new ErpDesignPatterns(listDesignPatternsRequest.getProductId(), listDesignPatternsRequest.getCreateUserId(), listDesignPatternsRequest.getOrderId(), listDesignPatternsRequest.getConfirm());
-        return erpDesignPatternsMapper.selectErpDesignPatternsList(erpDesignPatterns);
+        LambdaQueryWrapper<ErpDesignPatterns> wrapper= Wrappers.lambdaQuery();
+        wrapper.eq(listDesignPatternsRequest.getConfirm()!=null,ErpDesignPatterns::getConfirm,listDesignPatternsRequest.getConfirm())
+                .eq(listDesignPatternsRequest.getProductId()!=null,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
+                .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
+                .eq(listDesignPatternsRequest.getOrderId()!=null,ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId());
+        return erpDesignPatternsMapper.selectList(wrapper);
     }
 
     @Override
@@ -93,7 +101,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         Long userId = loginUser.getUserId();
 
         ErpDesignPatterns erpDesignPatterns=new ErpDesignPatterns(addDesignPatternsRequest.getProductId(),userId, addDesignPatternsRequest.getOrderId());
-        erpDesignPatterns.setCreateTime(DateUtils.getNowDate());
+        erpDesignPatterns.setCreateTime(LocalDateTime.now());
 
         return erpDesignPatternsMapper.insert(erpDesignPatterns);
     }
@@ -107,7 +115,10 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Override
     public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest)
     {
-        ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns(updateDesignPatternsRequest.getId(),updateDesignPatternsRequest.getProductId(),null, updateDesignPatternsRequest.getOrderId());
+        ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns();
+        erpDesignPatterns.setId(updateDesignPatternsRequest.getId());
+        erpDesignPatterns.setOrderId(updateDesignPatternsRequest.getOrderId());
+        erpDesignPatterns.setProductId(updateDesignPatternsRequest.getProductId());
         return erpDesignPatternsMapper.updateById(erpDesignPatterns);
     }
 
@@ -118,9 +129,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 结果
      */
     @Override
-    public int deleteErpDesignPatternsByIds(Long[] ids)
+    public int deleteErpDesignPatternsByIds(List<Integer> ids)
     {
-        return erpDesignPatternsMapper.deleteErpDesignPatternsByIds(ids);
+        return erpDesignPatternsMapper.deleteBatchIds(ids);
     }
 
     /**

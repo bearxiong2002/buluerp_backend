@@ -1,8 +1,12 @@
 package com.ruoyi.web.service.impl;
 
 import java.util.List;
+
+import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.service.IErpOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +25,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 {
     @Autowired
     private ErpOrdersMapper erpOrdersMapper;
+
+    @Autowired
+    private ErpCustomersMapper erpCustomersMapper;
 
     /**
      * 查询订单
@@ -43,7 +50,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders)
     {
-        return erpOrdersMapper.selectErpOrdersList(erpOrders);
+        List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(erpOrders);
+        for (ErpOrders erpOrders1 : list) {
+            erpOrders1.setCustomer(
+                    erpCustomersMapper.selectErpCustomersById(erpOrders1.getCustomerId())
+            );
+        }
+        return list;
     }
 
     @Override
@@ -61,8 +74,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int insertErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setCreateTime(DateUtils.getNowDate());
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        if (loginUser != null) {
+            erpOrders.setOperatorId(loginUser.getUserId());
+        }
         int res = erpOrdersMapper.insertErpOrders(erpOrders);
-        if (res < 0) {
+        if (res <= 0) {
             return 0;
         } else {
             erpOrders.setInnerId(erpOrders.generateInnerId());
@@ -81,6 +98,10 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int updateErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setUpdateTime(DateUtils.getNowDate());
+        LoginUser loginUser = SecurityUtils.getLoginUser();
+        if (loginUser != null) {
+            erpOrders.setOperatorId(loginUser.getUserId());
+        }
         return erpOrdersMapper.updateErpOrders(erpOrders);
     }
 

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.domain.ErpProducts;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -17,7 +18,13 @@ import java.util.List;
 @Mapper
 public interface ErpProductsMapper extends BaseMapper<ErpProducts>
 {
-    int updateStatusById(Long id,Long design_status);
+    int updateStatusById(@Param("id")Long id,@Param("design_status")Long design_status);
 
     List<ErpProducts> selectErpProductsListByIds(Integer[] ids);
+
+    int insertProductMaterial(Long productId,Integer materialId);
+
+    int clearProductMaterial(Long productId);
+
+    List<Integer> getProductMaterialIds(Long productId);
 }

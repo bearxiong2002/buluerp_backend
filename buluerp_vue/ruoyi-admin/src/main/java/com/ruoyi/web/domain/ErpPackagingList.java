@@ -3,7 +3,6 @@ package com.ruoyi.web.domain;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 public class ErpPackagingList extends BaseEntity {
@@ -20,7 +19,7 @@ public class ErpPackagingList extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
-    private String productNumber;
+    private Long productId;
 
     @Excel(name = "产品中文名称")
     private String productNameCn;
@@ -37,14 +36,16 @@ public class ErpPackagingList extends BaseEntity {
     @Excel(name = "配件总数")
     private Integer accessoryTotal;
 
-    @Excel(name = "是否是说明书", readConverterExp = "true=是,false=否")
-    private Boolean isManual;
 
-    @Excel(name = "是否是人仔", readConverterExp = "true=是,false=否")
-    private Boolean isMinifigure;
+    @Excel(name = "是否是说明书", readConverterExp = "1=是,0=否")
+    private Integer isManual;
 
-    @Excel(name = "是否是起件器", readConverterExp = "true=是,false=否")
-    private Boolean isTool;
+    @Excel(name = "是否是人仔", readConverterExp = "1=是,0=否")
+    private Integer isMinifigure;
+
+    @Excel(name = "是否是起件器", readConverterExp = "1=是,0=否")
+    private Integer isTool;
+
 
     @Excel(name = "生产线")
     private String productionLine;
@@ -61,12 +62,12 @@ public class ErpPackagingList extends BaseEntity {
     @Excel(name = "本包数量")
     private Integer packageQuantity;
 
-    public String getProductNumber() {
-        return productNumber;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setProductNumber(String productNumber) {
-        this.productNumber = productNumber;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public Integer getId() {
@@ -141,27 +142,27 @@ public class ErpPackagingList extends BaseEntity {
         this.accessoryTotal = accessoryTotal;
     }
 
-    public Boolean getManual() {
+    public Integer getIsManual() {
         return isManual;
     }
 
-    public void setManual(Boolean manual) {
+    public void setIsManual(Integer manual) {
         isManual = manual;
     }
 
-    public Boolean getMinifigure() {
+    public Integer getIsMinifigure() {
         return isMinifigure;
     }
 
-    public void setMinifigure(Boolean minifigure) {
+    public void setIsMinifigure(Integer minifigure) {
         isMinifigure = minifigure;
     }
 
-    public Boolean getTool() {
+    public Integer getIsTool() {
         return isTool;
     }
 
-    public void setTool(Boolean tool) {
+    public void setIsTool(Integer tool) {
         isTool = tool;
     }
 

@@ -71,6 +71,8 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "分包ID")
     private Long subcontractId;
 
+    private ErpCustomers customer;
+
     public void setId(Long id) 
     {
         this.id = id;
@@ -230,5 +232,13 @@ public class ErpOrders extends BaseEntity
 
     public void setOuterId(String outerId) {
         this.outerId = outerId;
+    }
+
+    public ErpCustomers getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(ErpCustomers customer) {
+        this.customer = customer;
     }
 }

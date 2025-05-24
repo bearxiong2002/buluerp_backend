@@ -19,7 +19,7 @@ public class ErpDesignSubPattern extends BaseEntity
     private Long id;
 
     /** 主设记编号 */
-    @Excel(name = "主设记编号")
+    @Excel(name = "主设计编号")
     private Long designPatternId;
 
     /** 模具编号，用于唯一标识模具 */
