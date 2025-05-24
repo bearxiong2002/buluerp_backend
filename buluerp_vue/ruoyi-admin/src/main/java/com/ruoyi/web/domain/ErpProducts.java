@@ -18,7 +18,9 @@ public class ErpProducts {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    /** $column.columnComment */
+    @Excel(name = "订单id")
+    private Integer orderId;
+
     @Excel(name = "产品名")
     private String name;
 
@@ -43,6 +45,15 @@ public class ErpProducts {
 
     @TableField(exist = false)
     private List<Integer> materialIds;
+
+
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
 
     public String getCreateUsername() {
         return createUsername;

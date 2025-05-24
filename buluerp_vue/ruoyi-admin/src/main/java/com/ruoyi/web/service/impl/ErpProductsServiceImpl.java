@@ -89,6 +89,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpProducts.setPictureUrl(url);
         }
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
+        erpProducts.setOrderId(addProductRequest.getOrderId());
         erpProducts.setName(addProductRequest.getName());
         erpProducts.setCreateTime(LocalDateTime.now());
         erpProducts.setUpdateTime(LocalDateTime.now());
@@ -118,6 +119,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpProducts.setPictureUrl(url);
         }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
+        if(updateProductRequest.getOrderId()!=null) erpProducts.setOrderId(updateProductRequest.getOrderId());
         if(updateProductRequest.getDesignStatus()!=null){
             LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());

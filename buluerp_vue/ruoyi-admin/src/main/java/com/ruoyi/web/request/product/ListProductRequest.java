@@ -1,5 +1,6 @@
 package com.ruoyi.web.request.product;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -9,6 +10,8 @@ import java.time.LocalDateTime;
 public class ListProductRequest {
     @ApiModelProperty(dataType = "Long",value = "产品id",required = false)
     private Long id;
+    @ApiModelProperty(dataType = "int",value = "订单id",required = false)
+    private Integer orderId;
     @ApiModelProperty(dataType = "String",value = "产品名称",required = false)
     private String name;
     @ApiModelProperty(dataType = "String",value = "创建用户名称",required = false)
@@ -20,6 +23,13 @@ public class ListProductRequest {
     @ApiModelProperty(dataType = "int",value = "产品设计是否完成 0未完成 1完成",required = false)
     private Integer designStatus;
 
+    public Integer getOrderId() {
+        return orderId;
+    }
+
+    public void setOrderId(Integer orderId) {
+        this.orderId = orderId;
+    }
 
     public Integer getDesignStatus() {
         return designStatus;
