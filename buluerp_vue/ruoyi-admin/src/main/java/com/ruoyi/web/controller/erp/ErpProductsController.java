@@ -44,7 +44,7 @@ public class ErpProductsController extends BaseController {
             @ApiImplicitParam(name = "createUsername", value = "创建用户名称", dataType = "string", paramType = "query", example = "admin"),
             @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
             @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
-            @ApiImplicitParam(name = "design_status", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1")})
+            @ApiImplicitParam(name = "designStatus", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1")})
     @GetMapping("/list")
     public TableDataInfo list(
             @RequestParam(required = false) Long id,
