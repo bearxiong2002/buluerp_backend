@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.erp;
 
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -13,11 +14,15 @@ import com.ruoyi.web.request.manufacturer.ListManufacturerRequest;
 import com.ruoyi.web.request.manufacturer.UpdateManufacturerRequest;
 import com.ruoyi.web.service.IErpManufacturerService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.List;
 
 
@@ -36,10 +41,38 @@ public class ErpManufacturerController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:list')")
     @GetMapping("/list")
-    public TableDataInfo list(ListManufacturerRequest listManufacturerRequest)
-    {
-        startPage();
-        List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerList(listManufacturerRequest);
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "厂家ID（可选）", dataType = "Long", paramType = "query", example = "1"),
+            @ApiImplicitParam(name = "name", value = "厂家名称（可选）", dataType = "String", paramType = "query", example = "华为"),
+            @ApiImplicitParam(name = "tel", value = "联系方式（可选）", dataType = "String", paramType = "query", example = "13800138000"),
+            @ApiImplicitParam(name = "email", value = "邮箱地址（可选）", dataType = "String", paramType = "query", example = "contact@huawei.com"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
+            @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", dataType = "Integer", paramType = "query", example = "1"),
+            @ApiImplicitParam(name = "pageSize", value = "每页数量（默认10）", dataType = "Integer", paramType = "query", example = "10")
+    })
+    public TableDataInfo list(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String tel,
+            @RequestParam(required = false) String email,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) Date createTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) Date createTimeTo,
+            @RequestParam(defaultValue = "1") Integer pageNum,
+            @RequestParam(defaultValue = "10") Integer pageSize) {
+
+        // 手动封装查询条件
+        ListManufacturerRequest request = new ListManufacturerRequest();
+        request.setId(id);
+        request.setName(name);
+        request.setTel(tel);
+        request.setEmail(email);
+        request.setCreateTimeFrom(createTimeFrom);
+        request.setCreateTimeTo(createTimeTo);
+
+        // 若依框架分页设置
+        PageHelper.startPage(pageNum, pageSize);
+        List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerList(request);
         return getDataTable(list);
     }
 

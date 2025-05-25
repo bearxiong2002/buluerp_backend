@@ -3,6 +3,9 @@ package com.ruoyi.web.request.manufacturer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 @ApiModel(value = "修改厂家请求类")
 public class ListManufacturerRequest {
 
@@ -18,8 +21,32 @@ public class ListManufacturerRequest {
     @ApiModelProperty(dataType = "String",value = "邮箱地址",required = false)
     private String email;
 
+    @ApiModelProperty(dataType = "Date",value = "创建时间起始",required = false)
+    private Date createTimeFrom;
+    @ApiModelProperty(dataType = "Date",value = "创建时间终止",required = false)
+    private Date createTimeTo;
+
     @ApiModelProperty(dataType = "String",value = "客户备注",required = false)
     private String remark;
+
+    public ListManufacturerRequest() {
+    }
+
+    public Date getCreateTimeFrom() {
+        return createTimeFrom;
+    }
+
+    public void setCreateTimeFrom(Date createTimeFrom) {
+        this.createTimeFrom = createTimeFrom;
+    }
+
+    public Date getCreateTimeTo() {
+        return createTimeTo;
+    }
+
+    public void setCreateTimeTo(Date createTimeTo) {
+        this.createTimeTo = createTimeTo;
+    }
 
     public Long getId() {
         return id;

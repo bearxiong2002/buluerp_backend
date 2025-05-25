@@ -1,8 +1,11 @@
 package com.ruoyi.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.web.domain.ErpManufacturer;
 import com.ruoyi.web.mapper.ErpManufacturerMapper;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
@@ -59,14 +62,14 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
     }
 
     public List<ErpManufacturer> selectErpManufacturerList(ListManufacturerRequest listManufacturerRequest){
-        ErpManufacturer erpManufacturer=new ErpManufacturer.Builder()
-                .withId(listManufacturerRequest.getId())
-                .withName(listManufacturerRequest.getName())
-                .withTel(listManufacturerRequest.getTel())
-                .withEmail(listManufacturerRequest.getEmail())
-                .withRemark(listManufacturerRequest.getRemark())
-                .build();
-        return erpManufacturerMapper.selectErpManufacturerList(erpManufacturer);
+        LambdaQueryWrapper<ErpManufacturer> wrapper= Wrappers.lambdaQuery();
+        wrapper.like(!StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
+                .like(!StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())
+                .like(!StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
+                .like(!StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
+                .lt(listManufacturerRequest.getCreateTimeTo()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeTo())
+                .gt(listManufacturerRequest.getCreateTimeFrom()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeFrom());
+        return erpManufacturerMapper.selectList(wrapper);
     }
 
     @Override
