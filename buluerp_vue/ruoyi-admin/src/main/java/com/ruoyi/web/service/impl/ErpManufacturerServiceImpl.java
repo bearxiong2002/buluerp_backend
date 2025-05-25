@@ -63,10 +63,11 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
 
     public List<ErpManufacturer> selectErpManufacturerList(ListManufacturerRequest listManufacturerRequest){
         LambdaQueryWrapper<ErpManufacturer> wrapper= Wrappers.lambdaQuery();
-        wrapper.like(!StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
-                .like(!StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())
-                .like(!StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
-                .like(!StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
+        wrapper.eq(listManufacturerRequest.getId()!=null,ErpManufacturer::getId,listManufacturerRequest.getId())
+                .like(StringUtils.isNotBlank(listManufacturerRequest.getTel()),ErpManufacturer::getTel,listManufacturerRequest.getTel())
+                .like(StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
+                .like(StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())
+                .like(StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
                 .lt(listManufacturerRequest.getCreateTimeTo()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeTo())
                 .gt(listManufacturerRequest.getCreateTimeFrom()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeFrom());
         return erpManufacturerMapper.selectList(wrapper);

@@ -71,7 +71,8 @@ public class ErpManufacturerController extends BaseController {
         request.setCreateTimeTo(createTimeTo);
 
         // 若依框架分页设置
-        PageHelper.startPage(pageNum, pageSize);
+        //PageHelper.startPage(pageNum, pageSize);
+        startPage();
         List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerList(request);
         return getDataTable(list);
     }
