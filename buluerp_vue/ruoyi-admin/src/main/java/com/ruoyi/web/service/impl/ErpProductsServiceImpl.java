@@ -115,8 +115,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(updateProductRequest.getPicture()!=null){
             //删除原先的图片
             String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
-            url1=parseActualPath(url1);
-            FileUtils.deleteFile(url1);
+            if(url1!=null){
+                url1=parseActualPath(url1);
+                FileUtils.deleteFile(url1);
+            }
             //保存后来的图片
             String url=FileUploadUtils.upload(updateProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
