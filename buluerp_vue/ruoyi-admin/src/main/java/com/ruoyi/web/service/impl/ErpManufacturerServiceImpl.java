@@ -57,8 +57,8 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
         return erpManufacturerMapper.updateById(erpManufacturer);
     }
 
-    public int deleteErpManufacturerByIds(Long[] ids){
-        return erpManufacturerMapper.deleteManufacturerByIds(ids);
+    public int deleteErpManufacturerByIds(List<Integer> ids){
+        return erpManufacturerMapper.deleteBatchIds(ids);
     }
 
     public List<ErpManufacturer> selectErpManufacturerList(ListManufacturerRequest listManufacturerRequest){
@@ -68,8 +68,8 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
-                .lt(listManufacturerRequest.getCreateTimeTo()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeTo())
-                .gt(listManufacturerRequest.getCreateTimeFrom()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeFrom());
+                .le(listManufacturerRequest.getCreateTimeTo()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeTo())
+                .ge(listManufacturerRequest.getCreateTimeFrom()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeFrom());
         return erpManufacturerMapper.selectList(wrapper);
     }
 

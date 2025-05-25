@@ -90,8 +90,8 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         LambdaQueryWrapper<ErpProductInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpProductInventory.getProductPartNumber()), ErpProductInventory::getProductPartNumber,erpProductInventory.getProductPartNumber())
                 .like(StringUtils.isNotBlank(erpProductInventory.getOrderCode()),ErpProductInventory::getOrderCode,erpProductInventory.getOrderCode())
-                .lt(updateTimeTo!=null,ErpProductInventory::getUpdateTime,updateTimeTo)
-                .gt(updateTimeFrom!=null,ErpProductInventory::getUpdateTime,updateTimeFrom);
+                .le(updateTimeTo!=null,ErpProductInventory::getUpdateTime,updateTimeTo)
+                .ge(updateTimeFrom!=null,ErpProductInventory::getUpdateTime,updateTimeFrom);
         return inventoryMapper.selectList(wrapper);
     }
 

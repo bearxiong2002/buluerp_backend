@@ -8,7 +8,6 @@ import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
-import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
@@ -128,11 +127,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(updateProductRequest.getDesignStatus()!=null){
             LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());
-
-            erpProductsMapper.updateStatusById(updateProductRequest.getId(),1L);
+            Long designStatus=updateProductRequest.getDesignStatus();
+            erpProductsMapper.updateStatusById(updateProductRequest.getId(),designStatus);
             if(erpDesignPatternsMapper.selectOne(wrapper)!=null){
-                if(updateProductRequest.getDesignStatus()==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
-                if(updateProductRequest.getDesignStatus()==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+                if(designStatus==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+                if(designStatus==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
             }
         }
 

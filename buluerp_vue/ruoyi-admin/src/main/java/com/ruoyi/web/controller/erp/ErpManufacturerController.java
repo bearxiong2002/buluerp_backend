@@ -137,7 +137,7 @@ public class ErpManufacturerController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:remove')")
     @Log(title = "删除厂家", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
+    public AjaxResult remove(@PathVariable List<Integer> ids)
     {
         return toAjax(erpManufacturerService.deleteErpManufacturerByIds(ids));
     }

@@ -53,6 +53,6 @@ public interface IErpManufacturerService {
      * @param ids 需要删除的【请填写功能名称】主键集合
      * @return 结果
      */
-    public int deleteErpManufacturerByIds(Long[] ids);
+    public int deleteErpManufacturerByIds(List<Integer> ids);
 
 }
