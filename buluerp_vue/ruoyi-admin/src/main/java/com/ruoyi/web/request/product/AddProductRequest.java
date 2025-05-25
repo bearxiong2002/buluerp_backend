@@ -26,10 +26,18 @@ public class AddProductRequest {
     public void setMaterialIds(List<Integer> materialIds) {
         this.materialIds = materialIds;
     }
-
-    @Excel(name ="物料id列表")
     @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = true)
     private List<Integer> materialIds;
+    @Excel(name ="物料id列表")
+    private String materialString;
+
+    public String getMaterialString() {
+        return materialString;
+    }
+
+    public void setMaterialString(String materialString) {
+        this.materialString = materialString;
+    }
 
     public Integer getOrderId() {
         return orderId;

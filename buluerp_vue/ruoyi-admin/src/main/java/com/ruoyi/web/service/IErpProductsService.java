@@ -19,4 +19,6 @@ public interface IErpProductsService extends IService<ErpProducts> {
     int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException;
 
     int deleteErpProductsByIds(List<Integer> ids);
+
+    void processMaterialIds(AddProductRequest item);
 }

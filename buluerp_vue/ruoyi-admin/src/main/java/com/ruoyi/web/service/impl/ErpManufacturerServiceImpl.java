@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpManufacturer;
 import com.ruoyi.web.mapper.ErpManufacturerMapper;
@@ -12,6 +13,7 @@ import com.ruoyi.web.service.IErpManufacturerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -34,7 +36,7 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
                 .withTel(addManufacturerRequest.getTel())
                 .withRemark(addManufacturerRequest.getRemark())
                 .build();
-
+        erpManufacturer.setCreateTime(DateUtils.getNowDate());
         return erpManufacturerMapper.insert(erpManufacturer);
 
     }

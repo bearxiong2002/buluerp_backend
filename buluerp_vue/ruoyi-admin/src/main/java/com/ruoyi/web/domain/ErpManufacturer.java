@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.ruoyi.common.annotation.Excel;
 
+import java.util.Date;
+
 @TableName(value = "erp_manufacturer")
 public class ErpManufacturer {
 
@@ -21,6 +23,28 @@ public class ErpManufacturer {
     private String email;
     @Excel(name = "客户备注")
     private String remark;
+    @Excel(name = "创建时间")
+    private Date createTime;
+
+    public ErpManufacturer(Long id, Long createUserId, String name, String tel, String email, String remark, Date createTime) {
+        this.id = id;
+        this.createUserId = createUserId;
+        this.name = name;
+        this.tel = tel;
+        this.email = email;
+        this.remark = remark;
+        this.createTime = createTime;
+    }
+
+    public ErpManufacturer() {}
+
+    public Date getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(Date createTime) {
+        this.createTime = createTime;
+    }
 
     public Long getId() {
         return id;

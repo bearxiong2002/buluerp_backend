@@ -29,7 +29,9 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpProducts> implements IErpProductsService {
@@ -97,6 +99,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             throw new ServiceException("添加失败");
         }
         for (Integer materialId : addProductRequest.getMaterialIds()) {
+            System.out.println("??????"+materialId);
             if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
                 throw new ServiceException("添加失败");
             }
@@ -146,6 +149,23 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             }
         }
         return 1;
+    }
+
+    @Override
+    public void processMaterialIds(AddProductRequest item) {
+
+        // 数据清洗：兼容中文逗号、空格
+        String normalized = item.getMaterialString()
+                .replace("，", ",")  // 中文逗号转英文
+                .replaceAll("\\s+", "");  // 去除所有空格
+
+        List<Integer> ids = Arrays.stream(normalized.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())  // 过滤空字符串
+                .map(Integer::parseInt)
+                .collect(Collectors.toList());
+
+        item.setMaterialIds(ids);
     }
 
     @Override
