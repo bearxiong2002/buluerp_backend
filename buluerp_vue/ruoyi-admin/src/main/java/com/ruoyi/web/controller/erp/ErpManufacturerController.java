@@ -56,8 +56,8 @@ public class ErpManufacturerController extends BaseController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String tel,
             @RequestParam(required = false) String email,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) Date createTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) Date createTimeTo,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date createTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date createTimeTo,
             @RequestParam(defaultValue = "1") Integer pageNum,
             @RequestParam(defaultValue = "10") Integer pageSize) {
 
@@ -71,7 +71,8 @@ public class ErpManufacturerController extends BaseController {
         request.setCreateTimeTo(createTimeTo);
 
         // 若依框架分页设置
-        PageHelper.startPage(pageNum, pageSize);
+        //PageHelper.startPage(pageNum, pageSize);
+        startPage();
         List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerList(request);
         return getDataTable(list);
     }
