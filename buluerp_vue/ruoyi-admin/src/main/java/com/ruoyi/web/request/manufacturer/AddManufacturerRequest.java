@@ -50,10 +50,4 @@ public class AddManufacturerRequest {
         this.remark = remark;
     }
 
-    public AddManufacturerRequest(String name, String tel, String email, String remark) {
-        this.name = name;
-        this.tel = tel;
-        this.email = email;
-        this.remark = remark;
-    }
 }

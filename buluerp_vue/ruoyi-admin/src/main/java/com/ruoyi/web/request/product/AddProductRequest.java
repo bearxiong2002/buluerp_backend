@@ -27,6 +27,7 @@ public class AddProductRequest {
         this.materialIds = materialIds;
     }
 
+    @Excel(name ="物料id列表")
     @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = true)
     private List<Integer> materialIds;
 
