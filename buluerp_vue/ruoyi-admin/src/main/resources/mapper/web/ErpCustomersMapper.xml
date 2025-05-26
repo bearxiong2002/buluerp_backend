@@ -41,7 +41,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
 
-    <insert id="insertErpCustomers" parameterType="ErpCustomers">
+    <insert id="insertErpCustomers" parameterType="ErpCustomers" useGeneratedKeys="true" keyProperty="id">
         insert into erp_customers
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="id != null">id,</if>
