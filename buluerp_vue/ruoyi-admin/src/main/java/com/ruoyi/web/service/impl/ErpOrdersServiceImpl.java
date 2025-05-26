@@ -3,15 +3,17 @@ package com.ruoyi.web.service.impl;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
+import com.ruoyi.web.service.IErpCustomersService;
 import com.ruoyi.web.service.IErpOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -27,7 +29,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private ErpOrdersMapper erpOrdersMapper;
 
     @Autowired
-    private ErpCustomersMapper erpCustomersMapper;
+    private IErpCustomersService erpCustomersService;
 
     /**
      * 查询订单
@@ -53,7 +55,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(erpOrders);
         for (ErpOrders erpOrders1 : list) {
             erpOrders1.setCustomer(
-                    erpCustomersMapper.selectErpCustomersById(erpOrders1.getCustomerId())
+                    erpCustomersService.selectErpCustomersById(erpOrders1.getCustomerId())
             );
         }
         return list;
@@ -71,6 +73,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
      * @return 结果
      */
     @Override
+    @Transactional
     public int insertErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setCreateTime(DateUtils.getNowDate());
@@ -78,14 +81,25 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (loginUser != null) {
             erpOrders.setOperatorId(loginUser.getUserId());
         }
-        int res = erpOrdersMapper.insertErpOrders(erpOrders);
-        if (res <= 0) {
-            return 0;
-        } else {
-            erpOrders.setInnerId(erpOrders.generateInnerId());
-            erpOrders.setOuterId(erpOrders.generateOuterId());
-            return erpOrdersMapper.updateErpOrders(erpOrders);
+        if (erpOrders.getCustomer() != null) {
+            if (0 == erpCustomersService.insertErpCustomers(erpOrders.getCustomer())) {
+                throw new ServiceException("添加客户信息失败");
+            }
+            erpOrders.setCustomerId(erpOrders.getCustomer().getId());
         }
+        if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
+            throw new ServiceException("操作失败");
+        }
+
+        ErpOrders erpOrders1 = new ErpOrders();
+        erpOrders1.setId(erpOrders.getId());
+        erpOrders1.setInnerId(erpOrders.generateInnerId());
+        erpOrders1.setOuterId(erpOrders.generateOuterId());
+        if (0 == erpOrdersMapper.updateErpOrders(erpOrders1)) {
+            throw new ServiceException("无法生成订单ID");
+        }
+
+        return 1;
     }
 
     /**
@@ -95,6 +109,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
      * @return 结果
      */
     @Override
+    @Transactional
     public int updateErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setUpdateTime(DateUtils.getNowDate());
@@ -102,7 +117,17 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (loginUser != null) {
             erpOrders.setOperatorId(loginUser.getUserId());
         }
-        return erpOrdersMapper.updateErpOrders(erpOrders);
+       if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
+           throw new ServiceException("操作失败");
+       }
+       if (erpOrders.getCustomer() != null) {
+           ErpOrders data = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
+           erpOrders.getCustomer().setId(data.getCustomerId());
+           if (0 == erpCustomersService.updateErpCustomers(erpOrders.getCustomer())) {
+               throw new ServiceException("更新客户信息失败");
+           }
+       }
+       return 1;
     }
 
     /**
