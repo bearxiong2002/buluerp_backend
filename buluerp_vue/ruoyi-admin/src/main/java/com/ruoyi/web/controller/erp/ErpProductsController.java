@@ -44,10 +44,13 @@ public class ErpProductsController extends BaseController {
             @ApiImplicitParam(name = "createUsername", value = "创建用户名称", dataType = "string", paramType = "query", example = "admin"),
             @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
             @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
-            @ApiImplicitParam(name = "designStatus", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1")})
+            @ApiImplicitParam(name = "designStatus", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1"),
+            @ApiImplicitParam(name = "orderId", value = "订单id", dataType = "integer")})
+
     @GetMapping("/list")
     public TableDataInfo list(
             @RequestParam(required = false) Long id,
+            @RequestParam(required = false) Integer orderId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String createUsername,
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
@@ -56,6 +59,7 @@ public class ErpProductsController extends BaseController {
 
         ListProductRequest request = new ListProductRequest();
         request.setId(id);
+        request.setOrderId(orderId);
         request.setName(name);
         request.setCreateUsername(createUsername);
         request.setCreateTimeFrom(createTimeFrom);

@@ -68,6 +68,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getCreateTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeTo());
         if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
         if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
+        if(listProductRequest.getOrderId()!=null) wrapper.eq(ErpProducts::getOrderId,listProductRequest.getOrderId());
         return fillMaterialIds(erpProductsMapper.selectList(wrapper));
     }
 
