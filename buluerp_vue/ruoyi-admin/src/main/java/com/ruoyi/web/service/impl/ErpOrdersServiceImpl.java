@@ -1,11 +1,13 @@
 package com.ruoyi.web.service.impl;
 
+import java.lang.reflect.Field;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
@@ -81,7 +83,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (loginUser != null) {
             erpOrders.setOperatorId(loginUser.getUserId());
         }
-        if (erpOrders.getCustomer() != null) {
+        if (erpOrders.getCustomer() != null && erpOrders.getCustomer().getName() == null) {
             if (0 == erpCustomersService.insertErpCustomers(erpOrders.getCustomer())) {
                 throw new ServiceException("添加客户信息失败");
             }
@@ -110,8 +112,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
      */
     @Override
     @Transactional
-    public int updateErpOrders(ErpOrders erpOrders)
-    {
+    public int updateErpOrders(ErpOrders erpOrders) {
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
@@ -120,7 +121,10 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
        if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
            throw new ServiceException("操作失败");
        }
-       if (erpOrders.getCustomer() != null) {
+        ErpCustomers customer = erpOrders.getCustomer();
+        if (customer != null &&
+                (customer.getName() != null || customer.getContact() != null
+                        || customer.getEmail() != null || customer.getRemarks() != null)) {
            ErpOrders data = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
            erpOrders.getCustomer().setId(data.getCustomerId());
            if (0 == erpCustomersService.updateErpCustomers(erpOrders.getCustomer())) {

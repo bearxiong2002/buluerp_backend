@@ -34,6 +34,9 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "操作人ID")
     private Long operatorId;
 
+    @Excel(name = "客户姓名")
+    private String customerName;
+
     /** 数量 */
     @Excel(name = "数量")
     private Long quantity;
@@ -242,5 +245,13 @@ public class ErpOrders extends BaseEntity
 
     public void setCustomer(ErpCustomers customer) {
         this.customer = customer;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 }

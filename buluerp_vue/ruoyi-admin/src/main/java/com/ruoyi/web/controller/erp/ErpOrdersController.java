@@ -116,8 +116,7 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改订单", notes = "修改订单")
-    public AjaxResult edit(@RequestBody ErpOrders erpOrders)
-    {
+    public AjaxResult edit(@RequestBody ErpOrders erpOrders) {
         return toAjax(erpOrdersService.updateErpOrders(erpOrders));
     }
 
