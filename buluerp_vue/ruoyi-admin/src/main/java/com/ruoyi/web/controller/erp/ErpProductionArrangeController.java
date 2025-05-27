@@ -5,6 +5,8 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.service.IErpProductionArrangeService;
@@ -12,6 +14,7 @@ import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,8 +60,7 @@ public class ErpProductionArrangeController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入排产列表", notes = "导入排产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpProductionArrange> util = new ExcelUtil<>(ErpProductionArrange.class);
-        List<ErpProductionArrange> erpProductionSchedule = util.importExcel(file.getInputStream());
+        List<ErpProductionArrange> erpProductionSchedule = validateExcel(file, ErpProductionArrange.class);
         return toAjax(
                 erpProductionArrangeService.insertErpProductionArrangeList(erpProductionSchedule)
         );
@@ -68,7 +70,7 @@ public class ErpProductionArrangeController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增排产", notes = "新增排产")
-    public AjaxResult add(@ModelAttribute ErpProductionArrange erpProductionArrange) throws IOException {
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionArrange erpProductionArrange) throws IOException {
         return toAjax(erpProductionArrangeService.insertErpProductionArrangeList(
                 Collections.singletonList(erpProductionArrange)
         ));
@@ -78,7 +80,7 @@ public class ErpProductionArrangeController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改排产", notes = "修改排产")
-    public AjaxResult edit(@ModelAttribute ErpProductionArrange erpProductionArrange) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({Update.class }) ErpProductionArrange erpProductionArrange) throws IOException {
         return toAjax(
                 erpProductionArrangeService.updateErpProductionArrange(erpProductionArrange)
         );

@@ -4,12 +4,15 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,8 +50,7 @@ public class ErpPackagingListController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入分包列表", notes = "导入分包列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpPackagingList> util = new ExcelUtil<ErpPackagingList>(ErpPackagingList.class);
-        List<ErpPackagingList> list = util.importExcel(file.getInputStream());
+        List<ErpPackagingList> list = validateExcel(file, ErpPackagingList.class);
         int count = 0;
         for (ErpPackagingList erpPackagingList : list) {
             packagingListService.insertErpPackagingList(erpPackagingList);
@@ -69,7 +71,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增分包", notes = "新增分包")
-    public AjaxResult add(@RequestBody ErpPackagingList erpPackagingList) {
+    public AjaxResult add(@RequestBody @Validated({Save.class}) ErpPackagingList erpPackagingList) {
         return toAjax(packagingListService.insertErpPackagingList(erpPackagingList));
     }
 
@@ -77,7 +79,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改分包", notes = "修改分包")
-    public AjaxResult edit(@RequestBody ErpPackagingList erpPackagingList) {
+    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpPackagingList erpPackagingList) {
         return toAjax(packagingListService.updateErpPackagingList(erpPackagingList));
     }
 

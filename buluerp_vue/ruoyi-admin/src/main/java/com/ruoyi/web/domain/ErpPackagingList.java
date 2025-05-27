@@ -2,6 +2,9 @@ package com.ruoyi.web.domain;
 
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
+import org.hibernate.validator.constraints.Range;
 
 import java.util.Date;
 
@@ -51,6 +54,7 @@ public class ErpPackagingList extends BaseEntity {
     private String productionLine;
 
     @Excel(name = "本袋重量")
+    @Range(min = 0, message = "本袋重量不能小于0", groups = {Save.class, Update.class})
     private Double bagWeight;
 
     @Excel(name = "本袋规格")
@@ -60,6 +64,7 @@ public class ErpPackagingList extends BaseEntity {
     private String packageAccessories;
 
     @Excel(name = "本包数量")
+    @Range(min = 0, message = "本包数量不能小于0", groups = {Save.class, Update.class})
     private Integer packageQuantity;
 
     public Long getProductId() {
