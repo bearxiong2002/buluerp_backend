@@ -94,7 +94,7 @@ public class GlobalExceptionHandler
 
     @ExceptionHandler(ExcelImportException.class)
     public AjaxResult handleExcelImportException(ExcelImportException e) {
-        return AjaxResult.error(e.getMessage(), e.getErrorInfoList());
+        return new AjaxResult(HttpStatus.BAD_REQUEST, e.getMessage(), e.getErrorInfoList());
     }
 
     /**

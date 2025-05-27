@@ -75,6 +75,9 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "分包ID")
     private Long subcontractId;
 
+    @Excel(name = "其它基本信息")
+    private String remark;
+
     @JsonUnwrapped(prefix = "customer-")
     private ErpCustomers customer;
 
@@ -253,5 +256,15 @@ public class ErpOrders extends BaseEntity
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    @Override
+    public String getRemark() {
+        return remark;
+    }
+
+    @Override
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

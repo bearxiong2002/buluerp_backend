@@ -19,11 +19,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="productionId"    column="production_id"    />
         <result property="purchaseId"    column="purchase_id"    />
         <result property="subcontractId"    column="subcontract_id"    />
+        <result property="remark"    column="remark"    />
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
     <sql id="selectErpOrdersVo">
-        select id, inner_id, outer_id, create_time, operator_id, customer_name, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, update_time from erp_orders
+        select id, inner_id, outer_id, create_time, operator_id, customer_name, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, remark, update_time from erp_orders
     </sql>
 
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
@@ -42,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null "> and production_id = #{productionId}</if>
             <if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>
             <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
+             <if test="remark != null "> and remark like CONCAT('%',#{remark},'%')</if>
         </where>
     </select>
     
@@ -74,6 +76,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">production_id,</if>
             <if test="purchaseId != null">purchase_id,</if>
             <if test="subcontractId != null">subcontract_id,</if>
+            <if test="remark != null">remark,</if>
             <if test="updateTime != null">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -91,6 +94,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">#{productionId},</if>
             <if test="purchaseId != null">#{purchaseId},</if>
             <if test="subcontractId != null">#{subcontractId},</if>
+            <if test="remark != null">#{remark},</if>
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
     </insert>
@@ -112,6 +116,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">production_id = #{productionId},</if>
             <if test="purchaseId != null">purchase_id = #{purchaseId},</if>
             <if test="subcontractId != null">subcontract_id = #{subcontractId},</if>
+            <if test="remark != null">remark = #{remark},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
