@@ -6,6 +6,9 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -32,6 +35,7 @@ public class ErpMaterialInfo extends BaseEntity {
     private String specificationName;
 
     @Excel(name = "腔口数量")
+    @Range(min = 0, message = "腔口数量不能为负数", groups = {Save.class, Update.class})
     private Integer cavityCount;
 
     @Excel(name = "材料类型")
@@ -41,6 +45,7 @@ public class ErpMaterialInfo extends BaseEntity {
     private String standardCode;
 
     @Excel(name = "单重")
+    @Range(min = 0, message = "单重不能为负数", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "模具状态")

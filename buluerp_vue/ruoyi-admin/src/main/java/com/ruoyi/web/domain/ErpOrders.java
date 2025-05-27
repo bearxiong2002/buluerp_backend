@@ -6,10 +6,13 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * 订单对象 erp_orders
@@ -39,6 +42,7 @@ public class ErpOrders extends BaseEntity
 
     /** 数量 */
     @Excel(name = "数量")
+    @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
     private Long quantity;
 
     /** 交货期限 */
