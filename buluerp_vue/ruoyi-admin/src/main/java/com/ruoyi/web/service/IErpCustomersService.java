@@ -1,7 +1,9 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpCustomers;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 

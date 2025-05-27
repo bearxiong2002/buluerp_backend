@@ -1,13 +1,21 @@
 package com.ruoyi.common.core.controller;
 
 import java.beans.PropertyEditorSupport;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import com.ruoyi.common.domain.ExcelRowErrorInfo;
+import com.ruoyi.common.domain.validation.Save;
 import com.ruoyi.common.exception.ServiceException;
-import org.apache.poi.ss.formula.functions.T;
+import com.ruoyi.common.exception.excel.ExcelImportException;
+import com.ruoyi.common.utils.poi.ExcelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.InitBinder;
 import com.github.pagehelper.PageHelper;
@@ -23,6 +31,10 @@ import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.sql.SqlUtil;
+import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 
 /**
  * web层通用数据处理
@@ -32,6 +44,9 @@ import com.ruoyi.common.utils.sql.SqlUtil;
 public class BaseController
 {
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+    @Autowired
+    private Validator validator;
 
     /**
      * 将前台传递过来的日期格式的字符串，自动转化为Date类型
@@ -203,10 +218,33 @@ public class BaseController
         return getLoginUser().getUsername();
     }
 
-    public <Type> Type requiresNotNull(Type value) {
+    public static <Type> Type requiresNotNull(Type value) {
         if (value == null) {
             throw new ServiceException("结果不存在", 400);
         }
         return value;
+    }
+
+    public <Type> List<Type> validateExcel(MultipartFile file, Class<Type> clazz) throws IOException {
+        ExcelUtil<Type> util = new ExcelUtil<>(clazz);
+        List<Type> list = util.importExcel(file.getInputStream());
+        List<ExcelRowErrorInfo> errorList = new ArrayList<>();
+        int rowIndex = 1;
+        for (Type row : list) {
+            Set<ConstraintViolation<Type>> constraints = validator.validate(row, Save.class);
+            if (!constraints.isEmpty()) {
+                ExcelRowErrorInfo errorInfo = new ExcelRowErrorInfo();
+                errorInfo.setRowNum(rowIndex);
+                errorInfo.setErrorMsg(
+                        constraints.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("\n"))
+                );
+                errorList.add(errorInfo);
+            }
+            rowIndex++;
+        }
+        if (!errorList.isEmpty()) {
+            throw new ExcelImportException(errorList);
+        }
+        return list;
     }
 }

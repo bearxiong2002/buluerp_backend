@@ -5,11 +5,13 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.domain.validation.Update;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpCustomersService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -68,8 +70,7 @@ public class ErpCustomersController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入客户列表", notes = "导入客户列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpCustomers> util = new ExcelUtil<>(ErpCustomers.class);
-        List<ErpCustomers> erpCustomers = util.importExcel(file.getInputStream());
+        List<ErpCustomers> erpCustomers = validateExcel(file, ErpCustomers.class);
         int count = 0;
         for (ErpCustomers erpCustomers1 : erpCustomers) {
             erpCustomersService.insertErpCustomers(erpCustomers1);
@@ -98,7 +99,7 @@ public class ErpCustomersController extends BaseController
     @Log(title = "客户", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增客户", notes = "新增客户")
-    public AjaxResult add(@RequestBody ErpCustomers erpCustomers)
+    public AjaxResult add(@RequestBody @Validated({Save.class}) ErpCustomers erpCustomers)
     {
         return toAjax(erpCustomersService.insertErpCustomers(erpCustomers));
     }
@@ -111,7 +112,7 @@ public class ErpCustomersController extends BaseController
     @Log(title = "客户", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改客户", notes = "修改客户")
-    public AjaxResult edit(@RequestBody ErpCustomers erpCustomers)
+    public AjaxResult edit(@RequestBody @Validated({Update.class}) ErpCustomers erpCustomers)
     {
         return toAjax(erpCustomersService.updateErpCustomers(erpCustomers));
     }
