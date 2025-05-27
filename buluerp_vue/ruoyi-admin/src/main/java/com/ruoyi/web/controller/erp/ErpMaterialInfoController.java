@@ -68,7 +68,7 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增物料信息", notes = "新增物料信息")
-    public AjaxResult add(@RequestBody ErpMaterialInfo erpMaterialInfo) {
+    public AjaxResult add(@ModelAttribute ErpMaterialInfo erpMaterialInfo) throws IOException {
         return toAjax(erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo));
     }
 

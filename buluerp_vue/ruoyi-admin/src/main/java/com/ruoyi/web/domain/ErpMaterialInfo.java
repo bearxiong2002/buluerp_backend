@@ -3,8 +3,10 @@ package com.ruoyi.web.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
@@ -20,7 +22,7 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "更新时间")
     private Date updateTime;
 
-    @Excel(name = "胶件图引")
+    @Excel(name = "胶件图引", cellType = Excel.ColumnType.IMAGE, height = 100)
     private String drawingReference;
 
     @Excel(name = "模具编号")
@@ -58,6 +60,9 @@ public class ErpMaterialInfo extends BaseEntity {
 
     @Excel(name = "备用编码")
     private String spareCode;
+
+    @JsonIgnore
+    private MultipartFile drawingReferenceFile;
 
     public Long getId() {
         return id;
@@ -187,5 +192,13 @@ public class ErpMaterialInfo extends BaseEntity {
 
     public void setSpareCode(String spareCode) {
         this.spareCode = spareCode;
+    }
+
+    public MultipartFile getDrawingReferenceFile() {
+        return drawingReferenceFile;
+    }
+
+    public void setDrawingReferenceFile(MultipartFile drawingReferenceFile) {
+        this.drawingReferenceFile = drawingReferenceFile;
     }
 }
