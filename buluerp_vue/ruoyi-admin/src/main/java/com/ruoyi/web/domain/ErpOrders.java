@@ -5,6 +5,7 @@ import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -71,6 +72,7 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "分包ID")
     private Long subcontractId;
 
+    @JsonUnwrapped(prefix = "customer-")
     private ErpCustomers customer;
 
     public void setId(Long id) 
