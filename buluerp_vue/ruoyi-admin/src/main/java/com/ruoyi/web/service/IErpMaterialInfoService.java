@@ -11,7 +11,7 @@ public interface IErpMaterialInfoService {
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
     int insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException;
     int insertErpMaterialInfos(List<ErpMaterialInfo> erpMaterialInfos);
-    int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo);
+    int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException;
     int deleteErpMaterialInfoByIds(Long[] ids);
     int deleteErpMaterialInfoById(Long id);
 }
