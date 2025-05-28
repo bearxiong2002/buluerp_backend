@@ -2,6 +2,7 @@ package com.ruoyi.web.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
@@ -30,23 +31,28 @@ public class ErpCustomers extends BaseEntity
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @Example("2025-05-28")
     private Date creatTime;
 
     /** $column.columnComment */
     @Excel(name = "姓名")
     @NotNull(groups = {Save.class}, message = "姓名不能为空")
     @NullOrNotBlank(groups = {Save.class, Update.class}, message = "姓名不能为空")
+    @Example("张三")
     private String name;
 
     @Excel(name = "联系方式")
     @Pattern(regexp = "^1[34578][0-9]{9}$", groups = {Save.class, Update.class}, message = "手机号码格式有误")
+    @Example("13888888888")
     private String contact;
 
     @Excel(name = "邮箱")
     @Pattern(regexp = "^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\\.[a-zA-Z0-9_-]+)+$", groups = {Save.class, Update.class}, message = "邮箱格式有误")
+    @Example("123456@qq.com")
     private String email;
 
     @Excel(name = "备注")
+    @Example("无")
     private String remarks;
 
     public String getContact() {
