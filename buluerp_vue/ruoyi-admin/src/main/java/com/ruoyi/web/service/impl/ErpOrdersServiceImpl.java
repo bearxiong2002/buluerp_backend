@@ -15,6 +15,7 @@ import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.service.IErpCustomersService;
 import com.ruoyi.web.service.IErpOrdersService;
+import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,7 +37,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private IErpCustomersService erpCustomersService;
 
     @Autowired
-    private ErpProductsMapper erpProductsMapper;
+    private IErpProductsService erpProductsService;
 
     /**
      * 查询订单
@@ -67,7 +68,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders1.getId());
             for (ErpOrdersProduct erpOrdersProduct : products) {
                 erpOrdersProduct.setProduct(
-                        erpProductsMapper.selectById(erpOrdersProduct.getProductId())
+                        erpProductsService.selectErpProductsListByIds(
+                                new Long[]{erpOrdersProduct.getProductId()}
+                        ).get(0)
                 );
             }
             erpOrders1.setProducts(products);
