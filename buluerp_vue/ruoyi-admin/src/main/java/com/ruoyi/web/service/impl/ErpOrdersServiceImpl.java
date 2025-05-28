@@ -81,7 +81,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         erpOrders.setCreateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
-            erpOrders.setOperatorId(loginUser.getUserId());
+            erpOrders.setOperator(loginUser.getUsername());
         }
         if (erpOrders.getCustomer() != null && erpOrders.getCustomer().getName() == null) {
             if (0 == erpCustomersService.insertErpCustomers(erpOrders.getCustomer())) {
@@ -116,7 +116,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
-            erpOrders.setOperatorId(loginUser.getUserId());
+            erpOrders.setOperator(loginUser.getUsername());
         }
        if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
            throw new ServiceException("操作失败");

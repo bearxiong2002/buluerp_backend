@@ -34,8 +34,8 @@ public class ErpOrders extends BaseEntity
     private String outerId;
 
     /** 操作人ID（外键引用用户表） */
-    @Excel(name = "操作人ID")
-    private Long operatorId;
+    @Excel(name = "操作人姓名")
+    private String operator;
 
     @Excel(name = "客户姓名")
     private String customerName;
@@ -93,16 +93,6 @@ public class ErpOrders extends BaseEntity
     public Long getId() 
     {
         return id;
-    }
-
-    public void setOperatorId(Long operatorId) 
-    {
-        this.operatorId = operatorId;
-    }
-
-    public Long getOperatorId() 
-    {
-        return operatorId;
     }
 
     public void setQuantity(Long quantity) 
@@ -200,7 +190,7 @@ public class ErpOrders extends BaseEntity
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("createTime", getCreateTime())
-            .append("operatorId", getOperatorId())
+            .append("operator", getOperator())
             .append("quantity", getQuantity())
             .append("deliveryDeadline", getDeliveryDeadline())
             .append("deliveryTime", getDeliveryTime())
@@ -270,5 +260,13 @@ public class ErpOrders extends BaseEntity
     @Override
     public void setRemark(String remark) {
         this.remark = remark;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
     }
 }
