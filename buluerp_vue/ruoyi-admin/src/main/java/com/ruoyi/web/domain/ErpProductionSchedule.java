@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -57,7 +60,7 @@ public class ErpProductionSchedule {
     @TableField(condition = SqlCondition.LIKE)
     private String mouldCondition;
 
-    @Excel(name = "图片链接")
+    @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
     @ApiModelProperty(value = "图片链接", dataType = "String", notes = "仅响应")
     @TableField(condition = SqlCondition.LIKE)
     private String pictureUrl;
@@ -70,6 +73,7 @@ public class ErpProductionSchedule {
     @Excel(name = "用量(g)")
     @ApiModelProperty(value = "用量(g)", dataType = "Double")
     @TableField(value = "`usage`")
+    @Range(min = 0, message = "用量(g)必须大于0", groups = {Save.class, Update.class})
     private Double usage;
 
     @Excel(name = "材料类型")
@@ -79,35 +83,43 @@ public class ErpProductionSchedule {
 
     @Excel(name = "腔数PCS")
     @ApiModelProperty(value = "腔数PCS", dataType = "Integer")
+    @Range(min = 0, message = "腔数PCS必须大于0", groups = {Save.class, Update.class})
     private Integer cavityCount;
 
     @Excel(name = "单重(g)")
     @ApiModelProperty(value = "单重(g)", dataType = "Double")
+    @Range(min = 0, message = "单重(g)必须大于0", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "布产数量PCS")
     @ApiModelProperty(value = "布产数量PCS", dataType = "Integer")
+    @Range(min = 1, message = "布产数量PCS必须大于1", groups = {Save.class, Update.class})
     private Integer productionQuantity;
 
     @Excel(name = "布产模数PCS")
     @ApiModelProperty(value = "布产模数PCS", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Range(min = 0, message = "布产模数PCS必须大于0", groups = {Save.class, Update.class})
     private Integer productionMouldCount;
 
     @Excel(name = "布产重量(kg)")
     @ApiModelProperty(value = "布产重量(kg)", dataType = "Double")
+    @Range(min = 0, message = "布产重量(kg)必须大于0", groups = {Save.class, Update.class})
     private Double productionWeight;
 
     @Excel(name = "需要色粉份数")
     @ApiModelProperty(value = "需要色粉份数", dataType = "Integer")
+    @Range(min = 0, message = "需要色粉份数必须大于0", groups = {Save.class, Update.class})
     private Integer colorPowderNeeded;
 
     @Excel(name = "生产周期(s)")
     @ApiModelProperty(value = "生产周期(s)", dataType = "Double")
+    @Range(min = 0, message = "生产周期(s)必须大于0", groups = {Save.class, Update.class})
     private Double cycleTime;
 
     @Excel(name = "生产所需时间(h)")
     @ApiModelProperty(value = "生产所需时间(h)", dataType = "Double")
+    @Range(min = 0, message = "生产所需时间(h)必须大于0", groups = {Save.class, Update.class})
     private Double timeHours;
 
     @Excel(name = "出货时间")

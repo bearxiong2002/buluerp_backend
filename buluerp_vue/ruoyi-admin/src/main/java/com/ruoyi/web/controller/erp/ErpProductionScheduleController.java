@@ -5,6 +5,8 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.service.IErpProductsScheduleService;
@@ -13,6 +15,7 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -63,8 +66,7 @@ public class ErpProductionScheduleController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入布产列表", notes = "导入布产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpProductionSchedule> util = new ExcelUtil<>(ErpProductionSchedule.class);
-        List<ErpProductionSchedule> erpProductionSchedule = util.importExcel(file.getInputStream());
+        List<ErpProductionSchedule> erpProductionSchedule = validateExcel(file, ErpProductionSchedule.class);
         return toAjax(
                 erpProductionScheduleService.saveBatch(erpProductionSchedule)
         );
@@ -74,7 +76,7 @@ public class ErpProductionScheduleController extends BaseController {
     // @Anonymous
     @PostMapping
     @ApiOperation(value = "新增布产", notes = "新增布产")
-    public AjaxResult add(@ModelAttribute ErpProductionSchedule erpProductionSchedule) throws IOException {
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionSchedule erpProductionSchedule) throws IOException {
         return toAjax(
                 erpProductionScheduleService
                         .insertErpProductionSchedule(erpProductionSchedule)
@@ -85,7 +87,7 @@ public class ErpProductionScheduleController extends BaseController {
     // @Anonymous
     @PutMapping
     @ApiOperation(value = "修改布产", notes = "修改布产")
-    public AjaxResult edit(@ModelAttribute ErpProductionSchedule erpProductionSchedule) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpProductionSchedule erpProductionSchedule) throws IOException {
         return toAjax(
                 erpProductionScheduleService
                         .updateErpProductionSchedule(erpProductionSchedule)

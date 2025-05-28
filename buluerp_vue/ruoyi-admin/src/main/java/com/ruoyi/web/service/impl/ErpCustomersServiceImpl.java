@@ -2,8 +2,8 @@ package com.ruoyi.web.service.impl;
 
 import java.util.Date;
 import java.util.List;
+import javax.validation.Validator;
 
-import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
@@ -23,6 +23,9 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
 {
     @Autowired
     private ErpCustomersMapper erpCustomersMapper;
+
+    @Autowired
+    private Validator validator;
 
     /**
      * 查询【请填写功能名称】

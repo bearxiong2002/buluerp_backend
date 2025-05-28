@@ -4,15 +4,16 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
-import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -53,8 +54,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入采购计划列表", notes = "导入采购计划列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpPurchaseCollection> excelUtil = new ExcelUtil<>(ErpPurchaseCollection.class);
-        List<ErpPurchaseCollection> list = excelUtil.importExcel(file.getInputStream());
+        List<ErpPurchaseCollection> list = validateExcel(file, ErpPurchaseCollection.class);
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollections(list));
     }
 
@@ -62,7 +62,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     // @Anonymous
     @PostMapping
     @ApiOperation(value = "新增采购计划", notes = "新增采购计划")
-    public AjaxResult add(@ModelAttribute ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollection(erpPurchaseCollection));
     }
 
@@ -70,7 +70,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     // @Anonymous
     @PutMapping
     @ApiOperation(value = "修改采购计划", notes = "修改采购计划")
-    public AjaxResult edit(@ModelAttribute ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({Update.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         return toAjax(erpPurchaseCollectionService.updateErpPurchaseCollection(erpPurchaseCollection));
     }
 

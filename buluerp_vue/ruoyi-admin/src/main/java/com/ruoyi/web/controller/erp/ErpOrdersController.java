@@ -2,16 +2,17 @@ package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
 import java.util.List;
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
-import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.service.IErpOrdersService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -73,8 +74,7 @@ public class ErpOrdersController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入订单列表", notes = "导入订单列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpOrders> util = new ExcelUtil<ErpOrders>(ErpOrders.class);
-        List<ErpOrders> erpOrders = util.importExcel(file.getInputStream());
+        List<ErpOrders> erpOrders = validateExcel(file, ErpOrders.class);
         int count = 0;
         for (ErpOrders erpOrders1 : erpOrders) {
             erpOrdersService.insertErpOrders(erpOrders1);
@@ -103,7 +103,7 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增订单", notes = "新增订单")
-    public AjaxResult add(@RequestBody ErpOrders erpOrders)
+    public AjaxResult add(@RequestBody @Validated({Save.class}) ErpOrders erpOrders)
     {
         return toAjax(erpOrdersService.insertErpOrders(erpOrders));
     }
@@ -116,7 +116,7 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改订单", notes = "修改订单")
-    public AjaxResult edit(@RequestBody ErpOrders erpOrders) {
+    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpOrders erpOrders) {
         return toAjax(erpOrdersService.updateErpOrders(erpOrders));
     }
 

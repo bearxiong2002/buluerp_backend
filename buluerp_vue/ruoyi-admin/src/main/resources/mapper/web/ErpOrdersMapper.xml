@@ -9,7 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="innerId"    column="inner_id"    />
         <result property="outerId"    column="outer_id"    />
         <result property="createTime"    column="create_time"    />
-        <result property="operatorId"    column="operator_id"    />
+        <result property="operator"    column="operator"    />
         <result property="quantity"    column="quantity"    />
         <result property="deliveryDeadline"    column="delivery_deadline"    />
         <result property="deliveryTime"    column="delivery_time"    />
@@ -19,11 +19,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="productionId"    column="production_id"    />
         <result property="purchaseId"    column="purchase_id"    />
         <result property="subcontractId"    column="subcontract_id"    />
+        <result property="remark"    column="remark"    />
         <result property="updateTime"    column="update_time"    />
     </resultMap>
 
     <sql id="selectErpOrdersVo">
-        select id, inner_id, outer_id, create_time, operator_id, customer_name, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, update_time from erp_orders
+        select id, inner_id, outer_id, create_time, operator, customer_name, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, remark, update_time from erp_orders
     </sql>
 
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
@@ -31,7 +32,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="innerId != null "> and inner_id = #{innerId}</if>
             <if test="outerId != null "> and outer_id = #{outerId}</if>
-            <if test="operatorId != null "> and operator_id = #{operatorId}</if>
+            <if test="operator != null "> and operator like concact('%',#{operator},'%')</if>
              <if test="customerName != null "> and customer_name like CONCAT('%',#{customerName},'%')</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
             <if test="deliveryDeadline != null "> and DATE(delivery_deadline) = DATE(#{deliveryDeadline})</if>
@@ -42,6 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null "> and production_id = #{productionId}</if>
             <if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>
             <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
+             <if test="remark != null "> and remark like CONCAT('%',#{remark},'%')</if>
         </where>
     </select>
     
@@ -56,6 +58,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{item}
         </foreach>
     </select>
+    <select id="selectOrdersProducts" resultType="com.ruoyi.web.domain.ErpOrdersProduct">
+        select id, orders_id, product_id, quantity from erp_orders_product where orders_id = #{ordersId}
+    </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders
@@ -63,7 +68,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="innerId != null">inner_id,</if>
             <if test="outerId != null">outer_id,</if>
             <if test="createTime != null">create_time,</if>
-            <if test="operatorId != null">operator_id,</if>
+            <if test="operator != null">operator,</if>
             <if test="customerName != null">customer_name,</if>
             <if test="quantity != null">quantity,</if>
             <if test="deliveryDeadline != null">delivery_deadline,</if>
@@ -74,13 +79,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">production_id,</if>
             <if test="purchaseId != null">purchase_id,</if>
             <if test="subcontractId != null">subcontract_id,</if>
+            <if test="remark != null">remark,</if>
             <if test="updateTime != null">update_time,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="innerId != null">#{innerId},</if>
             <if test="outerId != null">#{outerId},</if>
             <if test="createTime != null">#{createTime},</if>
-            <if test="operatorId != null">#{operatorId},</if>
+            <if test="operator != null">#{operator},</if>
             <if test="customerName != null">#{customerName},</if>
             <if test="quantity != null">#{quantity},</if>
             <if test="deliveryDeadline != null">#{deliveryDeadline},</if>
@@ -91,8 +97,15 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">#{productionId},</if>
             <if test="purchaseId != null">#{purchaseId},</if>
             <if test="subcontractId != null">#{subcontractId},</if>
+            <if test="remark != null">#{remark},</if>
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
+    </insert>
+    <insert id="insertOrdersProducts">
+        insert into erp_orders_product (orders_id, product_id, quantity) values
+        <foreach item="item" collection="list" separator="," index="">
+            (#{item.ordersId}, #{item.productId}, #{item.quantity})
+        </foreach>
     </insert>
 
     <update id="updateErpOrders" parameterType="ErpOrders">
@@ -101,7 +114,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="innerId != null">inner_id = #{innerId},</if>
             <if test="outerId != null">outer_id = #{outerId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
-            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="operator != null">operator = #{operator},</if>
             <if test="customerName != null">customer_name = #{customerName},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="deliveryDeadline != null">delivery_deadline = #{deliveryDeadline},</if>
@@ -112,6 +125,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null">production_id = #{productionId},</if>
             <if test="purchaseId != null">purchase_id = #{purchaseId},</if>
             <if test="subcontractId != null">subcontract_id = #{subcontractId},</if>
+            <if test="remark != null">remark = #{remark},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
         </trim>
         where id = #{id}
@@ -126,5 +140,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </delete>
+    <delete id="clearOrdersProducts">
+        delete from erp_orders_product where orders_id = #{ordersId};
     </delete>
 </mapper>

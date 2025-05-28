@@ -9,10 +9,13 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
+import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.service.IErpCustomersService;
 import com.ruoyi.web.service.IErpOrdersService;
+import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +35,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Autowired
     private IErpCustomersService erpCustomersService;
+
+    @Autowired
+    private IErpProductsService erpProductsService;
 
     /**
      * 查询订单
@@ -59,6 +65,15 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrders1.setCustomer(
                     erpCustomersService.selectErpCustomersById(erpOrders1.getCustomerId())
             );
+            List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders1.getId());
+            for (ErpOrdersProduct erpOrdersProduct : products) {
+                erpOrdersProduct.setProduct(
+                        erpProductsService.selectErpProductsListByIds(
+                                new Long[]{erpOrdersProduct.getProductId()}
+                        ).get(0)
+                );
+            }
+            erpOrders1.setProducts(products);
         }
         return list;
     }
@@ -81,13 +96,16 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         erpOrders.setCreateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
-            erpOrders.setOperatorId(loginUser.getUserId());
+            erpOrders.setOperator(loginUser.getUsername());
         }
         if (erpOrders.getCustomer() != null && erpOrders.getCustomer().getName() == null) {
             if (0 == erpCustomersService.insertErpCustomers(erpOrders.getCustomer())) {
                 throw new ServiceException("添加客户信息失败");
             }
             erpOrders.setCustomerId(erpOrders.getCustomer().getId());
+        }
+        if (erpOrders.getProducts() != null) {
+            erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
             throw new ServiceException("操作失败");
@@ -116,7 +134,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
-            erpOrders.setOperatorId(loginUser.getUserId());
+            erpOrders.setOperator(loginUser.getUsername());
         }
        if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
            throw new ServiceException("操作失败");
@@ -131,6 +149,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                throw new ServiceException("更新客户信息失败");
            }
        }
+        if (erpOrders.getProducts() != null) {
+            erpOrdersMapper.clearOrdersProducts(erpOrders.getId());
+            for (ErpOrdersProduct erpOrdersProduct : erpOrders.getProducts()) {
+                erpOrdersProduct.setOrdersId(erpOrders.getId());
+            }
+            erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
+        }
        return 1;
     }
 
