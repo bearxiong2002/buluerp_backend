@@ -31,6 +31,16 @@ public class AddProductRequest {
     @Excel(name ="物料id列表")
     private String materialString;
 
+    private Integer rowNumber;
+
+    public Integer getRowNumber() {
+        return rowNumber;
+    }
+
+    public void setRowNumber(Integer rowNumber) {
+        this.rowNumber = rowNumber;
+    }
+
     public String getMaterialString() {
         return materialString;
     }

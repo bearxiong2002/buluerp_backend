@@ -9,6 +9,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpManufacturer;
+import com.ruoyi.web.exception.ImportException;
 import com.ruoyi.web.request.manufacturer.AddManufacturerRequest;
 import com.ruoyi.web.request.manufacturer.ListManufacturerRequest;
 import com.ruoyi.web.request.manufacturer.UpdateManufacturerRequest;
@@ -20,14 +21,17 @@ import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 
 @RestController
@@ -100,16 +104,57 @@ public class ErpManufacturerController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:import')")
     @PostMapping("/import")
-    @ApiOperation(value = "导入产品")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<AddManufacturerRequest> util = new ExcelUtil<AddManufacturerRequest>(AddManufacturerRequest.class);
-        List<AddManufacturerRequest> addManufacturerRequests = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddManufacturerRequest addManufacturerRequest : addManufacturerRequests) {
-            erpManufacturerService.insertErpManufacturer(addManufacturerRequest);
-            count++;
+    @ApiOperation(value = "导入厂家")
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) {
+        ExcelUtil<AddManufacturerRequest> util = new ExcelUtil<>(AddManufacturerRequest.class);
+        List<AddManufacturerRequest> requests;
+        List<Map<String, Object>> errorList = new ArrayList<>();
+
+        try {
+            requests = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        int rowNumber = 1; // 数据行号（从标题行下一行开始）
+        for (AddManufacturerRequest request : requests) {
+            try {
+                // 使用校验器触发注解规则
+                Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+                Set<ConstraintViolation<AddManufacturerRequest>> violations = validator.validate(request);
+
+                // 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddManufacturerRequest> violation : violations) {
+                        errors.add(violation.getMessage());
+                    }
+                    throw new ImportException(rowNumber, String.join("; ", errors), request.toString());
+                }
+
+                // 调用 Service 插入数据
+                erpManufacturerService.insertErpManufacturer(request);
+            } catch (ImportException e) {
+                // Java 8 兼容的 Map 初始化
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", e.getRowNumber());
+                errorEntry.put("error", e.getErrorMsg());
+                errorEntry.put("data", e.getRawData());
+                errorList.add(errorEntry);
+            } catch (Exception e) {
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", rowNumber);
+                errorEntry.put("error", "系统错误: " + e.getMessage());
+                errorEntry.put("data", request.toString());
+                errorList.add(errorEntry);
+            }
+            rowNumber++;
+        }
+
+        if (!errorList.isEmpty()) {
+            return AjaxResult.error("导入失败", errorList);
+        }
+        return AjaxResult.success("导入成功");
     }
 
     /**
@@ -163,5 +208,21 @@ public class ErpManufacturerController extends BaseController {
         return toAjax(erpManufacturerService.deleteErpManufacturerByIds(ids));
     }
 
+    @GetMapping("/template")
+    @ApiOperation("下载厂家导入模板")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:manufacturer:import')") // 按需添加权限
+    public void downloadManufacturerTemplate(HttpServletResponse response) throws IOException {
+        List<AddManufacturerRequest> templateData = new ArrayList<>();
+        AddManufacturerRequest example = new AddManufacturerRequest();
+        example.setName("示例厂家名称");      // 厂家名称（必填）
+        example.setTel("021-12345678");    // 联系方式（可选，但需符合格式）
+        example.setEmail("demo@example.com"); // 邮箱（可选，需符合格式）
+        example.setRemark("这是示例备注，长度不超过200字符"); // 备注（可选）
+        templateData.add(example);
 
+        // 2. 使用 ExcelUtil 导出模板
+        ExcelUtil<AddManufacturerRequest> util = new ExcelUtil<>(AddManufacturerRequest.class);
+        util.exportExcel(response, templateData, "厂家导入模板");
+    }
 }

@@ -14,6 +14,7 @@ import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.system.mapper.SysUserMapper;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.exception.ImportException;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
@@ -96,11 +97,15 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         erpProducts.setCreateTime(LocalDateTime.now());
         erpProducts.setUpdateTime(LocalDateTime.now());
         if (0 >= erpProductsMapper.insert(erpProducts)) {
-            throw new ServiceException("添加失败");
+            if(addProductRequest.getRowNumber()!=null)
+                throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
+            else throw new ServiceException("添加失败");
         }
         for (Integer materialId : addProductRequest.getMaterialIds()) {
             if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
-                throw new ServiceException("添加失败");
+                if(addProductRequest.getRowNumber()!=null)
+                    throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
+                else throw new ServiceException("添加失败");
             }
         }
         return 1;

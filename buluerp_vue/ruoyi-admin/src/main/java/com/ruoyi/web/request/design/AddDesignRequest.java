@@ -5,6 +5,9 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+
 /**
  * 创建设计总表请求
  */
@@ -12,58 +15,58 @@ import org.springframework.web.multipart.MultipartFile;
 @ApiModel(value = "新增造型表请求类")
 public class AddDesignRequest {
 
+    @NotNull(message = "分组编号不能为空")
     @Excel(name = "造型表的分组")
-    @ApiModelProperty(dataType = "Long",value = "造型表分组编号",required = true)
+    @ApiModelProperty(dataType = "Long", value = "造型表分组编号", required = true)
     private Long groupId;
 
-    /** 主设计编号 */
+    @NotNull(message = "主设计编号不能为空")
     @Excel(name = "主设计编号")
-    @ApiModelProperty(dataType = "Long",value = "主设计编号",required = true)
+    @ApiModelProperty(dataType = "Long", value = "主设计编号", required = true)
     private Long designPatternId;
 
-    /** 模具编号，用于唯一标识模具 */
+    @NotBlank(message = "模具编号不能为空")
     @Excel(name = "模具编号")
-    @ApiModelProperty(dataType = "String",value = "模具编号",required = true)
+    @ApiModelProperty(dataType = "String", value = "模具编号", required = true)
     private String mouldNumber;
 
-    /** LDD编号，与模具相关的编号 */
+    @NotBlank(message = "LDD编号不能为空")
     @Excel(name = "LDD编号")
-    @ApiModelProperty(dataType = "String",value = "LDD编号",required = true)
+    @ApiModelProperty(dataType = "String", value = "LDD编号", required = true)
     private String lddNumber;
 
-    /** 模具类别，如注塑模具、冲压模具等 */
+    @NotBlank(message = "模具类别不能为空")
     @Excel(name = "模具类别")
-    @ApiModelProperty(dataType = "String",value = "模具类别",required = true)
+    @ApiModelProperty(dataType = "String", value = "模具类别", required = true)
     private String mouldCategory;
 
-    /** 模具ID，用于内部标识模具 */
+    @NotBlank(message = "模具ID不能为空")
     @Excel(name = "模具ID")
-    @ApiModelProperty(dataType = "String",value = "模具id",required = true)
+    @ApiModelProperty(dataType = "String", value = "模具id", required = true)
     private String mouldId;
 
-    /** 模具图片的URL链接，用于存储模具外观图片 */
-    @ApiModelProperty(dataType = "String",value = "模具图片 ")
-    private MultipartFile picture;
-
-    /** 模具的颜色描述 */
-    @Excel(name = "模具的颜色描述")
-    @ApiModelProperty(dataType = "String",value = "模具颜色描述")
-    private String color;
-
-    /** 模具生产的产品名称 */
+    @NotBlank(message = "产品名称不能为空")
     @Excel(name = "模具生产的产品名称")
-    @ApiModelProperty(dataType = "String",value = "模具生产的产品名称",required = true)
+    @ApiModelProperty(dataType = "String", value = "模具生产的产品名称", required = true)
     private String productName;
 
-    /** 模具的数量 */
+    @NotNull(message = "模具数量不能为空")
     @Excel(name = "模具数量")
-    @ApiModelProperty(dataType = "Long",value = "模具数量",required = true)
+    @ApiModelProperty(dataType = "Long", value = "模具数量", required = true)
     private Long quantity;
 
-    /** 模具的用料，如钢材、铝合金等 */
+    @NotBlank(message = "模具用料不能为空")
     @Excel(name = "模具用料")
-    @ApiModelProperty(dataType = "String",value = "模具的材料",required = true)
+    @ApiModelProperty(dataType = "String", value = "模具的材料", required = true)
     private String material;
+
+    // 非必填字段
+    @Excel(name = "模具的颜色描述")
+    @ApiModelProperty(dataType = "String", value = "模具颜色描述")
+    private String color;
+
+    @ApiModelProperty(dataType = "String", value = "模具图片")
+    private MultipartFile picture;
 
 
     public Long getGroupId() {
