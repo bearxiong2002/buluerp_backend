@@ -99,7 +99,6 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             throw new ServiceException("添加失败");
         }
         for (Integer materialId : addProductRequest.getMaterialIds()) {
-            System.out.println("??????"+materialId);
             if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
                 throw new ServiceException("添加失败");
             }
