@@ -58,6 +58,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{item}
         </foreach>
     </select>
+    <select id="selectOrdersProducts" resultType="com.ruoyi.web.domain.ErpOrdersProduct">
+        select id, orders_id, product_id, quantity from erp_orders_product where orders_id = #{ordersId}
+    </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders
@@ -98,6 +101,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="updateTime != null">#{updateTime},</if>
          </trim>
     </insert>
+    <insert id="insertOrdersProducts">
+        insert into erp_orders_product (orders_id, product_id, quantity) values
+        <foreach item="item" collection="list" separator="," index="">
+            (#{item.ordersId}, #{item.productId}, #{item.quantity})
+        </foreach>
+    </insert>
 
     <update id="updateErpOrders" parameterType="ErpOrders">
         update erp_orders
@@ -131,5 +140,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </delete>
+    <delete id="clearOrdersProducts">
+        delete from erp_orders_product where orders_id = #{ordersId};
     </delete>
 </mapper>

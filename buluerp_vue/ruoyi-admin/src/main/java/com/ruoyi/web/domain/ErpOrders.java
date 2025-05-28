@@ -2,6 +2,8 @@ package com.ruoyi.web.domain;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -84,6 +86,8 @@ public class ErpOrders extends BaseEntity
 
     @JsonUnwrapped(prefix = "customer-")
     private ErpCustomers customer;
+
+    private List<ErpOrdersProduct> products;
 
     public void setId(Long id) 
     {
@@ -268,5 +272,13 @@ public class ErpOrders extends BaseEntity
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public List<ErpOrdersProduct> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ErpOrdersProduct> products) {
+        this.products = products;
     }
 }
