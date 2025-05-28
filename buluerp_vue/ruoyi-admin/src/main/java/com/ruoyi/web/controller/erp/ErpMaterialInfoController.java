@@ -5,16 +5,16 @@ import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpMaterialInfo;
-import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,8 +59,7 @@ public class ErpMaterialInfoController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入物料资料列表", notes = "导入物料资料列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<ErpMaterialInfo> util = new ExcelUtil<>(ErpMaterialInfo.class);
-        List<ErpMaterialInfo> list = util.importExcel(file.getInputStream());
+        List<ErpMaterialInfo> list = validateExcel(file, ErpMaterialInfo.class);
         return toAjax(erpMaterialInfoService.insertErpMaterialInfos(list));
     }
 
@@ -68,7 +67,7 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增物料信息", notes = "新增物料信息")
-    public AjaxResult add(@RequestBody ErpMaterialInfo erpMaterialInfo) {
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpMaterialInfo erpMaterialInfo) throws IOException {
         return toAjax(erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo));
     }
 
@@ -76,7 +75,7 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改物料信息", notes = "修改物料信息")
-    public AjaxResult edit(@RequestBody ErpMaterialInfo erpMaterialInfo) {
+    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpMaterialInfo erpMaterialInfo) throws IOException {
         return toAjax(erpMaterialInfoService.updateErpMaterialInfo(erpMaterialInfo));
     }
 

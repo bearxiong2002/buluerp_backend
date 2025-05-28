@@ -4,8 +4,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -87,7 +90,7 @@ public class ErpProductionArrange {
     @TableField(condition = SqlCondition.LIKE)
     private String mouldNumber;
 
-    @Excel(name = "图片链接")
+    @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
     @ApiModelProperty(value = "图片，产品的图片链接", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     private String pictureUrl;
@@ -104,22 +107,27 @@ public class ErpProductionArrange {
 
     @Excel(name = "出模数(pcs)")
     @ApiModelProperty(value = "出模数(pcs)，每个模具的产出数量", dataType = "Integer")
+    @Range(min = 0, message = "出模数(pcs)不能小于0", groups = {Save.class, Update.class})
     private Integer mouldOutput;
 
     @Excel(name = "单重(g)")
     @ApiModelProperty(value = "单重(g)，单个产品的重量，单位为克", dataType = "Double")
+    @Range(min = 0, message = "单重(g)不能小于0", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "布产数量(pcs)")
     @ApiModelProperty(value = "布产数量(pcs)，计划生产的总数量", dataType = "Integer")
+    @Range(min = 1, message = "布产数量(pcs)不能小于1", groups = {Save.class, Update.class})
     private Integer productionQuantity;
 
     @Excel(name = "布产模数（模）")
     @ApiModelProperty(value = "布产模数（模），计划使用的模具数量", dataType = "Integer")
+    @Range(min = 1, message = "布产模数（模）不能小于1", groups = {Save.class, Update.class})
     private Integer productionMouldCount;
 
     @Excel(name = "布产重量(KG)")
     @ApiModelProperty(value = "布产重量(KG)，计划生产的总重量，单位为千克", dataType = "Double")
+    @Range(min = 0, message = "布产重量(KG)不能小于0", groups = {Save.class, Update.class})
     private Double productionWeight;
 
     @Excel(name = "备注")

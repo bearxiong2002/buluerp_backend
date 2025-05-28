@@ -20,7 +20,7 @@ public interface ErpProductsMapper extends BaseMapper<ErpProducts>
 {
     int updateStatusById(@Param("id")Long id,@Param("design_status")Long design_status);
 
-    List<ErpProducts> selectErpProductsListByIds(Integer[] ids);
+    List<ErpProducts> selectErpProductsListByIds(Long[] ids);
 
     int insertProductMaterial(Long productId,Integer materialId);
 

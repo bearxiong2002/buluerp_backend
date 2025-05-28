@@ -12,7 +12,7 @@ import java.util.List;
 public interface IErpProductsService extends IService<ErpProducts> {
     List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest);
 
-    List<ErpProducts> selectErpProductsListByIds(Integer[] ids);
+    List<ErpProducts> selectErpProductsListByIds(Long[] ids);
 
     int insertErpProducts(AddProductRequest addProductRequest) throws IOException;
 

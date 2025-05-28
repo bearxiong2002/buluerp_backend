@@ -1,10 +1,11 @@
 package com.ruoyi.web.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
+import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
@@ -29,7 +30,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Excel(name = "下单时间")
     private Date orderTime;
 
-    @Excel(name = "图片链接")
+    @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
     private String pictureUrl;
 
     @Excel(name = "外购编码")
@@ -42,6 +43,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String specification;
 
     @Excel(name = "采购数量")
+    @Range(min = 1, message = "采购数量不能小于1", groups = {Save.class, Update.class})
     private Integer purchaseQuantity;
 
     @Excel(name = "颜色编号")
@@ -51,9 +53,11 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String materialType;
 
     @Excel(name = "单重")
+    @Range(min = 0, message = "单重不能小于等于0", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "采购重量")
+    @Range(min = 0, message = "采购重量不能小于等于0", groups = {Save.class, Update.class})
     private Double purchaseWeight;
 
     @Excel(name = "货期，供应商承诺的交货时间范围")

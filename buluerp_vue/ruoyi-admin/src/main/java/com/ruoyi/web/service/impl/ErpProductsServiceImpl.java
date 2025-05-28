@@ -73,8 +73,8 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
-    public List<ErpProducts> selectErpProductsListByIds(Integer[] ids) {
-        return erpProductsMapper.selectErpProductsListByIds(ids);
+    public List<ErpProducts> selectErpProductsListByIds(Long[] ids) {
+        return fillMaterialIds(erpProductsMapper.selectErpProductsListByIds(ids));
     }
 
     @Override

@@ -2,14 +2,17 @@ package com.ruoyi.web.domain;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import org.hibernate.validator.constraints.Range;
 
 /**
  * 订单对象 erp_orders
@@ -31,14 +34,15 @@ public class ErpOrders extends BaseEntity
     private String outerId;
 
     /** 操作人ID（外键引用用户表） */
-    @Excel(name = "操作人ID")
-    private Long operatorId;
+    @Excel(name = "操作人姓名")
+    private String operator;
 
     @Excel(name = "客户姓名")
     private String customerName;
 
     /** 数量 */
     @Excel(name = "数量")
+    @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
     private Long quantity;
 
     /** 交货期限 */
@@ -75,8 +79,13 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "分包ID")
     private Long subcontractId;
 
+    @Excel(name = "其它基本信息")
+    private String remark;
+
     @JsonUnwrapped(prefix = "customer-")
     private ErpCustomers customer;
+
+    private List<ErpOrdersProduct> products;
 
     public void setId(Long id) 
     {
@@ -86,16 +95,6 @@ public class ErpOrders extends BaseEntity
     public Long getId() 
     {
         return id;
-    }
-
-    public void setOperatorId(Long operatorId) 
-    {
-        this.operatorId = operatorId;
-    }
-
-    public Long getOperatorId() 
-    {
-        return operatorId;
     }
 
     public void setQuantity(Long quantity) 
@@ -193,7 +192,7 @@ public class ErpOrders extends BaseEntity
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
             .append("createTime", getCreateTime())
-            .append("operatorId", getOperatorId())
+            .append("operator", getOperator())
             .append("quantity", getQuantity())
             .append("deliveryDeadline", getDeliveryDeadline())
             .append("deliveryTime", getDeliveryTime())
@@ -253,5 +252,31 @@ public class ErpOrders extends BaseEntity
 
     public void setCustomerName(String customerName) {
         this.customerName = customerName;
+    }
+
+    @Override
+    public String getRemark() {
+        return remark;
+    }
+
+    @Override
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
+    public String getOperator() {
+        return operator;
+    }
+
+    public void setOperator(String operator) {
+        this.operator = operator;
+    }
+
+    public List<ErpOrdersProduct> getProducts() {
+        return products;
+    }
+
+    public void setProducts(List<ErpOrdersProduct> products) {
+        this.products = products;
     }
 }
