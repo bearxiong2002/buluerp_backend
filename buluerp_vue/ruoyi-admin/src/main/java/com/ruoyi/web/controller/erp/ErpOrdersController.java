@@ -1,12 +1,16 @@
 package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import com.ruoyi.web.domain.ErpCustomers;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.service.IErpOrdersService;
 import io.swagger.annotations.ApiOperation;
@@ -62,6 +66,15 @@ public class ErpOrdersController extends BaseController
     {
         List<ErpOrders> list = erpOrdersService.selectErpOrdersListByIds(ids);
         ExcelUtil<ErpOrders> util = new ExcelUtil<ErpOrders>(ErpOrders.class);
+        util.exportExcel(response, list, "订单数据");
+    }
+
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载订单导入模板", notes = "下载订单导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpOrders> list = Collections.singletonList(BaseEntity.createExample(ErpOrders.class));
+        ExcelUtil<ErpOrders> util = new ExcelUtil<>(ErpOrders.class);
         util.exportExcel(response, list, "订单数据");
     }
 

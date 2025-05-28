@@ -3,10 +3,12 @@ package com.ruoyi.web.controller.erp;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import io.swagger.annotations.Api;
@@ -19,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -45,6 +48,15 @@ public class ErpPurchaseCollectionController extends BaseController {
     @ApiOperation(value = "导出采购计划列表", notes = "导出采购计划列表")
     public void export(HttpServletResponse response, Long[] ids) {
         List<ErpPurchaseCollection> list = erpPurchaseCollectionService.selectErpPurchaseCollectionListByIds(ids);
+        ExcelUtil<ErpPurchaseCollection> util = new ExcelUtil<>(ErpPurchaseCollection.class);
+        util.exportExcel(response, list, "采购计划数据");
+    }
+
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载采购计划导入模板", notes = "下载采购计划导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpPurchaseCollection> list = Collections.singletonList(BaseEntity.createExample(ErpPurchaseCollection.class));
         ExcelUtil<ErpPurchaseCollection> util = new ExcelUtil<>(ErpPurchaseCollection.class);
         util.exportExcel(response, list, "采购计划数据");
     }
