@@ -87,7 +87,7 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改物料信息", notes = "修改物料信息")
-    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpMaterialInfo erpMaterialInfo) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpMaterialInfo erpMaterialInfo) throws IOException {
         return toAjax(erpMaterialInfoService.updateErpMaterialInfo(erpMaterialInfo));
     }
 
