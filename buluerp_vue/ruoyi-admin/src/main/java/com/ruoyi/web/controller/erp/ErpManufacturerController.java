@@ -12,6 +12,7 @@ import com.ruoyi.web.domain.ErpManufacturer;
 import com.ruoyi.web.request.manufacturer.AddManufacturerRequest;
 import com.ruoyi.web.request.manufacturer.ListManufacturerRequest;
 import com.ruoyi.web.request.manufacturer.UpdateManufacturerRequest;
+import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.service.IErpManufacturerService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -20,8 +21,11 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -82,13 +86,30 @@ public class ErpManufacturerController extends BaseController {
      */
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:export')")
-    @Log(title = "【请填写功能名称】", businessType = BusinessType.EXPORT)
+    @Log(title = "导出厂家列表", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
+    @ApiOperation(value = "导出厂家列表")
     public void export(HttpServletResponse response, Long[] ids)
     {
         List<ErpManufacturer> list = erpManufacturerService.selectErpManufacturerListByIds(ids);
         ExcelUtil<ErpManufacturer> util = new ExcelUtil<ErpManufacturer>(ErpManufacturer.class);
-        util.exportExcel(response, list, "【请填写功能名称】数据");
+        String fileName = "厂家数据_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) ;
+        util.exportExcel(response, list, fileName);
+    }
+
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:manufacturer:import')")
+    @PostMapping("/import")
+    @ApiOperation(value = "导入产品")
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
+        ExcelUtil<AddManufacturerRequest> util = new ExcelUtil<AddManufacturerRequest>(AddManufacturerRequest.class);
+        List<AddManufacturerRequest> addManufacturerRequests = util.importExcel(file.getInputStream());
+        int count = 0;
+        for (AddManufacturerRequest addManufacturerRequest : addManufacturerRequests) {
+            erpManufacturerService.insertErpManufacturer(addManufacturerRequest);
+            count++;
+        }
+        return success(count);
     }
 
     /**

@@ -89,7 +89,6 @@ public class ErpProductsController extends BaseController {
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         ExcelUtil<AddProductRequest> util = new ExcelUtil<AddProductRequest>(AddProductRequest.class);
         List<AddProductRequest> erpProductsList = util.importExcel(file.getInputStream());
-        for (AddProductRequest addProductRequest : erpProductsList) System.out.println("request:"+addProductRequest.getMaterialString());
         int count = 0;
         for (AddProductRequest addProductRequest : erpProductsList) {
             erpProductsService.processMaterialIds(addProductRequest);
