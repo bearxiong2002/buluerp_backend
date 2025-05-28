@@ -3,10 +3,12 @@ package com.ruoyi.web.controller.erp;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
 import io.swagger.annotations.ApiOperation;
@@ -17,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -41,6 +44,15 @@ public class ErpPackagingListController extends BaseController {
     public void export(HttpServletResponse response, Integer[] ids) {
         List<ErpPackagingList> list = packagingListService.selectErpPackagingListListByIds(ids);
         ExcelUtil<ErpPackagingList> util = new ExcelUtil<ErpPackagingList>(ErpPackagingList.class);
+        util.exportExcel(response, list, "分包数据");
+    }
+
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpPackagingList> list = Collections.singletonList(BaseEntity.createExample(ErpPackagingList.class));
+        ExcelUtil<ErpPackagingList> util = new ExcelUtil<>(ErpPackagingList.class);
         util.exportExcel(response, list, "分包数据");
     }
 

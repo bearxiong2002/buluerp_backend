@@ -68,7 +68,7 @@ public class ErpCustomersController extends BaseController
     }
 
     @Anonymous
-    @GetMapping("/export/example")
+    @GetMapping("/export/template")
     @ApiOperation(value = "下载客户导入模板", notes = "下载客户导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpCustomers> list = Collections.singletonList(BaseEntity.createExample(ErpCustomers.class));

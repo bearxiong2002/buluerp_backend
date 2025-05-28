@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.service.IErpProductsScheduleService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -57,6 +60,15 @@ public class ErpProductionScheduleController extends BaseController {
     @ApiOperation(value = "导出布产列表", notes = "导出布产列表")
     public void export(HttpServletResponse response, Long[] ids) {
         List<ErpProductionSchedule> list = erpProductionScheduleService.listByIds(Arrays.asList(ids));
+        ExcelUtil<ErpProductionSchedule> util = new ExcelUtil<>(ErpProductionSchedule.class);
+        util.exportExcel(response, list, "布产数据");
+    }
+
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载布产导入模板", notes = "下载布产导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpProductionSchedule> list = Collections.singletonList(BaseEntity.createExample(ErpProductionSchedule.class));
         ExcelUtil<ErpProductionSchedule> util = new ExcelUtil<>(ErpProductionSchedule.class);
         util.exportExcel(response, list, "布产数据");
     }

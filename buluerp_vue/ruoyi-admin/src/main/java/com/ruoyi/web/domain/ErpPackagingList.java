@@ -12,7 +12,7 @@ public class ErpPackagingList extends BaseEntity {
     @Excel(name = "序号")
     private Integer id;
 
-    @Excel(name = "订单号")
+    @Excel(name = "订单ID")
     private String orderCode;
 
     @Excel(name = "创建时间")
