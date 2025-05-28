@@ -1,10 +1,12 @@
 package com.ruoyi.web.controller.erp;
 
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.exception.ImportException;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
@@ -17,6 +19,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,8 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @RestController
 @RequestMapping("/system/products")
@@ -86,16 +88,61 @@ public class ErpProductsController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:products:import')")
     @PostMapping("/import")
     @ApiOperation(value = "导入产品")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<AddProductRequest> util = new ExcelUtil<AddProductRequest>(AddProductRequest.class);
-        List<AddProductRequest> erpProductsList = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddProductRequest addProductRequest : erpProductsList) {
-            erpProductsService.processMaterialIds(addProductRequest);
-            erpProductsService.insertErpProducts(addProductRequest);
-            count++;
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) {
+        List<AddProductRequest> requests;
+        try {
+            ExcelUtil<AddProductRequest> util = new ExcelUtil<>(AddProductRequest.class);
+            requests = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        List<Map<String, Object>> errorList = new ArrayList<>();
+        int rowNumber = 0;
+        for (AddProductRequest request : requests) {
+            request.setRowNumber(rowNumber++); // 记录行号
+            try {
+                // 基础校验
+                if (request.getOrderId() == null) {
+                    throw new ImportException(request.getRowNumber(), "订单ID不能为空", request.toString());
+                }
+                if (StringUtils.isBlank(request.getName())) {
+                    throw new ImportException(request.getRowNumber(), "产品名称不能为空", request.toString());
+                }
+                // 校验 materialString 格式（新增校验）
+                String materialStr = request.getMaterialString();
+                if (StringUtils.isBlank(materialStr)) {
+                    throw new ImportException(request.getRowNumber(), "物料ID列表不能为空", request.toString());
+                }
+
+                // 替换中文逗号并去除空格
+                String normalized = materialStr.replace("，", ",").replaceAll("\\s+", "");
+                if (!normalized.matches("^\\d+(,\\d+)*$")) { // 正则表达式校验
+                    throw new ImportException(request.getRowNumber(), "物料ID列表格式错误（必须为逗号分隔的整数）", request.toString());
+                }
+
+                // 调用Service层处理
+                erpProductsService.processMaterialIds(request);
+                erpProductsService.insertErpProducts(request);
+            } catch (ImportException e) {
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", e.getRowNumber());
+                errorEntry.put("error",e.getMessage());
+                errorEntry.put("data", e.getRawData());
+                errorList.add(errorEntry);
+            } catch (Exception e) {
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", request.getRowNumber());
+                errorEntry.put("error", "系统错误: " + e.getMessage());
+                errorEntry.put("data", request.toString());
+                errorList.add(errorEntry);
+            }
+        }
+
+        if (!errorList.isEmpty()) {
+            return AjaxResult.error("导入失败", errorList);
+        }
+        return AjaxResult.success("导入成功",rowNumber);
     }
 
     @ApiOperation(value = "获得产品详细信息")
@@ -128,5 +175,23 @@ public class ErpProductsController extends BaseController {
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable List<Integer> ids) {
         return toAjax(erpProductsService.deleteErpProductsByIds(ids));
+    }
+
+    @GetMapping("/template")
+    @ApiOperation("下载导入模板")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:products:import')") // 权限校验（按需添加）
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        // 1. 创建示例数据（一行合法数据）
+        List<AddProductRequest> templateData = new ArrayList<>();
+        AddProductRequest example = new AddProductRequest();
+        example.setOrderId(123); // 订单ID（整数）
+        example.setName("示例产品"); // 产品名称（非空）
+        example.setMaterialString("1,2,3"); // 物料ID列表（逗号分隔整数）
+        templateData.add(example);
+
+        // 2. 使用 ExcelUtil 导出
+        ExcelUtil<AddProductRequest> util = new ExcelUtil<>(AddProductRequest.class);
+        util.exportExcel(response, templateData, "产品导入模板");
     }
 }
