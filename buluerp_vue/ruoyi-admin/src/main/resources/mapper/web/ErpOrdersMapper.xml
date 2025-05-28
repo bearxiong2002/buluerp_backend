@@ -30,6 +30,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
         <include refid="selectErpOrdersVo"/>
         <where>
+            <if test="id != null "> and id = #{id}</if>
             <if test="innerId != null "> and inner_id = #{innerId}</if>
             <if test="outerId != null "> and outer_id = #{outerId}</if>
             <if test="operator != null "> and operator like concact('%',#{operator},'%')</if>

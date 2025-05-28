@@ -42,7 +42,7 @@ public class ErpOrders extends BaseEntity
 
     /** 数量 */
     @Excel(name = "数量")
-    @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
+    // @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
     private Long quantity;
 
     /** 交货期限 */

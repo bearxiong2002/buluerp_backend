@@ -39,6 +39,22 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Autowired
     private IErpProductsService erpProductsService;
 
+    private ErpOrders fillErpOrders(ErpOrders erpOrders) {
+        erpOrders.setCustomer(
+                erpCustomersService.selectErpCustomersById(erpOrders.getCustomerId())
+        );
+        List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
+        for (ErpOrdersProduct erpOrdersProduct : products) {
+            erpOrdersProduct.setProduct(
+                    erpProductsService.selectErpProductsListByIds(
+                            new Long[]{erpOrdersProduct.getProductId()}
+                    ).get(0)
+            );
+        }
+        erpOrders.setProducts(products);
+        return erpOrders;
+    }
+
     /**
      * 查询订单
      * 
@@ -48,7 +64,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public ErpOrders selectErpOrdersById(Long id)
     {
-        return erpOrdersMapper.selectErpOrdersById(id);
+        return fillErpOrders(erpOrdersMapper.selectErpOrdersById(id));
     }
 
     /**
@@ -62,18 +78,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     {
         List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(erpOrders);
         for (ErpOrders erpOrders1 : list) {
-            erpOrders1.setCustomer(
-                    erpCustomersService.selectErpCustomersById(erpOrders1.getCustomerId())
-            );
-            List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders1.getId());
-            for (ErpOrdersProduct erpOrdersProduct : products) {
-                erpOrdersProduct.setProduct(
-                        erpProductsService.selectErpProductsListByIds(
-                                new Long[]{erpOrdersProduct.getProductId()}
-                        ).get(0)
-                );
-            }
-            erpOrders1.setProducts(products);
+            fillErpOrders(erpOrders1);
         }
         return list;
     }

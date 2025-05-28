@@ -1,12 +1,19 @@
 package com.ruoyi.common.core.domain;
 
 import java.io.Serializable;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.ruoyi.common.annotation.Example;
+import com.ruoyi.common.core.text.Convert;
+import com.ruoyi.common.exception.excel.UnsupportedExampleTypeException;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.reflect.ReflectUtils;
 
 /**
  * Entity基类
@@ -160,5 +167,37 @@ public class BaseEntity implements Serializable
 
     public void setIsAsc(String isAsc) {
         this.isAsc = isAsc;
+    }
+
+    public static <T> T createExample(Class<T> clazz) throws InstantiationException, IllegalAccessException {
+        T example = clazz.newInstance();
+        Field[] fields = clazz.getDeclaredFields();
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Example exampleAnnotation = field.getAnnotation(Example.class);
+            if (exampleAnnotation != null) {
+                Class<?> type = field.getType();
+                if (String.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), exampleAnnotation.value());
+                } else if (Integer.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toInt(exampleAnnotation.value()));
+                } else if (Long.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toLong(exampleAnnotation.value()));
+                } else if (Double.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toDouble(exampleAnnotation.value()));
+                } else if (Float.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toFloat(exampleAnnotation.value()));
+                } else if (BigDecimal.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBigDecimal(exampleAnnotation.value()));
+                } else if (Date.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), DateUtils.parseDate(exampleAnnotation.value()));
+                } else if (Boolean.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBool(exampleAnnotation.value()));
+                } else {
+                    throw new UnsupportedExampleTypeException("不支持的示例值类型");
+                }
+            }
+        }
+        return example;
     }
 }
