@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.ruoyi.common.domain.ExcelRowErrorInfo;
-import com.ruoyi.common.domain.validation.Save;
+import com.ruoyi.common.exception.excel.ExcelRowErrorInfo;
+import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.excel.ExcelImportException;
 import com.ruoyi.common.utils.poi.ExcelUtil;

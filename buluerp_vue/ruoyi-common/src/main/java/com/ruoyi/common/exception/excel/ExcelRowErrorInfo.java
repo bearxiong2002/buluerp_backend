@@ -1,4 +1,4 @@
-package com.ruoyi.common.domain;
+package com.ruoyi.common.exception.excel;
 
 public class ExcelRowErrorInfo {
     Integer rowNum;

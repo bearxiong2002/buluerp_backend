@@ -1,12 +1,10 @@
 package com.ruoyi.web.domain;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
-import com.ruoyi.common.domain.validation.Save;
-import com.ruoyi.common.domain.validation.Update;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 

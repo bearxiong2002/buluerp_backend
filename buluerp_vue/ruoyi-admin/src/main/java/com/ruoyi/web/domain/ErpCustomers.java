@@ -2,8 +2,9 @@ package com.ruoyi.web.domain;
 
 import java.util.Date;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ruoyi.common.domain.validation.Save;
-import com.ruoyi.common.domain.validation.Update;
+import com.ruoyi.common.validation.NullOrNotBlank;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -12,7 +13,6 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
 
 /**
  * 【请填写功能名称】对象 erp_customers
@@ -35,7 +35,7 @@ public class ErpCustomers extends BaseEntity
     /** $column.columnComment */
     @Excel(name = "姓名")
     @NotNull(groups = {Save.class}, message = "姓名不能为空")
-    @Size(min = 1, groups = {Save.class, Update.class}, message = "姓名不能为空")
+    @NullOrNotBlank(groups = {Save.class, Update.class}, message = "姓名不能为空")
     private String name;
 
     @Excel(name = "联系方式")

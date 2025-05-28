@@ -5,8 +5,8 @@ import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
-import com.ruoyi.common.domain.validation.Save;
-import com.ruoyi.common.domain.validation.Update;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpCustomersService;
 import io.swagger.annotations.ApiOperation;

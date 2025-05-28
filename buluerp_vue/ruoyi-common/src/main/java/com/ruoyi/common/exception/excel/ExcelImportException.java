@@ -1,7 +1,5 @@
 package com.ruoyi.common.exception.excel;
 
-import com.ruoyi.common.domain.ExcelRowErrorInfo;
-
 import java.util.List;
 
 public class ExcelImportException extends RuntimeException {
