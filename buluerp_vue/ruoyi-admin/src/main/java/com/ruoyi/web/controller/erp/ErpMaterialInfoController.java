@@ -43,6 +43,14 @@ public class ErpMaterialInfoController extends BaseController {
         return getDataTable(tableDataInfos);
     }
 
+    // @PreAuthorize("@ss.hasPermi('system:material-info:query')")
+    @Anonymous
+    @GetMapping
+    @ApiOperation(value = "获取物料资料详细信息", notes = "获取物料资料详细信息")
+    public AjaxResult getInfo(Long[] ids) {
+        return AjaxResult.success(erpMaterialInfoService.selectErpMaterialInfoListByIds(ids));
+    }
+
     /**
      * 导出物料列表
      */
