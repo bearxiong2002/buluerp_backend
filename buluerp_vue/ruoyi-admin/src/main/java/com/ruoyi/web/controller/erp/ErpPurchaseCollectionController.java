@@ -70,16 +70,16 @@ public class ErpPurchaseCollectionController extends BaseController {
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollections(list));
     }
 
-    @PreAuthorize("@ss.hasPermi('system:purchase-collection:add')")
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:purchase-collection:add')")
+    @Anonymous
     @PostMapping
     @ApiOperation(value = "新增采购计划", notes = "新增采购计划")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollection(erpPurchaseCollection));
     }
 
-    @PreAuthorize("@ss.hasPermi('system:purchase-collection:edit')")
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:purchase-collection:edit')")
+    @Anonymous
     @PutMapping
     @ApiOperation(value = "修改采购计划", notes = "修改采购计划")
     public AjaxResult edit(@ModelAttribute @Validated({Update.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
