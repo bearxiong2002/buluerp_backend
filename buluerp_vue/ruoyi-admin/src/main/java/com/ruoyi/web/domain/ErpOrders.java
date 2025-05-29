@@ -219,7 +219,7 @@ public class ErpOrders extends BaseEntity
         String date = sdf.format(getCreateTime());
         return "BLK"
                 + date
-                + String.format("%06d", getId());
+                + String.format("%06d", getId() % 1000000);
     }
 
     public String generateOuterId() {
@@ -227,8 +227,11 @@ public class ErpOrders extends BaseEntity
         String date = sdf.format(getCreateTime());
         return "OUT"
                 + date
-                + String.format("%06d", getId());
+                + String.format("%06d", getId() % 1000000);
     }
+
+    public static final String INNER_ID_PLACEHOLDER = "BLK##############";
+    public static final String OUTER_ID_PLACEHOLDER = "OUT##############";
 
     public String getInnerId() {
         return innerId;

@@ -111,6 +111,8 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (erpOrders.getProducts() != null && !erpOrders.getProducts().isEmpty()) {
             erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
+        erpOrders.setInnerId(ErpOrders.INNER_ID_PLACEHOLDER);
+        erpOrders.setOuterId(ErpOrders.OUTER_ID_PLACEHOLDER);
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
             throw new ServiceException("操作失败");
         }
