@@ -4,10 +4,12 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.service.IErpProductionArrangeService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -51,6 +53,15 @@ public class ErpProductionArrangeController extends BaseController {
     @ApiOperation(value = "导出排产列表", notes = "导出排产列表")
     public void export(HttpServletResponse response, Long[] ids) {
         List<ErpProductionArrange> list = erpProductionArrangeService.listByIds(Arrays.asList(ids));
+        ExcelUtil<ErpProductionArrange> util = new ExcelUtil<>(ErpProductionArrange.class);
+        util.exportExcel(response, list, "排产数据");
+    }
+
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载排产导入模板", notes = "下载排产导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpProductionArrange> list = Collections.singletonList(BaseEntity.createExample(ErpProductionArrange.class));
         ExcelUtil<ErpProductionArrange> util = new ExcelUtil<>(ErpProductionArrange.class);
         util.exportExcel(response, list, "排产数据");
     }

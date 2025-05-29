@@ -30,8 +30,7 @@ public class ErpCustomers extends BaseEntity
 
     /** 创建时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd")
-    @Example("2025-05-28")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd", type = Excel.Type.EXPORT)
     private Date creatTime;
 
     /** $column.columnComment */

@@ -6,6 +6,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -27,36 +28,39 @@ public class ErpOrders extends BaseEntity
     /** 主键ID */
     private Long id;
 
-    @Excel(name = "内部ID")
+    @Excel(name = "内部编号")
+    @Example("BLK20250528000001")
     private String innerId;
 
-    @Excel(name = "外部ID")
+    @Excel(name = "外部编号")
+    @Example("OUT20250528000001")
     private String outerId;
 
     /** 操作人ID（外键引用用户表） */
-    @Excel(name = "操作人姓名")
+    @Excel(name = "操作人姓名", type = Excel.Type.IMPORT)
     private String operator;
-
-    @Excel(name = "客户姓名")
-    private String customerName;
 
     /** 数量 */
     @Excel(name = "数量")
     // @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
+    @Example("100")
     private Long quantity;
 
     /** 交货期限 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "交货期限", width = 30, dateFormat = "yyyy-MM-dd")
+    @Example("2021-01-01")
     private Date deliveryDeadline;
 
     /** 交货时间 */
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "交货时间", width = 30, dateFormat = "yyyy-MM-dd")
+    @Example("2021-01-01")
     private Date deliveryTime;
 
     /** 状态（0:创建 1:已发货 2:已完成等） */
     @Excel(name = "状态", readConverterExp = "0=:创建,1=:已发货,2=:已完成等")
+    @Example("已发货")
     private Integer status;
 
     /** 客户ID（外键引用客户表） */
@@ -65,25 +69,29 @@ public class ErpOrders extends BaseEntity
 
     /** 产品ID（外键引用产品表） */
     @Excel(name = "产品ID")
+    @Example("1")
     private Long productId;
 
     /** 布产ID（外键引用布产表） */
     @Excel(name = "布产ID")
+    @Example("1")
     private Long productionId;
 
     /** 外购ID（外键引用采购表） */
     @Excel(name = "外购ID")
+    @Example("1")
     private Long purchaseId;
 
     /** 分包ID（外键引用分包商表） */
     @Excel(name = "分包ID")
+    @Example("1")
     private Long subcontractId;
 
     @Excel(name = "其它基本信息")
+    @Example("无")
     private String remark;
 
-    @JsonUnwrapped(prefix = "customer-")
-    private ErpCustomers customer;
+    private String customerName;
 
     private List<ErpOrdersProduct> products;
 
@@ -238,22 +246,6 @@ public class ErpOrders extends BaseEntity
         this.outerId = outerId;
     }
 
-    public ErpCustomers getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(ErpCustomers customer) {
-        this.customer = customer;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
     @Override
     public String getRemark() {
         return remark;
@@ -270,6 +262,14 @@ public class ErpOrders extends BaseEntity
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public List<ErpOrdersProduct> getProducts() {

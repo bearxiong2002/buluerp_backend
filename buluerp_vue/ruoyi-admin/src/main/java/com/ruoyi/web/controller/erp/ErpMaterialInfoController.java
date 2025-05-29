@@ -4,11 +4,13 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import io.swagger.annotations.Api;
@@ -20,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -54,6 +57,15 @@ public class ErpMaterialInfoController extends BaseController {
         util.exportExcel(response, list, "物料资料数据");
     }
 
+    @Anonymous
+    @GetMapping("/export/template")
+    @ApiOperation(value = "下载物料导入模板", notes = "下载物料导入模板")
+    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        List<ErpMaterialInfo> list = Collections.singletonList(BaseEntity.createExample(ErpMaterialInfo.class));
+        ExcelUtil<ErpMaterialInfo> util = new ExcelUtil<>(ErpMaterialInfo.class);
+        util.exportExcel(response, list, "物料数据");
+    }
+
     // @PreAuthorize("@ss.hasPermi('system:material-info:import')")
     @Log(title = "物料资料", businessType = BusinessType.IMPORT)
     @PostMapping("/import")
@@ -75,7 +87,7 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改物料信息", notes = "修改物料信息")
-    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpMaterialInfo erpMaterialInfo) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpMaterialInfo erpMaterialInfo) throws IOException {
         return toAjax(erpMaterialInfoService.updateErpMaterialInfo(erpMaterialInfo));
     }
 

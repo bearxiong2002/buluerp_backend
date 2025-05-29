@@ -18,10 +18,10 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Excel(name = "订单编号")
     private String orderCode;
 
-    @Excel(name = "创建时间")
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     private Date creationTime;
 
-    @Excel(name = "操作人")
+    @Excel(name = "操作人", type = Excel.Type.EXPORT)
     private String operator;
 
     @Excel(name = "产品编号")

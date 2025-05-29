@@ -26,12 +26,12 @@ public class ErpProductionSchedule {
     @TableField(condition = SqlCondition.LIKE)
     private String orderCode;
 
-    @Excel(name = "创建时间")
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     @ApiModelProperty(value = "创建时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     private Date creationTime;
 
-    @Excel(name = "操作人")
+    @Excel(name = "操作人", type = Excel.Type.EXPORT)
     @ApiModelProperty(value = "操作人", dataType = "String", notes = "仅响应")
     @TableField(condition = SqlCondition.LIKE)
     private String operator;
