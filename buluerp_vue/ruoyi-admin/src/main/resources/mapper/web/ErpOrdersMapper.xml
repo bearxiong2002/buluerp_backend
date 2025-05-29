@@ -24,37 +24,56 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErpOrdersVo">
-        select id, inner_id, outer_id, create_time, operator, customer_name, quantity, delivery_deadline, delivery_time, status, customer_id, product_id, production_id, purchase_id, subcontract_id, remark, update_time from erp_orders
+        select
+            o.id as id,
+            o.inner_id as inner_id,
+            o.outer_id as outer_id,
+            o.create_time as create_time,
+            o.operator as operator,
+            o.quantity as quantity,
+            o.delivery_deadline as delivery_deadline,
+            o.delivery_time as delivery_time,
+            o.status as status,
+            o.customer_id as customer_id,
+            o.product_id as product_id,
+            o.production_id as production_id,
+            o.purchase_id as purchase_id,
+            o.subcontract_id as subcontract_id,
+            o.remark as remark,
+            o.update_time as update_time,
+            c.name as customer_name
+        from erp_orders o
+                 left join erp_customers c on o.customer_id = c.id
     </sql>
 
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">
         <include refid="selectErpOrdersVo"/>
         <where>
-            <if test="id != null "> and id = #{id}</if>
-            <if test="innerId != null "> and inner_id = #{innerId}</if>
-            <if test="outerId != null "> and outer_id = #{outerId}</if>
-            <if test="operator != null "> and operator like concact('%',#{operator},'%')</if>
-             <if test="customerName != null "> and customer_name like CONCAT('%',#{customerName},'%')</if>
-            <if test="quantity != null "> and quantity = #{quantity}</if>
-            <if test="deliveryDeadline != null "> and DATE(delivery_deadline) = DATE(#{deliveryDeadline})</if>
-            <if test="deliveryTime != null "> and delivery_time = #{deliveryTime}</if>
-            <if test="status != null "> and status = #{status}</if>
-            <if test="customerId != null "> and customer_id = #{customerId}</if>
-            <if test="productId != null "> and product_id = #{productId}</if>
-            <if test="productionId != null "> and production_id = #{productionId}</if>
-            <if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>
-            <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
-             <if test="remark != null "> and remark like CONCAT('%',#{remark},'%')</if>
+            <if test="id != null "> and o.id = #{id}</if>
+            <if test="innerId != null "> and o.inner_id = #{innerId}</if>
+            <if test="outerId != null "> and o.outer_id = #{outerId}</if>
+            <if test="operator != null "> and o.operator like concact('%',#{operator},'%')</if>
+            <if test="quantity != null "> and o.quantity = #{quantity}</if>
+            <if test="deliveryDeadline != null "> and DATE(o.delivery_deadline) = DATE(#{deliveryDeadline})</if>
+            <if test="deliveryTime != null "> and o.delivery_time = #{deliveryTime}</if>
+            <if test="status != null "> and o.status = #{status}</if>
+            <if test="customerId != null "> and o.customer_id = #{customerId}</if>
+            <if test="productId != null "> and o.product_id = #{productId}</if>
+            <if test="productionId != null "> and o.production_id = #{productionId}</if>
+            <if test="purchaseId != null "> and o.purchase_id = #{purchaseId}</if>
+            <if test="subcontractId != null "> and o.subcontract_id = #{subcontractId}</if>
+             <if test="remark != null "> and o.remark like CONCAT('%',#{remark},'%')</if>
+              <if test="customerName != null "> and c.name like CONCAT('%',#{customerName},'%')</if>
         </where>
     </select>
     
     <select id="selectErpOrdersById" parameterType="Long" resultMap="ErpOrdersResult">
         <include refid="selectErpOrdersVo"/>
-        where id = #{id}
+        where o.id = #{id}
     </select>
     <select id="selectErpOrdersListByIds" resultType="com.ruoyi.web.domain.ErpOrders">
         <include refid="selectErpOrdersVo"/>
-        where id in
+        where o.id in
         <foreach item="item" collection="array" separator="," open="(" close=")" index="">
             #{item}
         </foreach>
@@ -70,7 +89,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="outerId != null">outer_id,</if>
             <if test="createTime != null">create_time,</if>
             <if test="operator != null">operator,</if>
-            <if test="customerName != null">customer_name,</if>
             <if test="quantity != null">quantity,</if>
             <if test="deliveryDeadline != null">delivery_deadline,</if>
             <if test="deliveryTime != null">delivery_time,</if>
@@ -88,7 +106,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="outerId != null">#{outerId},</if>
             <if test="createTime != null">#{createTime},</if>
             <if test="operator != null">#{operator},</if>
-            <if test="customerName != null">#{customerName},</if>
             <if test="quantity != null">#{quantity},</if>
             <if test="deliveryDeadline != null">#{deliveryDeadline},</if>
             <if test="deliveryTime != null">#{deliveryTime},</if>
@@ -116,7 +133,6 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="outerId != null">outer_id = #{outerId},</if>
             <if test="createTime != null">create_time = #{createTime},</if>
             <if test="operator != null">operator = #{operator},</if>
-            <if test="customerName != null">customer_name = #{customerName},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="deliveryDeadline != null">delivery_deadline = #{deliveryDeadline},</if>
             <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>

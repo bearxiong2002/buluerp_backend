@@ -40,10 +40,6 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "操作人姓名", type = Excel.Type.IMPORT)
     private String operator;
 
-    @Excel(name = "客户姓名")
-    @Example("张三")
-    private String customerName;
-
     /** 数量 */
     @Excel(name = "数量")
     // @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
@@ -95,8 +91,7 @@ public class ErpOrders extends BaseEntity
     @Example("无")
     private String remark;
 
-    @JsonUnwrapped(prefix = "customer-")
-    private ErpCustomers customer;
+    private String customerName;
 
     private List<ErpOrdersProduct> products;
 
@@ -251,22 +246,6 @@ public class ErpOrders extends BaseEntity
         this.outerId = outerId;
     }
 
-    public ErpCustomers getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(ErpCustomers customer) {
-        this.customer = customer;
-    }
-
-    public String getCustomerName() {
-        return customerName;
-    }
-
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
-    }
-
     @Override
     public String getRemark() {
         return remark;
@@ -283,6 +262,14 @@ public class ErpOrders extends BaseEntity
 
     public void setOperator(String operator) {
         this.operator = operator;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
     }
 
     public List<ErpOrdersProduct> getProducts() {
