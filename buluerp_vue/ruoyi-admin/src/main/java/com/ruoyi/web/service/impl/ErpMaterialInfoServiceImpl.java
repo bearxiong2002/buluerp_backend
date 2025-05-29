@@ -33,14 +33,15 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
-    public int insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
+    public Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setCreatTime(DateUtils.getNowDate());
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
         if (erpMaterialInfo.getDrawingReferenceFile() != null) {
             String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
             erpMaterialInfo.setDrawingReference(url);
         }
-        return erpMaterialInfoMapper.insertErpMaterialInfo(erpMaterialInfo);
+        return 0 == erpMaterialInfoMapper.insertErpMaterialInfo(erpMaterialInfo) ?
+                null : erpMaterialInfo.getId();
     }
 
     @Override

@@ -88,7 +88,12 @@ public class ErpMaterialInfoController extends BaseController {
     @PostMapping
     @ApiOperation(value = "新增物料信息", notes = "新增物料信息")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpMaterialInfo erpMaterialInfo) throws IOException {
-        return toAjax(erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo));
+         Long id = erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo);
+         if (id == null) {
+             return error();
+         } else {
+             return success(id);
+         }
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:edit')")
