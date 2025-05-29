@@ -1,6 +1,7 @@
 package com.ruoyi.web.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
@@ -16,6 +17,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private Long id;
 
     @Excel(name = "订单编号")
+    @Example("BLK20250528000001")
     private String orderCode;
 
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
@@ -25,51 +27,65 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
+    @Example("BLK20250528000001")
     private Long productId;
 
     @Excel(name = "下单时间")
+    @Example("2022-05-28 10:00:00")
     private Date orderTime;
 
     @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
     private String pictureUrl;
 
     @Excel(name = "外购编码")
+    @Example("ABC123")
     private String purchaseCode;
 
     @Excel(name = "外购模具编号")
+    @Example("ABC123")
     private String mouldNumber;
 
     @Excel(name = "规格")
+    @Example("ABC")
     private String specification;
 
     @Excel(name = "采购数量")
     @Range(min = 1, message = "采购数量不能小于1", groups = {Save.class, Update.class})
+    @Example("1")
     private Integer purchaseQuantity;
 
     @Excel(name = "颜色编号")
+    @Example("123,456,789")
     private String colorCode;
 
     @Excel(name = "料别")
+    @Example("YL123456")
     private String materialType;
 
     @Excel(name = "单重")
     @Range(min = 0, message = "单重不能小于等于0", groups = {Save.class, Update.class})
+    @Example("1.23")
     private Double singleWeight;
 
     @Excel(name = "采购重量")
     @Range(min = 0, message = "采购重量不能小于等于0", groups = {Save.class, Update.class})
+    @Example("1.23")
     private Double purchaseWeight;
 
     @Excel(name = "货期，供应商承诺的交货时间范围")
+    @Example("2022-05-28 10:00:00~2022-05-28 10:00:00")
     private String deliveryTime;
 
     @Excel(name = "交货日期，实际交货日期")
+    @Example("2022-05-28 10:00:00")
     private Date deliveryDate;
 
     @Excel(name = "供应商")
+    @Example("凝聚")
     private String supplier;
 
     @Excel(name = "备注")
+    @Example("无")
     private String remarks;
 
     @JsonIgnore

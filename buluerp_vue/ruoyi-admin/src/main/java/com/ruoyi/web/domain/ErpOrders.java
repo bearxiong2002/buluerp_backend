@@ -44,14 +44,14 @@ public class ErpOrders extends BaseEntity
 
     /** 数量 */
     @Excel(name = "数量")
-    @NotNull(groups = {Save.class}, message = "数量不能为空")
+    @NotNull(groups = {Save.class}, message = "数量格式有误")
     @Range(min = 1, message = "数量不能小于1", groups = {Save.class, Update.class})
     @Example("100")
     private Long quantity;
 
     /** 交货期限 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull(groups = {Save.class}, message = "交货期限不能为空")
+    @NotNull(groups = {Save.class}, message = "交货期限格式有误")
     @Excel(name = "交货期限", width = 30, dateFormat = "yyyy-MM-dd")
     @Example("2021-01-01")
     private Date deliveryDeadline;
@@ -65,8 +65,8 @@ public class ErpOrders extends BaseEntity
     /** 状态（0:创建 1:已发货 2:已完成等） */
     @Excel(name = "状态", readConverterExp = "0=:创建,1=:已发货,2=:已完成等")
     @Example("已发货")
-    @NotNull(groups = {Save.class}, message = "状态值不能为空")
-    @Range(min = 0, max = 2, message = "状态值无效", groups = {Save.class, Update.class})
+    @NotNull(groups = {Save.class}, message = "状态值格式有误")
+    @Range(min = 0, max = 2, message = "状态值格式有误", groups = {Save.class, Update.class})
     private Integer status;
 
     /** 客户ID（外键引用客户表） */

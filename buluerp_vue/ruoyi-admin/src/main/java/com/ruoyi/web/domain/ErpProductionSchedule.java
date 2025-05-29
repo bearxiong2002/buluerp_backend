@@ -2,6 +2,7 @@ package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
@@ -24,6 +25,7 @@ public class ErpProductionSchedule {
     @Excel(name = "订单编号")
     @ApiModelProperty(value = "订单编号", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
+    @Example("BLK20250528000001")
     private String orderCode;
 
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
@@ -38,26 +40,31 @@ public class ErpProductionSchedule {
 
     @Excel(name = "产品ID")
     @ApiModelProperty(value = "产品ID", dataType = "Long", required = true)
+    @Example("1")
     private Long productId;
 
     @Excel(name = "布产时间")
     @ApiModelProperty(value = "布产时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
+    @Example("2022-05-28 10:00:00")
     private Date productionTime;
 
     @Excel(name = "产品编码")
     @ApiModelProperty(value = "产品编码", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
+    @Example("123456")
     private String productCode;
 
     @Excel(name = "模具编码")
     @ApiModelProperty(value = "模具编码", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
+    @Example("客户")
     private String mouldCode;
 
     @Excel(name = "模具状态")
     @ApiModelProperty(value = "模具状态", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("正常")
     private String mouldCondition;
 
     @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
@@ -68,82 +75,99 @@ public class ErpProductionSchedule {
     @Excel(name = "颜色编号")
     @ApiModelProperty(value = "颜色编号", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("123,456,789")
     private String colorCode;
 
     @Excel(name = "用量(g)")
     @ApiModelProperty(value = "用量(g)", dataType = "Double")
     @TableField(value = "`usage`")
     @Range(min = 0, message = "用量(g)必须大于0", groups = {Save.class, Update.class})
+    @Example("123.456")
     private Double usage;
 
     @Excel(name = "材料类型")
     @ApiModelProperty(value = "材料类型", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("YL1234567")
     private String materialType;
 
     @Excel(name = "腔数PCS")
     @ApiModelProperty(value = "腔数PCS", dataType = "Integer")
     @Range(min = 0, message = "腔数PCS必须大于0", groups = {Save.class, Update.class})
+    @Example("12")
     private Integer cavityCount;
 
     @Excel(name = "单重(g)")
     @ApiModelProperty(value = "单重(g)", dataType = "Double")
     @Range(min = 0, message = "单重(g)必须大于0", groups = {Save.class, Update.class})
+    @Example("123.456")
     private Double singleWeight;
 
     @Excel(name = "布产数量PCS")
     @ApiModelProperty(value = "布产数量PCS", dataType = "Integer")
     @Range(min = 1, message = "布产数量PCS必须大于1", groups = {Save.class, Update.class})
+    @Example("12")
     private Integer productionQuantity;
 
     @Excel(name = "布产模数PCS")
     @ApiModelProperty(value = "布产模数PCS", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Range(min = 0, message = "布产模数PCS必须大于0", groups = {Save.class, Update.class})
+    @Example("12")
     private Integer productionMouldCount;
 
     @Excel(name = "布产重量(kg)")
     @ApiModelProperty(value = "布产重量(kg)", dataType = "Double")
     @Range(min = 0, message = "布产重量(kg)必须大于0", groups = {Save.class, Update.class})
+    @Example("123.456")
     private Double productionWeight;
 
     @Excel(name = "需要色粉份数")
     @ApiModelProperty(value = "需要色粉份数", dataType = "Integer")
     @Range(min = 0, message = "需要色粉份数必须大于0", groups = {Save.class, Update.class})
+    @Example("12")
     private Integer colorPowderNeeded;
 
     @Excel(name = "生产周期(s)")
     @ApiModelProperty(value = "生产周期(s)", dataType = "Double")
     @Range(min = 0, message = "生产周期(s)必须大于0", groups = {Save.class, Update.class})
+    @Example("123.456")
     private Double cycleTime;
 
     @Excel(name = "生产所需时间(h)")
     @ApiModelProperty(value = "生产所需时间(h)", dataType = "Double")
     @Range(min = 0, message = "生产所需时间(h)必须大于0", groups = {Save.class, Update.class})
+    @Example("123.456")
     private Double timeHours;
 
     @Excel(name = "出货时间")
     @ApiModelProperty(value = "出货时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
+    @Example("2022-05-28 10:00:00")
     private Date shipmentTime;
 
     @Excel(name = "供应商")
     @ApiModelProperty(value = "供应商", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("凝聚")
     private String supplier;
 
     @Excel(name = "模具厂家")
     @ApiModelProperty(value = "模具厂家", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("布鲁科")
     private String mouldManufacturer;
 
     @Excel(name = "客户")
     @ApiModelProperty(value = "客户", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example("张三")
     private String customer;
 
     @Excel(name = "库存")
     @ApiModelProperty(value = "库存", dataType = "Integer")
+    @Range(min = 0, message = "库存必须大于0", groups = {Save.class, Update.class})
+    @Example("12")
     private Integer inventory;
 
     @TableField(exist = false)
