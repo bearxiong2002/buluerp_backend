@@ -40,9 +40,6 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private IErpProductsService erpProductsService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
-        erpOrders.setCustomer(
-                erpCustomersService.selectErpCustomersById(erpOrders.getCustomerId())
-        );
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
         for (ErpOrdersProduct erpOrdersProduct : products) {
             erpOrdersProduct.setProduct(
@@ -103,13 +100,15 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());
         }
-        if (erpOrders.getCustomer() != null && erpOrders.getCustomer().getName() == null) {
-            if (0 == erpCustomersService.insertErpCustomers(erpOrders.getCustomer())) {
+        if (erpOrders.getCustomerId() == null && erpOrders.getCustomerName() != null) {
+            ErpCustomers erpCustomers = new ErpCustomers();
+            erpCustomers.setName(erpOrders.getCustomerName());
+            if (0 == erpCustomersService.insertErpCustomers(erpCustomers)) {
                 throw new ServiceException("添加客户信息失败");
             }
-            erpOrders.setCustomerId(erpOrders.getCustomer().getId());
+            erpOrders.setCustomerId(erpCustomers.getId());
         }
-        if (erpOrders.getProducts() != null) {
+        if (erpOrders.getProducts() != null && !erpOrders.getProducts().isEmpty()) {
             erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
@@ -141,25 +140,26 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());
         }
-       if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
-           throw new ServiceException("操作失败");
-       }
-        ErpCustomers customer = erpOrders.getCustomer();
-        if (customer != null &&
-                (customer.getName() != null || customer.getContact() != null
-                        || customer.getEmail() != null || customer.getRemarks() != null)) {
+        if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
+            throw new ServiceException("操作失败");
+        }
+        if (erpOrders.getCustomerName() != null) {
            ErpOrders data = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
-           erpOrders.getCustomer().setId(data.getCustomerId());
-           if (0 == erpCustomersService.updateErpCustomers(erpOrders.getCustomer())) {
+           ErpCustomers erpCustomers = new ErpCustomers();
+           erpCustomers.setId(data.getCustomerId());
+           erpCustomers.setName(erpOrders.getCustomerName());
+           if (0 == erpCustomersService.updateErpCustomers(erpCustomers)) {
                throw new ServiceException("更新客户信息失败");
            }
        }
         if (erpOrders.getProducts() != null) {
             erpOrdersMapper.clearOrdersProducts(erpOrders.getId());
-            for (ErpOrdersProduct erpOrdersProduct : erpOrders.getProducts()) {
-                erpOrdersProduct.setOrdersId(erpOrders.getId());
+            if (!erpOrders.getProducts().isEmpty()) {
+                for (ErpOrdersProduct erpOrdersProduct : erpOrders.getProducts()) {
+                    erpOrdersProduct.setOrdersId(erpOrders.getId());
+                }
+                erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
             }
-            erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
        return 1;
     }
