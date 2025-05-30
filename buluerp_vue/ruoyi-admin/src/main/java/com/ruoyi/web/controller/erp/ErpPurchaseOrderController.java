@@ -81,7 +81,7 @@ public class ErpPurchaseOrderController extends BaseController {
     @ApiOperation(value = "删除采购订单发票")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:remove')")
-    @DeleteMapping("/{invoiceUrl}")
+    @DeleteMapping("/invoice/{invoiceUrl}")
     public AjaxResult removeInvoice(@PathVariable String invoiceUrl) {
         return toAjax(erpPurchaseOrderService.removeInvoice(invoiceUrl));
     }
