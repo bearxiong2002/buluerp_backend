@@ -59,5 +59,5 @@ public interface IErpPurchaseOrderService extends IService<ErpPurchaseOrder> {
      */
     int deleteErpPurchaseOrderByIds(List<Integer> ids);
 
-    int removeInvoice(String url);
+    int removeInvoice(List<Integer> ids);
 }

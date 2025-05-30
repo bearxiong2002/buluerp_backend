@@ -3,7 +3,11 @@ package com.ruoyi.web.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModelProperty;
+
+import java.time.LocalDateTime;
 
 @TableName(value = "erp_purchase_order")
 public class ErpPurchaseOrder {
@@ -16,6 +20,28 @@ public class ErpPurchaseOrder {
 
     @Excel(name = "采购金额(元)")
     private double amount;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @ApiModelProperty(dataType = "DateTime",value = "创建时间",required = false)
+    private LocalDateTime createTime;
+    @ApiModelProperty(dataType = "String",value = "创建用户",required = false)
+    private String createUser;
+
+    public LocalDateTime getCreateTime() {
+        return createTime;
+    }
+
+    public void setCreateTime(LocalDateTime createTime) {
+        this.createTime = createTime;
+    }
+
+    public String getCreateUser() {
+        return createUser;
+    }
+
+    public void setCreateUser(String createUser) {
+        this.createUser = createUser;
+    }
 
     public Integer getId() {
         return id;

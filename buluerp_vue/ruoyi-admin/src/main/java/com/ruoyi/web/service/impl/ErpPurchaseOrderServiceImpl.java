@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,22 +51,26 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         purchaseOrderResult.setId(erpPurchaseOrder.getId());
         purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
         purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
-        purchaseOrderResult.setInvoiceUrl(erpPurchaseOrderMapper.selectUrl(erpPurchaseOrder.getPurchaseId()));
+        LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
+        wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
+        purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
         return purchaseOrderResult;
     }
 
     @Override
     public List<PurchaseOrderResult> selectErpPurchaseOrderList(ListPurchaseOrderRequest listPurchaseOrderRequest) {
         LambdaQueryWrapper<ErpPurchaseOrder> queryWrapper = Wrappers.lambdaQuery();
-        queryWrapper.eq(ErpPurchaseOrder::getId,listPurchaseOrderRequest.getId())
-                .eq(ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId());
+        queryWrapper.eq(listPurchaseOrderRequest.getId()!=null,ErpPurchaseOrder::getId,listPurchaseOrderRequest.getId())
+                .eq(listPurchaseOrderRequest.getPurchaseId()!=null,ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId());
         List<PurchaseOrderResult> list=new ArrayList<>();
         for(ErpPurchaseOrder erpPurchaseOrder:erpPurchaseOrderMapper.selectList(queryWrapper)){
             PurchaseOrderResult purchaseOrderResult =new PurchaseOrderResult();
             purchaseOrderResult.setId(erpPurchaseOrder.getId());
             purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
             purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
-            purchaseOrderResult.setInvoiceUrl(erpPurchaseOrderMapper.selectUrl(erpPurchaseOrder.getPurchaseId()));
+            LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
+            wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
+            purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
             list.add(purchaseOrderResult);
         }
         return list;
@@ -79,7 +84,9 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
             purchaseOrderResult.setId(erpPurchaseOrder.getId());
             purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
             purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
-            purchaseOrderResult.setInvoiceUrl(erpPurchaseOrderMapper.selectUrl(erpPurchaseOrder.getPurchaseId()));
+            LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
+            wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
+            purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
             list.add(purchaseOrderResult);
         }
         return list;
@@ -93,6 +100,8 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         Long userId = loginUser.getUserId();
 
         ErpPurchaseOrder erpPurchaseOrder = new ErpPurchaseOrder();
+        erpPurchaseOrder.setCreateTime(LocalDateTime.now());
+        erpPurchaseOrder.setCreateUser(SecurityUtils.getUsername());
         erpPurchaseOrder.setPurchaseId(addPurchaseOrderRequest.getPurchaseId());
         erpPurchaseOrder.setAmount(addPurchaseOrderRequest.getAmount());
         erpPurchaseOrderMapper.insert(erpPurchaseOrder);
@@ -129,13 +138,31 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
 
     @Override
     public int deleteErpPurchaseOrderByIds(List<Integer> ids) {
-        return erpPurchaseOrderMapper.deleteBatchIds(ids);
+        int count=0;
+        for(Integer orderId:ids){
+            LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
+            wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,orderId);
+            for(ErpPurchaseOrderInvoice erpPurchaseOrderInvoice:invoiceMapper.selectList(wrapper)){
+                String url= invoiceMapper.selectById(erpPurchaseOrderInvoice.getId()).getInvoiceUrl();
+                url=parseActualPath(url);
+                FileUtils.deleteFile(url);
+                invoiceMapper.deleteById(erpPurchaseOrderInvoice.getId());
+            }
+            if(erpPurchaseOrderMapper.deleteById(orderId)>=0) count++;
+        }
+        return count;
     }
 
     @Override
-    public int removeInvoice(String url) {
-        url=parseActualPath(url);
-        return FileUtils.deleteFile(url)?1:0;
+    public int removeInvoice(List<Integer> ids) {
+        int count=0;
+        for(Integer id:ids){
+            String url= invoiceMapper.selectById(id).getInvoiceUrl();
+            url=parseActualPath(url);
+            FileUtils.deleteFile(url);
+            if (invoiceMapper.deleteById(id)>=0) count++;
+        }
+        return count;
     }
 
     public static String parseActualPath(String url) {

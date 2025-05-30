@@ -10,12 +10,16 @@ import com.ruoyi.web.request.purchase.UpdatePurchaseOrderRequest;
 import com.ruoyi.web.result.PurchaseOrderResult;
 import com.ruoyi.web.service.IErpPurchaseOrderService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -29,12 +33,36 @@ public class ErpPurchaseOrderController extends BaseController {
     @ApiOperation(value = "获得采购订单列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:list')")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "采购单ID", dataType = "integer", paramType = "query", example = "1"),
+            @ApiImplicitParam(name = "purchaseId", value = "采购计划ID", dataType = "integer", paramType = "query", example = "100"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
+            @ApiImplicitParam(name = "createUser", value = "创建用户", dataType = "string", paramType = "query", example = "admin")
+    })
     @GetMapping("/list")
-    public TableDataInfo list(ListPurchaseOrderRequest listPurchaseOrderRequest) {
+    public TableDataInfo list(
+            @RequestParam(required = false) Integer id,
+            @RequestParam(required = false) Integer purchaseId,
+            @RequestParam(required = false) String createUser,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo) {
+
+        // 严格使用您实体类的字段封装请求
+        ListPurchaseOrderRequest request = new ListPurchaseOrderRequest();
+        request.setId(id);
+        request.setPurchaseId(purchaseId);
+        request.setCreateUser(createUser);
+        request.setCreateTimeFrom(createTimeFrom);
+        request.setCreateTimeTo(createTimeTo);
+
+        // 分页查询
         startPage();
-        List<PurchaseOrderResult> list = erpPurchaseOrderService.selectErpPurchaseOrderList(listPurchaseOrderRequest);
+        List<PurchaseOrderResult> list = erpPurchaseOrderService.selectErpPurchaseOrderList(request);
+
         return getDataTable(list);
     }
+
 
 //    @ApiOperation(value = "导出采购订单列表")
 //    @Anonymous
@@ -81,8 +109,8 @@ public class ErpPurchaseOrderController extends BaseController {
     @ApiOperation(value = "删除采购订单发票")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:remove')")
-    @DeleteMapping("/invoice/{invoiceUrl}")
-    public AjaxResult removeInvoice(@PathVariable String invoiceUrl) {
-        return toAjax(erpPurchaseOrderService.removeInvoice(invoiceUrl));
+    @DeleteMapping("/invoice/{ids}")
+    public AjaxResult removeInvoice(@PathVariable List<Integer> ids) {
+        return toAjax(erpPurchaseOrderService.removeInvoice(ids));
     }
 }

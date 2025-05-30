@@ -5,7 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.web.mapper.ErpPurchaseOrderMapper">
 
     <select id="selectUrl" resultType="java.lang.String" parameterType="java.lang.Integer">
-        select invoice_url from erp_purchase_order_invoice where order_id=#{order_id}
+        select invoice_url from buluerp.erp_purchase_order_invoice where order_id=#{order_id}
     </select>
     <!--CREATE TABLE `erp_purchase_order` (-->
     <!--`id` int NOT NULL COMMENT '主键',-->
