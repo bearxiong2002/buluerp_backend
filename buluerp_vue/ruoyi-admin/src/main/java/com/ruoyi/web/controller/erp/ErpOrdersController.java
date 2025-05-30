@@ -81,8 +81,8 @@ public class ErpOrdersController extends BaseController
     /**
      * 导出订单列表
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:import')") // 需要登录后获取 operatorId
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:orders:import')") // 需要登录后获取 operatorId
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.IMPORT)
     @PostMapping("/import")
     @ApiOperation(value = "导入订单列表", notes = "导入订单列表")
@@ -111,12 +111,12 @@ public class ErpOrdersController extends BaseController
     /**
      * 新增订单
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:add')") // 需要登录后获取 operatorId
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:orders:add')") // 需要登录后获取 operatorId
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增订单", notes = "新增订单")
-    public AjaxResult add(@RequestBody @Validated({Save.class}) ErpOrders erpOrders)
+    public AjaxResult add(@RequestBody /* @Validated({Save.class}) */ ErpOrders erpOrders)
     {
         return toAjax(erpOrdersService.insertErpOrders(erpOrders));
     }
@@ -124,12 +124,12 @@ public class ErpOrdersController extends BaseController
     /**
      * 修改订单
      */
-    @PreAuthorize("@ss.hasPermi('system:orders:edit')") // 需要登录后获取 operatorId
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:orders:edit')") // 需要登录后获取 operatorId
+    @Anonymous
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改订单", notes = "修改订单")
-    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpOrders erpOrders) {
+    public AjaxResult edit(@RequestBody /* @Validated({ Update.class }) */ ErpOrders erpOrders) {
         return toAjax(erpOrdersService.updateErpOrders(erpOrders));
     }
 

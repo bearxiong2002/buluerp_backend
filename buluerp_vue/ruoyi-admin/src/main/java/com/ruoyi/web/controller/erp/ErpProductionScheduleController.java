@@ -84,8 +84,8 @@ public class ErpProductionScheduleController extends BaseController {
         );
     }
 
-    @PreAuthorize("@ss.hasPermi('system:products-schedule:add')")
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:products-schedule:add')")
+    @Anonymous
     @PostMapping
     @ApiOperation(value = "新增布产", notes = "新增布产")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionSchedule erpProductionSchedule) throws IOException {
@@ -95,8 +95,8 @@ public class ErpProductionScheduleController extends BaseController {
         );
     }
 
-    @PreAuthorize("@ss.hasPermi('system:products-schedule:edit')")
-    // @Anonymous
+    // @PreAuthorize("@ss.hasPermi('system:products-schedule:edit')")
+    @Anonymous
     @PutMapping
     @ApiOperation(value = "修改布产", notes = "修改布产")
     public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpProductionSchedule erpProductionSchedule) throws IOException {

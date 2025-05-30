@@ -65,6 +65,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         erpPurchaseCollection.setCreateTime(DateUtils.getNowDate());
         erpPurchaseCollection.setUpdateTime(DateUtils.getNowDate());
+        erpPurchaseCollection.setCreationTime(DateUtils.getNowDate());
         erpPurchaseCollection.setOperator(
                 SecurityUtils.getLoginUser().getUsername()
         );
@@ -90,7 +91,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public int insertErpPurchaseCollections(List<ErpPurchaseCollection> erpPurchaseCollectionList) throws IOException {
         int count = 0;
         for (ErpPurchaseCollection erpPurchaseCollection : erpPurchaseCollectionList) {
-            insertErpPurchaseCollection(erpPurchaseCollection);
+            count += insertErpPurchaseCollection(erpPurchaseCollection);
         }
         return count;
     }

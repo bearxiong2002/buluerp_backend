@@ -43,6 +43,14 @@ public class ErpMaterialInfoController extends BaseController {
         return getDataTable(tableDataInfos);
     }
 
+    // @PreAuthorize("@ss.hasPermi('system:material-info:query')")
+    @Anonymous
+    @GetMapping
+    @ApiOperation(value = "获取物料资料详细信息", notes = "获取物料资料详细信息")
+    public AjaxResult getInfo(Long[] ids) {
+        return AjaxResult.success(erpMaterialInfoService.selectErpMaterialInfoListByIds(ids));
+    }
+
     /**
      * 导出物料列表
      */
@@ -80,7 +88,12 @@ public class ErpMaterialInfoController extends BaseController {
     @PostMapping
     @ApiOperation(value = "新增物料信息", notes = "新增物料信息")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpMaterialInfo erpMaterialInfo) throws IOException {
-        return toAjax(erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo));
+         Long id = erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo);
+         if (id == null) {
+             return error();
+         } else {
+             return success(id);
+         }
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:edit')")

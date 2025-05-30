@@ -1,5 +1,6 @@
 package com.ruoyi.web.domain;
 
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
@@ -13,6 +14,7 @@ public class ErpPackagingList extends BaseEntity {
     private Integer id;
 
     @Excel(name = "订单ID")
+    @Example("BLK20250528000001")
     private String orderCode;
 
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
@@ -22,49 +24,65 @@ public class ErpPackagingList extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
+    @Example("1")
     private Long productId;
 
     @Excel(name = "产品中文名称")
+    @Example("厨房八件套")
     private String productNameCn;
 
     @Excel(name = "分包表编号")
+    @Example("xxx")
     private String packagingListNumber;
 
     @Excel(name = "发布日期")
+    @Example("2022-05-28")
     private Date releaseDate;
 
     @Excel(name = "配件种类")
+    @Example("345种")
     private String accessoryType;
 
-    @Excel(name = "配件总数")
+    @Excel(name = "配件总数/PCS")
+    @Range(min = 0, message = "配件总数不能小于0", groups = {Save.class, Update.class})
+    @Example("345")
     private Integer accessoryTotal;
 
-
     @Excel(name = "是否是说明书", readConverterExp = "1=是,0=否")
+    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Example("1")
     private Integer isManual;
 
     @Excel(name = "是否是人仔", readConverterExp = "1=是,0=否")
+    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Example("1")
     private Integer isMinifigure;
 
     @Excel(name = "是否是起件器", readConverterExp = "1=是,0=否")
+    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Example("1")
     private Integer isTool;
 
-
     @Excel(name = "生产线")
+    @Example("自动拉")
     private String productionLine;
 
-    @Excel(name = "本袋重量")
+    @Excel(name = "本袋重量（≈/KG）")
     @Range(min = 0, message = "本袋重量不能小于0", groups = {Save.class, Update.class})
+    @Example("789")
     private Double bagWeight;
 
     @Excel(name = "本袋规格")
+    @Example("789")
     private String bagSpecification;
 
-    @Excel(name = "本包配件")
+    @Excel(name = "本包配件/种")
+    @Example("789")
     private String packageAccessories;
 
-    @Excel(name = "本包数量")
+    @Excel(name = "本包数量/PCS")
     @Range(min = 0, message = "本包数量不能小于0", groups = {Save.class, Update.class})
+    @Example("789")
     private Integer packageQuantity;
 
     public Long getProductId() {
