@@ -51,6 +51,8 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         purchaseOrderResult.setId(erpPurchaseOrder.getId());
         purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
         purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
+        purchaseOrderResult.setCreateTime(erpPurchaseOrder.getCreateTime());
+        purchaseOrderResult.setCreateUser(erpPurchaseOrder.getCreateUser());
         LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
         wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
         purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
@@ -68,6 +70,8 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
             purchaseOrderResult.setId(erpPurchaseOrder.getId());
             purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
             purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
+            purchaseOrderResult.setCreateTime(erpPurchaseOrder.getCreateTime());
+            purchaseOrderResult.setCreateUser(erpPurchaseOrder.getCreateUser());
             LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
             purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
@@ -84,6 +88,8 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
             purchaseOrderResult.setId(erpPurchaseOrder.getId());
             purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
             purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
+            purchaseOrderResult.setCreateTime(erpPurchaseOrder.getCreateTime());
+            purchaseOrderResult.setCreateUser(erpPurchaseOrder.getCreateUser());
             LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
             purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
