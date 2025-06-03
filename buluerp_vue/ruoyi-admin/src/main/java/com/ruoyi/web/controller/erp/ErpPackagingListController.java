@@ -52,7 +52,7 @@ public class ErpPackagingListController extends BaseController {
     @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpPackagingList> list = Collections.singletonList(BaseEntity.createExample(ErpPackagingList.class));
-        ExcelUtil<ErpPackagingList> util = new ExcelUtil<>(ErpPackagingList.class);
+        ExcelUtil<ErpPackagingList> util = createTemplateExcelUtil(ErpPackagingList.class);
         util.exportExcel(response, list, "分包数据");
     }
 

@@ -62,7 +62,7 @@ public class ErpProductionArrangeController extends BaseController {
     @ApiOperation(value = "下载排产导入模板", notes = "下载排产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpProductionArrange> list = Collections.singletonList(BaseEntity.createExample(ErpProductionArrange.class));
-        ExcelUtil<ErpProductionArrange> util = new ExcelUtil<>(ErpProductionArrange.class);
+        ExcelUtil<ErpProductionArrange> util = createTemplateExcelUtil(ErpProductionArrange.class);
         util.exportExcel(response, list, "排产数据");
     }
 

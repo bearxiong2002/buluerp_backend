@@ -70,7 +70,7 @@ public class ErpMaterialInfoController extends BaseController {
     @ApiOperation(value = "下载物料导入模板", notes = "下载物料导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpMaterialInfo> list = Collections.singletonList(BaseEntity.createExample(ErpMaterialInfo.class));
-        ExcelUtil<ErpMaterialInfo> util = new ExcelUtil<>(ErpMaterialInfo.class);
+        ExcelUtil<ErpMaterialInfo> util = createTemplateExcelUtil(ErpMaterialInfo.class);
         util.exportExcel(response, list, "物料数据");
     }
 

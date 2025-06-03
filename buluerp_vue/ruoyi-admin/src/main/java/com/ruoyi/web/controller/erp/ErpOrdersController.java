@@ -74,7 +74,7 @@ public class ErpOrdersController extends BaseController
     @ApiOperation(value = "下载订单导入模板", notes = "下载订单导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpOrders> list = Collections.singletonList(BaseEntity.createExample(ErpOrders.class));
-        ExcelUtil<ErpOrders> util = new ExcelUtil<>(ErpOrders.class);
+        ExcelUtil<ErpOrders> util = createTemplateExcelUtil(ErpOrders.class);
         util.exportExcel(response, list, "订单数据");
     }
 
