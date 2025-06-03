@@ -2,12 +2,12 @@ package com.ruoyi.common.core.controller;
 
 import java.beans.PropertyEditorSupport;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.exception.excel.ExcelRowErrorInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.exception.ServiceException;
@@ -246,5 +246,17 @@ public class BaseController
             throw new ExcelImportException(errorList);
         }
         return list;
+    }
+
+    public static <Type> ExcelUtil<Type> createTemplateExcelUtil(Class<Type> clazz) {
+        ExcelUtil<Type> util = new ExcelUtil<>(clazz);
+        util.showColumn(
+                Stream.concat(Arrays.stream(clazz.getDeclaredFields()),
+                                Arrays.stream(clazz.getSuperclass().getDeclaredFields()))
+                        .filter(field -> field.isAnnotationPresent(Example.class))
+                        .map(Field::getName)
+                        .toArray(String[]::new)
+        );
+        return util;
     }
 }

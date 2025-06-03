@@ -27,7 +27,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String operator;
 
     @Excel(name = "产品编号")
-    @Example("BLK20250528000001")
+    @Example("1")
     private Long productId;
 
     @Excel(name = "下单时间")

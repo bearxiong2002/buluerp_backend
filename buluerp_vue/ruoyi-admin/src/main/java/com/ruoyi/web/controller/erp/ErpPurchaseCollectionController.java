@@ -57,7 +57,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @ApiOperation(value = "下载采购计划导入模板", notes = "下载采购计划导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpPurchaseCollection> list = Collections.singletonList(BaseEntity.createExample(ErpPurchaseCollection.class));
-        ExcelUtil<ErpPurchaseCollection> util = new ExcelUtil<>(ErpPurchaseCollection.class);
+        ExcelUtil<ErpPurchaseCollection> util = createTemplateExcelUtil(ErpPurchaseCollection.class);
         util.exportExcel(response, list, "采购计划数据");
     }
 

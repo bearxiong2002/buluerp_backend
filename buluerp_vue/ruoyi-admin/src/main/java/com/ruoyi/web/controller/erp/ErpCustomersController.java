@@ -63,7 +63,7 @@ public class ErpCustomersController extends BaseController
     public void export(HttpServletResponse response, Long[] ids)
     {
         List<ErpCustomers> list = erpCustomersService.selectErpCustomersListByIds(ids);
-        ExcelUtil<ErpCustomers> util = new ExcelUtil<ErpCustomers>(ErpCustomers.class);
+        ExcelUtil<ErpCustomers> util = new ExcelUtil<>(ErpCustomers.class);
         util.exportExcel(response, list, "客户数据");
     }
 
@@ -72,7 +72,7 @@ public class ErpCustomersController extends BaseController
     @ApiOperation(value = "下载客户导入模板", notes = "下载客户导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
         List<ErpCustomers> list = Collections.singletonList(BaseEntity.createExample(ErpCustomers.class));
-        ExcelUtil<ErpCustomers> util = new ExcelUtil<ErpCustomers>(ErpCustomers.class);
+        ExcelUtil<ErpCustomers> util = createTemplateExcelUtil(ErpCustomers.class);
         util.exportExcel(response, list, "客户数据");
     }
 
