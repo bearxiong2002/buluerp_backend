@@ -10,6 +10,7 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
+import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
@@ -42,11 +43,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
         for (ErpOrdersProduct erpOrdersProduct : products) {
-            erpOrdersProduct.setProduct(
-                    erpProductsService.selectErpProductsListByIds(
-                            new Long[]{erpOrdersProduct.getProductId()}
-                    ).get(0)
+            List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(
+                    new Long[]{erpOrdersProduct.getProductId()}
             );
+            if (erpProducts.isEmpty()) {
+                throw new ServiceException("关联了无效的产品 ID：" + erpOrdersProduct.getProductId());
+            }
+            erpOrdersProduct.setProduct(erpProducts.get(0));
         }
         erpOrders.setProducts(products);
         return erpOrders;
@@ -173,8 +176,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteErpOrdersByIds(Long[] ids)
     {
+        for (Long id : ids) {
+            erpOrdersMapper.clearOrdersProducts(id);
+        }
         return erpOrdersMapper.deleteErpOrdersByIds(ids);
     }
 
