@@ -36,6 +36,7 @@ public class ErpPurchaseOrderController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "采购单ID", dataType = "integer", paramType = "query", example = "1"),
             @ApiImplicitParam(name = "purchaseId", value = "采购计划ID", dataType = "integer", paramType = "query", example = "100"),
+            @ApiImplicitParam(name = "amount", value = "金额", dataType = "double"),
             @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
             @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
             @ApiImplicitParam(name = "createUser", value = "创建用户", dataType = "string", paramType = "query", example = "admin")
@@ -45,12 +46,14 @@ public class ErpPurchaseOrderController extends BaseController {
             @RequestParam(required = false) Integer id,
             @RequestParam(required = false) Integer purchaseId,
             @RequestParam(required = false) String createUser,
+            @RequestParam(required = false) Double amount,
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
             @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo) {
 
         // 严格使用您实体类的字段封装请求
         ListPurchaseOrderRequest request = new ListPurchaseOrderRequest();
         request.setId(id);
+        request.setAmount(amount);
         request.setPurchaseId(purchaseId);
         request.setCreateUser(createUser);
         request.setCreateTimeFrom(createTimeFrom);

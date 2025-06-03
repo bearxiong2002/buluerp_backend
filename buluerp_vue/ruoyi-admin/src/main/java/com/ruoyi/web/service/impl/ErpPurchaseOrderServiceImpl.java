@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.config.RuoYiConfig;
@@ -22,7 +23,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -63,7 +63,9 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     public List<PurchaseOrderResult> selectErpPurchaseOrderList(ListPurchaseOrderRequest listPurchaseOrderRequest) {
         LambdaQueryWrapper<ErpPurchaseOrder> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(listPurchaseOrderRequest.getId()!=null,ErpPurchaseOrder::getId,listPurchaseOrderRequest.getId())
-                .eq(listPurchaseOrderRequest.getPurchaseId()!=null,ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId());
+                .eq(listPurchaseOrderRequest.getPurchaseId()!=null,ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId())
+                .like(StringUtils.isNotBlank(listPurchaseOrderRequest.getCreateUser()),ErpPurchaseOrder::getCreateUser,listPurchaseOrderRequest.getCreateUser())
+                .eq(listPurchaseOrderRequest.getAmount()!=null,ErpPurchaseOrder::getAmount,listPurchaseOrderRequest.getAmount());
         List<PurchaseOrderResult> list=new ArrayList<>();
         for(ErpPurchaseOrder erpPurchaseOrder:erpPurchaseOrderMapper.selectList(queryWrapper)){
             PurchaseOrderResult purchaseOrderResult =new PurchaseOrderResult();

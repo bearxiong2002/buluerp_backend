@@ -5,7 +5,6 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 @ApiModel("查询采购订单请求")
 public class ListPurchaseOrderRequest extends BaseEntity {
@@ -18,12 +17,21 @@ public class ListPurchaseOrderRequest extends BaseEntity {
     private LocalDateTime createTimeFrom;
     @ApiModelProperty(dataType = "DateTime",value = "创建时间终止",required = false)
     private LocalDateTime createTimeTo;
+    private Double amount;
     @ApiModelProperty(dataType = "String",value = "创建用户",required = false)
     private String createUser;
 //    @ApiModelProperty(value = "订单金额",required = false)
 //    private Double amount;
 
     // Getters and Setters
+
+    public Double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(Double amount) {
+        this.amount = amount;
+    }
 
     public LocalDateTime getCreateTimeFrom() {
         return createTimeFrom;
