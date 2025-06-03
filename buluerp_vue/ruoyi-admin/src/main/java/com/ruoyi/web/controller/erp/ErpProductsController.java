@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -102,20 +105,21 @@ public class ErpProductsController extends BaseController {
         for (AddProductRequest request : requests) {
             request.setRowNumber(rowNumber++); // 记录行号
             try {
-                // 基础校验
-                if (request.getOrderId() == null) {
-                    throw new ImportException(request.getRowNumber(), "订单ID不能为空", request.toString());
-                }
-                if (StringUtils.isBlank(request.getName())) {
-                    throw new ImportException(request.getRowNumber(), "产品名称不能为空", request.toString());
-                }
-                // 校验 materialString 格式（新增校验）
-                String materialStr = request.getMaterialString();
-                if (StringUtils.isBlank(materialStr)) {
-                    throw new ImportException(request.getRowNumber(), "物料ID列表不能为空", request.toString());
+                // 使用校验器触发注解规则
+                Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+                Set<ConstraintViolation<AddProductRequest>> violations = validator.validate(request);
+
+                // 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddProductRequest> violation : violations) {
+                        errors.add(violation.getMessage());
+                    }
+                    throw new ImportException(rowNumber, String.join("; ", errors), request.toString());
                 }
 
                 // 替换中文逗号并去除空格
+                String materialStr = request.getMaterialString();
                 String normalized = materialStr.replace("，", ",").replaceAll("\\s+", "");
                 if (!normalized.matches("^\\d+(,\\d+)*$")) { // 正则表达式校验
                     throw new ImportException(request.getRowNumber(), "物料ID列表格式错误（必须为逗号分隔的整数）", request.toString());
