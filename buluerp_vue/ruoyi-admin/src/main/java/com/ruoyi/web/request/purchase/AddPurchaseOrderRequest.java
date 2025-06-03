@@ -55,7 +55,7 @@ public class AddPurchaseOrderRequest extends BaseEntity {
                     .filter(Objects::nonNull)
                     .toArray(MultipartFile[]::new);
         } else {
-            this.invoice = null;
+            this.invoice = new MultipartFile[0];
         }
     }
 
@@ -89,5 +89,15 @@ public class AddPurchaseOrderRequest extends BaseEntity {
 
     public void setInvoice(MultipartFile[] invoice) {
         this.invoice = invoice;
+    }
+
+    @Override
+    public String toString() {
+        return "AddPurchaseOrderRequest{" +
+                "purchaseId=" + purchaseId +
+                ", amount=" + amount +
+                ", invoiceCount=" + (invoice != null ? invoice.length : 0) +
+                ", tempImageCount=" + getInvoiceImageCount() +
+                '}';
     }
 }
