@@ -127,10 +127,11 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
 
     @Override
     public int updateErpPurchaseOrder(UpdatePurchaseOrderRequest updatePurchaseOrderRequest) throws IOException {
+        if(erpPurchaseOrderMapper.selectById(updatePurchaseOrderRequest.getId())==null) return 0;
         ErpPurchaseOrder erpPurchaseOrder = new ErpPurchaseOrder();
         erpPurchaseOrder.setId(updatePurchaseOrderRequest.getId());
-        erpPurchaseOrder.setPurchaseId(updatePurchaseOrderRequest.getPurchaseId());
-        erpPurchaseOrder.setAmount(updatePurchaseOrderRequest.getAmount());
+        if(updatePurchaseOrderRequest.getPurchaseId()!=null)erpPurchaseOrder.setPurchaseId(updatePurchaseOrderRequest.getPurchaseId());
+        if(updatePurchaseOrderRequest.getAmount()!=null)erpPurchaseOrder.setAmount(updatePurchaseOrderRequest.getAmount());
         if(updatePurchaseOrderRequest.getInvoice()!=null){
             ErpPurchaseOrderInvoice invoice=new ErpPurchaseOrderInvoice();
             invoice.setOrderId(updatePurchaseOrderRequest.getId());//设置关联采购单id

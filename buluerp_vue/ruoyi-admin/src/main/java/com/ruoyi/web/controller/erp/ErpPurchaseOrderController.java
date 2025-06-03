@@ -17,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -97,8 +98,23 @@ public class ErpPurchaseOrderController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:purchaseOrder:edit')")
     @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public AjaxResult edit(@ModelAttribute UpdatePurchaseOrderRequest updatePurchaseOrderRequest) throws IOException {
-        return toAjax(erpPurchaseOrderService.updateErpPurchaseOrder(updatePurchaseOrderRequest));
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "采购单ID", dataType = "integer",required = true),
+            @ApiImplicitParam(name = "purchaseId", value = "采购计划ID", dataType = "integer"),
+            @ApiImplicitParam(name = "amount", value = "金额", dataType = "double"),
+            @ApiImplicitParam(name = "invoice", value = "发票文件", dataType = "MultipartFile")
+    })
+    public AjaxResult edit(
+            @RequestParam(name = "id", required = true) Integer id,
+            @RequestParam(name = "purchaseId", required = false) Integer purchaseId,
+            @RequestParam(name = "amount", required = false) Double amount,
+            @RequestParam(value = "invoice", required = false) MultipartFile[] invoices) throws IOException {
+        UpdatePurchaseOrderRequest request = new UpdatePurchaseOrderRequest();
+        request.setId(id);
+        if(purchaseId!=null)request.setPurchaseId(purchaseId);
+        if(amount!=null)request.setAmount(amount);
+        if(invoices!=null)request.setInvoice(invoices);
+        return toAjax(erpPurchaseOrderService.updateErpPurchaseOrder(request));
     }
 
     @ApiOperation(value = "删除采购订单")
