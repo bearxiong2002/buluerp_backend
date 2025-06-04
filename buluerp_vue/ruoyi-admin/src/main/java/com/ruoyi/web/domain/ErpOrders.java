@@ -67,11 +67,11 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "状态", readConverterExp = "0=创建,1=已发货,2=已完成")
     @Example("1")
     @NotNull(groups = {Save.class}, message = "状态值格式有误")
-    @NullOrNotBlank(message = "状态值格式有误", groups = {Save.class, Update.class})
     private Integer status;
 
     /** 客户ID（外键引用客户表） */
     @Excel(name = "客户ID")
+    @Example("1")
     private Long customerId;
 
     /** 产品ID（外键引用产品表） */
