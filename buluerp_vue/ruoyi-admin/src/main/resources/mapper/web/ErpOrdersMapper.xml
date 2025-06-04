@@ -161,4 +161,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <delete id="clearOrdersProducts">
         delete from erp_orders_product where orders_id = #{ordersId};
     </delete>
+    <delete id="clearOrdersProductsByProduct">
+        delete from erp_orders_product where product_id = #{productId};
+    </delete>
 </mapper>

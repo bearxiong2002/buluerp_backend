@@ -3,7 +3,6 @@ package com.ruoyi.web.mapper;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -70,6 +69,8 @@ public interface ErpOrdersMapper
     int insertOrdersProducts(List<ErpOrdersProduct> products);
 
     int clearOrdersProducts(Long ordersId);
+
+    int clearOrdersProductsByProduct(Long productId);
 
     List<ErpOrdersProduct> selectOrdersProducts(Long ordersId);
 }
