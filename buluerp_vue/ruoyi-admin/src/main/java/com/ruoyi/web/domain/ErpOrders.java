@@ -7,6 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ruoyi.common.annotation.Example;
+import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -63,10 +64,10 @@ public class ErpOrders extends BaseEntity
     private Date deliveryTime;
 
     /** 状态（0:创建 1:已发货 2:已完成等） */
-    @Excel(name = "状态", readConverterExp = "0=:创建,1=:已发货,2=:已完成等")
-    @Example("已发货")
+    @Excel(name = "状态", readConverterExp = "0=创建,1=已发货,2=已完成")
+    @Example("1")
     @NotNull(groups = {Save.class}, message = "状态值格式有误")
-    @Range(min = 0, max = 2, message = "状态值格式有误", groups = {Save.class, Update.class})
+    @NullOrNotBlank(message = "状态值格式有误", groups = {Save.class, Update.class})
     private Integer status;
 
     /** 客户ID（外键引用客户表） */
