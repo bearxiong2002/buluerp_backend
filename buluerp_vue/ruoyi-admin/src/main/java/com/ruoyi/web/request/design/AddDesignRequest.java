@@ -7,6 +7,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.io.*;
+import java.text.SimpleDateFormat;
+import java.util.Base64;
+import java.util.Date;
 
 /**
  * 创建设计总表请求
@@ -65,9 +69,130 @@ public class AddDesignRequest {
     @ApiModelProperty(dataType = "String", value = "模具颜色描述")
     private String color;
 
-    @ApiModelProperty(dataType = "String", value = "模具图片")
+    @Excel(name = "模具图片",cellType = Excel.ColumnType.IMAGE)
+    private String pictureStr;
+
+    @ApiModelProperty(dataType = "file", value = "模具图片")
     private MultipartFile picture;
 
+    public void convertPictureStrToMultipartFile() {
+        // 检查pictureStr是否为空或者是Excel中的DISPIMG函数格式
+        if (pictureStr == null || pictureStr.trim().isEmpty()) {
+            return;
+        }
+        
+        // 如果是Excel中的DISPIMG格式，跳过转换
+        if (pictureStr.startsWith("=DISPIMG(") || pictureStr.contains("DISPIMG(")) {
+            // 设置picture为null，表示没有图片
+            this.picture = null;
+            return;
+        }
+        
+        // 只处理Base64格式的图片
+        if (pictureStr.startsWith("data:image/")) {
+            String fileName = generateImageName(this.mouldNumber);
+            MultipartFile convertedFile = convertBase64ToMultipartFile(pictureStr, fileName);
+            if (convertedFile != null) {
+                this.picture = convertedFile;
+            } else {
+                // 转换失败时设置为null
+                this.picture = null;
+            }
+        }
+    }
+
+    private String generateImageName(String mouldNumber) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
+        String timestamp = sdf.format(new Date());
+        // 使用模具编号作为文件名的一部分（若为空则使用默认值）
+        String safeNumber = (mouldNumber != null && !mouldNumber.isEmpty())
+                ? mouldNumber.replaceAll("[^a-zA-Z0-9_-]", "")
+                : "mould";
+
+        // 缩短文件名长度（防止文件名过长）
+        if (safeNumber.length() > 50) {
+            safeNumber = safeNumber.substring(0, 50);
+        }
+
+        return timestamp + "_" + safeNumber;
+    }
+
+    /**
+     * Base64字符串转MultipartFile
+     */
+    private MultipartFile convertBase64ToMultipartFile(String base64, String fileName) {
+        try {
+            // 提取MIME类型和Base64数据
+            String[] parts = base64.split(",");
+            if (parts.length != 2) {
+                System.err.println("Base64格式不正确，无法转换图片: " + base64.substring(0, Math.min(50, base64.length())));
+                return null;
+            }
+            
+            String metaData = parts[0];
+            String data = parts[1];
+
+            String mimeType = metaData.split(";")[0].split(":")[1];
+            String extension = mimeType.split("/")[1];
+
+            // 解码Base64数据
+            byte[] bytes = Base64.getDecoder().decode(data);
+
+            // 创建临时文件（实际使用ByteArrayResource避免创建临时文件）
+            return new MultipartFile() {
+                @Override
+                public String getName() {
+                    return fileName;
+                }
+
+                @Override
+                public String getOriginalFilename() {
+                    return fileName + "." + extension;
+                }
+
+                @Override
+                public String getContentType() {
+                    return mimeType;
+                }
+
+                @Override
+                public boolean isEmpty() {
+                    return bytes.length == 0;
+                }
+
+                @Override
+                public long getSize() {
+                    return bytes.length;
+                }
+
+                @Override
+                public byte[] getBytes() throws IOException {
+                    return bytes;
+                }
+
+                @Override
+                public InputStream getInputStream() throws IOException {
+                    return new ByteArrayInputStream(bytes);
+                }
+
+                @Override
+                public void transferTo(File dest) throws IOException, IllegalStateException {
+                    new FileOutputStream(dest).write(bytes);
+                }
+            };
+        } catch (Exception e) {
+            System.err.println("图片格式转换失败: " + e.getMessage());
+            return null;
+        }
+    }
+
+    public String getPictureStr() {
+        return pictureStr;
+    }
+
+    public void setPictureStr(String pictureStr) {
+        this.pictureStr = pictureStr;
+    }
 
     public Long getGroupId() {
         return groupId;

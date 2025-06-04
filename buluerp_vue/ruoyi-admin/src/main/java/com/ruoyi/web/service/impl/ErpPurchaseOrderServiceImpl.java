@@ -27,7 +27,10 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 采购订单Service业务层处理
@@ -65,21 +68,68 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         queryWrapper.eq(listPurchaseOrderRequest.getId()!=null,ErpPurchaseOrder::getId,listPurchaseOrderRequest.getId())
                 .eq(listPurchaseOrderRequest.getPurchaseId()!=null,ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId())
                 .like(StringUtils.isNotBlank(listPurchaseOrderRequest.getCreateUser()),ErpPurchaseOrder::getCreateUser,listPurchaseOrderRequest.getCreateUser())
-                .eq(listPurchaseOrderRequest.getAmount()!=null,ErpPurchaseOrder::getAmount,listPurchaseOrderRequest.getAmount());
-        List<PurchaseOrderResult> list=new ArrayList<>();
-        for(ErpPurchaseOrder erpPurchaseOrder:erpPurchaseOrderMapper.selectList(queryWrapper)){
-            PurchaseOrderResult purchaseOrderResult =new PurchaseOrderResult();
+                .eq(listPurchaseOrderRequest.getAmount()!=null,ErpPurchaseOrder::getAmount,listPurchaseOrderRequest.getAmount())
+                .lt(listPurchaseOrderRequest.getCreateTimeTo()!=null,ErpPurchaseOrder::getCreateTime,listPurchaseOrderRequest.getCreateTimeTo())
+                .gt(listPurchaseOrderRequest.getCreateTimeFrom()!=null,ErpPurchaseOrder::getCreateTime,listPurchaseOrderRequest.getCreateTimeFrom());
+        
+        // 使用MyBatis-Plus查询，保持分页信息
+        List<ErpPurchaseOrder> erpPurchaseOrders = erpPurchaseOrderMapper.selectList(queryWrapper);
+        
+        // 批量获取所有发票信息，减少数据库查询次数
+        Map<Integer, List<ErpPurchaseOrderInvoice>> invoiceMap = new HashMap<>();
+        if (!erpPurchaseOrders.isEmpty()) {
+            List<Integer> orderIds = erpPurchaseOrders.stream()
+                    .map(ErpPurchaseOrder::getId)
+                    .collect(Collectors.toList());
+            
+            LambdaQueryWrapper<ErpPurchaseOrderInvoice> invoiceWrapper = Wrappers.lambdaQuery();
+            invoiceWrapper.in(ErpPurchaseOrderInvoice::getOrderId, orderIds);
+            List<ErpPurchaseOrderInvoice> allInvoices = invoiceMapper.selectList(invoiceWrapper);
+            
+            // 按订单ID分组
+            invoiceMap = allInvoices.stream()
+                    .collect(Collectors.groupingBy(ErpPurchaseOrderInvoice::getOrderId));
+        }
+        
+        // 创建一个PageHelper兼容的List，保持原有分页信息
+        List<PurchaseOrderResult> result = new ArrayList<PurchaseOrderResult>(erpPurchaseOrders.size()) {
+            // 重写该方法以保持分页信息
+            @Override
+            public int size() {
+                return super.size();
+            }
+        };
+        
+        // 转换数据
+        for(ErpPurchaseOrder erpPurchaseOrder : erpPurchaseOrders){
+            PurchaseOrderResult purchaseOrderResult = new PurchaseOrderResult();
             purchaseOrderResult.setId(erpPurchaseOrder.getId());
             purchaseOrderResult.setAmount(erpPurchaseOrder.getAmount());
             purchaseOrderResult.setPurchaseId(erpPurchaseOrder.getPurchaseId());
             purchaseOrderResult.setCreateTime(erpPurchaseOrder.getCreateTime());
             purchaseOrderResult.setCreateUser(erpPurchaseOrder.getCreateUser());
-            LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
-            wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,erpPurchaseOrder.getId());
-            purchaseOrderResult.setInvoice(invoiceMapper.selectList(wrapper));
-            list.add(purchaseOrderResult);
+            
+            // 从Map中获取发票信息，避免重复查询
+            List<ErpPurchaseOrderInvoice> invoices = invoiceMap.getOrDefault(erpPurchaseOrder.getId(), new ArrayList<>());
+            purchaseOrderResult.setInvoice(invoices);
+            
+            result.add(purchaseOrderResult);
         }
-        return list;
+        
+        // 如果原始查询有分页信息，将其传递给新的结果List
+        try {
+            if (erpPurchaseOrders instanceof com.github.pagehelper.Page) {
+                com.github.pagehelper.Page<?> page = (com.github.pagehelper.Page<?>) erpPurchaseOrders;
+                com.github.pagehelper.Page<PurchaseOrderResult> resultPage = new com.github.pagehelper.Page<>(page.getPageNum(), page.getPageSize());
+                resultPage.setTotal(page.getTotal());
+                resultPage.addAll(result);
+                return resultPage;
+            }
+        } catch (Exception e) {
+            // 如果转换失败，继续使用普通List
+        }
+        
+        return result;
     }
 
     @Override
@@ -113,14 +163,16 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         erpPurchaseOrder.setPurchaseId(addPurchaseOrderRequest.getPurchaseId());
         erpPurchaseOrder.setAmount(addPurchaseOrderRequest.getAmount());
         erpPurchaseOrderMapper.insert(erpPurchaseOrder);
-        Integer orderId = erpPurchaseOrder.getId();
-        ErpPurchaseOrderInvoice invoice=new ErpPurchaseOrderInvoice();
-        invoice.setOrderId(orderId);//设置关联采购单id
-        for (MultipartFile file : addPurchaseOrderRequest.getInvoice()){
-            String url= FileUploadUtils.upload(file);
-            invoice.setId(null);
-            invoice.setInvoiceUrl(url);
-            invoiceMapper.insert(invoice);
+        if(addPurchaseOrderRequest.getInvoice()!=null){
+            Integer orderId = erpPurchaseOrder.getId();
+            ErpPurchaseOrderInvoice invoice=new ErpPurchaseOrderInvoice();
+            invoice.setOrderId(orderId);//设置关联采购单id
+            for (MultipartFile file : addPurchaseOrderRequest.getInvoice()){
+                String url= FileUploadUtils.upload(file);
+                invoice.setId(null);
+                invoice.setInvoiceUrl(url);
+                invoiceMapper.insert(invoice);
+            }
         }
         return 1;
     }
@@ -152,7 +204,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
             LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,orderId);
             for(ErpPurchaseOrderInvoice erpPurchaseOrderInvoice:invoiceMapper.selectList(wrapper)){
-                String url= invoiceMapper.selectById(erpPurchaseOrderInvoice.getId()).getInvoiceUrl();
+                String url= erpPurchaseOrderInvoice.getInvoiceUrl();
                 url=parseActualPath(url);
                 FileUtils.deleteFile(url);
                 invoiceMapper.deleteById(erpPurchaseOrderInvoice.getId());

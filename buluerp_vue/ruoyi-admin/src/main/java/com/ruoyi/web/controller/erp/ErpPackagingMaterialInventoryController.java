@@ -157,7 +157,7 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
             @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
     })
-    @GetMapping("/packaging/list")
+    @GetMapping("/store")
     public TableDataInfo listPackaging(
             @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String productPartNumber,

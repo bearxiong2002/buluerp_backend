@@ -16,6 +16,7 @@ import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.exception.ImportException;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
+import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.product.AddProductRequest;
@@ -44,6 +45,9 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
 
     @Autowired
     private ErpPackagingListMapper erpPackagingListMapper;
+
+    @Autowired
+    private ErpOrdersMapper erpOrdersMapper;
 
     @Autowired
     private SysUserMapper sysUserMapper;
@@ -180,6 +184,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         for(ErpProducts erpProducts:erpProductsList){
             erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
             erpProductsMapper.clearProductMaterial(erpProducts.getId());
+            erpOrdersMapper.clearOrdersProductsByProduct(erpProducts.getId());
             String url=erpProducts.getPictureUrl();
             if(!StringUtils.isBlank(url)){
                 url=parseActualPath(url);
