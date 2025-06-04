@@ -113,14 +113,16 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
         erpPurchaseOrder.setPurchaseId(addPurchaseOrderRequest.getPurchaseId());
         erpPurchaseOrder.setAmount(addPurchaseOrderRequest.getAmount());
         erpPurchaseOrderMapper.insert(erpPurchaseOrder);
-        Integer orderId = erpPurchaseOrder.getId();
-        ErpPurchaseOrderInvoice invoice=new ErpPurchaseOrderInvoice();
-        invoice.setOrderId(orderId);//设置关联采购单id
-        for (MultipartFile file : addPurchaseOrderRequest.getInvoice()){
-            String url= FileUploadUtils.upload(file);
-            invoice.setId(null);
-            invoice.setInvoiceUrl(url);
-            invoiceMapper.insert(invoice);
+        if(addPurchaseOrderRequest.getInvoice()!=null){
+            Integer orderId = erpPurchaseOrder.getId();
+            ErpPurchaseOrderInvoice invoice=new ErpPurchaseOrderInvoice();
+            invoice.setOrderId(orderId);//设置关联采购单id
+            for (MultipartFile file : addPurchaseOrderRequest.getInvoice()){
+                String url= FileUploadUtils.upload(file);
+                invoice.setId(null);
+                invoice.setInvoiceUrl(url);
+                invoiceMapper.insert(invoice);
+            }
         }
         return 1;
     }
