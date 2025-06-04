@@ -71,6 +71,7 @@ public class ErpOrders extends BaseEntity
 
     /** 客户ID（外键引用客户表） */
     @Excel(name = "客户ID")
+    @Example("1")
     private Long customerId;
 
     /** 产品ID（外键引用产品表） */
