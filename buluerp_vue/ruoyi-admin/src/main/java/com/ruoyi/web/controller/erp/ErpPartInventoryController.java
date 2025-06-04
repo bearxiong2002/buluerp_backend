@@ -26,6 +26,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.Validation;
 
 @RestController
 @RequestMapping("/system/inventory/part")
@@ -100,13 +108,62 @@ public class ErpPartInventoryController extends BaseController {
     @ApiOperation(value = "导入胶件出入库")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         ExcelUtil<AddPartInventoryRequest> util = new ExcelUtil<>(AddPartInventoryRequest.class);
-        List<AddPartInventoryRequest> importList = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddPartInventoryRequest req : importList) {
-            partInventoryService.insertRecord(req);
-            count++;
+        List<AddPartInventoryRequest> requests;
+        List<Map<String, Object>> errorList = new ArrayList<>();
+
+        try {
+            requests = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        int rowNumber = 1; // 数据行号（从标题行下一行开始）
+        int successCount = 0;
+        
+        for (AddPartInventoryRequest request : requests) {
+            try {
+                // 使用校验器触发注解规则
+                Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+                Set<ConstraintViolation<AddPartInventoryRequest>> violations = validator.validate(request);
+
+                // 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddPartInventoryRequest> violation : violations) {
+                        errors.add(violation.getMessage());
+                    }
+                    
+                    Map<String, Object> errorEntry = new HashMap<>();
+                    errorEntry.put("row", rowNumber);
+                    errorEntry.put("error", String.join("; ", errors));
+                    errorEntry.put("data", request.toString());
+                    errorList.add(errorEntry);
+                } else {
+                    // 调用 Service 插入数据
+                    partInventoryService.insertRecord(request);
+                    successCount++;
+                }
+            } catch (Exception e) {
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", rowNumber);
+                errorEntry.put("error", "系统错误: " + e.getMessage());
+                errorEntry.put("data", request.toString());
+                errorList.add(errorEntry);
+            }
+            rowNumber++;
+        }
+
+        // 构建返回结果
+        if (!errorList.isEmpty()) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", requests.size());
+            result.put("success", successCount);
+            result.put("failure", errorList.size());
+            result.put("errors", errorList);
+            return AjaxResult.error("导入完成，但有部分错误", result);
+        }
+        
+        return AjaxResult.success("导入成功，共导入 " + successCount + " 条数据");
     }
 
     @ApiOperation(value = "获取胶件出入库详情")
@@ -164,5 +221,38 @@ public class ErpPartInventoryController extends BaseController {
         startPage();
         List<ErpPartInventory> list = partInventoryService.ListStore(query, updateTimeFrom, updateTimeTo);
         return getDataTable(list);
+    }
+
+    @GetMapping("/template")
+    @ApiOperation("下载胶件出入库导入模板")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:part-inventory:import')")
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        // 创建示例数据行（提供合理的示例值）
+        List<AddPartInventoryRequest> templateData = new ArrayList<>();
+        
+        // 示例1：入库记录
+        AddPartInventoryRequest inExample = new AddPartInventoryRequest();
+        inExample.setOrderCode("ORD-2024-001");       // 订单编号示例
+        inExample.setMouldNumber("MD-CASE-001");      // 模具编号示例
+        inExample.setColorCode("RED-001");            // 颜色代码示例
+        inExample.setInOutQuantity(200);              // 入库数量（正数）
+        inExample.setChangeDate(new Date());          // 变更日期
+        inExample.setRemarks("新模具入库");           // 备注信息
+        templateData.add(inExample);
+        
+        // 示例2：出库记录
+        AddPartInventoryRequest outExample = new AddPartInventoryRequest();
+        outExample.setOrderCode("ORD-2024-002");      // 订单编号示例
+        outExample.setMouldNumber("MD-CASE-002");     // 模具编号示例
+        outExample.setColorCode("BLUE-002");          // 颜色代码示例
+        outExample.setInOutQuantity(-80);             // 出库数量（负数）
+        outExample.setChangeDate(new Date());         // 变更日期
+        outExample.setRemarks("生产消耗");            // 备注信息
+        templateData.add(outExample);
+
+        // 创建ExcelUtil实例并导出模板
+        ExcelUtil<AddPartInventoryRequest> util = new ExcelUtil<>(AddPartInventoryRequest.class);
+        util.exportExcel(response, templateData, "胶件出入库导入模板");
     }
 }

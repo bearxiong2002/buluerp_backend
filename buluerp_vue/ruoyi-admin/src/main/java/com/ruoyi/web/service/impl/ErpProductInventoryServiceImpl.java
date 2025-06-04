@@ -16,8 +16,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInventoryChangeMapper, ErpProductInventoryChange> implements IErpProductInventoryService {
@@ -80,10 +82,29 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
 
     @Override
     public int deleteByIds(List<Integer> ids) {
-        for(Integer id:ids){
-            refresh(id);
+        // 先收集所有要删除记录的关键信息，用于后续刷新库存
+        Set<String> refreshKeys = new HashSet<>();
+        for(Integer id : ids) {
+            ErpProductInventoryChange changeEntity = erpProductInventoryChangeMapper.selectById(id);
+            if(changeEntity != null) {
+                // 构建唯一键：orderCode + productPartNumber
+                String key = changeEntity.getOrderCode() + "|" + changeEntity.getProductPartNumber();
+                refreshKeys.add(key);
+            }
         }
-        return erpProductInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 执行批量删除
+        int result = erpProductInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 基于收集的信息刷新相关库存
+        for(String key : refreshKeys) {
+            String[] parts = key.split("\\|");
+            if(parts.length == 2) {
+                refreshByKey(parts[0], parts[1]); // orderCode, productPartNumber
+            }
+        }
+        
+        return result;
     }
 
     public List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo){
@@ -125,6 +146,56 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
             inventoryMapper.insert(erpProductInventory);
         }
         else {
+            erpProductInventory.setId(preInventory.getId());
+            inventoryMapper.updateById(erpProductInventory);
+        }
+    }
+
+    /**
+     * 基于关键信息刷新库存（用于删除后的库存更新）
+     */
+    private void refreshByKey(String orderCode, String productPartNumber) throws RuntimeException{
+        // 分别构造查询出入库条件
+        LambdaQueryWrapper<ErpProductInventoryChange> inWrapper = Wrappers.lambdaQuery();
+        inWrapper.eq(ErpProductInventoryChange::getOrderCode, orderCode)
+                .eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
+                .gt(ErpProductInventoryChange::getInOutQuantity, 0);
+        
+        LambdaQueryWrapper<ErpProductInventoryChange> outWrapper = Wrappers.lambdaQuery();
+        outWrapper.eq(ErpProductInventoryChange::getOrderCode, orderCode)
+                .eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
+                .lt(ErpProductInventoryChange::getInOutQuantity, 0);
+
+        // 查询现有库存记录
+        LambdaQueryWrapper<ErpProductInventory> inventoryWrapper = Wrappers.lambdaQuery();
+        inventoryWrapper.eq(ErpProductInventory::getProductPartNumber, productPartNumber)
+                .eq(ErpProductInventory::getOrderCode, orderCode);
+        ErpProductInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
+
+        // 重新计算库存数量
+        Integer inQuantity = erpProductInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpProductInventoryChangeMapper.sumQuantity(outWrapper);
+        
+        // 如果没有相关的出入库记录了，删除库存记录
+        if ((inQuantity == null || inQuantity == 0) && (outQuantity == null || outQuantity == 0)) {
+            if (preInventory != null) {
+                inventoryMapper.deleteById(preInventory.getId());
+            }
+            return;
+        }
+
+        // 更新或创建库存记录
+        ErpProductInventory erpProductInventory = new ErpProductInventory();
+        erpProductInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpProductInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
+        erpProductInventory.total();
+        erpProductInventory.setOrderCode(orderCode);
+        erpProductInventory.setProductPartNumber(productPartNumber);
+        erpProductInventory.setUpdateTime(LocalDateTime.now());
+
+        if (preInventory == null) {
+            inventoryMapper.insert(erpProductInventory);
+        } else {
             erpProductInventory.setId(preInventory.getId());
             inventoryMapper.updateById(erpProductInventory);
         }

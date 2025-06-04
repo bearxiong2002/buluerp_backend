@@ -26,6 +26,14 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Set;
+import java.util.HashMap;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.Validation;
 
 @RestController
 @RequestMapping("/system/inventory/product")
@@ -100,13 +108,62 @@ public class ErpProductInventoryController extends BaseController {
     @ApiOperation(value = "导入成品出入库")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         ExcelUtil<AddProductInventoryRequest> util = new ExcelUtil<>(AddProductInventoryRequest.class);
-        List<AddProductInventoryRequest> importList = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddProductInventoryRequest req : importList) {
-            productInventoryService.insertRecord(req);
-            count++;
+        List<AddProductInventoryRequest> requests;
+        List<Map<String, Object>> errorList = new ArrayList<>();
+
+        try {
+            requests = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        int rowNumber = 1; // 数据行号（从标题行下一行开始）
+        int successCount = 0;
+        
+        for (AddProductInventoryRequest request : requests) {
+            try {
+                // 使用校验器触发注解规则
+                Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
+                Set<ConstraintViolation<AddProductInventoryRequest>> violations = validator.validate(request);
+
+                // 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddProductInventoryRequest> violation : violations) {
+                        errors.add(violation.getMessage());
+                    }
+                    
+                    Map<String, Object> errorEntry = new HashMap<>();
+                    errorEntry.put("row", rowNumber);
+                    errorEntry.put("error", String.join("; ", errors));
+                    errorEntry.put("data", request.toString());
+                    errorList.add(errorEntry);
+                } else {
+                    // 调用 Service 插入数据
+                    productInventoryService.insertRecord(request);
+                    successCount++;
+                }
+            } catch (Exception e) {
+                Map<String, Object> errorEntry = new HashMap<>();
+                errorEntry.put("row", rowNumber);
+                errorEntry.put("error", "系统错误: " + e.getMessage());
+                errorEntry.put("data", request.toString());
+                errorList.add(errorEntry);
+            }
+            rowNumber++;
+        }
+
+        // 构建返回结果
+        if (!errorList.isEmpty()) {
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", requests.size());
+            result.put("success", successCount);
+            result.put("failure", errorList.size());
+            result.put("errors", errorList);
+            return AjaxResult.error("导入完成，但有部分错误", result);
+        }
+        
+        return AjaxResult.success("导入成功，共导入 " + successCount + " 条数据");
     }
 
     @ApiOperation(value = "获取成品出入库详情")
@@ -164,5 +221,38 @@ public class ErpProductInventoryController extends BaseController {
         startPage();
         List<ErpProductInventory> list = productInventoryService.ListStore(query, updateTimeFrom, updateTimeTo);
         return getDataTable(list);
+    }
+
+    @GetMapping("/template")
+    @ApiOperation("下载成品出入库导入模板")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:product-inventory:import')")
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        // 创建示例数据行（提供合理的示例值）
+        List<AddProductInventoryRequest> templateData = new ArrayList<>();
+        
+        // 示例1：入库记录
+        AddProductInventoryRequest inExample = new AddProductInventoryRequest();
+        inExample.setOrderCode("ORD-2024-001");       // 订单编号示例
+        inExample.setProductPartNumber("PN-PHONE-001"); // 产品货号示例
+        inExample.setInOutQuantity(50);               // 入库数量（正数）
+        inExample.setStorageLocation("成品区-A-01");   // 存储位置示例
+        inExample.setChangeDate(new Date());          // 变更日期
+        inExample.setRemarks("完工入库");             // 备注信息
+        templateData.add(inExample);
+        
+        // 示例2：出库记录
+        AddProductInventoryRequest outExample = new AddProductInventoryRequest();
+        outExample.setOrderCode("ORD-2024-002");      // 订单编号示例
+        outExample.setProductPartNumber("PN-PHONE-002"); // 产品货号示例
+        outExample.setInOutQuantity(-30);             // 出库数量（负数）
+        outExample.setStorageLocation("成品区-B-02");  // 存储位置示例
+        outExample.setChangeDate(new Date());         // 变更日期
+        outExample.setRemarks("销售出库");            // 备注信息
+        templateData.add(outExample);
+
+        // 创建ExcelUtil实例并导出模板
+        ExcelUtil<AddProductInventoryRequest> util = new ExcelUtil<>(AddProductInventoryRequest.class);
+        util.exportExcel(response, templateData, "成品出入库导入模板");
     }
 }
