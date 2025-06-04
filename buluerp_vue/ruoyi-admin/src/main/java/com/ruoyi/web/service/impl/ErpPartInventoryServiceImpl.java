@@ -18,8 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryChangeMapper, ErpPartInventoryChange> implements IErpPartInventoryService {
@@ -83,10 +85,29 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
 
     @Override
     public int deleteByIds(List<Integer> ids) {
-        for(Integer id:ids){
-            refresh(id);
+        // 先收集所有要删除记录的关键信息，用于后续刷新库存
+        Set<String> refreshKeys = new HashSet<>();
+        for(Integer id : ids) {
+            ErpPartInventoryChange changeEntity = erpPartInventoryChangeMapper.selectById(id);
+            if(changeEntity != null) {
+                // 构建唯一键：orderCode + mouldNumber
+                String key = changeEntity.getOrderCode() + "|" + changeEntity.getMouldNumber();
+                refreshKeys.add(key);
+            }
         }
-        return erpPartInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 执行批量删除
+        int result = erpPartInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 基于收集的信息刷新相关库存
+        for(String key : refreshKeys) {
+            String[] parts = key.split("\\|");
+            if(parts.length == 2) {
+                refreshByKey(parts[0], parts[1]); // orderCode, mouldNumber
+            }
+        }
+        
+        return result;
     }
 
     public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,LocalDateTime updateTimeFrom,LocalDateTime updateTimeTo){
@@ -126,6 +147,56 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
             inventoryMapper.insert(erpPartInventory);
         }
         else {
+            erpPartInventory.setId(preInventory.getId());
+            inventoryMapper.updateById(erpPartInventory);
+        }
+    }
+
+    /**
+     * 基于关键信息刷新库存（用于删除后的库存更新）
+     */
+    private void refreshByKey(String orderCode, String mouldNumber) throws RuntimeException{
+        // 分别构造查询出入库条件
+        LambdaQueryWrapper<ErpPartInventoryChange> inWrapper = Wrappers.lambdaQuery();
+        inWrapper.eq(ErpPartInventoryChange::getOrderCode, orderCode)
+                .eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
+                .gt(ErpPartInventoryChange::getInOutQuantity, 0);
+        
+        LambdaQueryWrapper<ErpPartInventoryChange> outWrapper = Wrappers.lambdaQuery();
+        outWrapper.eq(ErpPartInventoryChange::getOrderCode, orderCode)
+                .eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
+                .lt(ErpPartInventoryChange::getInOutQuantity, 0);
+
+        // 查询现有库存记录
+        LambdaQueryWrapper<ErpPartInventory> inventoryWrapper = Wrappers.lambdaQuery();
+        inventoryWrapper.eq(ErpPartInventory::getMouldNumber, mouldNumber)
+                .eq(ErpPartInventory::getOrderCode, orderCode);
+        ErpPartInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
+
+        // 重新计算库存数量
+        Integer inQuantity = erpPartInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpPartInventoryChangeMapper.sumQuantity(outWrapper);
+        
+        // 如果没有相关的出入库记录了，删除库存记录
+        if ((inQuantity == null || inQuantity == 0) && (outQuantity == null || outQuantity == 0)) {
+            if (preInventory != null) {
+                inventoryMapper.deleteById(preInventory.getId());
+            }
+            return;
+        }
+
+        // 更新或创建库存记录
+        ErpPartInventory erpPartInventory = new ErpPartInventory();
+        erpPartInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpPartInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
+        erpPartInventory.total();
+        erpPartInventory.setOrderCode(orderCode);
+        erpPartInventory.setMouldNumber(mouldNumber);
+        erpPartInventory.setUpdateTime(LocalDateTime.now());
+
+        if (preInventory == null) {
+            inventoryMapper.insert(erpPartInventory);
+        } else {
             erpPartInventory.setId(preInventory.getId());
             inventoryMapper.updateById(erpPartInventory);
         }

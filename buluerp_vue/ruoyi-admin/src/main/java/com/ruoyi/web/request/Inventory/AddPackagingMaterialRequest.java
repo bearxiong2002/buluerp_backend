@@ -1,12 +1,19 @@
 package com.ruoyi.web.request.Inventory;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @ApiModel(value = "新增分包库存请求类")
 public class AddPackagingMaterialRequest {
+    @Excel(name = "订单编号", sort = 1)
+    @NotBlank(message = "订单编号不能为空")
+    @Size(max = 50, message = "订单编号长度不能超过50个字符")
     @ApiModelProperty(
             dataType = "String",
             value = "订单编号",
@@ -14,6 +21,8 @@ public class AddPackagingMaterialRequest {
     )
     private String orderCode;
 
+    @Excel(name = "变更日期", dateFormat = "yyyy-MM-dd", sort = 2)
+    @NotNull(message = "库存变更日期不能为空")
     @ApiModelProperty(
             dataType = "Date",
             value = "库存变更日期",
@@ -21,6 +30,7 @@ public class AddPackagingMaterialRequest {
     )
     private Date changeDate;
 
+    @Excel(name = "操作信息", sort = 3)
     @ApiModelProperty(
             dataType = "String",
             value = "操作信息",
@@ -28,6 +38,8 @@ public class AddPackagingMaterialRequest {
     )
     private String editAction;
 
+    @Excel(name = "产品货号", sort = 4)
+    @NotBlank(message = "产品货号不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "产品货号",
@@ -35,6 +47,8 @@ public class AddPackagingMaterialRequest {
     )
     private String productPartNumber;
 
+    @Excel(name = "分包编号", sort = 5)
+    @NotBlank(message = "分包编号不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "分包号",
@@ -42,6 +56,8 @@ public class AddPackagingMaterialRequest {
     )
     private String packagingNumber;
 
+    @Excel(name = "出入库数量", sort = 6, prompt = "正数为入库，负数为出库")
+    @NotNull(message = "出入库数量不能为空")
     @ApiModelProperty(
             dataType = "int",
             value = "出入库数量(包)",
@@ -49,6 +65,8 @@ public class AddPackagingMaterialRequest {
     )
     private Integer inOutQuantity;
 
+    @Excel(name = "存储位置", sort = 7)
+    @NotBlank(message = "存储位置不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "存储位置",
@@ -56,6 +74,8 @@ public class AddPackagingMaterialRequest {
     )
     private String storageLocation;
 
+    @Excel(name = "备注信息", sort = 8)
+    @Size(max = 500, message = "备注信息长度不能超过500个字符")
     @ApiModelProperty(
             dataType = "String",
             value = "备注信息",

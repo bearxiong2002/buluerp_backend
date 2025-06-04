@@ -20,7 +20,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPackagingMaterialInventoryChangeMapper, ErpPackagingMaterialInventoryChange> implements IErpPackagingMaterialInventoryService {
@@ -112,10 +114,31 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
 
     @Override
     public int deleteByIds(List<Integer> ids) {
-        for(Integer id:ids){
-            refresh(id);
+        // 先收集所有要删除记录的关键信息，用于后续刷新库存
+        Set<String> refreshKeys = new HashSet<>();
+        for(Integer id : ids) {
+            ErpPackagingMaterialInventoryChange changeEntity = erpPackagingMaterialInventoryChangeMapper.selectById(id);
+            if(changeEntity != null) {
+                // 构建唯一键：orderCode + productPartNumber + packagingNumber
+                String key = changeEntity.getOrderCode() + "|" + 
+                           changeEntity.getProductPartNumber() + "|" + 
+                           changeEntity.getPackagingNumber();
+                refreshKeys.add(key);
+            }
         }
-        return erpPackagingMaterialInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 执行批量删除
+        int result = erpPackagingMaterialInventoryChangeMapper.deleteBatchIds(ids);
+        
+        // 基于收集的信息刷新相关库存
+        for(String key : refreshKeys) {
+            String[] parts = key.split("\\|");
+            if(parts.length == 3) {
+                refreshByKey(parts[0], parts[1], parts[2]); // orderCode, productPartNumber, packagingNumber
+            }
+        }
+        
+        return result;
     }
 
     public List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo){
@@ -163,6 +186,60 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
             inventoryMapper.insert(erpPackagingMaterialInventory);
         }
         else {
+            erpPackagingMaterialInventory.setId(preInventory.getId());
+            inventoryMapper.updateById(erpPackagingMaterialInventory);
+        }
+    }
+
+    /**
+     * 基于关键信息刷新库存（用于删除后的库存更新）
+     */
+    private void refreshByKey(String orderCode, String productPartNumber, String packingNumber) throws RuntimeException{
+        // 分别构造查询出入库条件
+        LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> inWrapper = Wrappers.lambdaQuery();
+        inWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode, orderCode)
+                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
+                .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber, productPartNumber)
+                .gt(ErpPackagingMaterialInventoryChange::getInOutQuantity, 0);
+        
+        LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> outWrapper = Wrappers.lambdaQuery();
+        outWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode, orderCode)
+                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
+                .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber, productPartNumber)
+                .lt(ErpPackagingMaterialInventoryChange::getInOutQuantity, 0);
+
+        // 查询现有库存记录
+        LambdaQueryWrapper<ErpPackagingMaterialInventory> inventoryWrapper = Wrappers.lambdaQuery();
+        inventoryWrapper.eq(ErpPackagingMaterialInventory::getPackingNumber, packingNumber)
+                .eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber)
+                .eq(ErpPackagingMaterialInventory::getOrderCode, orderCode);
+        ErpPackagingMaterialInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
+
+        // 重新计算库存数量
+        Integer inQuantity = erpPackagingMaterialInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpPackagingMaterialInventoryChangeMapper.sumQuantity(outWrapper);
+        
+        // 如果没有相关的出入库记录了，删除库存记录
+        if ((inQuantity == null || inQuantity == 0) && (outQuantity == null || outQuantity == 0)) {
+            if (preInventory != null) {
+                inventoryMapper.deleteById(preInventory.getId());
+            }
+            return;
+        }
+
+        // 更新或创建库存记录
+        ErpPackagingMaterialInventory erpPackagingMaterialInventory = new ErpPackagingMaterialInventory();
+        erpPackagingMaterialInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpPackagingMaterialInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
+        erpPackagingMaterialInventory.total();
+        erpPackagingMaterialInventory.setOrderCode(orderCode);
+        erpPackagingMaterialInventory.setPackingNumber(packingNumber);
+        erpPackagingMaterialInventory.setProductPartNumber(productPartNumber);
+        erpPackagingMaterialInventory.setUpdateTime(LocalDateTime.now());
+
+        if (preInventory == null) {
+            inventoryMapper.insert(erpPackagingMaterialInventory);
+        } else {
             erpPackagingMaterialInventory.setId(preInventory.getId());
             inventoryMapper.updateById(erpPackagingMaterialInventory);
         }

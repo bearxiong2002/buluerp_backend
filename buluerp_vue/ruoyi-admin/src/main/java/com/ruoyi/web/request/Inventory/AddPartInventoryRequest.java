@@ -1,13 +1,19 @@
 package com.ruoyi.web.request.Inventory;
 
+import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 import java.util.Date;
 
 @ApiModel(value = "新增胶件库存请求类")
 public class AddPartInventoryRequest {
 
+    @Excel(name = "订单编号", sort = 1)
+    @NotBlank(message = "订单编号不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "订单编号",
@@ -15,6 +21,8 @@ public class AddPartInventoryRequest {
     )
     private String orderCode;
 
+    @Excel(name = "模具编号", sort = 2)
+    @NotBlank(message = "模具编号不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "模具编号",
@@ -22,6 +30,8 @@ public class AddPartInventoryRequest {
     )
     private String mouldNumber;
 
+    @Excel(name = "颜色代码", sort = 3)
+    @NotBlank(message = "颜色代码不能为空")
     @ApiModelProperty(
             dataType = "String",
             value = "颜色代码",
@@ -29,6 +39,8 @@ public class AddPartInventoryRequest {
     )
     private String colorCode;
 
+    @Excel(name = "出入库数量", sort = 4, prompt = "正数为入库，负数为出库")
+    @NotNull(message = "出入库数量不能为空")
     @ApiModelProperty(
             dataType = "Integer",
             value = "出入库数量",
@@ -36,6 +48,8 @@ public class AddPartInventoryRequest {
     )
     private Integer inOutQuantity;
 
+    @Excel(name = "备注信息", sort = 5)
+    @Size(max = 500, message = "备注信息长度不能超过500个字符")
     @ApiModelProperty(
             dataType = "String",
             value = "备注信息",
@@ -43,6 +57,8 @@ public class AddPartInventoryRequest {
     )
     private String remarks;
 
+    @Excel(name = "变更日期", dateFormat = "yyyy-MM-dd", sort = 6)
+    @NotNull(message = "库存变更日期不能为空")
     @ApiModelProperty(
             dataType = "Date",
             value = "库存变更日期",
