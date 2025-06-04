@@ -204,7 +204,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
             LambdaQueryWrapper<ErpPurchaseOrderInvoice> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpPurchaseOrderInvoice::getOrderId,orderId);
             for(ErpPurchaseOrderInvoice erpPurchaseOrderInvoice:invoiceMapper.selectList(wrapper)){
-                String url= invoiceMapper.selectById(erpPurchaseOrderInvoice.getId()).getInvoiceUrl();
+                String url= erpPurchaseOrderInvoice.getInvoiceUrl();
                 url=parseActualPath(url);
                 FileUtils.deleteFile(url);
                 invoiceMapper.deleteById(erpPurchaseOrderInvoice.getId());
