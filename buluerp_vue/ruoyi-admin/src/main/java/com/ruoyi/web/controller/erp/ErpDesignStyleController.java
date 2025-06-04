@@ -107,7 +107,7 @@ public class ErpDesignStyleController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:style:add')")
     @Log(title = "新增造型表", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody AddDesignRequest addDesignRequest) throws IOException {
+    public AjaxResult add(@ModelAttribute AddDesignRequest addDesignRequest) throws IOException {
         return toAjax(erpDesignStyleService.insertErpDesignStyle(addDesignRequest));
     }
 
