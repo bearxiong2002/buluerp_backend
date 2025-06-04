@@ -1,11 +1,16 @@
 package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.*;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.web.controller.tool.ExcelImageImportUtil;
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignRequest;
 import com.ruoyi.web.request.design.ListDesignRequest;
@@ -111,14 +116,106 @@ public class ErpDesignStyleController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入造型表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<AddDesignRequest> util = new ExcelUtil<AddDesignRequest>(AddDesignRequest.class);
-        List<AddDesignRequest> addDesignRequestList = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddDesignRequest addDesignRequest : addDesignRequestList) {
-            erpDesignStyleService.insertErpDesignStyle(addDesignRequest);
-            count++;
+        ExcelUtil<AddDesignRequest> util = new ExcelUtil<>(AddDesignRequest.class);
+        List<AddDesignRequest> addDesignRequestList;
+        List<Map<String, Object>> errorList = new ArrayList<>();
+
+        try {
+            addDesignRequestList = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        // 单独处理图片 - 使用ExcelImageImportUtil来获取DISPIMG格式的图片
+        Map<Integer, String> pictureMap = new HashMap<>();
+        try {
+            // 使用工具类直接获取图片
+            Map<Integer, List<String>> invoiceImages = 
+                ExcelImageImportUtil.importInvoiceImages(
+                    file.getInputStream(), 9); // 图片在第10列（索引9）
+            
+            // 将图片数据映射到对应的行（转换为从0开始的索引）
+            invoiceImages.forEach((rowIndex, images) -> {
+                if (!images.isEmpty()) {
+                    // 取第一张图片，rowIndex是从1开始的，转换为从0开始
+                    pictureMap.put(rowIndex - 1, images.get(0));
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("图片处理失败，但不影响其他数据导入: " + e.getMessage());
+        }
+
+        int rowNumber = 1; // Excel数据行号从2开始（标题行+1）
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        for (int i = 0; i < addDesignRequestList.size(); i++) {
+            AddDesignRequest addDesignRequest = addDesignRequestList.get(i);
+            Map<String, Object> errorEntry = new HashMap<>();
+            boolean hasError = false;
+
+            try {
+                // 1. 设置图片数据
+                if (pictureMap.containsKey(i)) {
+                    addDesignRequest.setPictureStr(pictureMap.get(i));
+                }
+                
+                // 2. 尝试图片转换
+                addDesignRequest.convertPictureStrToMultipartFile();
+
+                // 3. 执行校验
+                Set<ConstraintViolation<AddDesignRequest>> violations = validator.validate(addDesignRequest);
+
+                // 4. 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddDesignRequest> violation : violations) {
+                        errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
+                    }
+                    errorEntry.put("error", String.join("; ", errors));
+                    hasError = true;
+                }
+
+                // 5. 尝试保存（包括业务逻辑校验）
+                if (!hasError) {
+                    erpDesignStyleService.insertErpDesignStyle(addDesignRequest);
+                }
+            } catch (Exception e) {
+                // 处理转换和服务层的异常
+                String errorMsg = e.getMessage();
+                if (e.getCause() != null) {
+                    errorMsg += " (" + e.getCause().getMessage() + ")";
+                }
+                errorEntry.put("error", errorMsg);
+                hasError = true;
+            }
+
+            // 如果本行有错误，添加到错误列表
+            if (hasError) {
+                errorEntry.put("row", rowNumber);
+                errorEntry.put("data", addDesignRequest.toString());
+                errorList.add(errorEntry);
+            }
+
+            rowNumber++;
+        }
+
+        // 处理结果
+        if (!errorList.isEmpty()) {
+            // 计算成功数量
+            int successCount = addDesignRequestList.size() - errorList.size();
+
+            // 构造详细错误报告
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", addDesignRequestList.size());
+            result.put("success", successCount);
+            result.put("failure", errorList.size());
+            result.put("errors", errorList);
+
+            return AjaxResult.error("导入完成，但有部分错误", result);
+        }
+
+        return AjaxResult.success("导入成功，共导入 " + addDesignRequestList.size() + " 条数据");
     }
 
     /**
@@ -144,5 +241,40 @@ public class ErpDesignStyleController extends BaseController
     public AjaxResult remove(@PathVariable List<Integer> ids)
     {
         return toAjax(erpDesignStyleService.deleteErpDesignStyleByIds(ids));
+    }
+
+    @GetMapping("/template")
+    @ApiOperation("下载造型表导入模板")
+    //@PreAuthorize("@ss.hasPermi('system:style:import')")
+    @Anonymous
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        // 创建示例数据行（使用合理默认值）
+        List<AddDesignRequest> templateData = new ArrayList<>();
+        AddDesignRequest example = new AddDesignRequest();
+
+        // 设置必填字段示例值（符合验证规则）
+        example.setGroupId(1001L);       // 示例分组编号
+        example.setDesignPatternId(2001L);// 示例设计编号
+        example.setMouldNumber("MD-2023-001"); // 模具编号示例
+        example.setLddNumber("LDD-00123");    // LDD编号示例
+        example.setMouldCategory("注塑模具");  // 模具类别示例
+        example.setMouldId("MID-001");      // 模具ID示例
+        example.setProductName("智能手机外壳"); // 产品名称示例
+        example.setQuantity(2L);           // 数量示例
+        example.setMaterial("PMMA塑料");     // 材料示例
+
+        // 设置非必填字段示例值
+        example.setColor("透明");            // 颜色描述示例
+
+        // 图片字段设置 - 添加清晰的说明文本
+        example.setPictureStr("请在此单元格插入图片");
+
+        templateData.add(example);
+
+        // 创建ExcelUtil实例
+        ExcelUtil<AddDesignRequest> util = new ExcelUtil<>(AddDesignRequest.class);
+
+        // 导出模板（添加水印效果）
+        util.exportExcel(response, templateData, "造型表导入模板");
     }
 }
