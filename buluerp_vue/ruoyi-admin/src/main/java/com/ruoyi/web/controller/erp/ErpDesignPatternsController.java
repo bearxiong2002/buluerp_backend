@@ -2,8 +2,15 @@ package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -104,14 +111,102 @@ public class ErpDesignPatternsController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入设计总表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        ExcelUtil<AddDesignPatternsRequest> util = new ExcelUtil<AddDesignPatternsRequest>(AddDesignPatternsRequest.class);
-        List<AddDesignPatternsRequest> addDesignPatternsRequestList = util.importExcel(file.getInputStream());
-        int count = 0;
-        for (AddDesignPatternsRequest addDesignPatternsRequest : addDesignPatternsRequestList) {
-            erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
-            count++;
+        ExcelUtil<AddDesignPatternsRequest> util = new ExcelUtil<>(AddDesignPatternsRequest.class);
+        List<AddDesignPatternsRequest> addDesignPatternsRequestList;
+        List<Map<String, Object>> errorList = new ArrayList<>();
+
+        try {
+            addDesignPatternsRequestList = util.importExcel(file.getInputStream());
+        } catch (Exception e) {
+            return AjaxResult.error("Excel解析失败: " + e.getMessage());
         }
-        return success(count);
+
+        int rowNumber = 1; // Excel数据行号从2开始（标题行+1）
+        ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        Validator validator = factory.getValidator();
+
+        for (int i = 0; i < addDesignPatternsRequestList.size(); i++) {
+            AddDesignPatternsRequest addDesignPatternsRequest = addDesignPatternsRequestList.get(i);
+            Map<String, Object> errorEntry = new HashMap<>();
+            boolean hasError = false;
+
+            try {
+                // 1. 执行校验
+                Set<ConstraintViolation<AddDesignPatternsRequest>> violations = validator.validate(addDesignPatternsRequest);
+
+                // 2. 收集校验错误
+                if (!violations.isEmpty()) {
+                    List<String> errors = new ArrayList<>();
+                    for (ConstraintViolation<AddDesignPatternsRequest> violation : violations) {
+                        errors.add(violation.getPropertyPath() + ": " + violation.getMessage());
+                    }
+                    errorEntry.put("error", String.join("; ", errors));
+                    hasError = true;
+                }
+
+                // 3. 尝试保存（包括业务逻辑校验）
+                if (!hasError) {
+                    erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
+                }
+            } catch (Exception e) {
+                // 处理服务层的异常
+                String errorMsg = e.getMessage();
+                if (e.getCause() != null) {
+                    errorMsg += " (" + e.getCause().getMessage() + ")";
+                }
+                errorEntry.put("error", errorMsg);
+                hasError = true;
+            }
+
+            // 如果本行有错误，添加到错误列表
+            if (hasError) {
+                errorEntry.put("row", rowNumber);
+                errorEntry.put("data", "订单号: " + addDesignPatternsRequest.getOrderId() + 
+                                     ", 产品号: " + addDesignPatternsRequest.getProductId());
+                errorList.add(errorEntry);
+            }
+
+            rowNumber++;
+        }
+
+        // 处理结果
+        if (!errorList.isEmpty()) {
+            // 计算成功数量
+            int successCount = addDesignPatternsRequestList.size() - errorList.size();
+
+            // 构造详细错误报告
+            Map<String, Object> result = new HashMap<>();
+            result.put("total", addDesignPatternsRequestList.size());
+            result.put("success", successCount);
+            result.put("failure", errorList.size());
+            result.put("errors", errorList);
+
+            return AjaxResult.error("导入完成，但有部分错误", result);
+        }
+
+        return AjaxResult.success("导入成功，共导入 " + addDesignPatternsRequestList.size() + " 条数据");
+    }
+
+    @GetMapping("/template")
+    @ApiOperation("下载设计总表导入模板")
+    //@PreAuthorize("@ss.hasPermi('system:patterns:import')")
+    @Anonymous
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        // 创建示例数据行（使用合理默认值）
+        List<AddDesignPatternsRequest> templateData = new ArrayList<>();
+        AddDesignPatternsRequest example = new AddDesignPatternsRequest();
+
+        // 设置必填字段示例值（符合验证规则）
+        example.setOrderId(2024001L);       // 示例订单号
+        example.setProductId(1001L);        // 示例产品号
+
+        templateData.add(example);
+
+        // 创建ExcelUtil实例
+        ExcelUtil<AddDesignPatternsRequest> util = new ExcelUtil<>(AddDesignPatternsRequest.class);
+
+        // 导出模板
+        util.exportExcel(response, templateData, "设计总表导入模板");
     }
 
     /**
