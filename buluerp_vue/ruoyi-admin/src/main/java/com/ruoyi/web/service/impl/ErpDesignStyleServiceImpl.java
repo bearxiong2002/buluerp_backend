@@ -16,6 +16,7 @@ import com.ruoyi.web.request.design.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -68,6 +69,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertErpDesignStyle(AddDesignRequest addDesignRequest) throws IOException {
 
         String url=null;
@@ -85,16 +87,18 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
         String url=null;
         if(updateDesignRequest.getPicture()!=null){
 
             //删除原本的文件
             String preUrl=erpDesignStyleMapper.selectById(updateDesignRequest.getId()).getPictureUrl();
-            preUrl=parseActualPath(preUrl);
-            FileUtils.deleteFile(preUrl);
-
-            url= FileUploadUtils.upload(updateDesignRequest.getPicture());
+            if(preUrl!=null){
+                preUrl=parseActualPath(preUrl);
+                FileUtils.deleteFile(preUrl);
+            }
+            if(updateDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateErpDesignStyle(erpDesignStyle);
@@ -107,6 +111,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignStyleByIds(List<Integer> ids)
     {
         for(Integer id:ids){
@@ -127,6 +132,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignStyleById(Long id)
     {
         //删除原本的文件
