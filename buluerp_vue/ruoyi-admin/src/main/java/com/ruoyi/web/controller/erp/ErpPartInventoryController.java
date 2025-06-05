@@ -255,4 +255,24 @@ public class ErpPartInventoryController extends BaseController {
         ExcelUtil<AddPartInventoryRequest> util = new ExcelUtil<>(AddPartInventoryRequest.class);
         util.exportExcel(response, templateData, "胶件出入库导入模板");
     }
+    
+    @ApiOperation(value = "修改胶件库存安全阈值")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:part-inventory:edit')")
+    @PutMapping("/safe-quantity/{inventoryId}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "inventoryId", value = "库存编号", dataType = "int"),
+            @ApiImplicitParam(name = "safeQuantity", value = "新安全库存", dataType = "int"),
+    })
+    public AjaxResult updateSafeQuantity(
+            @PathVariable("inventoryId") Long inventoryId,
+            @RequestParam("safeQuantity") Integer safeQuantity) {
+        
+        if (safeQuantity < 0) {
+            return AjaxResult.error("安全库存阈值不能为负数");
+        }
+        
+        int result = partInventoryService.updateSafeQuantity(inventoryId, safeQuantity);
+        return toAjax(result);
+    }
 }

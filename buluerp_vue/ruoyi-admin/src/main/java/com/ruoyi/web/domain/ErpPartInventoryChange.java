@@ -29,10 +29,6 @@ public class ErpPartInventoryChange {
     @Excel(name = "操作人")
     private String operator;
 
-    @Excel(name = "产品代码")
-    @TableField("product_code")
-    private String productCode;
-
     @Excel(name = "模具编号")
     @TableField("mould_number")
     private String mouldNumber;
@@ -59,7 +55,6 @@ public class ErpPartInventoryChange {
         this.orderCode = builder.orderCode;
         this.creationTime = builder.creationTime;
         this.operator = builder.operator;
-        this.productCode = builder.productCode;
         this.mouldNumber = builder.mouldNumber;
         this.colorCode = builder.colorCode;
         this.inOutQuantity = builder.inOutQuantity;
@@ -78,7 +73,6 @@ public class ErpPartInventoryChange {
         private String orderCode;
         private LocalDateTime creationTime;
         private String operator;
-        private String productCode;
         private String mouldNumber;
         private String colorCode;
         private Integer inOutQuantity;
@@ -90,7 +84,6 @@ public class ErpPartInventoryChange {
         public Builder orderCode(String orderCode) { this.orderCode = orderCode; return this; }
         public Builder creationTime(LocalDateTime creationTime) { this.creationTime = creationTime; return this; }
         public Builder operator(String operator) { this.operator = operator; return this; }
-        public Builder productCode(String productCode) { this.productCode = productCode; return this; }
         public Builder mouldNumber(String mouldNumber) { this.mouldNumber = mouldNumber; return this; }
         public Builder colorCode(String colorCode) { this.colorCode = colorCode; return this; }
         public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
@@ -132,14 +125,6 @@ public class ErpPartInventoryChange {
 
     public void setOperator(String operator) {
         this.operator = operator;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
     }
 
     public String getMouldNumber() {

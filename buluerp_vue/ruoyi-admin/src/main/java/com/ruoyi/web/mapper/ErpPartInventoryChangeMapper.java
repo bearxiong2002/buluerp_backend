@@ -9,6 +9,6 @@ import org.apache.ibatis.annotations.Select;
 
 
 public interface ErpPartInventoryChangeMapper extends BaseMapper<ErpPartInventoryChange> {
-    @Select("SELECT SUM(in_out_quantity) from buluerp.erp_part_inventory_change where ${ew.customSqlSegment}")
+    @Select("SELECT COALESCE(SUM(in_out_quantity), 0) from buluerp.erp_part_inventory_change ${ew.customSqlSegment}")
     Integer sumQuantity(@Param("ew") Wrapper<ErpPartInventoryChange> wrapper);
 }

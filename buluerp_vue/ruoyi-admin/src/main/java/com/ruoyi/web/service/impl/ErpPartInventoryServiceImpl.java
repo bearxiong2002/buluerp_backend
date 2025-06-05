@@ -16,6 +16,7 @@ import com.ruoyi.web.request.Inventory.UpdatePartInventoryRequest;
 import com.ruoyi.web.service.IErpPartInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -50,6 +51,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddPartInventoryRequest request) {
         ErpPartInventoryChange entity = new ErpPartInventoryChange();
         entity.setOrderCode(request.getOrderCode());
@@ -66,6 +68,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdatePartInventoryRequest request) {
         ErpPartInventoryChange entity = erpPartInventoryChangeMapper.selectById(request.getId());
         if (entity == null) throw new RuntimeException("记录不存在");
@@ -84,6 +87,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteByIds(List<Integer> ids) {
         // 先收集所有要删除记录的关键信息，用于后续刷新库存
         Set<String> refreshKeys = new HashSet<>();
@@ -133,21 +137,40 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
                 .eq(ErpPartInventoryChange::getMouldNumber,mouldNumber)
                 .lt(ErpPartInventoryChange::getInOutQuantity,0);
         ErpPartInventory erpPartInventory=new ErpPartInventory();
-        erpPartInventory.setInQuantity(erpPartInventoryChangeMapper.sumQuantity(inWrapper));
-        erpPartInventory.setOutQuantity(erpPartInventoryChangeMapper.sumQuantity(outWrapper));
+        Integer inQuantity = erpPartInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpPartInventoryChangeMapper.sumQuantity(outWrapper);
+        erpPartInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpPartInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPartInventory.total();
         erpPartInventory.setOrderCode(changeEntity.getOrderCode());
         erpPartInventory.setMouldNumber(changeEntity.getMouldNumber());
         erpPartInventory.setUpdateTime(LocalDateTime.now());
+        
         LambdaQueryWrapper<ErpPartInventory> inventoryWrapper= Wrappers.lambdaQuery();
         inventoryWrapper.eq(ErpPartInventory::getMouldNumber,mouldNumber)
                 .eq(ErpPartInventory::getOrderCode,orderCode);
         ErpPartInventory preInventory=inventoryMapper.selectOne(inventoryWrapper);
+        
         if(preInventory==null){
+            // 新记录：默认安全库存为0，无预警
+            erpPartInventory.setSafeQuantity(0);
+            erpPartInventory.setWarning(0);
             inventoryMapper.insert(erpPartInventory);
         }
         else {
+            // 更新记录：保留原有安全库存值，重新计算预警状态
             erpPartInventory.setId(preInventory.getId());
+            erpPartInventory.setSafeQuantity(preInventory.getSafeQuantity());
+            
+            // 根据总库存和安全库存设置预警状态
+            Integer totalQty = erpPartInventory.getTotalQuantity();
+            Integer safeQty = preInventory.getSafeQuantity();
+            if (totalQty != null && safeQty != null && totalQty < safeQty) {
+                erpPartInventory.setWarning(1); // 库存不足预警
+            } else {
+                erpPartInventory.setWarning(0); // 库存正常
+            }
+            
             inventoryMapper.updateById(erpPartInventory);
         }
     }
@@ -195,10 +218,49 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         erpPartInventory.setUpdateTime(LocalDateTime.now());
 
         if (preInventory == null) {
+            // 新记录：默认安全库存为0，无预警
+            erpPartInventory.setSafeQuantity(0);
+            erpPartInventory.setWarning(0);
             inventoryMapper.insert(erpPartInventory);
         } else {
+            // 更新记录：保留原有安全库存值，重新计算预警状态
             erpPartInventory.setId(preInventory.getId());
+            erpPartInventory.setSafeQuantity(preInventory.getSafeQuantity());
+            
+            // 根据总库存和安全库存设置预警状态
+            Integer totalQty = erpPartInventory.getTotalQuantity();
+            Integer safeQty = preInventory.getSafeQuantity();
+            if (totalQty != null && safeQty != null && totalQty < safeQty) {
+                erpPartInventory.setWarning(1); // 库存不足预警
+            } else {
+                erpPartInventory.setWarning(0); // 库存正常
+            }
+            
             inventoryMapper.updateById(erpPartInventory);
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateSafeQuantity(Long inventoryId, Integer safeQuantity) {
+        // 查询库存记录
+        ErpPartInventory inventory = inventoryMapper.selectById(inventoryId);
+        if (inventory == null) {
+            throw new RuntimeException("库存记录不存在");
+        }
+        
+        // 更新安全库存
+        inventory.setSafeQuantity(safeQuantity);
+        
+        // 重新计算预警状态
+        Integer totalQty = inventory.getTotalQuantity();
+        if (totalQty != null && safeQuantity != null && totalQty < safeQuantity) {
+            inventory.setWarning(1); // 库存不足预警
+        } else {
+            inventory.setWarning(0); // 库存正常
+        }
+        
+        inventory.setUpdateTime(LocalDateTime.now());
+        return inventoryMapper.updateById(inventory);
     }
 }

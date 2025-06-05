@@ -16,4 +16,12 @@ public interface IErpPartInventoryService extends IService<ErpPartInventoryChang
     int updateRecord(UpdatePartInventoryRequest request);
     int deleteByIds(List<Integer> ids);
     List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo);
+    
+    /**
+     * 根据库存ID修改安全库存阈值
+     * @param inventoryId 库存记录ID
+     * @param safeQuantity 新的安全库存阈值
+     * @return 影响行数
+     */
+    int updateSafeQuantity(Long inventoryId, Integer safeQuantity);
 }

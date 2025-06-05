@@ -14,6 +14,7 @@ import com.ruoyi.web.request.Inventory.UpdateProductInventoryRequest;
 import com.ruoyi.web.service.IErpProductInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -48,6 +49,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddProductInventoryRequest request) {
         ErpProductInventoryChange entity = new ErpProductInventoryChange();
         entity.setOrderCode(request.getOrderCode());
@@ -64,6 +66,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdateProductInventoryRequest request) {
         ErpProductInventoryChange entity = erpProductInventoryChangeMapper.selectById(request.getId());
         if (entity == null) throw new RuntimeException("记录不存在");
@@ -81,6 +84,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteByIds(List<Integer> ids) {
         // 先收集所有要删除记录的关键信息，用于后续刷新库存
         Set<String> refreshKeys = new HashSet<>();
@@ -132,8 +136,10 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
                 .lt(ErpProductInventoryChange::getInOutQuantity,0);
 
         ErpProductInventory erpProductInventory=new ErpProductInventory();
-        erpProductInventory.setInQuantity(erpProductInventoryChangeMapper.sumQuantity(inWrapper));
-        erpProductInventory.setOutQuantity(erpProductInventoryChangeMapper.sumQuantity(outWrapper));
+        Integer inQuantity = erpProductInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpProductInventoryChangeMapper.sumQuantity(outWrapper);
+        erpProductInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpProductInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpProductInventory.total();
         erpProductInventory.setOrderCode(changeEntity.getOrderCode());
         erpProductInventory.setProductPartNumber(changeEntity.getProductPartNumber());

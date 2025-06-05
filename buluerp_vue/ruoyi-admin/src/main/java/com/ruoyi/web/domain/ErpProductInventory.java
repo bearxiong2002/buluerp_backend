@@ -41,7 +41,9 @@ public class ErpProductInventory {
     private LocalDateTime updateTime;
 
     public void total(){
-        this.totalQuantity=this.inQuantity+this.outQuantity;
+        int inQty = (this.inQuantity != null) ? this.inQuantity : 0;
+        int outQty = (this.outQuantity != null) ? this.outQuantity : 0;
+        this.totalQuantity = inQty + outQty;
     }
 
     public Long getId() {

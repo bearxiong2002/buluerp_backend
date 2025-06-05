@@ -18,6 +18,7 @@ import com.ruoyi.web.request.Inventory.UpdatePackagingMaterialRequest;
 import com.ruoyi.web.service.IErpPackagingMaterialInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -53,6 +54,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddPackagingMaterialRequest request) {
         ErpPackagingMaterialInventoryChange erpPackagingMaterialInventoryChange = new ErpPackagingMaterialInventoryChange.Builder()
                 .orderCode(request.getOrderCode())
@@ -73,6 +75,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdatePackagingMaterialRequest request) {
         ErpPackagingMaterialInventoryChange erpPackagingMaterialInventoryChange = erpPackagingMaterialInventoryChangeMapper.selectById(request.getId());
         if (erpPackagingMaterialInventoryChange == null) {
@@ -113,6 +116,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteByIds(List<Integer> ids) {
         // 先收集所有要删除记录的关键信息，用于后续刷新库存
         Set<String> refreshKeys = new HashSet<>();
@@ -170,8 +174,10 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
                 .lt(ErpPackagingMaterialInventoryChange::getInOutQuantity,0);
 
         ErpPackagingMaterialInventory erpPackagingMaterialInventory=new ErpPackagingMaterialInventory();
-        erpPackagingMaterialInventory.setInQuantity(erpPackagingMaterialInventoryChangeMapper.sumQuantity(inWrapper));
-        erpPackagingMaterialInventory.setOutQuantity(erpPackagingMaterialInventoryChangeMapper.sumQuantity(outWrapper));
+        Integer inQuantity = erpPackagingMaterialInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpPackagingMaterialInventoryChangeMapper.sumQuantity(outWrapper);
+        erpPackagingMaterialInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpPackagingMaterialInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPackagingMaterialInventory.total();
         erpPackagingMaterialInventory.setOrderCode(changeEntity.getOrderCode());
         erpPackagingMaterialInventory.setPackingNumber(changeEntity.getPackagingNumber());
