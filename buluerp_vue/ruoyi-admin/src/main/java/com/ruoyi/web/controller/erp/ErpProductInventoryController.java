@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -54,8 +54,8 @@ public class ErpProductInventoryController extends BaseController {
             @ApiImplicitParam(name = "inOutQuantity", value = "出入库数量", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "storageLocation", value = "存储位置", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "remarks", value = "备注信息", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "datetime"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
             @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date"),
             @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date")
     })
@@ -68,8 +68,8 @@ public class ErpProductInventoryController extends BaseController {
             @RequestParam(required = false) Integer inOutQuantity,
             @RequestParam(required = false) String storageLocation,
             @RequestParam(required = false) String remarks,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeTo,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateFrom,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateTo) {
 
@@ -204,15 +204,15 @@ public class ErpProductInventoryController extends BaseController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
             @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
-            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
     })
     @GetMapping("/store")
     public TableDataInfo listProduct(
             @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String productPartNumber,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeTo) {
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeTo) {
 
         ErpProductInventory query = new ErpProductInventory();
         query.setOrderCode(orderCode);

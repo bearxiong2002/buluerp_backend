@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -114,7 +115,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         return result;
     }
 
-    public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,LocalDateTime updateTimeFrom,LocalDateTime updateTimeTo){
+    public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,Date updateTimeFrom,Date updateTimeTo){
         LambdaQueryWrapper<ErpPartInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpPartInventory.getMouldNumber()), ErpPartInventory::getMouldNumber,erpPartInventory.getMouldNumber())
                 .like(StringUtils.isNotBlank(erpPartInventory.getOrderCode()),ErpPartInventory::getOrderCode,erpPartInventory.getOrderCode())

@@ -7,7 +7,7 @@ import com.ruoyi.web.request.Inventory.AddPackagingMaterialRequest;
 import com.ruoyi.web.request.Inventory.ListPackagingMaterialRequest;
 import com.ruoyi.web.request.Inventory.UpdatePackagingMaterialRequest;
 
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 public interface IErpPackagingMaterialInventoryService extends IService<ErpPackagingMaterialInventoryChange> {
@@ -20,5 +20,5 @@ public interface IErpPackagingMaterialInventoryService extends IService<ErpPacka
 
     int deleteByIds(List<Integer> ids);
 
-    List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo);
+    List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, Date updateTimeFrom, Date updateTimeTo);
 }
