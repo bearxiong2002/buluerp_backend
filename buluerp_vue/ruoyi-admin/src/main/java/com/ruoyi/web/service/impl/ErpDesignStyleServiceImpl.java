@@ -16,6 +16,7 @@ import com.ruoyi.web.request.design.UpdateDesignRequest;
 import com.ruoyi.web.service.IErpDesignStyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 
@@ -68,6 +69,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertErpDesignStyle(AddDesignRequest addDesignRequest) throws IOException {
 
         String url=null;
@@ -85,6 +87,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
         String url=null;
         if(updateDesignRequest.getPicture()!=null){
@@ -107,6 +110,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignStyleByIds(List<Integer> ids)
     {
         for(Integer id:ids){
@@ -127,6 +131,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignStyleById(Long id)
     {
         //删除原本的文件
