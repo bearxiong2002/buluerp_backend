@@ -49,6 +49,11 @@ public class ErpPartInventoryChange {
     @TableField("change_date")
     private Date changeDate;
 
+    /** 当前总库存（不是数据库字段，用于查询时关联显示） */
+    @TableField(exist = false)
+    @Excel(name = "当前总库存")
+    private Integer totalQuantity;
+
     // Builder构造
     private ErpPartInventoryChange(Builder builder) {
         this.id = builder.id;
@@ -60,6 +65,7 @@ public class ErpPartInventoryChange {
         this.inOutQuantity = builder.inOutQuantity;
         this.remarks = builder.remarks;
         this.changeDate = builder.changeDate;
+        this.totalQuantity = builder.totalQuantity;
     }
 
     public ErpPartInventoryChange() {}
@@ -78,6 +84,7 @@ public class ErpPartInventoryChange {
         private Integer inOutQuantity;
         private String remarks;
         private Date changeDate;
+        private Integer totalQuantity;
 
         // 链式方法（省略部分代码，参考字段赋值）
         public Builder id(Integer id) { this.id = id; return this; }
@@ -89,6 +96,7 @@ public class ErpPartInventoryChange {
         public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
         public Builder remarks(String remarks) { this.remarks = remarks; return this; }
         public Builder changeDate(Date changeDate) { this.changeDate = changeDate; return this; }
+        public Builder totalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; return this; }
 
         public ErpPartInventoryChange build() {
             return new ErpPartInventoryChange(this);
@@ -165,5 +173,13 @@ public class ErpPartInventoryChange {
 
     public void setChangeDate(Date changeDate) {
         this.changeDate = changeDate;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 }

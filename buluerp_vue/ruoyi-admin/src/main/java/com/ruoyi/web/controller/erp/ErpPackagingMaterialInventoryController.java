@@ -100,11 +100,24 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @ApiOperation(value = "导出料包出入库数据")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:export')")
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ListPackagingMaterialRequest request) {
-        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryService.selectList(request);
+    @GetMapping("/export")
+    @ApiImplicitParam(name = "ids", value = "出入库记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void export(HttpServletResponse response, @RequestParam("ids") List<Integer> ids) {
+        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryService.selectListByIds(ids);
         ExcelUtil<ErpPackagingMaterialInventoryChange> util = new ExcelUtil<>(ErpPackagingMaterialInventoryChange.class);
-        String fileName = "料包库存_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        String fileName = "料包出入库记录_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        util.exportExcel(response, list, fileName);
+    }
+
+    @ApiOperation(value = "导出料包库存数据")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:export')")
+    @GetMapping("/export-store")
+    @ApiImplicitParam(name = "ids", value = "库存记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void exportStore(HttpServletResponse response, @RequestParam("ids") List<Long> ids) {
+        List<ErpPackagingMaterialInventory> list = erpPackagingMaterialInventoryService.selectStoreByIds(ids);
+        ExcelUtil<ErpPackagingMaterialInventory> util = new ExcelUtil<>(ErpPackagingMaterialInventory.class);
+        String fileName = "料包库存汇总_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
         util.exportExcel(response, list, fileName);
     }
 

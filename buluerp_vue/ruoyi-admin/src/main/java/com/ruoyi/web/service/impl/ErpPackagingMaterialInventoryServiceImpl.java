@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.ArrayList;
 
 @Service
 public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPackagingMaterialInventoryChangeMapper, ErpPackagingMaterialInventoryChange> implements IErpPackagingMaterialInventoryService {
@@ -51,7 +52,15 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
                 .lt(request.getCreateTimeTo()!=null, ErpPackagingMaterialInventoryChange::getCreationTime,request.getCreateTimeTo())
                 .gt(request.getChangeDateFrom()!=null, ErpPackagingMaterialInventoryChange::getChangeDate,request.getChangeDateFrom())
                 .gt(request.getCreateTimeFrom()!=null, ErpPackagingMaterialInventoryChange::getCreationTime,request.getCreateTimeFrom());
-        return erpPackagingMaterialInventoryChangeMapper.selectList(query);
+        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryChangeMapper.selectList(query);
+        
+        // 为每条记录填充总库存数量
+        for (ErpPackagingMaterialInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getProductPartNumber(), item.getPackagingNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
     }
 
     @Override
@@ -144,6 +153,46 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         }
         
         return result;
+    }
+
+    /**
+     * 获取当前总库存数量
+     * @param orderCode 订单编号
+     * @param productPartNumber 产品货号
+     * @param packingNumber 分包编号
+     * @return 当前总库存数量
+     */
+    private Integer getCurrentTotalQuantity(String orderCode, String productPartNumber, String packingNumber) {
+        LambdaQueryWrapper<ErpPackagingMaterialInventory> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ErpPackagingMaterialInventory::getOrderCode, orderCode)
+               .eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber)
+               .eq(ErpPackagingMaterialInventory::getPackingNumber, packingNumber);
+        ErpPackagingMaterialInventory inventory = inventoryMapper.selectOne(wrapper);
+        return inventory != null ? inventory.getTotalQuantity() : 0;
+    }
+
+    @Override
+    public List<ErpPackagingMaterialInventoryChange> selectListByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryChangeMapper.selectBatchIds(ids);
+        
+        // 为每条记录填充总库存数量
+        for (ErpPackagingMaterialInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getProductPartNumber(), item.getPackagingNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
+    }
+
+    @Override
+    public List<ErpPackagingMaterialInventory> selectStoreByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return inventoryMapper.selectBatchIds(ids);
     }
 
     public List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, Date updateTimeFrom, Date updateTimeTo){

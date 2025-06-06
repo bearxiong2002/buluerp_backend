@@ -24,6 +24,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
 
 @Service
 public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryChangeMapper, ErpPartInventoryChange> implements IErpPartInventoryService {
@@ -48,7 +49,15 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
                 .lt(request.getCreateTimeTo()!=null, ErpPartInventoryChange::getCreationTime,request.getCreateTimeTo())
                 .gt(request.getChangeDateFrom()!=null, ErpPartInventoryChange::getChangeDate,request.getChangeDateFrom())
                 .gt(request.getCreateTimeFrom()!=null, ErpPartInventoryChange::getCreationTime,request.getCreateTimeFrom());
-        return erpPartInventoryChangeMapper.selectList(query);
+        List<ErpPartInventoryChange> list = erpPartInventoryChangeMapper.selectList(query);
+        
+        // 为每条记录填充总库存数量
+        for (ErpPartInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getMouldNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
     }
 
     @Override
@@ -113,6 +122,44 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         }
         
         return result;
+    }
+
+    /**
+     * 获取当前总库存数量
+     * @param orderCode 订单编号
+     * @param mouldNumber 模具编号
+     * @return 当前总库存数量
+     */
+    private Integer getCurrentTotalQuantity(String orderCode, String mouldNumber) {
+        LambdaQueryWrapper<ErpPartInventory> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ErpPartInventory::getOrderCode, orderCode)
+               .eq(ErpPartInventory::getMouldNumber, mouldNumber);
+        ErpPartInventory inventory = inventoryMapper.selectOne(wrapper);
+        return inventory != null ? inventory.getTotalQuantity() : 0;
+    }
+
+    @Override
+    public List<ErpPartInventoryChange> selectListByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<ErpPartInventoryChange> list = erpPartInventoryChangeMapper.selectBatchIds(ids);
+        
+        // 为每条记录填充总库存数量
+        for (ErpPartInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getMouldNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
+    }
+
+    @Override
+    public List<ErpPartInventory> selectStoreByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return inventoryMapper.selectBatchIds(ids);
     }
 
     public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,Date updateTimeFrom,Date updateTimeTo){

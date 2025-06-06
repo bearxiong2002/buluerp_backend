@@ -49,6 +49,11 @@ public class ErpProductInventoryChange {
     @Excel(name = "备注")
     private String remarks;
 
+    /** 当前总库存（不是数据库字段，用于查询时关联显示） */
+    @TableField(exist = false)
+    @Excel(name = "当前总库存")
+    private Integer totalQuantity;
+
     // Builder构造
     private ErpProductInventoryChange(Builder builder) {
         this.id = builder.id;
@@ -60,6 +65,7 @@ public class ErpProductInventoryChange {
         this.inOutQuantity = builder.inOutQuantity;
         this.storageLocation = builder.storageLocation;
         this.remarks = builder.remarks;
+        this.totalQuantity = builder.totalQuantity;
     }
 
     public ErpProductInventoryChange() {}
@@ -78,6 +84,7 @@ public class ErpProductInventoryChange {
         private Integer inOutQuantity;
         private String storageLocation;
         private String remarks;
+        private Integer totalQuantity;
 
         // 链式方法（省略部分代码，参考字段赋值）
         public Builder id(Integer id) { this.id = id; return this; }
@@ -89,6 +96,7 @@ public class ErpProductInventoryChange {
         public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
         public Builder storageLocation(String storageLocation) { this.storageLocation = storageLocation; return this; }
         public Builder remarks(String remarks) { this.remarks = remarks; return this; }
+        public Builder totalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; return this; }
 
         public ErpProductInventoryChange build() {
             return new ErpProductInventoryChange(this);
@@ -165,5 +173,13 @@ public class ErpProductInventoryChange {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 }

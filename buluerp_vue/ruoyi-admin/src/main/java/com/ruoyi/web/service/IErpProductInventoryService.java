@@ -17,4 +17,18 @@ public interface IErpProductInventoryService extends IService<ErpProductInventor
     int updateRecord(UpdateProductInventoryRequest request);
     int deleteByIds(List<Integer> ids);
     List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, Date updateTimeFrom, Date updateTimeTo);
+    
+    /**
+     * 根据ID列表查询出入库记录
+     * @param ids ID列表
+     * @return 出入库记录列表
+     */
+    List<ErpProductInventoryChange> selectListByIds(List<Integer> ids);
+    
+    /**
+     * 根据ID列表查询库存记录
+     * @param ids ID列表
+     * @return 库存记录列表
+     */
+    List<ErpProductInventory> selectStoreByIds(List<Long> ids);
 }

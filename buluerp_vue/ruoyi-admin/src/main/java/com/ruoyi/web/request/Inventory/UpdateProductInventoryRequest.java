@@ -2,6 +2,7 @@ package com.ruoyi.web.request.Inventory;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -49,6 +50,7 @@ public class UpdateProductInventoryRequest {
             value = "库存变更日期",
             required = false
     )
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date changeDate;
 
     public Long getId() {

@@ -51,6 +51,10 @@ public class ErpPackagingMaterialInventory {
         this.totalQuantity = inQty + outQty;
     }
 
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
     public Long getId() {
         return id;
     }

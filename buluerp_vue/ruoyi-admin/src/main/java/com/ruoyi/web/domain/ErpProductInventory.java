@@ -90,6 +90,10 @@ public class ErpProductInventory {
         this.totalQuantity = totalQuantity;
     }
 
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
     public LocalDateTime getUpdateTime() {
         return updateTime;
     }

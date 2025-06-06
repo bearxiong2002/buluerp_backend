@@ -24,4 +24,18 @@ public interface IErpPartInventoryService extends IService<ErpPartInventoryChang
      * @return 影响行数
      */
     int updateSafeQuantity(Long inventoryId, Integer safeQuantity);
+    
+    /**
+     * 根据ID列表查询出入库记录
+     * @param ids ID列表
+     * @return 出入库记录列表
+     */
+    List<ErpPartInventoryChange> selectListByIds(List<Integer> ids);
+    
+    /**
+     * 根据ID列表查询库存记录
+     * @param ids ID列表
+     * @return 库存记录列表
+     */
+    List<ErpPartInventory> selectStoreByIds(List<Long> ids);
 }

@@ -21,4 +21,18 @@ public interface IErpPackagingMaterialInventoryService extends IService<ErpPacka
     int deleteByIds(List<Integer> ids);
 
     List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, Date updateTimeFrom, Date updateTimeTo);
+    
+    /**
+     * 根据ID列表查询出入库记录
+     * @param ids ID列表
+     * @return 出入库记录列表
+     */
+    List<ErpPackagingMaterialInventoryChange> selectListByIds(List<Integer> ids);
+    
+    /**
+     * 根据ID列表查询库存记录
+     * @param ids ID列表
+     * @return 库存记录列表
+     */
+    List<ErpPackagingMaterialInventory> selectStoreByIds(List<Long> ids);
 }
