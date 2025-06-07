@@ -215,20 +215,17 @@ public class ErpProductInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:product-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
             @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
             @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
             @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
     })
     @GetMapping("/store")
     public TableDataInfo listProduct(
-            @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String productPartNumber,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeFrom,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeTo) {
 
         ErpProductInventory query = new ErpProductInventory();
-        query.setOrderCode(orderCode);
         query.setProductPartNumber(productPartNumber);
 
         startPage();

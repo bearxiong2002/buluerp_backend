@@ -56,7 +56,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         
         // 为每条记录填充总库存数量
         for (ErpPackagingMaterialInventoryChange item : list) {
-            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getProductPartNumber(), item.getPackagingNumber());
+            Integer totalQuantity = getCurrentTotalQuantity(item.getProductPartNumber(), item.getPackagingNumber());
             item.setTotalQuantity(totalQuantity);
         }
         
@@ -133,9 +133,8 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         for(Integer id : ids) {
             ErpPackagingMaterialInventoryChange changeEntity = erpPackagingMaterialInventoryChangeMapper.selectById(id);
             if(changeEntity != null) {
-                // 构建唯一键：orderCode + productPartNumber + packagingNumber
-                String key = changeEntity.getOrderCode() + "|" + 
-                           changeEntity.getProductPartNumber() + "|" + 
+                // 构建唯一键：productPartNumber + packagingNumber
+                String key = changeEntity.getProductPartNumber() + "|" + 
                            changeEntity.getPackagingNumber();
                 refreshKeys.add(key);
             }
@@ -147,8 +146,8 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         // 基于收集的信息刷新相关库存
         for(String key : refreshKeys) {
             String[] parts = key.split("\\|");
-            if(parts.length == 3) {
-                refreshByKey(parts[0], parts[1], parts[2]); // orderCode, productPartNumber, packagingNumber
+            if(parts.length == 2) {
+                refreshByKey(parts[0], parts[1]); // productPartNumber, packagingNumber
             }
         }
         
@@ -157,15 +156,13 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
 
     /**
      * 获取当前总库存数量
-     * @param orderCode 订单编号
      * @param productPartNumber 产品货号
      * @param packingNumber 分包编号
      * @return 当前总库存数量
      */
-    private Integer getCurrentTotalQuantity(String orderCode, String productPartNumber, String packingNumber) {
+    private Integer getCurrentTotalQuantity(String productPartNumber, String packingNumber) {
         LambdaQueryWrapper<ErpPackagingMaterialInventory> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(ErpPackagingMaterialInventory::getOrderCode, orderCode)
-               .eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber)
+        wrapper.eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber)
                .eq(ErpPackagingMaterialInventory::getPackingNumber, packingNumber);
         ErpPackagingMaterialInventory inventory = inventoryMapper.selectOne(wrapper);
         return inventory != null ? inventory.getTotalQuantity() : 0;
@@ -180,7 +177,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         
         // 为每条记录填充总库存数量
         for (ErpPackagingMaterialInventoryChange item : list) {
-            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getProductPartNumber(), item.getPackagingNumber());
+            Integer totalQuantity = getCurrentTotalQuantity(item.getProductPartNumber(), item.getPackagingNumber());
             item.setTotalQuantity(totalQuantity);
         }
         
@@ -198,7 +195,6 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     public List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, Date updateTimeFrom, Date updateTimeTo){
         LambdaQueryWrapper<ErpPackagingMaterialInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getProductPartNumber()),ErpPackagingMaterialInventory::getProductPartNumber,erpPackagingMaterialInventory.getProductPartNumber())
-                .like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getOrderCode()),ErpPackagingMaterialInventory::getOrderCode,erpPackagingMaterialInventory.getOrderCode())
                 .like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getPackingNumber()),ErpPackagingMaterialInventory::getPackingNumber,erpPackagingMaterialInventory.getPackingNumber())
                 .lt(updateTimeTo!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeTo)
                 .gt(updateTimeFrom!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeFrom);
@@ -207,19 +203,16 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
 
     private void refresh(Integer id) throws RuntimeException{
         ErpPackagingMaterialInventoryChange changeEntity = erpPackagingMaterialInventoryChangeMapper.selectById(id);
-        String orderCode=changeEntity.getOrderCode();
         String productPartNumber=changeEntity.getProductPartNumber();
         String packingNumber=changeEntity.getPackagingNumber();
 
         //分别构造查询出入库条件
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> inWrapper= Wrappers.lambdaQuery();
-        inWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode,orderCode)
-                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber,packingNumber)
+        inWrapper.eq(ErpPackagingMaterialInventoryChange::getPackagingNumber,packingNumber)
                 .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber,productPartNumber)
                 .gt(ErpPackagingMaterialInventoryChange::getInOutQuantity,0);
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> outWrapper= Wrappers.lambdaQuery();
-        outWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode,orderCode)
-                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber,packingNumber)
+        outWrapper.eq(ErpPackagingMaterialInventoryChange::getPackagingNumber,packingNumber)
                 .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber,productPartNumber)
                 .lt(ErpPackagingMaterialInventoryChange::getInOutQuantity,0);
 
@@ -229,14 +222,12 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         erpPackagingMaterialInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
         erpPackagingMaterialInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPackagingMaterialInventory.total();
-        erpPackagingMaterialInventory.setOrderCode(changeEntity.getOrderCode());
-        erpPackagingMaterialInventory.setPackingNumber(changeEntity.getPackagingNumber());
         erpPackagingMaterialInventory.setProductPartNumber(changeEntity.getProductPartNumber());
+        erpPackagingMaterialInventory.setPackingNumber(changeEntity.getPackagingNumber());
         erpPackagingMaterialInventory.setUpdateTime(LocalDateTime.now());
         LambdaQueryWrapper<ErpPackagingMaterialInventory> inventoryWrapper= Wrappers.lambdaQuery();
         inventoryWrapper.eq(ErpPackagingMaterialInventory::getPackingNumber,packingNumber)
-                .eq(ErpPackagingMaterialInventory::getProductPartNumber,productPartNumber)
-                .eq(ErpPackagingMaterialInventory::getOrderCode,orderCode);
+                .eq(ErpPackagingMaterialInventory::getProductPartNumber,productPartNumber);
         ErpPackagingMaterialInventory preInventory= inventoryMapper.selectOne(inventoryWrapper);
         if(preInventory==null){
             inventoryMapper.insert(erpPackagingMaterialInventory);
@@ -247,28 +238,22 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         }
     }
 
-    /**
-     * 基于关键信息刷新库存（用于删除后的库存更新）
-     */
-    private void refreshByKey(String orderCode, String productPartNumber, String packingNumber) throws RuntimeException{
+    private void refreshByKey(String productPartNumber, String packingNumber) throws RuntimeException{
         // 分别构造查询出入库条件
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> inWrapper = Wrappers.lambdaQuery();
-        inWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode, orderCode)
-                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
+        inWrapper.eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
                 .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber, productPartNumber)
                 .gt(ErpPackagingMaterialInventoryChange::getInOutQuantity, 0);
         
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> outWrapper = Wrappers.lambdaQuery();
-        outWrapper.eq(ErpPackagingMaterialInventoryChange::getOrderCode, orderCode)
-                .eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
+        outWrapper.eq(ErpPackagingMaterialInventoryChange::getPackagingNumber, packingNumber)
                 .eq(ErpPackagingMaterialInventoryChange::getProductPartNumber, productPartNumber)
                 .lt(ErpPackagingMaterialInventoryChange::getInOutQuantity, 0);
 
         // 查询现有库存记录
         LambdaQueryWrapper<ErpPackagingMaterialInventory> inventoryWrapper = Wrappers.lambdaQuery();
         inventoryWrapper.eq(ErpPackagingMaterialInventory::getPackingNumber, packingNumber)
-                .eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber)
-                .eq(ErpPackagingMaterialInventory::getOrderCode, orderCode);
+                .eq(ErpPackagingMaterialInventory::getProductPartNumber, productPartNumber);
         ErpPackagingMaterialInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
 
         // 重新计算库存数量
@@ -288,9 +273,8 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         erpPackagingMaterialInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
         erpPackagingMaterialInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPackagingMaterialInventory.total();
-        erpPackagingMaterialInventory.setOrderCode(orderCode);
-        erpPackagingMaterialInventory.setPackingNumber(packingNumber);
         erpPackagingMaterialInventory.setProductPartNumber(productPartNumber);
+        erpPackagingMaterialInventory.setPackingNumber(packingNumber);
         erpPackagingMaterialInventory.setUpdateTime(LocalDateTime.now());
 
         if (preInventory == null) {

@@ -16,10 +16,6 @@ public class ErpProductInventory {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Excel(name = "订单编号")
-    @TableField("order_code")
-    private String orderCode;
-
     @Excel(name = "产品货号")
     @TableField("product_part_number")
     private String productPartNumber;
@@ -52,14 +48,6 @@ public class ErpProductInventory {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
     }
 
     public String getProductPartNumber() {

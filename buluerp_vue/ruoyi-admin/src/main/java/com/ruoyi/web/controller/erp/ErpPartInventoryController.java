@@ -215,20 +215,17 @@ public class ErpPartInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:part-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "String"),
             @ApiImplicitParam(name = "mouldNumber", value = "模具编号", dataType = "String"),
             @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
             @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
     })
     @GetMapping("/store")
     public TableDataInfo listStore(
-            @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String mouldNumber,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeFrom,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeTo) {
 
         ErpPartInventory query = new ErpPartInventory();
-        query.setOrderCode(orderCode);
         query.setMouldNumber(mouldNumber);
 
         startPage();

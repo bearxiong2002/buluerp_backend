@@ -53,7 +53,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         
         // 为每条记录填充总库存数量
         for (ErpPartInventoryChange item : list) {
-            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getMouldNumber());
+            Integer totalQuantity = getCurrentTotalQuantity(item.getMouldNumber());
             item.setTotalQuantity(totalQuantity);
         }
         
@@ -104,9 +104,8 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         for(Integer id : ids) {
             ErpPartInventoryChange changeEntity = erpPartInventoryChangeMapper.selectById(id);
             if(changeEntity != null) {
-                // 构建唯一键：orderCode + mouldNumber
-                String key = changeEntity.getOrderCode() + "|" + changeEntity.getMouldNumber();
-                refreshKeys.add(key);
+                // 只使用模具编号作为唯一键
+                refreshKeys.add(changeEntity.getMouldNumber());
             }
         }
         
@@ -114,11 +113,8 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         int result = erpPartInventoryChangeMapper.deleteBatchIds(ids);
         
         // 基于收集的信息刷新相关库存
-        for(String key : refreshKeys) {
-            String[] parts = key.split("\\|");
-            if(parts.length == 2) {
-                refreshByKey(parts[0], parts[1]); // orderCode, mouldNumber
-            }
+        for(String mouldNumber : refreshKeys) {
+            refreshByKey(mouldNumber);
         }
         
         return result;
@@ -126,14 +122,12 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
 
     /**
      * 获取当前总库存数量
-     * @param orderCode 订单编号
      * @param mouldNumber 模具编号
      * @return 当前总库存数量
      */
-    private Integer getCurrentTotalQuantity(String orderCode, String mouldNumber) {
+    private Integer getCurrentTotalQuantity(String mouldNumber) {
         LambdaQueryWrapper<ErpPartInventory> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(ErpPartInventory::getOrderCode, orderCode)
-               .eq(ErpPartInventory::getMouldNumber, mouldNumber);
+        wrapper.eq(ErpPartInventory::getMouldNumber, mouldNumber);
         ErpPartInventory inventory = inventoryMapper.selectOne(wrapper);
         return inventory != null ? inventory.getTotalQuantity() : 0;
     }
@@ -147,7 +141,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         
         // 为每条记录填充总库存数量
         for (ErpPartInventoryChange item : list) {
-            Integer totalQuantity = getCurrentTotalQuantity(item.getOrderCode(), item.getMouldNumber());
+            Integer totalQuantity = getCurrentTotalQuantity(item.getMouldNumber());
             item.setTotalQuantity(totalQuantity);
         }
         
@@ -165,7 +159,6 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,Date updateTimeFrom,Date updateTimeTo){
         LambdaQueryWrapper<ErpPartInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpPartInventory.getMouldNumber()), ErpPartInventory::getMouldNumber,erpPartInventory.getMouldNumber())
-                .like(StringUtils.isNotBlank(erpPartInventory.getOrderCode()),ErpPartInventory::getOrderCode,erpPartInventory.getOrderCode())
                 .lt(updateTimeTo!=null,ErpPartInventory::getUpdateTime,updateTimeTo)
                 .gt(updateTimeFrom!=null,ErpPartInventory::getUpdateTime,updateTimeFrom);
         return inventoryMapper.selectList(wrapper);
@@ -174,15 +167,12 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
 
     private void refresh(Integer id) throws RuntimeException{
         ErpPartInventoryChange changeEntity = erpPartInventoryChangeMapper.selectById(id);
-        String orderCode=changeEntity.getOrderCode();
         String mouldNumber=changeEntity.getMouldNumber();
         LambdaQueryWrapper<ErpPartInventoryChange> inWrapper= Wrappers.lambdaQuery();
-        inWrapper.eq(ErpPartInventoryChange::getOrderCode,orderCode)
-                .eq(ErpPartInventoryChange::getMouldNumber,mouldNumber)
+        inWrapper.eq(ErpPartInventoryChange::getMouldNumber,mouldNumber)
                 .gt(ErpPartInventoryChange::getInOutQuantity,0);
         LambdaQueryWrapper<ErpPartInventoryChange> outWrapper= Wrappers.lambdaQuery();
-        outWrapper.eq(ErpPartInventoryChange::getOrderCode,orderCode)
-                .eq(ErpPartInventoryChange::getMouldNumber,mouldNumber)
+        outWrapper.eq(ErpPartInventoryChange::getMouldNumber,mouldNumber)
                 .lt(ErpPartInventoryChange::getInOutQuantity,0);
         ErpPartInventory erpPartInventory=new ErpPartInventory();
         Integer inQuantity = erpPartInventoryChangeMapper.sumQuantity(inWrapper);
@@ -190,13 +180,11 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         erpPartInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
         erpPartInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPartInventory.total();
-        erpPartInventory.setOrderCode(changeEntity.getOrderCode());
         erpPartInventory.setMouldNumber(changeEntity.getMouldNumber());
         erpPartInventory.setUpdateTime(LocalDateTime.now());
         
         LambdaQueryWrapper<ErpPartInventory> inventoryWrapper= Wrappers.lambdaQuery();
-        inventoryWrapper.eq(ErpPartInventory::getMouldNumber,mouldNumber)
-                .eq(ErpPartInventory::getOrderCode,orderCode);
+        inventoryWrapper.eq(ErpPartInventory::getMouldNumber,mouldNumber);
         ErpPartInventory preInventory=inventoryMapper.selectOne(inventoryWrapper);
         
         if(preInventory==null){
@@ -226,22 +214,19 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     /**
      * 基于关键信息刷新库存（用于删除后的库存更新）
      */
-    private void refreshByKey(String orderCode, String mouldNumber) throws RuntimeException{
+    private void refreshByKey(String mouldNumber) throws RuntimeException{
         // 分别构造查询出入库条件
         LambdaQueryWrapper<ErpPartInventoryChange> inWrapper = Wrappers.lambdaQuery();
-        inWrapper.eq(ErpPartInventoryChange::getOrderCode, orderCode)
-                .eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
+        inWrapper.eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
                 .gt(ErpPartInventoryChange::getInOutQuantity, 0);
         
         LambdaQueryWrapper<ErpPartInventoryChange> outWrapper = Wrappers.lambdaQuery();
-        outWrapper.eq(ErpPartInventoryChange::getOrderCode, orderCode)
-                .eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
+        outWrapper.eq(ErpPartInventoryChange::getMouldNumber, mouldNumber)
                 .lt(ErpPartInventoryChange::getInOutQuantity, 0);
 
         // 查询现有库存记录
         LambdaQueryWrapper<ErpPartInventory> inventoryWrapper = Wrappers.lambdaQuery();
-        inventoryWrapper.eq(ErpPartInventory::getMouldNumber, mouldNumber)
-                .eq(ErpPartInventory::getOrderCode, orderCode);
+        inventoryWrapper.eq(ErpPartInventory::getMouldNumber, mouldNumber);
         ErpPartInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
 
         // 重新计算库存数量
@@ -261,7 +246,6 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
         erpPartInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
         erpPartInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpPartInventory.total();
-        erpPartInventory.setOrderCode(orderCode);
         erpPartInventory.setMouldNumber(mouldNumber);
         erpPartInventory.setUpdateTime(LocalDateTime.now());
 

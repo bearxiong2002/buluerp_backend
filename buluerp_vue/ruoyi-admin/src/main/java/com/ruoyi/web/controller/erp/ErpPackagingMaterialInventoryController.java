@@ -221,7 +221,6 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
             @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
             @ApiImplicitParam(name = "packingNumber", value = "分包编号", dataType = "string"),
             @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
@@ -229,14 +228,12 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     })
     @GetMapping("/store")
     public TableDataInfo listPackaging(
-            @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String productPartNumber,
             @RequestParam(required = false) String packingNumber,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date updateTimeFrom,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date updateTimeTo) {
 
         ErpPackagingMaterialInventory query = new ErpPackagingMaterialInventory();
-        query.setOrderCode(orderCode);
         query.setProductPartNumber(productPartNumber);
         query.setPackingNumber(packingNumber);
 
