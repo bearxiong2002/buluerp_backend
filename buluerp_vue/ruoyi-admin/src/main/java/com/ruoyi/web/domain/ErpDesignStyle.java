@@ -6,7 +6,6 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
 
 import java.io.Serializable;
 
@@ -25,8 +24,8 @@ public class ErpDesignStyle implements Serializable {
     private Long id;
 
     /** 主设记编号 */
-    @Excel(name = "主设计编号")
-    private Long designPatternId;
+    @Excel(name = "产品编号")
+    private Long productId;
 
     /** 不同造型表的分组表示 */
     @Excel(name = "造型表的分组")
@@ -78,14 +77,14 @@ public class ErpDesignStyle implements Serializable {
         return id;
     }
 
-    public void setDesignPatternId(Long designPatternId) 
+    public void setProductId(Long productId)
     {
-        this.designPatternId = designPatternId;
+        this.productId = productId;
     }
 
-    public Long getDesignPatternId() 
+    public Long getProductId()
     {
-        return designPatternId;
+        return productId;
     }
 
     public void setGroupId(Long groupId) 
@@ -188,8 +187,8 @@ public class ErpDesignStyle implements Serializable {
         return material;
     }
 
-    public ErpDesignStyle(Long designPatternId,Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
-        this.designPatternId = designPatternId;
+    public ErpDesignStyle(Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
+        this.productId = productId;
         this.groupId= groupId;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
@@ -202,9 +201,9 @@ public class ErpDesignStyle implements Serializable {
         this.material = material;
     }
 
-    public ErpDesignStyle(Long id, Long designPatternId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
+    public ErpDesignStyle(Long id, Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
         this.id = id;
-        this.designPatternId = designPatternId;
+        this.productId = productId;
         this.groupId = groupId;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
@@ -217,9 +216,9 @@ public class ErpDesignStyle implements Serializable {
         this.material = material;
     }
 
-    public ErpDesignStyle(Long id,Long designPatternId, Long groupId) {
+    public ErpDesignStyle(Long id, Long productId, Long groupId) {
         this.id=id;
-        this.designPatternId = designPatternId;
+        this.productId = productId;
         this.groupId = groupId;
     }
 
@@ -227,7 +226,7 @@ public class ErpDesignStyle implements Serializable {
     public String toString() {
         return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
             .append("id", getId())
-            .append("designPatternId", getDesignPatternId())
+            .append("designPatternId", getProductId())
             .append("groupId", getGroupId())
             .append("mouldNumber", getMouldNumber())
             .append("lddNumber", getLddNumber())

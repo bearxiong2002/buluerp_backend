@@ -50,18 +50,20 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Override
     public DesignPatternsResult selectErpDesignPatternsById(Long id)
     {
+        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
+        Long productId=erpDesignPatterns.getProductId();
         return new DesignPatternsResult(
                 id,
-                erpDesignStyleMapper.selectMouldNumberSet(id),
-                erpDesignStyleMapper.selectLddNumberSet(id),
-                erpDesignStyleMapper.selectMouldCategorySet(id),
-                erpDesignStyleMapper.selectMouldIdSet(id),
-                erpDesignStyleMapper.selectPictureUrlSet(id),
-                erpDesignStyleMapper.selectColorSet(id),
-                erpDesignStyleMapper.selectProductNameSet(id),
-                erpDesignStyleMapper.sumQuantityById(id),
-                erpDesignStyleMapper.selectMaterialSet(id),
-                erpDesignPatternsMapper.selectById(id).getConfirm()
+                erpDesignStyleMapper.selectMouldNumberSet(productId),
+                erpDesignStyleMapper.selectLddNumberSet(productId),
+                erpDesignStyleMapper.selectMouldCategorySet(productId),
+                erpDesignStyleMapper.selectMouldIdSet(productId),
+                erpDesignStyleMapper.selectPictureUrlSet(productId),
+                erpDesignStyleMapper.selectColorSet(productId),
+                erpDesignStyleMapper.selectProductNameSet(productId),
+                erpDesignStyleMapper.sumQuantityById(productId),
+                erpDesignStyleMapper.selectMaterialSet(productId),
+                erpDesignPatterns.getConfirm()
         );
     }
 

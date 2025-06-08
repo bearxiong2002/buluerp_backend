@@ -33,7 +33,7 @@ public interface IErpDesignStyleService
      */
     List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest lIstDesignRequest);
 
-    List<ErpDesignStyle> selectErpDesignStyleListByIds(Long[] ids);
+    List<ErpDesignStyle> selectErpDesignStyleListByIds(List<Integer> ids);
 
     /**
      * 新增设计造型

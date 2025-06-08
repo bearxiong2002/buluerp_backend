@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.web.domain.ErpDesignStyle;
+import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.request.design.AddDesignRequest;
 import com.ruoyi.web.request.design.ListDesignRequest;
@@ -32,6 +35,9 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Autowired
     private ErpDesignStyleMapper erpDesignStyleMapper;
 
+    @Autowired
+    private ErpDesignPatternsMapper erpDesignPatternsMapper;
+
     /**
      * 查询设计造型
      * 
@@ -47,19 +53,22 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     /**
      * 查询设计造型列表
      * 
-     * @param lIstDesignRequest 设计造型
+     * @param listDesignRequest 设计造型
      * @return 设计造型
      */
     @Override
-    public List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest lIstDesignRequest)
+    public List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest listDesignRequest)
     {
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(lIstDesignRequest.getId(), lIstDesignRequest.getDesignPatternId(), lIstDesignRequest.getGroupId());
-        return erpDesignStyleMapper.selectErpDesignStyleList(erpDesignStyle);
+        LambdaQueryWrapper<ErpDesignStyle> wrapper= Wrappers.lambdaQuery();
+        wrapper.eq(listDesignRequest.getId()!=null,ErpDesignStyle::getGroupId,listDesignRequest.getId())
+                .eq(listDesignRequest.getGroupId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getGroupId())
+                .eq(listDesignRequest.getDesignPatternId()!=null,ErpDesignStyle::getProductId,erpDesignPatternsMapper.selectById(listDesignRequest.getDesignPatternId()).getProductId());
+        return erpDesignStyleMapper.selectList(wrapper);
     }
 
     @Override
-    public List<ErpDesignStyle> selectErpDesignStyleListByIds(Long[] ids) {
-        return erpDesignStyleMapper.selectErpDesignStyleListByIds(ids);
+    public List<ErpDesignStyle> selectErpDesignStyleListByIds(List<Integer> ids) {
+        return erpDesignStyleMapper.selectBatchIds(ids);
     }
 
     /**
@@ -75,7 +84,9 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         String url=null;
         if(addDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(addDesignRequest.getPicture());
 
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getDesignPatternId(),addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
+        Long productId=erpDesignPatternsMapper.selectById(addDesignRequest.getDesignPatternId()).getProductId();
+
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(productId,addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
         return erpDesignStyleMapper.insertErpDesignStyle(erpDesignStyle);
     }
@@ -90,6 +101,8 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
         String url=null;
+        Long productId=null;
+        if(updateDesignRequest.getDesignPatternId()!=null) productId=erpDesignPatternsMapper.selectById(updateDesignRequest.getDesignPatternId()).getProductId();
         if(updateDesignRequest.getPicture()!=null){
 
             //删除原本的文件
@@ -100,8 +113,8 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
             }
             if(updateDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getDesignPatternId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
-        return erpDesignStyleMapper.updateErpDesignStyle(erpDesignStyle);
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), productId, updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
+        return erpDesignStyleMapper.updateById(erpDesignStyle);
     }
 
     /**

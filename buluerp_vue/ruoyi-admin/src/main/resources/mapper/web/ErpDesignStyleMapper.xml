@@ -48,55 +48,55 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="sumQuantityById" resultType="java.lang.Integer" parameterType="java.lang.Long">
         SELECT SUM(quantity)
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectMouldNumberSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT mould_number
         from buluerp.erp_design_style
-        where design_pattern_id = #{id}
+        where product_id = #{id}
     </select>
 
     <select id="selectMouldIdSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT mould_id
         from buluerp.erp_design_style
-        where design_pattern_id = #{id}
+        where product_id = #{id}
     </select>
 
     <select id="selectLddNumberSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT ldd_number
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectMaterialSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT material
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectColorSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT color
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectProductNameSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT product_name
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectPictureUrlSet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT picture_url
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectMouldCategorySet" resultType="java.lang.String" parameterType="java.lang.Long">
         SELECT DISTINCT mould_category
         FROM buluerp.erp_design_style
-        WHERE design_pattern_id = #{id}
+        WHERE product_id = #{id}
     </select>
 
     <select id="selectErpDesignStyleListByIds" resultType="com.ruoyi.web.domain.ErpDesignStyle">
@@ -140,7 +140,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErpDesignStyle" parameterType="ErpDesignStyle">
         update erp_design_style
         <trim prefix="SET" suffixOverrides=",">
-            <if test="designPatternId != null">design_pattern_id = #{designPatternId},</if>
+            <if test="designPatternId != null">product_id = #{designPatternId},</if>
             <if test="groupId != null">group_id = #{groupId},</if>
             <if test="mouldNumber != null and mouldNumber != ''">mould_number = #{mouldNumber},</if>
             <if test="lddNumber != null and lddNumber != ''">ldd_number = #{lddNumber},</if>
