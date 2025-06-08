@@ -14,12 +14,15 @@ import com.ruoyi.web.request.Inventory.UpdateProductInventoryRequest;
 import com.ruoyi.web.service.IErpProductInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.ArrayList;
 
 @Service
 public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInventoryChangeMapper, ErpProductInventoryChange> implements IErpProductInventoryService {
@@ -44,10 +47,19 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
                 .lt(request.getCreateTimeTo()!=null, ErpProductInventoryChange::getCreationTime,request.getCreateTimeTo())
                 .gt(request.getChangeDateFrom()!=null, ErpProductInventoryChange::getChangeDate,request.getChangeDateFrom())
                 .gt(request.getCreateTimeFrom()!=null, ErpProductInventoryChange::getCreationTime,request.getCreateTimeFrom());
-        return erpProductInventoryChangeMapper.selectList(query);
+        List<ErpProductInventoryChange> list = erpProductInventoryChangeMapper.selectList(query);
+        
+        // 为每条记录填充总库存数量
+        for (ErpProductInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getProductPartNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddProductInventoryRequest request) {
         ErpProductInventoryChange entity = new ErpProductInventoryChange();
         entity.setOrderCode(request.getOrderCode());
@@ -64,6 +76,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdateProductInventoryRequest request) {
         ErpProductInventoryChange entity = erpProductInventoryChangeMapper.selectById(request.getId());
         if (entity == null) throw new RuntimeException("记录不存在");
@@ -81,15 +94,15 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteByIds(List<Integer> ids) {
         // 先收集所有要删除记录的关键信息，用于后续刷新库存
         Set<String> refreshKeys = new HashSet<>();
         for(Integer id : ids) {
             ErpProductInventoryChange changeEntity = erpProductInventoryChangeMapper.selectById(id);
             if(changeEntity != null) {
-                // 构建唯一键：orderCode + productPartNumber
-                String key = changeEntity.getOrderCode() + "|" + changeEntity.getProductPartNumber();
-                refreshKeys.add(key);
+                // 只使用产品货号作为唯一键
+                refreshKeys.add(changeEntity.getProductPartNumber());
             }
         }
         
@@ -97,20 +110,52 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         int result = erpProductInventoryChangeMapper.deleteBatchIds(ids);
         
         // 基于收集的信息刷新相关库存
-        for(String key : refreshKeys) {
-            String[] parts = key.split("\\|");
-            if(parts.length == 2) {
-                refreshByKey(parts[0], parts[1]); // orderCode, productPartNumber
-            }
+        for(String productPartNumber : refreshKeys) {
+            refreshByKey(productPartNumber);
         }
         
         return result;
     }
 
-    public List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, LocalDateTime updateTimeFrom, LocalDateTime updateTimeTo){
+    /**
+     * 获取当前总库存数量
+     * @param productPartNumber 产品货号
+     * @return 当前总库存数量
+     */
+    private Integer getCurrentTotalQuantity(String productPartNumber) {
+        LambdaQueryWrapper<ErpProductInventory> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ErpProductInventory::getProductPartNumber, productPartNumber);
+        ErpProductInventory inventory = inventoryMapper.selectOne(wrapper);
+        return inventory != null ? inventory.getTotalQuantity() : 0;
+    }
+
+    @Override
+    public List<ErpProductInventoryChange> selectListByIds(List<Integer> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<ErpProductInventoryChange> list = erpProductInventoryChangeMapper.selectBatchIds(ids);
+        
+        // 为每条记录填充总库存数量
+        for (ErpProductInventoryChange item : list) {
+            Integer totalQuantity = getCurrentTotalQuantity(item.getProductPartNumber());
+            item.setTotalQuantity(totalQuantity);
+        }
+        
+        return list;
+    }
+
+    @Override
+    public List<ErpProductInventory> selectStoreByIds(List<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return inventoryMapper.selectBatchIds(ids);
+    }
+
+    public List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, Date updateTimeFrom, Date updateTimeTo){
         LambdaQueryWrapper<ErpProductInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpProductInventory.getProductPartNumber()), ErpProductInventory::getProductPartNumber,erpProductInventory.getProductPartNumber())
-                .like(StringUtils.isNotBlank(erpProductInventory.getOrderCode()),ErpProductInventory::getOrderCode,erpProductInventory.getOrderCode())
                 .le(updateTimeTo!=null,ErpProductInventory::getUpdateTime,updateTimeTo)
                 .ge(updateTimeFrom!=null,ErpProductInventory::getUpdateTime,updateTimeFrom);
         return inventoryMapper.selectList(wrapper);
@@ -118,29 +163,26 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
 
     private void refresh(Integer id) throws RuntimeException{
         ErpProductInventoryChange changeEntity = erpProductInventoryChangeMapper.selectById(id);
-        String orderCode=changeEntity.getOrderCode();
         String productPartNumber=changeEntity.getProductPartNumber();
 
         //分别构造查询出入库条件
         LambdaQueryWrapper<ErpProductInventoryChange> inWrapper= Wrappers.lambdaQuery();
-        inWrapper.eq(ErpProductInventoryChange::getOrderCode,orderCode)
-                .eq(ErpProductInventoryChange::getProductPartNumber,productPartNumber)
+        inWrapper.eq(ErpProductInventoryChange::getProductPartNumber,productPartNumber)
                 .gt(ErpProductInventoryChange::getInOutQuantity,0);
         LambdaQueryWrapper<ErpProductInventoryChange> outWrapper= Wrappers.lambdaQuery();
-        outWrapper.eq(ErpProductInventoryChange::getOrderCode,orderCode)
-                .eq(ErpProductInventoryChange::getProductPartNumber,productPartNumber)
+        outWrapper.eq(ErpProductInventoryChange::getProductPartNumber,productPartNumber)
                 .lt(ErpProductInventoryChange::getInOutQuantity,0);
 
         ErpProductInventory erpProductInventory=new ErpProductInventory();
-        erpProductInventory.setInQuantity(erpProductInventoryChangeMapper.sumQuantity(inWrapper));
-        erpProductInventory.setOutQuantity(erpProductInventoryChangeMapper.sumQuantity(outWrapper));
+        Integer inQuantity = erpProductInventoryChangeMapper.sumQuantity(inWrapper);
+        Integer outQuantity = erpProductInventoryChangeMapper.sumQuantity(outWrapper);
+        erpProductInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
+        erpProductInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpProductInventory.total();
-        erpProductInventory.setOrderCode(changeEntity.getOrderCode());
         erpProductInventory.setProductPartNumber(changeEntity.getProductPartNumber());
         erpProductInventory.setUpdateTime(LocalDateTime.now());
         LambdaQueryWrapper<ErpProductInventory> inventoryWrapper= Wrappers.lambdaQuery();
-        inventoryWrapper.eq(ErpProductInventory::getProductPartNumber,productPartNumber)
-                .eq(ErpProductInventory::getOrderCode,orderCode);
+        inventoryWrapper.eq(ErpProductInventory::getProductPartNumber,productPartNumber);
         ErpProductInventory preInventory= inventoryMapper.selectOne(inventoryWrapper);
         if(preInventory==null){
             inventoryMapper.insert(erpProductInventory);
@@ -154,22 +196,19 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     /**
      * 基于关键信息刷新库存（用于删除后的库存更新）
      */
-    private void refreshByKey(String orderCode, String productPartNumber) throws RuntimeException{
+    private void refreshByKey(String productPartNumber) throws RuntimeException{
         // 分别构造查询出入库条件
         LambdaQueryWrapper<ErpProductInventoryChange> inWrapper = Wrappers.lambdaQuery();
-        inWrapper.eq(ErpProductInventoryChange::getOrderCode, orderCode)
-                .eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
+        inWrapper.eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
                 .gt(ErpProductInventoryChange::getInOutQuantity, 0);
         
         LambdaQueryWrapper<ErpProductInventoryChange> outWrapper = Wrappers.lambdaQuery();
-        outWrapper.eq(ErpProductInventoryChange::getOrderCode, orderCode)
-                .eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
+        outWrapper.eq(ErpProductInventoryChange::getProductPartNumber, productPartNumber)
                 .lt(ErpProductInventoryChange::getInOutQuantity, 0);
 
         // 查询现有库存记录
         LambdaQueryWrapper<ErpProductInventory> inventoryWrapper = Wrappers.lambdaQuery();
-        inventoryWrapper.eq(ErpProductInventory::getProductPartNumber, productPartNumber)
-                .eq(ErpProductInventory::getOrderCode, orderCode);
+        inventoryWrapper.eq(ErpProductInventory::getProductPartNumber, productPartNumber);
         ErpProductInventory preInventory = inventoryMapper.selectOne(inventoryWrapper);
 
         // 重新计算库存数量
@@ -189,7 +228,6 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         erpProductInventory.setInQuantity(inQuantity != null ? inQuantity : 0);
         erpProductInventory.setOutQuantity(outQuantity != null ? outQuantity : 0);
         erpProductInventory.total();
-        erpProductInventory.setOrderCode(orderCode);
         erpProductInventory.setProductPartNumber(productPartNumber);
         erpProductInventory.setUpdateTime(LocalDateTime.now());
 

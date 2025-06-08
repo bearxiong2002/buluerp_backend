@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+ 
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -56,8 +56,8 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             @ApiImplicitParam(name = "storageLocation", value = "存储位置", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "remarks", value = "备注信息", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "editAction", value = "操作信息", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "datetime"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
             @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date"),
             @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date")
     })
@@ -72,10 +72,10 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             @RequestParam(required = false) String storageLocation,
             @RequestParam(required = false) String remarks,
             @RequestParam(required = false) String editAction,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateTo) {
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeTo,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date changeDateFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date changeDateTo) {
 
         ListPackagingMaterialRequest request = new ListPackagingMaterialRequest();
         request.setId(id);
@@ -100,11 +100,24 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @ApiOperation(value = "导出料包出入库数据")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:export')")
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ListPackagingMaterialRequest request) {
-        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryService.selectList(request);
+    @GetMapping("/export")
+    @ApiImplicitParam(name = "ids", value = "出入库记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void export(HttpServletResponse response, @RequestParam("ids") List<Integer> ids) {
+        List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryService.selectListByIds(ids);
         ExcelUtil<ErpPackagingMaterialInventoryChange> util = new ExcelUtil<>(ErpPackagingMaterialInventoryChange.class);
-        String fileName = "料包库存_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        String fileName = "料包出入库记录_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        util.exportExcel(response, list, fileName);
+    }
+
+    @ApiOperation(value = "导出料包库存数据")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:export')")
+    @GetMapping("/export-store")
+    @ApiImplicitParam(name = "ids", value = "库存记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void exportStore(HttpServletResponse response, @RequestParam("ids") List<Long> ids) {
+        List<ErpPackagingMaterialInventory> list = erpPackagingMaterialInventoryService.selectStoreByIds(ids);
+        ExcelUtil<ErpPackagingMaterialInventory> util = new ExcelUtil<>(ErpPackagingMaterialInventory.class);
+        String fileName = "料包库存汇总_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
         util.exportExcel(response, list, fileName);
     }
 
@@ -208,22 +221,19 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "string"),
             @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
             @ApiImplicitParam(name = "packingNumber", value = "分包编号", dataType = "string"),
-            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
     })
     @GetMapping("/store")
     public TableDataInfo listPackaging(
-            @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String productPartNumber,
             @RequestParam(required = false) String packingNumber,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeTo) {
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date updateTimeFrom,
+            @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date updateTimeTo) {
 
         ErpPackagingMaterialInventory query = new ErpPackagingMaterialInventory();
-        query.setOrderCode(orderCode);
         query.setProductPartNumber(productPartNumber);
         query.setPackingNumber(packingNumber);
 

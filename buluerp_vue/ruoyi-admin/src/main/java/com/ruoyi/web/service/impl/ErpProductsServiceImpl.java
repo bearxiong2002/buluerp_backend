@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -131,6 +132,17 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             String url=FileUploadUtils.upload(updateProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
         }
+        else{
+            String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
+            if(url1!=null){
+                url1=parseActualPath(url1);
+                FileUtils.deleteFile(url1);
+            }
+            LambdaUpdateWrapper<ErpProducts> lambdaWrapper = new LambdaUpdateWrapper<>();
+            lambdaWrapper.set(ErpProducts::getPictureUrl, null)
+                    .eq(ErpProducts::getId, updateProductRequest.getId());
+            erpProductsMapper.update(null,lambdaWrapper);
+        }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
         if(updateProductRequest.getOrderId()!=null) erpProducts.setOrderId(updateProductRequest.getOrderId());
         if(updateProductRequest.getDesignStatus()!=null){
@@ -179,6 +191,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpProductsByIds(List<Integer> ids) {
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){

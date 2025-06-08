@@ -3,7 +3,7 @@ package com.ruoyi.web.request.Inventory;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import java.time.LocalDateTime;
+
 import java.util.Date;
 
 @ApiModel(value = "成品库存查询请求类")
@@ -51,16 +51,16 @@ public class ListProductInventoryRequest {
     private String remarks;
 
     @ApiModelProperty(
-            dataType = "LocalDateTime",
+            dataType = "Date",
             value = "创建时间起始"
     )
-    private LocalDateTime createTimeFrom;
+    private Date createTimeFrom;
 
     @ApiModelProperty(
-            dataType = "LocalDateTime",
+            dataType = "Date",
             value = "创建时间终止"
     )
-    private LocalDateTime createTimeTo;
+    private Date createTimeTo;
 
     @ApiModelProperty(
             dataType = "Date",
@@ -130,19 +130,19 @@ public class ListProductInventoryRequest {
         this.remarks = remarks;
     }
 
-    public LocalDateTime getCreateTimeFrom() {
+    public Date getCreateTimeFrom() {
         return createTimeFrom;
     }
 
-    public void setCreateTimeFrom(LocalDateTime createTimeFrom) {
+    public void setCreateTimeFrom(Date createTimeFrom) {
         this.createTimeFrom = createTimeFrom;
     }
 
-    public LocalDateTime getCreateTimeTo() {
+    public Date getCreateTimeTo() {
         return createTimeTo;
     }
 
-    public void setCreateTimeTo(LocalDateTime createTimeTo) {
+    public void setCreateTimeTo(Date createTimeTo) {
         this.createTimeTo = createTimeTo;
     }
 

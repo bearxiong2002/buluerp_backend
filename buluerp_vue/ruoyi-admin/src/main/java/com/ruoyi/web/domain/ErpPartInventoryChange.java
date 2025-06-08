@@ -29,10 +29,6 @@ public class ErpPartInventoryChange {
     @Excel(name = "操作人")
     private String operator;
 
-    @Excel(name = "产品代码")
-    @TableField("product_code")
-    private String productCode;
-
     @Excel(name = "模具编号")
     @TableField("mould_number")
     private String mouldNumber;
@@ -48,10 +44,15 @@ public class ErpPartInventoryChange {
     @Excel(name = "备注")
     private String remarks;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Excel(name = "库存变更日期")
     @TableField("change_date")
     private Date changeDate;
+
+    /** 当前总库存（不是数据库字段，用于查询时关联显示） */
+    @TableField(exist = false)
+    @Excel(name = "当前总库存")
+    private Integer totalQuantity;
 
     // Builder构造
     private ErpPartInventoryChange(Builder builder) {
@@ -59,12 +60,12 @@ public class ErpPartInventoryChange {
         this.orderCode = builder.orderCode;
         this.creationTime = builder.creationTime;
         this.operator = builder.operator;
-        this.productCode = builder.productCode;
         this.mouldNumber = builder.mouldNumber;
         this.colorCode = builder.colorCode;
         this.inOutQuantity = builder.inOutQuantity;
         this.remarks = builder.remarks;
         this.changeDate = builder.changeDate;
+        this.totalQuantity = builder.totalQuantity;
     }
 
     public ErpPartInventoryChange() {}
@@ -78,24 +79,24 @@ public class ErpPartInventoryChange {
         private String orderCode;
         private LocalDateTime creationTime;
         private String operator;
-        private String productCode;
         private String mouldNumber;
         private String colorCode;
         private Integer inOutQuantity;
         private String remarks;
         private Date changeDate;
+        private Integer totalQuantity;
 
         // 链式方法（省略部分代码，参考字段赋值）
         public Builder id(Integer id) { this.id = id; return this; }
         public Builder orderCode(String orderCode) { this.orderCode = orderCode; return this; }
         public Builder creationTime(LocalDateTime creationTime) { this.creationTime = creationTime; return this; }
         public Builder operator(String operator) { this.operator = operator; return this; }
-        public Builder productCode(String productCode) { this.productCode = productCode; return this; }
         public Builder mouldNumber(String mouldNumber) { this.mouldNumber = mouldNumber; return this; }
         public Builder colorCode(String colorCode) { this.colorCode = colorCode; return this; }
         public Builder inOutQuantity(Integer inOutQuantity) { this.inOutQuantity = inOutQuantity; return this; }
         public Builder remarks(String remarks) { this.remarks = remarks; return this; }
         public Builder changeDate(Date changeDate) { this.changeDate = changeDate; return this; }
+        public Builder totalQuantity(Integer totalQuantity) { this.totalQuantity = totalQuantity; return this; }
 
         public ErpPartInventoryChange build() {
             return new ErpPartInventoryChange(this);
@@ -132,14 +133,6 @@ public class ErpPartInventoryChange {
 
     public void setOperator(String operator) {
         this.operator = operator;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
     }
 
     public String getMouldNumber() {
@@ -180,5 +173,13 @@ public class ErpPartInventoryChange {
 
     public void setChangeDate(Date changeDate) {
         this.changeDate = changeDate;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
     }
 }

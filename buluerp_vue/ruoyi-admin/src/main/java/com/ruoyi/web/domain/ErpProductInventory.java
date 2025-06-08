@@ -16,10 +16,6 @@ public class ErpProductInventory {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Excel(name = "订单编号")
-    @TableField("order_code")
-    private String orderCode;
-
     @Excel(name = "产品货号")
     @TableField("product_part_number")
     private String productPartNumber;
@@ -41,7 +37,9 @@ public class ErpProductInventory {
     private LocalDateTime updateTime;
 
     public void total(){
-        this.totalQuantity=this.inQuantity+this.outQuantity;
+        int inQty = (this.inQuantity != null) ? this.inQuantity : 0;
+        int outQty = (this.outQuantity != null) ? this.outQuantity : 0;
+        this.totalQuantity = inQty + outQty;
     }
 
     public Long getId() {
@@ -50,14 +48,6 @@ public class ErpProductInventory {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
     }
 
     public String getProductPartNumber() {
@@ -86,6 +76,10 @@ public class ErpProductInventory {
 
     public void setTotalQuantity(Integer totalQuantity) {
         this.totalQuantity = totalQuantity;
+    }
+
+    public Integer getTotalQuantity() {
+        return totalQuantity;
     }
 
     public LocalDateTime getUpdateTime() {

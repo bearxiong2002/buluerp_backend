@@ -21,6 +21,7 @@ import com.ruoyi.web.result.PurchaseOrderResult;
 import com.ruoyi.web.service.IErpPurchaseOrderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -151,6 +152,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertErpPurchaseOrder(AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -178,6 +180,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateErpPurchaseOrder(UpdatePurchaseOrderRequest updatePurchaseOrderRequest) throws IOException {
         if(erpPurchaseOrderMapper.selectById(updatePurchaseOrderRequest.getId())==null) return 0;
         ErpPurchaseOrder erpPurchaseOrder = new ErpPurchaseOrder();
@@ -198,6 +201,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpPurchaseOrderByIds(List<Integer> ids) {
         int count=0;
         for(Integer orderId:ids){
@@ -215,6 +219,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int removeInvoice(List<Integer> ids) {
         int count=0;
         for(Integer id:ids){

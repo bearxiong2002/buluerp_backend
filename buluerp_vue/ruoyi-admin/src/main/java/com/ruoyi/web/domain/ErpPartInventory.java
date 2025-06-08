@@ -16,10 +16,6 @@ public class ErpPartInventory {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Excel(name = "订单编号")
-    @TableField("order_code")
-    private String orderCode;
-
     @Excel(name = "模具编号")
     @TableField("mould_number")
     private String mouldNumber;
@@ -49,7 +45,9 @@ public class ErpPartInventory {
     private LocalDateTime updateTime;
 
     public void total(){
-        this.totalQuantity=this.inQuantity+this.outQuantity;
+        int inQty = (this.inQuantity != null) ? this.inQuantity : 0;
+        int outQty = (this.outQuantity != null) ? this.outQuantity : 0;
+        this.totalQuantity = inQty + outQty;
     }
 
     public Long getId() {
@@ -58,14 +56,6 @@ public class ErpPartInventory {
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
     }
 
     public String getMouldNumber() {

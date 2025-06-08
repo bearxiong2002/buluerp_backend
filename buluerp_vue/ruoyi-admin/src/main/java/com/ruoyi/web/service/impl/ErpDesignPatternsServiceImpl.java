@@ -20,6 +20,7 @@ import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -93,6 +94,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest)
     {
         // 获取当前登录用户信息
@@ -113,6 +115,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest)
     {
         ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns();
@@ -129,6 +132,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignPatternsByIds(List<Integer> ids)
     {
         return erpDesignPatternsMapper.deleteBatchIds(ids);
@@ -141,17 +145,20 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpDesignPatternsById(Long id)
     {
         return erpDesignPatternsMapper.deleteErpDesignPatternsById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public int confirmErpDesignPatternsById(Long id){
         Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
         erpProductsMapper.updateStatusById(proId,1L);
         return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
     public int cancelConfirmById(Long id){
         Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
         erpProductsMapper.updateStatusById(proId,0L);

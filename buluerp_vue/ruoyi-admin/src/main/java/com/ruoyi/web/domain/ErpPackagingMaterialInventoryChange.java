@@ -67,6 +67,11 @@ public class ErpPackagingMaterialInventoryChange {
     @Excel(name = "备注")
     private String remarks;
 
+    /** 当前总库存（不是数据库字段，用于查询时关联显示） */
+    @TableField(exist = false)
+    @Excel(name = "当前总库存")
+    private Integer totalQuantity;
+
     public Integer getId() {
         return id;
     }
@@ -155,6 +160,14 @@ public class ErpPackagingMaterialInventoryChange {
         this.remarks = remarks;
     }
 
+    public Integer getTotalQuantity() {
+        return totalQuantity;
+    }
+
+    public void setTotalQuantity(Integer totalQuantity) {
+        this.totalQuantity = totalQuantity;
+    }
+
     // 私有构造方法（Builder专用）
     private ErpPackagingMaterialInventoryChange(Builder builder) {
         this.id = builder.id;
@@ -168,6 +181,7 @@ public class ErpPackagingMaterialInventoryChange {
         this.inOutQuantity = builder.inOutQuantity;
         this.storageLocation = builder.storageLocation;
         this.remarks = builder.remarks;
+        this.totalQuantity = builder.totalQuantity;
     }
 
     // 空参构造方法（MyBatis等框架需要）
@@ -191,6 +205,7 @@ public class ErpPackagingMaterialInventoryChange {
         private Integer inOutQuantity;
         private String storageLocation;
         private String remarks;
+        private Integer totalQuantity;
 
         public Builder id(Integer id) {
             this.id = id;
@@ -244,6 +259,11 @@ public class ErpPackagingMaterialInventoryChange {
 
         public Builder remarks(String remarks) {
             this.remarks = remarks;
+            return this;
+        }
+
+        public Builder totalQuantity(Integer totalQuantity) {
+            this.totalQuantity = totalQuantity;
             return this;
         }
 

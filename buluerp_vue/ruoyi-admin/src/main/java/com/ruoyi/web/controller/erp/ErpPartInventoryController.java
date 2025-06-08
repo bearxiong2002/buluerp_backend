@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
+
 import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
@@ -54,8 +54,8 @@ public class ErpPartInventoryController extends BaseController {
             @ApiImplicitParam(name = "operator", value = "操作人", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "inOutQuantity", value = "出入库数量", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "remarks", value = "备注信息", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "datetime"),
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
             @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date"),
             @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date")
     })
@@ -68,8 +68,8 @@ public class ErpPartInventoryController extends BaseController {
             @RequestParam(required = false) String operator,
             @RequestParam(required = false) Integer inOutQuantity,
             @RequestParam(required = false) String remarks,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime createTimeTo,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date createTimeTo,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateFrom,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date changeDateTo) {
 
@@ -94,11 +94,24 @@ public class ErpPartInventoryController extends BaseController {
     @ApiOperation(value = "导出胶件出入库数据")
     //@PreAuthorize("@ss.hasPermi('system:part-inventory:export')")
     @Anonymous
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ListPartInventoryRequest request) {
-        List<ErpPartInventoryChange> list = partInventoryService.selectList(request);
+    @GetMapping("/export")
+    @ApiImplicitParam(name = "ids", value = "出入库记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void export(HttpServletResponse response, @RequestParam("ids") List<Integer> ids) {
+        List<ErpPartInventoryChange> list = partInventoryService.selectListByIds(ids);
         ExcelUtil<ErpPartInventoryChange> util = new ExcelUtil<>(ErpPartInventoryChange.class);
-        String fileName = "胶件库存_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        String fileName = "胶件出入库记录_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
+        util.exportExcel(response, list, fileName);
+    }
+
+    @ApiOperation(value = "导出胶件库存数据")
+    //@PreAuthorize("@ss.hasPermi('system:part-inventory:export')")
+    @Anonymous
+    @GetMapping("/export-store")
+    @ApiImplicitParam(name = "ids", value = "库存记录ID列表，多个ID用逗号分隔", dataType = "String", required = true, paramType = "query")
+    public void exportStore(HttpServletResponse response, @RequestParam("ids") List<Long> ids) {
+        List<ErpPartInventory> list = partInventoryService.selectStoreByIds(ids);
+        ExcelUtil<ErpPartInventory> util = new ExcelUtil<>(ErpPartInventory.class);
+        String fileName = "胶件库存汇总_" + new SimpleDateFormat("yyyyMMdd").format(new Date());
         util.exportExcel(response, list, fileName);
     }
 
@@ -202,20 +215,17 @@ public class ErpPartInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:part-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "orderCode", value = "订单编号", dataType = "String"),
             @ApiImplicitParam(name = "mouldNumber", value = "模具编号", dataType = "String"),
-            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "datetime"),
-            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "datetime")
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
     })
     @GetMapping("/store")
     public TableDataInfo listStore(
-            @RequestParam(required = false) String orderCode,
             @RequestParam(required = false) String mouldNumber,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeFrom,
-            @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") @RequestParam(required = false) LocalDateTime updateTimeTo) {
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeFrom,
+            @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date updateTimeTo) {
 
         ErpPartInventory query = new ErpPartInventory();
-        query.setOrderCode(orderCode);
         query.setMouldNumber(mouldNumber);
 
         startPage();
@@ -254,5 +264,25 @@ public class ErpPartInventoryController extends BaseController {
         // 创建ExcelUtil实例并导出模板
         ExcelUtil<AddPartInventoryRequest> util = new ExcelUtil<>(AddPartInventoryRequest.class);
         util.exportExcel(response, templateData, "胶件出入库导入模板");
+    }
+    
+    @ApiOperation(value = "修改胶件库存安全阈值")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:part-inventory:edit')")
+    @PutMapping("/safe-quantity/{inventoryId}")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "inventoryId", value = "库存编号", dataType = "int"),
+            @ApiImplicitParam(name = "safeQuantity", value = "新安全库存", dataType = "int"),
+    })
+    public AjaxResult updateSafeQuantity(
+            @PathVariable("inventoryId") Long inventoryId,
+            @RequestParam("safeQuantity") Integer safeQuantity) {
+        
+        if (safeQuantity < 0) {
+            return AjaxResult.error("安全库存阈值不能为负数");
+        }
+        
+        int result = partInventoryService.updateSafeQuantity(inventoryId, safeQuantity);
+        return toAjax(result);
     }
 }
