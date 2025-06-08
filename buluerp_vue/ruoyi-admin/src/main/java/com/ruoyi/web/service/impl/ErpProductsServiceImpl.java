@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -137,6 +138,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                 url1=parseActualPath(url1);
                 FileUtils.deleteFile(url1);
             }
+            LambdaUpdateWrapper<ErpProducts> lambdaWrapper = new LambdaUpdateWrapper<>();
+            lambdaWrapper.set(ErpProducts::getPictureUrl, null)
+                    .eq(ErpProducts::getId, updateProductRequest.getId());
+            erpProductsMapper.update(null,lambdaWrapper);
         }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
         if(updateProductRequest.getOrderId()!=null) erpProducts.setOrderId(updateProductRequest.getOrderId());
