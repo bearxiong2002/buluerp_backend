@@ -1,6 +1,7 @@
 package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
@@ -28,6 +29,7 @@ public class ErpProductionSchedule {
     @Example("BLK20250528000001")
     private String orderCode;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     @ApiModelProperty(value = "创建时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
@@ -43,10 +45,11 @@ public class ErpProductionSchedule {
     @Example("1")
     private Long productId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "布产时间")
     @ApiModelProperty(value = "布产时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
-    @Example("2022-05-28 10:00:00")
+    @Example("2022-05-28")
     private Date productionTime;
 
     @Excel(name = "产品编码")
@@ -140,6 +143,7 @@ public class ErpProductionSchedule {
     @Example("123.456")
     private Double timeHours;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "出货时间")
     @ApiModelProperty(value = "出货时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)

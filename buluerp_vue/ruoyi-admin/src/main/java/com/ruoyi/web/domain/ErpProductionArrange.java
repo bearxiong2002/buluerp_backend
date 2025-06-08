@@ -1,6 +1,7 @@
 package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
@@ -59,6 +60,7 @@ public class ErpProductionArrange {
     @Example("BLK20250528000001")
     private String orderCode;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     @ApiModelProperty(value = "创建时间，记录创建时的时间戳", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
@@ -79,10 +81,11 @@ public class ErpProductionArrange {
     @Example("1")
     private Integer productionId;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "布产时间")
     @ApiModelProperty(value = "布产时间，计划开始生产的时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
-    @Example("2025-05-28 00:00:00")
+    @Example("2025-05-28")
     private Date productionTime;
 
     @Excel(name = "产品编码")
@@ -149,16 +152,18 @@ public class ErpProductionArrange {
     @Example("无")
     private String remarks;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "安排时间")
     @ApiModelProperty(value = "安排时间，计划安排生产的时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
-    @Example("2025-05-28 00:00:00")
+    @Example("2025-05-28")
     private Date scheduledTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "完成时间")
     @ApiModelProperty(value = "完成时间，实际完成生产的时间", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
-    @Example("2025-05-28 00:00:00")
+    @Example("2025-05-28")
     private Date completionTime;
 
     @ApiModelProperty(value = "图片", dataType = "MultipartFile")
