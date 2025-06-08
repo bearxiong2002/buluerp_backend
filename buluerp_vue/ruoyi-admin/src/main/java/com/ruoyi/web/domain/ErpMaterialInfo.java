@@ -3,6 +3,7 @@ package com.ruoyi.web.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
@@ -20,9 +21,11 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "物料id")
     private Long id;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     private Date creatTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "更新时间", type = Excel.Type.EXPORT)
     private Date updateTime;
 

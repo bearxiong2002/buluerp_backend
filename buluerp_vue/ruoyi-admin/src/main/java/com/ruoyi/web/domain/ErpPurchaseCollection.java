@@ -1,5 +1,6 @@
 package com.ruoyi.web.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
@@ -20,6 +21,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Example("BLK20250528000001")
     private String orderCode;
 
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     private Date creationTime;
 
@@ -76,8 +78,9 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Example("2022-05-28 10:00:00~2022-05-28 10:00:00")
     private String deliveryTime;
 
+    @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "交货日期，实际交货日期")
-    @Example("2022-05-28 10:00:00")
+    @Example("2022-05-28")
     private Date deliveryDate;
 
     @Excel(name = "供应商")
