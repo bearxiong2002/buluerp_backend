@@ -131,6 +131,13 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             String url=FileUploadUtils.upload(updateProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
         }
+        else{
+            String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
+            if(url1!=null){
+                url1=parseActualPath(url1);
+                FileUtils.deleteFile(url1);
+            }
+        }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
         if(updateProductRequest.getOrderId()!=null) erpProducts.setOrderId(updateProductRequest.getOrderId());
         if(updateProductRequest.getDesignStatus()!=null){
