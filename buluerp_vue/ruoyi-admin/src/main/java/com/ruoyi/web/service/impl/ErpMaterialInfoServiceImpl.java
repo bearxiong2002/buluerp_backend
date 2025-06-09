@@ -57,9 +57,12 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
+    @Transactional
     public int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
-        if (erpMaterialInfo.getDrawingReferenceFile() != null) {
+        if (erpMaterialInfo.getDeleteDrawingReference()) {
+            erpMaterialInfoMapper.deleteErpMaterialInfoDrawingReferenceById(erpMaterialInfo.getId());
+        } else if (erpMaterialInfo.getDrawingReferenceFile() != null) {
             String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
             erpMaterialInfo.setDrawingReference(url);
         }
