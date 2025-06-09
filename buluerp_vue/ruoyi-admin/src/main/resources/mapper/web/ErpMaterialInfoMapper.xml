@@ -182,6 +182,11 @@
         </foreach>
         and is_purchased = 0
     </delete>
+    <update id="deleteErpMaterialInfoDrawingReferenceById">
+        update erp_material_purchase_info
+        set drawing_reference = null
+        where id = #{id} and is_purchased = 0
+    </update>
     <select id="selectErpMaterialInfoList" resultMap="ErpMaterialInfoResult">
         <include refid="selectErpMaterialPurchase"/>
         <where>

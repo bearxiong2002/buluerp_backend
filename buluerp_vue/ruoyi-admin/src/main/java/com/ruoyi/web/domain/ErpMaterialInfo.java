@@ -10,6 +10,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -85,6 +86,10 @@ public class ErpMaterialInfo extends BaseEntity {
 
     @JsonIgnore
     private MultipartFile drawingReferenceFile;
+
+    @JsonIgnore
+    @ApiModelProperty("[PUT]是否删除胶件图片")
+    private Boolean deleteDrawingReference;
 
     public Long getId() {
         return id;
@@ -222,5 +227,13 @@ public class ErpMaterialInfo extends BaseEntity {
 
     public void setDrawingReferenceFile(MultipartFile drawingReferenceFile) {
         this.drawingReferenceFile = drawingReferenceFile;
+    }
+
+    public Boolean getDeleteDrawingReference() {
+        return deleteDrawingReference;
+    }
+
+    public void setDeleteDrawingReference(Boolean deleteDrawingReference) {
+        this.deleteDrawingReference = deleteDrawingReference;
     }
 }

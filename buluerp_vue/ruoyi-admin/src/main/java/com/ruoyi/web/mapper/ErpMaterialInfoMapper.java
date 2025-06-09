@@ -17,6 +17,8 @@ public interface ErpMaterialInfoMapper {
 
     int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo);
 
+    int deleteErpMaterialInfoDrawingReferenceById(Long id);
+
     int deleteErpMaterialInfoById(Long id);
 
     int deleteErpMaterialInfoByIds(Long[] ids);
