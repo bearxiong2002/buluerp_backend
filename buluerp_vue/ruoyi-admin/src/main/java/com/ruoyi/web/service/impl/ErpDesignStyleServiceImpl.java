@@ -5,12 +5,14 @@ import java.nio.file.Paths;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.web.domain.ErpDesignStyle;
+import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.request.design.AddDesignRequest;
@@ -103,15 +105,25 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         String url=null;
         Long productId=null;
         if(updateDesignRequest.getDesignPatternId()!=null) productId=erpDesignPatternsMapper.selectById(updateDesignRequest.getDesignPatternId()).getProductId();
+        if(updateDesignRequest.getPicture()==null){
+            String preUrl=erpDesignStyleMapper.selectById(updateDesignRequest.getId()).getPictureUrl();
+            if(preUrl!=null){
+                preUrl=parseActualPath(preUrl);
+                FileUtils.deleteFile(preUrl);
+                LambdaUpdateWrapper<ErpDesignStyle> lambdaWrapper = new LambdaUpdateWrapper<>();
+                lambdaWrapper.set(ErpDesignStyle::getPictureUrl, null)
+                        .eq(ErpDesignStyle::getId, updateDesignRequest.getId());
+                erpDesignStyleMapper.update(null,lambdaWrapper);
+            }
+        }
         if(updateDesignRequest.getPicture()!=null){
-
             //删除原本的文件
             String preUrl=erpDesignStyleMapper.selectById(updateDesignRequest.getId()).getPictureUrl();
             if(preUrl!=null){
                 preUrl=parseActualPath(preUrl);
                 FileUtils.deleteFile(preUrl);
             }
-            if(updateDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(updateDesignRequest.getPicture());
+            url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), productId, updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateById(erpDesignStyle);
