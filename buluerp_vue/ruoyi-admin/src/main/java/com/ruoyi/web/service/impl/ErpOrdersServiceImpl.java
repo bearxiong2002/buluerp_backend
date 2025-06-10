@@ -7,14 +7,13 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.web.domain.ErpCustomers;
-import com.ruoyi.web.domain.ErpOrders;
-import com.ruoyi.web.domain.ErpOrdersProduct;
-import com.ruoyi.web.domain.ErpProducts;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
+import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.service.IErpCustomersService;
+import com.ruoyi.web.service.IErpDesignPatternsService;
 import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductsService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +38,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Autowired
     private IErpProductsService erpProductsService;
+
+    @Autowired
+    private IErpDesignPatternsService erpDesignPatternsService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
@@ -127,6 +129,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (0 == erpOrdersMapper.updateErpOrders(erpOrders1)) {
             throw new ServiceException("无法生成订单ID");
         }
+
+        /*
+        创建设计
+         */
+        AddDesignPatternsRequest addDesignPatternsRequest=new AddDesignPatternsRequest();
+        addDesignPatternsRequest.setOrderId(erpOrders1.getId());
+        erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
 
         return 1;
     }
