@@ -19,14 +19,13 @@
         <result property="remarks" column="remarks" />
         <result property="spareCode" column="spare_code" />
     </resultMap>
-    <sql id="selectErpMaterialPurchase">
+    <sql id="selectErpMaterialInfo">
         select id,creat_time,update_time,drawing_reference,mould_number,specification_name,cavity_count,material_type,standard_code,single_weight,mould_status,mould_manufacturer,cycle_time,sample_location,remarks,spare_code
-        from erp_material_purchase_info
+        from erp_material_info
     </sql>
     <insert id="insertErpMaterialInfo" useGeneratedKeys="true" keyProperty="id">
-        insert into erp_material_purchase_info
+        insert into erp_material_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            is_purchased,
             <if test="creatTime != null">
                 creat_time,
             </if>
@@ -75,7 +74,6 @@
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
-            0,
             <if test="creatTime != null">
                 #{creatTime},
             </if>
@@ -124,7 +122,7 @@
         </trim>
     </insert>
     <update id="updateErpMaterialInfo">
-        update erp_material_purchase_info
+        update erp_material_info
         <set>
             <if test="updateTime != null">
                 update_time = #{updateTime},
@@ -169,28 +167,26 @@
                 spare_code = #{spareCode},
             </if>
         </set>
-        where id = #{id} and is_purchased = 0
+        where id = #{id}
     </update>
     <delete id="deleteErpMaterialInfoById">
-        delete from erp_material_purchase_info where id = #{id} and is_purchased = 0
+        delete from erp_material_info where id = #{id}
     </delete>
     <delete id="deleteErpMaterialInfoByIds">
-        delete from erp_material_purchase_info
+        delete from erp_material_info
         where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
-        and is_purchased = 0
     </delete>
     <update id="deleteErpMaterialInfoDrawingReferenceById">
-        update erp_material_purchase_info
+        update erp_material_info
         set drawing_reference = null
-        where id = #{id} and is_purchased = 0
+        where id = #{id}
     </update>
     <select id="selectErpMaterialInfoList" resultMap="ErpMaterialInfoResult">
-        <include refid="selectErpMaterialPurchase"/>
+        <include refid="selectErpMaterialInfo"/>
         <where>
-            is_purchased = 0
             <if test="id != null">
                 and id = #{id}
             </if>
@@ -242,11 +238,11 @@
         </where>
     </select>
     <select id="selectErpMaterialInfoById" resultMap="ErpMaterialInfoResult">
-        <include refid="selectErpMaterialPurchase"/>
-        where id = #{id} and is_purchased = 0
+        <include refid="selectErpMaterialInfo"/>
+        where id = #{id}
     </select>
     <select id="selectErpMaterialInfoListByIds" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
-        <include refid="selectErpMaterialPurchase"/>
+        <include refid="selectErpMaterialInfo"/>
         where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}

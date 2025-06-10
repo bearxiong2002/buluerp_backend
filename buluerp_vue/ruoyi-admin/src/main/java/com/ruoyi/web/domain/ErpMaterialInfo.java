@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 
-@TableName(value = "erp_material_purchase_info")
+@TableName(value = "erp_material_info")
 public class ErpMaterialInfo extends BaseEntity {
     @TableId(type = IdType.AUTO)
     @Excel(name = "物料id")
@@ -56,7 +56,7 @@ public class ErpMaterialInfo extends BaseEntity {
 
     @Excel(name = "单重")
     @Range(min = 0, message = "单重不能为负数", groups = {Save.class, Update.class})
-    @Example("2,345,689,457.0")
+    @Example("2345689.0")
     private Double singleWeight;
 
     @Excel(name = "模具状态")
@@ -70,7 +70,7 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "生产周期(秒)")
     @Range(min = 0, message = "生产周期不能为负数", groups = {Save.class, Update.class})
     @Example("10.0")
-    private Integer cycleTime;
+    private Double cycleTime;
 
     @Excel(name = "样品库位")
     @Example("A01")
@@ -189,11 +189,11 @@ public class ErpMaterialInfo extends BaseEntity {
         this.mouldManufacturer = mouldManufacturer;
     }
 
-    public Integer getCycleTime() {
+    public Double getCycleTime() {
         return cycleTime;
     }
 
-    public void setCycleTime(Integer cycleTime) {
+    public void setCycleTime(Double cycleTime) {
         this.cycleTime = cycleTime;
     }
 
