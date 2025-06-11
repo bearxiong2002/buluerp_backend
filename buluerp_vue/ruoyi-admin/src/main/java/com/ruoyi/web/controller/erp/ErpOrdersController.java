@@ -2,21 +2,17 @@ package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
-import com.ruoyi.common.validation.Save;
-import com.ruoyi.common.validation.Update;
-import com.ruoyi.web.domain.ErpCustomers;
-import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpOrdersService;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -47,10 +43,11 @@ public class ErpOrdersController extends BaseController
     @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "查询订单列表", notes = "查询订单列表")
-    public TableDataInfo list(ErpOrders erpOrders)
-    {
+    public TableDataInfo list(
+            ListOrderRequest request
+    ) {
         startPage();
-        List<ErpOrders> list = erpOrdersService.selectErpOrdersList(erpOrders);
+        List<ErpOrders> list = erpOrdersService.selectErpOrdersList(request);
         return getDataTable(list);
     }
 

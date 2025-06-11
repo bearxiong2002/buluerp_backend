@@ -62,8 +62,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productionId != null "> and o.production_id = #{productionId}</if>
             <if test="purchaseId != null "> and o.purchase_id = #{purchaseId}</if>
             <if test="subcontractId != null "> and o.subcontract_id = #{subcontractId}</if>
-             <if test="remark != null "> and o.remark like CONCAT('%',#{remark},'%')</if>
-              <if test="customerName != null "> and c.name like CONCAT('%',#{customerName},'%')</if>
+            <if test="remark != null "> and o.remark like CONCAT('%',#{remark},'%')</if>
+            <if test="customerName != null "> and c.name like CONCAT('%',#{customerName},'%')</if>
+            <if test="createTimeFrom != null">
+                and o.create_time >= #{createTimeFrom}
+            </if>
+            <if test="createTimeTo != null">
+                and o.create_time &lt;= #{createTimeTo}
+            </if>
         </where>
     </select>
     

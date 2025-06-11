@@ -9,12 +9,15 @@ import javax.servlet.http.HttpServletResponse;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -112,7 +115,7 @@ public class ErpPurchaseInfoController extends BaseController
     @Log(title = "外购资料，用于存储外购物料的基本信息和相关数据", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增外购资料", notes = "新增外购资料")
-    public AjaxResult add(@ModelAttribute ErpPurchaseInfo erpPurchaseInfo) throws IOException {
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseInfo erpPurchaseInfo) throws IOException {
         return toAjax(erpPurchaseInfoService.insertErpPurchaseInfoList(
                 Collections.singletonList(erpPurchaseInfo)
         ));
@@ -126,7 +129,7 @@ public class ErpPurchaseInfoController extends BaseController
     @Log(title = "外购资料，用于存储外购物料的基本信息和相关数据", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改外购资料", notes = "修改外购资料")
-    public AjaxResult edit(@ModelAttribute ErpPurchaseInfo erpPurchaseInfo) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({Update.class}) ErpPurchaseInfo erpPurchaseInfo) throws IOException {
         return toAjax(erpPurchaseInfoService.updateErpPurchaseInfoList(
                 Collections.singletonList(erpPurchaseInfo)
         ));

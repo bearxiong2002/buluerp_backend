@@ -1,7 +1,9 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.request.order.ListOrderRequest;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -24,10 +26,10 @@ public interface IErpOrdersService
     /**
      * 查询订单列表
      * 
-     * @param erpOrders 订单
+     * @param request 订单
      * @return 订单集合
      */
-    public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders);
+    public List<ErpOrders> selectErpOrdersList(ListOrderRequest request);
 
     List<ErpOrders> selectErpOrdersListByIds(Long[] ids);
 
