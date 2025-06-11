@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import java.lang.reflect.Field;
+import java.util.Date;
 import java.util.List;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -12,6 +13,7 @@ import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
+import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpCustomersService;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import com.ruoyi.web.service.IErpOrdersService;
@@ -72,13 +74,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     /**
      * 查询订单列表
      * 
-     * @param erpOrders 订单
+     * @param request 订单
      * @return 订单
      */
     @Override
-    public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders)
-    {
-        List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(erpOrders);
+    public List<ErpOrders> selectErpOrdersList(ListOrderRequest request) {
+        List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(request);
         for (ErpOrders erpOrders1 : list) {
             fillErpOrders(erpOrders1);
         }
