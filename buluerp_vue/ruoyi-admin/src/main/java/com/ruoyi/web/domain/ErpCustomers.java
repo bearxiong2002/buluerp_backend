@@ -41,7 +41,7 @@ public class ErpCustomers extends BaseEntity
     private String name;
 
     @Excel(name = "联系方式")
-    @Pattern(regexp = "^1[34578][0-9]{9}$", groups = {Save.class, Update.class}, message = "手机号码格式有误")
+    @Pattern(regexp = "^((\\+86)|(86))?1[3-9]\\d{9}$|^(0[1-9]\\d{1,2}-?)?\\d{7,8}(-\\d{3,5})?$", groups = {Save.class, Update.class}, message = "手机号码格式有误")
     @Example("13888888888")
     private String contact;
 
