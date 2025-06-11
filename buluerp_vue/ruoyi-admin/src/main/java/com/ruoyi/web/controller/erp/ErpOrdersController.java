@@ -8,11 +8,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpOrdersService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
@@ -113,7 +116,7 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
     @ApiOperation(value = "新增订单", notes = "新增订单")
-    public AjaxResult add(@RequestBody /* @Validated({Save.class}) */ ErpOrders erpOrders)
+    public AjaxResult add(@RequestBody @Validated({Save.class}) ErpOrders erpOrders)
     {
         return toAjax(erpOrdersService.insertErpOrders(erpOrders));
     }
@@ -126,7 +129,7 @@ public class ErpOrdersController extends BaseController
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
     @ApiOperation(value = "修改订单", notes = "修改订单")
-    public AjaxResult edit(@RequestBody /* @Validated({ Update.class }) */ ErpOrders erpOrders) {
+    public AjaxResult edit(@RequestBody @Validated({ Update.class }) ErpOrders erpOrders) {
         return toAjax(erpOrdersService.updateErpOrders(erpOrders));
     }
 

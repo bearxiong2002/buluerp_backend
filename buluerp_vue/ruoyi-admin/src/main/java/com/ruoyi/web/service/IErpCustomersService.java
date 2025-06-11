@@ -1,9 +1,7 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpCustomers;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 
 
@@ -22,6 +20,8 @@ public interface IErpCustomersService
      * @return 【请填写功能名称】
      */
     public ErpCustomers selectErpCustomersById(Long id);
+
+    ErpCustomers selectErpCustomersByName(String name);
 
     /**
      * 查询【请填写功能名称】列表

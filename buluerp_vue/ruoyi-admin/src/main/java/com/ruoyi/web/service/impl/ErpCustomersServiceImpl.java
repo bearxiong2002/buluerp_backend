@@ -44,6 +44,11 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
         return erpCustomersMapper.selectErpCustomersById(id);
     }
 
+    @Override
+    public ErpCustomers selectErpCustomersByName(String name) {
+        return erpCustomersMapper.getErpCustomersByName(name);
+    }
+
     /**
      * 查询【请填写功能名称】列表
      * 

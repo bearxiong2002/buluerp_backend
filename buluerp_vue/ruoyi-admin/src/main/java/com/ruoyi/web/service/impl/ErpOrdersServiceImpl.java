@@ -1,7 +1,5 @@
 package com.ruoyi.web.service.impl;
 
-import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -10,9 +8,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.*;
-import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
-import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpCustomersService;
@@ -111,13 +107,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrders.setOperator(loginUser.getUsername());
         }
         if (erpOrders.getCustomerId() == null && erpOrders.getCustomerName() != null) {
-            ErpCustomers erpCustomers = new ErpCustomers();
-            erpCustomers.setName(erpOrders.getCustomerName());
-            if (
-                    erpCustomersService.selectErpCustomersList(erpCustomers).isEmpty() &&
-                    0 == erpCustomersService.insertErpCustomers(erpCustomers)
-            ) {
-                throw new ServiceException("添加客户信息失败，客户 ID 无效");
+            ErpCustomers erpCustomers = erpCustomersService.selectErpCustomersByName(erpOrders.getCustomerName());
+            if (erpCustomers == null) {
+                erpCustomers = new ErpCustomers();
+                erpCustomers.setName(erpOrders.getCustomerName());
+                if (0 == erpCustomersService.insertErpCustomers(erpCustomers)) {
+                    throw new ServiceException("添加客户信息失败，客户ID无效");
+                }
             }
             erpOrders.setCustomerId(erpCustomers.getId());
         }
