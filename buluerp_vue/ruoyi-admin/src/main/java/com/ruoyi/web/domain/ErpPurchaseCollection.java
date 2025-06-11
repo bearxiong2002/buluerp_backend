@@ -34,6 +34,7 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     @Excel(name = "下单时间")
     @Example("2022-05-28 10:00:00")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date orderTime;
 
     @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
