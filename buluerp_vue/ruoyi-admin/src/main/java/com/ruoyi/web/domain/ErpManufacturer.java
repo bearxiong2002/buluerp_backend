@@ -37,7 +37,6 @@ public class ErpManufacturer {
         this.remark = remark;
         this.createTime = createTime;
     }
-
     public ErpManufacturer() {}
 
     public Date getCreateTime() {

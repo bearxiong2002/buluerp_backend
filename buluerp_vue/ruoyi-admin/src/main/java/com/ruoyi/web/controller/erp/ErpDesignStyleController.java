@@ -176,10 +176,6 @@ public class ErpDesignStyleController extends BaseController
                     hasError = true;
                 }
 
-                // 5. 尝试保存（包括业务逻辑校验）
-                if (!hasError) {
-                    erpDesignStyleService.insertErpDesignStyle(addDesignRequest);
-                }
             } catch (Exception e) {
                 // 处理转换和服务层的异常
                 String errorMsg = e.getMessage();
@@ -214,7 +210,10 @@ public class ErpDesignStyleController extends BaseController
 
             return AjaxResult.error("导入完成，但有部分错误", result);
         }
-
+        else  {
+            for (AddDesignRequest addDesignRequest:addDesignRequestList)
+                erpDesignStyleService.insertErpDesignStyle(addDesignRequest);
+        }
         return AjaxResult.success("导入成功，共导入 " + addDesignRequestList.size() + " 条数据");
     }
 

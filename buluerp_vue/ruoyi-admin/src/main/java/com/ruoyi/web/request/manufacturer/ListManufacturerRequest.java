@@ -95,4 +95,5 @@ public class ListManufacturerRequest {
         this.email = email;
         this.remark = remark;
     }
+
 }

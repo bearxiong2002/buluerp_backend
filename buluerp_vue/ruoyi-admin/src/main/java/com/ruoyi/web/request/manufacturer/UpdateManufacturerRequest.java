@@ -3,6 +3,8 @@ package com.ruoyi.web.request.manufacturer;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
+import javax.validation.constraints.Pattern;
+
 @ApiModel(value = "修改厂家请求类")
 public class UpdateManufacturerRequest {
 
@@ -13,6 +15,7 @@ public class UpdateManufacturerRequest {
     private String name;
 
     @ApiModelProperty(dataType = "String",value = "联系方式",required = false)
+    @Pattern(regexp = "^(\\d{3,4}-?\\d{7,8}|1[3-9]\\d{9})?$", message = "联系方式格式错误")
     private String tel;
 
     @ApiModelProperty(dataType = "String",value = "邮箱地址",required = false)
@@ -66,5 +69,8 @@ public class UpdateManufacturerRequest {
         this.tel = tel;
         this.email = email;
         this.remark = remark;
+    }
+
+    public UpdateManufacturerRequest() {
     }
 }
