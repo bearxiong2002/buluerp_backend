@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 /*
@@ -51,122 +53,125 @@ create table buluerp.erp_production_arrange
 @ApiModel("排产")
 public class ErpProductionArrange {
     @TableId(type = IdType.AUTO)
-    @ApiModelProperty(notes = "仅响应")
+    @ApiModelProperty(notes = "[GET|list|PUT|DELETE|response]")
     private Long id;
 
     @Excel(name = "订单编码")
-    @ApiModelProperty(value = "订单编码，唯一标识订单", dataType = "String")
+    @ApiModelProperty(value = "订单编码，唯一标识订单 [list|POST|PUT|response]", dataType = "String", required = true)
+    @NotBlank(groups = Save.class, message = "订单编码不能为空白")
+    @NullOrNotBlank(groups = Update.class, message = "订单编码不能为空白")
     @TableField(condition = SqlCondition.LIKE)
     @Example("BLK20250528000001")
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
-    @ApiModelProperty(value = "创建时间，记录创建时的时间戳", dataType = "Date")
+    @ApiModelProperty(value = "创建时间，记录创建时的时间戳 [list|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     private Date creationTime;
 
     @Excel(name = "操作人", type = Excel.Type.EXPORT)
-    @ApiModelProperty(value = "操作人，执行排产操作的人员", dataType = "String")
+    @ApiModelProperty(value = "操作人，执行排产操作的人员 [list|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     private String operator;
 
     @Excel(name = "产品编号")
-    @ApiModelProperty(value = "产品编号，产品在系统中的编号", dataType = "String", required = true)
+    @ApiModelProperty(value = "产品编号，产品在系统中的编号 [list|POST|PUT|response]", dataType = "String", required = true)
     @Example("1")
     private Long productId;
 
     @Excel(name = "布产编号")
-    @ApiModelProperty(value = "布产编号", dataType = "Integer", required = true)
+    @ApiModelProperty(value = "布产编号 [list|POST|PUT|response]", dataType = "Integer", required = true)
     @Example("1")
     private Integer productionId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "布产时间")
-    @ApiModelProperty(value = "布产时间，计划开始生产的时间", dataType = "Date")
+    @ApiModelProperty(value = "布产时间，计划开始生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")
     private Date productionTime;
 
     @Excel(name = "产品编码")
-    @ApiModelProperty(value = "产品编码，产品的具体编码", dataType = "String", required = true)
+    @ApiModelProperty(value = "产品编码，产品的具体编码 [list|POST|PUT|response]", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
     @Example("123")
     private String productCode;
 
     @Excel(name = "模具编号")
-    @ApiModelProperty(value = "模具编号，使用的模具编号", dataType = "String")
+    @ApiModelProperty(value = "模具编号，使用的模具编号 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Example("客户")
     private String mouldNumber;
 
     @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
-    @ApiModelProperty(value = "图片，产品的图片链接", dataType = "String")
+    @ApiModelProperty(value = "图片，产品的图片链接 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
+    @Example
     private String pictureUrl;
 
     @Excel(name = "颜色编号")
-    @ApiModelProperty(value = "颜色编号，产品的颜色编码", dataType = "String")
+    @ApiModelProperty(value = "颜色编号，产品的颜色编码 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Example("123,456,789")
     private String colorCode;
 
     @Excel(name = "料型")
-    @ApiModelProperty(value = "料型，材料的类型", dataType = "String")
+    @ApiModelProperty(value = "料型，材料的类型 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Example("YL1234567")
     private String materialType;
 
     @Excel(name = "出模数(pcs)")
-    @ApiModelProperty(value = "出模数(pcs)，每个模具的产出数量", dataType = "Integer")
+    @ApiModelProperty(value = "出模数(pcs)，每个模具的产出数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 0, message = "出模数(pcs)不能小于0", groups = {Save.class, Update.class})
     @Example("7873629")
     private Integer mouldOutput;
 
     @Excel(name = "单重(g)")
-    @ApiModelProperty(value = "单重(g)，单个产品的重量，单位为克", dataType = "Double")
+    @ApiModelProperty(value = "单重(g)，单个产品的重量，单位为克 [list|POST|PUT|response]", dataType = "Double")
     @Range(min = 0, message = "单重(g)不能小于0", groups = {Save.class, Update.class})
     @Example("123.456")
     private Double singleWeight;
 
     @Excel(name = "排产数量/PCS")
-    @ApiModelProperty(value = "排产数量(pcs)，计划生产的总数量", dataType = "Integer")
+    @ApiModelProperty(value = "排产数量(pcs)，计划生产的总数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 1, message = "排产数量(pcs)不能小于1", groups = {Save.class, Update.class})
     @Example("1234")
     private Integer productionQuantity;
 
     @Excel(name = "排产模数/模")
-    @ApiModelProperty(value = "排产模数（模），计划使用的模具数量", dataType = "Integer")
+    @ApiModelProperty(value = "排产模数（模），计划使用的模具数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 1, message = "排产模数（模）不能小于1", groups = {Save.class, Update.class})
     @Example("123")
     private Integer productionMouldCount;
 
     @Excel(name = "排产重量(KG)")
-    @ApiModelProperty(value = "排产重量(KG)，计划生产的总重量，单位为千克", dataType = "Double")
+    @ApiModelProperty(value = "排产重量(KG)，计划生产的总重量，单位为千克 [list|POST|PUT|response]", dataType = "Double")
     @Range(min = 0, message = "排产重量(KG)不能小于0", groups = {Save.class, Update.class})
     @Example("123.456")
     private Double productionWeight;
 
     @Excel(name = "备注")
-    @ApiModelProperty(value = "备注，其他需要说明的信息", dataType = "String")
+    @ApiModelProperty(value = "备注，其他需要说明的信息 [list|POST|PUT|response]", dataType = "String")
     @Example("无")
     private String remarks;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "安排时间")
-    @ApiModelProperty(value = "安排时间，计划安排生产的时间", dataType = "Date")
+    @ApiModelProperty(value = "安排时间，计划安排生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")
     private Date scheduledTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "完成时间")
-    @ApiModelProperty(value = "完成时间，实际完成生产的时间", dataType = "Date")
+    @ApiModelProperty(value = "完成时间，实际完成生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")
     private Date completionTime;
 
-    @ApiModelProperty(value = "图片", dataType = "MultipartFile")
+    @ApiModelProperty(value = "图片 [POST|PUT]", dataType = "MultipartFile")
     @JsonIgnore
     @TableField(exist = false)
     private MultipartFile picture;

@@ -1,7 +1,10 @@
 package com.ruoyi.web.mapper;
 
 import java.util.List;
-import com.ruoyi.system.domain.ErpPurchaseInfo;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.ruoyi.web.domain.ErpPurchaseInfo;
+import org.apache.ibatis.annotations.Mapper;
 
 /**
  * 外购资料，用于存储外购物料的基本信息和相关数据Mapper接口
@@ -9,15 +12,16 @@ import com.ruoyi.system.domain.ErpPurchaseInfo;
  * @author ruoyi
  * @date 2025-04-08
  */
-public interface ErpPurchaseInfoMapper 
+@Mapper
+public interface ErpPurchaseInfoMapper extends BaseMapper<ErpPurchaseInfo>
 {
     /**
      * 查询外购资料，用于存储外购物料的基本信息和相关数据
      * 
-     * @param purchaseCode 外购资料，用于存储外购物料的基本信息和相关数据主键
+     * @param id 外购资料，用于存储外购物料的基本信息和相关数据主键
      * @return 外购资料，用于存储外购物料的基本信息和相关数据
      */
-    public ErpPurchaseInfo selectErpPurchaseInfoByPurchaseCode(String purchaseCode);
+    public ErpPurchaseInfo selectErpPurchaseInfoById(Long id);
 
     /**
      * 查询外购资料，用于存储外购物料的基本信息和相关数据列表
@@ -27,7 +31,7 @@ public interface ErpPurchaseInfoMapper
      */
     public List<ErpPurchaseInfo> selectErpPurchaseInfoList(ErpPurchaseInfo erpPurchaseInfo);
 
-    List<ErpPurchaseInfo> selectErpPurchaseInfoListByIds(Integer[] ids);
+    List<ErpPurchaseInfo> selectErpPurchaseInfoListByIds(Long[] ids);
 
     /**
      * 新增外购资料，用于存储外购物料的基本信息和相关数据
@@ -48,16 +52,16 @@ public interface ErpPurchaseInfoMapper
     /**
      * 删除外购资料，用于存储外购物料的基本信息和相关数据
      * 
-     * @param purchaseCode 外购资料，用于存储外购物料的基本信息和相关数据主键
+     * @param id 外购资料，用于存储外购物料的基本信息和相关数据主键
      * @return 结果
      */
-    public int deleteErpPurchaseInfoByPurchaseCode(String purchaseCode);
+    public int deleteErpPurchaseInfoById(Long id);
 
     /**
      * 批量删除外购资料，用于存储外购物料的基本信息和相关数据
      * 
-     * @param purchaseCodes 需要删除的数据主键集合
+     * @param ids 需要删除的数据主键集合
      * @return 结果
      */
-    public int deleteErpPurchaseInfoByPurchaseCodes(String[] purchaseCodes);
+    public int deleteErpPurchaseInfoByIds(Long[] ids);
 }
