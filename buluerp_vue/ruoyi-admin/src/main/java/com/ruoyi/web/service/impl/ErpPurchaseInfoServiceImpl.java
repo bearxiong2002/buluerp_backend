@@ -1,13 +1,17 @@
-package com.ruoyi.system.service.impl;
+package com.ruoyi.web.service.impl;
 
+import java.io.IOException;
 import java.util.List;
 
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.mapper.ErpPurchaseInfoMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.ruoyi.system.domain.ErpPurchaseInfo;
-import com.ruoyi.system.service.IErpPurchaseInfoService;
+import com.ruoyi.web.domain.ErpPurchaseInfo;
+import com.ruoyi.web.service.IErpPurchaseInfoService;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * 外购资料，用于存储外购物料的基本信息和相关数据Service业务层处理
@@ -16,85 +20,35 @@ import com.ruoyi.system.service.IErpPurchaseInfoService;
  * @date 2025-04-08
  */
 @Service
-public class ErpPurchaseInfoServiceImpl implements IErpPurchaseInfoService 
+public class ErpPurchaseInfoServiceImpl
+        extends ServiceImpl<ErpPurchaseInfoMapper, ErpPurchaseInfo>
+        implements IErpPurchaseInfoService
 {
-    @Autowired
-    private ErpPurchaseInfoMapper erpPurchaseInfoMapper;
-
-    /**
-     * 查询外购资料，用于存储外购物料的基本信息和相关数据
-     * 
-     * @param purchaseCode 外购资料，用于存储外购物料的基本信息和相关数据主键
-     * @return 外购资料，用于存储外购物料的基本信息和相关数据
-     */
     @Override
-    public ErpPurchaseInfo selectErpPurchaseInfoByPurchaseCode(String purchaseCode)
-    {
-        return erpPurchaseInfoMapper.selectErpPurchaseInfoByPurchaseCode(purchaseCode);
-    }
-
-    /**
-     * 查询外购资料，用于存储外购物料的基本信息和相关数据列表
-     * 
-     * @param erpPurchaseInfo 外购资料，用于存储外购物料的基本信息和相关数据
-     * @return 外购资料，用于存储外购物料的基本信息和相关数据
-     */
-    @Override
-    public List<ErpPurchaseInfo> selectErpPurchaseInfoList(ErpPurchaseInfo erpPurchaseInfo)
-    {
-        return erpPurchaseInfoMapper.selectErpPurchaseInfoList(erpPurchaseInfo);
+    @Transactional(rollbackFor = Exception.class)
+    public int insertErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
+        int count = 0;
+        for (ErpPurchaseInfo erpPurchaseInfo : list) {
+            if (erpPurchaseInfo.getPicture() != null) {
+                String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
+                erpPurchaseInfo.setPictureUrl(url);
+            }
+            count += baseMapper.insert(erpPurchaseInfo);
+        }
+        return count;
     }
 
     @Override
-    public List<ErpPurchaseInfo> selectErpPurchaseInfoListByIds(Integer[] ids) {
-        return erpPurchaseInfoMapper.selectErpPurchaseInfoListByIds(ids);
-    }
-
-    /**
-     * 新增外购资料，用于存储外购物料的基本信息和相关数据
-     * 
-     * @param erpPurchaseInfo 外购资料，用于存储外购物料的基本信息和相关数据
-     * @return 结果
-     */
-    @Override
-    public int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo)
-    {
-        return erpPurchaseInfoMapper.insertErpPurchaseInfo(erpPurchaseInfo);
-    }
-
-    /**
-     * 修改外购资料，用于存储外购物料的基本信息和相关数据
-     * 
-     * @param erpPurchaseInfo 外购资料，用于存储外购物料的基本信息和相关数据
-     * @return 结果
-     */
-    @Override
-    public int updateErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo)
-    {
-        return erpPurchaseInfoMapper.updateErpPurchaseInfo(erpPurchaseInfo);
-    }
-
-    /**
-     * 批量删除外购资料，用于存储外购物料的基本信息和相关数据
-     * 
-     * @param purchaseCodes 需要删除的外购资料，用于存储外购物料的基本信息和相关数据主键
-     * @return 结果
-     */
-    @Override
-    public int deleteErpPurchaseInfoByPurchaseCodes(String[] purchaseCodes)
-    {
-        return erpPurchaseInfoMapper.deleteErpPurchaseInfoByPurchaseCodes(purchaseCodes);
-    }
-
-    /**
-     * 删除外购资料，用于存储外购物料的基本信息和相关数据信息
-     * 
-     * @param purchaseCode 外购资料，用于存储外购物料的基本信息和相关数据主键
-     * @return 结果
-     */
-    @Override
-    public int deleteErpPurchaseInfoByPurchaseCode(String purchaseCode)
-    {
-        return erpPurchaseInfoMapper.deleteErpPurchaseInfoByPurchaseCode(purchaseCode);
+    @Transactional(rollbackFor = Exception.class)
+    public int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
+        int count = 0;
+        for (ErpPurchaseInfo erpPurchaseInfo : list) {
+            if (erpPurchaseInfo.getPicture() != null) {
+                String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
+                erpPurchaseInfo.setPictureUrl(url);
+            }
+            count += baseMapper.updateById(erpPurchaseInfo);
+        }
+        return count;
     }
 }

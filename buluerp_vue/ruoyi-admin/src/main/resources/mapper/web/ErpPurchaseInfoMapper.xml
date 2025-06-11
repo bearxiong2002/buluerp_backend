@@ -5,6 +5,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 <mapper namespace="com.ruoyi.web.mapper.ErpPurchaseInfoMapper">
     
     <resultMap type="ErpPurchaseInfo" id="ErpPurchaseInfoResult">
+        <id property="id" column="id" />
         <result property="purchaseCode"    column="purchase_code"    />
         <result property="pictureUrl"    column="picture_url"    />
         <result property="mouldNumber"    column="mould_number"    />
@@ -16,12 +17,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectErpPurchaseInfoVo">
-        select purchase_code, picture_url, mould_number, single_weight, unit_price, material, supplier, specification_name from erp_purchase_info
+        select id, purchase_code, picture_url, mould_number, single_weight, unit_price, material, supplier, specification_name from erp_purchase_info
     </sql>
 
     <select id="selectErpPurchaseInfoList" parameterType="ErpPurchaseInfo" resultMap="ErpPurchaseInfoResult">
         <include refid="selectErpPurchaseInfoVo"/>
-        <where>  
+        <where>
+            <if test="id != null">and id = #{id}</if>
+            <if test="purchaseCode != null  and purchaseCode != ''"> and purchase_code = #{purchaseCode}</if>
             <if test="pictureUrl != null  and pictureUrl != ''"> and picture_url = #{pictureUrl}</if>
             <if test="mouldNumber != null  and mouldNumber != ''"> and mould_number = #{mouldNumber}</if>
             <if test="singleWeight != null "> and single_weight = #{singleWeight}</if>
@@ -32,11 +35,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </where>
     </select>
     
-    <select id="selectErpPurchaseInfoByPurchaseCode" parameterType="String" resultMap="ErpPurchaseInfoResult">
+    <select id="selectErpPurchaseInfoById" parameterType="String" resultMap="ErpPurchaseInfoResult">
         <include refid="selectErpPurchaseInfoVo"/>
-        where purchase_code = #{purchaseCode}
+        where id = #{id}
     </select>
-    <select id="selectErpPurchaseInfoListByIds" resultType="com.ruoyi.system.domain.ErpPurchaseInfo">
+    <select id="selectErpPurchaseInfoListByIds" resultType="com.ruoyi.web.domain.ErpPurchaseInfo">
         <include refid="selectErpPurchaseInfoVo"/>
         where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
@@ -44,7 +47,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         </foreach>
     </select>
 
-    <insert id="insertErpPurchaseInfo" parameterType="com.ruoyi.system.domain.ErpPurchaseInfo">
+    <insert id="insertErpPurchaseInfo" parameterType="com.ruoyi.web.domain.ErpPurchaseInfo" useGeneratedKeys="true" keyProperty="id">
         insert into erp_purchase_info
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="purchaseCode != null">purchase_code,</if>
@@ -71,6 +74,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <update id="updateErpPurchaseInfo" parameterType="ErpPurchaseInfo">
         update erp_purchase_info
         <trim prefix="SET" suffixOverrides=",">
+            <if test="purchaseCode != null">purchase_code = #{purchaseCode},</if>
             <if test="pictureUrl != null">picture_url = #{pictureUrl},</if>
             <if test="mouldNumber != null">mould_number = #{mouldNumber},</if>
             <if test="singleWeight != null">single_weight = #{singleWeight},</if>
@@ -79,17 +83,17 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="supplier != null">supplier = #{supplier},</if>
             <if test="specificationName != null">specification_name = #{specificationName},</if>
         </trim>
-        where purchase_code = #{purchaseCode}
+        where id  = #{id}
     </update>
 
-    <delete id="deleteErpPurchaseInfoByPurchaseCode" parameterType="String">
-        delete from erp_purchase_info where purchase_code = #{purchaseCode}
+    <delete id="deleteErpPurchaseInfoById" parameterType="Long">
+        delete from erp_purchase_info where id = #{id}
     </delete>
 
-    <delete id="deleteErpPurchaseInfoByPurchaseCodes" parameterType="String">
-        delete from erp_purchase_info where purchase_code in 
-        <foreach item="purchaseCode" collection="array" open="(" separator="," close=")">
-            #{purchaseCode}
+    <delete id="deleteErpPurchaseInfoByIds" parameterType="Long">
+        delete from erp_purchase_info where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
         </foreach>
     </delete>
 </mapper>

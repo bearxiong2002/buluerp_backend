@@ -31,6 +31,7 @@ public class ErpMaterialInfo extends BaseEntity {
     private Date updateTime;
 
     @Excel(name = "胶件图引", cellType = Excel.ColumnType.IMAGE, height = 100)
+    @Example
     private String drawingReference;
 
     @Excel(name = "模具编号")
