@@ -54,6 +54,7 @@ public class ErpManufacturerController extends BaseController {
             @ApiImplicitParam(name = "name", value = "厂家名称（可选）", dataType = "String", paramType = "query", example = "华为"),
             @ApiImplicitParam(name = "tel", value = "联系方式（可选）", dataType = "String", paramType = "query", example = "13800138000"),
             @ApiImplicitParam(name = "email", value = "邮箱地址（可选）", dataType = "String", paramType = "query", example = "contact@huawei.com"),
+            @ApiImplicitParam(name = "remark", value = "备注", dataType = "string"),
             @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
             @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
             @ApiImplicitParam(name = "pageNum", value = "页码（默认1）", dataType = "Integer", paramType = "query", example = "1"),
@@ -64,6 +65,7 @@ public class ErpManufacturerController extends BaseController {
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String tel,
             @RequestParam(required = false) String email,
+            @RequestParam(required = false) String remark,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date createTimeFrom,
             @DateTimeFormat(pattern = "yyyy-MM-dd") @RequestParam(required = false) Date createTimeTo,
             @RequestParam(defaultValue = "1") Integer pageNum,
@@ -77,6 +79,7 @@ public class ErpManufacturerController extends BaseController {
         request.setEmail(email);
         request.setCreateTimeFrom(createTimeFrom);
         request.setCreateTimeTo(createTimeTo);
+        request.setRemark(remark);
 
         // 若依框架分页设置
         //PageHelper.startPage(pageNum, pageSize);
@@ -132,8 +135,6 @@ public class ErpManufacturerController extends BaseController {
                     throw new ImportException(rowNumber, String.join("; ", errors), request.toString());
                 }
 
-                // 调用 Service 插入数据
-                erpManufacturerService.insertErpManufacturer(request);
             } catch (ImportException e) {
                 // Java 8 兼容的 Map 初始化
                 Map<String, Object> errorEntry = new HashMap<>();
@@ -153,6 +154,10 @@ public class ErpManufacturerController extends BaseController {
 
         if (!errorList.isEmpty()) {
             return AjaxResult.error("导入失败", errorList);
+        }
+        else{
+            for (AddManufacturerRequest request : requests)
+                erpManufacturerService.insertErpManufacturer(request);
         }
         return AjaxResult.success("导入成功");
     }

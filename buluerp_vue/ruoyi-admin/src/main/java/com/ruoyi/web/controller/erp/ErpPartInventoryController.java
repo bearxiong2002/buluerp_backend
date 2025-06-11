@@ -151,10 +151,6 @@ public class ErpPartInventoryController extends BaseController {
                     errorEntry.put("error", String.join("; ", errors));
                     errorEntry.put("data", request.toString());
                     errorList.add(errorEntry);
-                } else {
-                    // 调用 Service 插入数据
-                    partInventoryService.insertRecord(request);
-                    successCount++;
                 }
             } catch (Exception e) {
                 Map<String, Object> errorEntry = new HashMap<>();
@@ -175,7 +171,13 @@ public class ErpPartInventoryController extends BaseController {
             result.put("errors", errorList);
             return AjaxResult.error("导入完成，但有部分错误", result);
         }
-        
+        else {
+            for (AddPartInventoryRequest request:requests){
+                // 调用 Service 插入数据
+                partInventoryService.insertRecord(request);
+                successCount++;
+            }
+        }
         return AjaxResult.success("导入成功，共导入 " + successCount + " 条数据");
     }
 

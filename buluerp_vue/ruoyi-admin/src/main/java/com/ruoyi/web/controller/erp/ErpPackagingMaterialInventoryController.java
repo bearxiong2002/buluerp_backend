@@ -157,10 +157,6 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
                     errorEntry.put("error", String.join("; ", errors));
                     errorEntry.put("data", request.toString());
                     errorList.add(errorEntry);
-                } else {
-                    // 调用 Service 插入数据
-                    erpPackagingMaterialInventoryService.insertRecord(request);
-                    successCount++;
                 }
             } catch (Exception e) {
                 Map<String, Object> errorEntry = new HashMap<>();
@@ -181,7 +177,13 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             result.put("errors", errorList);
             return AjaxResult.error("导入完成，但有部分错误", result);
         }
-        
+        else {
+            for(AddPackagingMaterialRequest request:requests){
+                // 调用 Service 插入数据
+                erpPackagingMaterialInventoryService.insertRecord(request);
+                successCount++;
+            }
+        }
         return AjaxResult.success("导入成功，共导入 " + successCount + " 条数据");
     }
 

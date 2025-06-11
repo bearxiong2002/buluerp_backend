@@ -92,7 +92,7 @@ public class ErpProductsController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:products:import')")
     @PostMapping("/import")
     @ApiOperation(value = "导入产品")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) {
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         List<AddProductRequest> requests;
         try {
             ExcelUtil<AddProductRequest> util = new ExcelUtil<>(AddProductRequest.class);
@@ -153,10 +153,6 @@ public class ErpProductsController extends BaseController {
                 if (!normalized.matches("^\\d+(,\\d+)*$")) { // 正则表达式校验
                     throw new ImportException(request.getRowNumber(), "物料ID列表格式错误（必须为逗号分隔的整数）", request.toString());
                 }
-
-                // 6. 调用Service层处理
-                erpProductsService.processMaterialIds(request);
-                erpProductsService.insertErpProducts(request);
             } catch (ImportException e) {
                 Map<String, Object> errorEntry = new HashMap<>();
                 errorEntry.put("row", e.getRowNumber());
@@ -174,6 +170,14 @@ public class ErpProductsController extends BaseController {
 
         if (!errorList.isEmpty()) {
             return AjaxResult.error("导入失败", errorList);
+        }
+        else {
+            for (AddProductRequest request:requests){
+                // 6. 调用Service层处理
+                erpProductsService.processMaterialIds(request);
+                erpProductsService.insertErpProducts(request);
+            }
+
         }
         return AjaxResult.success("导入成功",rowNumber);
     }

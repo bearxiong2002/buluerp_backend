@@ -16,6 +16,7 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
+import com.ruoyi.web.request.design.AddDesignRequest;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.result.DesignPatternsExportDTO;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
@@ -144,10 +145,6 @@ public class ErpDesignPatternsController extends BaseController
                     hasError = true;
                 }
 
-                // 3. 尝试保存（包括业务逻辑校验）
-                if (!hasError) {
-                    erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
-                }
             } catch (Exception e) {
                 // 处理服务层的异常
                 String errorMsg = e.getMessage();
@@ -183,7 +180,10 @@ public class ErpDesignPatternsController extends BaseController
 
             return AjaxResult.error("导入完成，但有部分错误", result);
         }
-
+        else {
+            for(AddDesignPatternsRequest addDesignPatternsRequest:addDesignPatternsRequestList)
+                erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
+        }
         return AjaxResult.success("导入成功，共导入 " + addDesignPatternsRequestList.size() + " 条数据");
     }
 

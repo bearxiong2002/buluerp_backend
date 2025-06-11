@@ -69,6 +69,7 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
                 .le(listManufacturerRequest.getCreateTimeTo()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeTo())
+                .like(StringUtils.isNotBlank(listManufacturerRequest.getRemark()),ErpManufacturer::getRemark,listManufacturerRequest.getRemark())
                 .ge(listManufacturerRequest.getCreateTimeFrom()!=null,ErpManufacturer::getCreateTime,listManufacturerRequest.getCreateTimeFrom());
         return erpManufacturerMapper.selectList(wrapper);
     }
