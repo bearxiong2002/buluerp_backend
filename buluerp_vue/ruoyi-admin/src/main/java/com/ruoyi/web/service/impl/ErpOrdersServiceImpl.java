@@ -171,7 +171,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
            erpCustomers.setId(data.getCustomerId());
            erpCustomers.setName(erpOrders.getCustomerName());
            if (0 == erpCustomersService.updateErpCustomers(erpCustomers)) {
-               throw new ServiceException("更新客户信息失败");
+               throw new ServiceException("更新客户信息失败，客户ID无效");
            }
        }
         if (erpOrders.getProducts() != null) {
