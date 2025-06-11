@@ -34,7 +34,7 @@ public class ErpProducts {
     @Excel(name = "更新时间")
     private LocalDateTime updateTime;
 
-    @Excel(name = "图片url")
+    @Excel(name = "图片", cellType = Excel.ColumnType.IMAGE, height = 80)
     private String pictureUrl;
 
     @Excel(name = "设计确认状态", readConverterExp = "1=已确认,0=未确认")
