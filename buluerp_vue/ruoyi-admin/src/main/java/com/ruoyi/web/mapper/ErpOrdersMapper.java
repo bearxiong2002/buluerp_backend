@@ -2,8 +2,10 @@ package com.ruoyi.web.mapper;
 
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
+import com.ruoyi.web.request.order.ListOrderRequest;
 import org.apache.ibatis.annotations.Mapper;
 
+import java.util.Date;
 import java.util.List;
 
 
@@ -27,10 +29,10 @@ public interface ErpOrdersMapper
     /**
      * 查询订单列表
      * 
-     * @param erpOrders 订单
+     * @param request 订单
      * @return 订单集合
      */
-    public List<ErpOrders> selectErpOrdersList(ErpOrders erpOrders);
+    public List<ErpOrders> selectErpOrdersList(ListOrderRequest request);
 
     List<ErpOrders> selectErpOrdersListByIds(Long[] ids);
 

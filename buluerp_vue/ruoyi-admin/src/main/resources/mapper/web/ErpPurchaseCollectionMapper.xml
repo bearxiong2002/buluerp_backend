@@ -270,7 +270,7 @@
                 and purchase_weight = #{purchaseWeight}
             </if>
             <if test="deliveryTime != null">
-                and DATE(delivery_time) = DATE(#{deliveryTime})
+                and delivery_time like concat('%', #{deliveryTime}, '%')
             </if>
             <if test="deliveryDate != null">
                 and DATE(delivery_date) = DATE(#{deliveryDate})

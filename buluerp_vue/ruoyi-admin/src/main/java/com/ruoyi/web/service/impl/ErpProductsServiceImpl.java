@@ -75,22 +75,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
         if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
         if(listProductRequest.getOrderId()!=null) wrapper.eq(ErpProducts::getOrderId,listProductRequest.getOrderId());
-        List<ErpProducts> erpProductsList = fillMaterialIds(erpProductsMapper.selectList(wrapper));
-        
-        // 将图片URL转换为实际路径用于Excel导出
-        erpProductsList.forEach(product -> {
-            String pictureUrl = product.getPictureUrl();
-            if (pictureUrl != null && !pictureUrl.trim().isEmpty()) {
-                try {
-                    String actualPath = parseActualPath(pictureUrl);
-                    product.setPictureUrl(actualPath);
-                } catch (Exception e) {
-                    // 转换失败时保持原URL，避免影响其他功能
-                }
-            }
-        });
-        
-        return erpProductsList;
+        return fillMaterialIds(erpProductsMapper.selectList(wrapper));
     }
 
     @Override
