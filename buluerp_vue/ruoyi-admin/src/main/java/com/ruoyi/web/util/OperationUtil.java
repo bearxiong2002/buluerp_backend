@@ -102,7 +102,7 @@ public class OperationUtil {
 
         public String display() throws ClassNotFoundException {
             return String.format(
-                    "用户 %s 将 %s %d 的 ",
+                    "用户 %s 将%s%d的",
                     operator,
                     translateTableName(tableName),
                     id
@@ -117,7 +117,7 @@ public class OperationUtil {
                     .map(change -> {
                         try {
                             return String.format(
-                                    "%s 从 %s 修改为 %s",
+                                    "%s从\"%s\"修改为\"%s\"",
                                     translateFieldName(tableName, change.getName()),
                                     change.getOldValue(),
                                     change.getNewValue()

@@ -36,7 +36,7 @@ public class OperationLogAspect {
         ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
         String op = apiOperation.value();  // 获取 value 属性
         log.info(
-            "{} 在 {} 执行了 {}",
+            "{} 在 {} 执行了{}",
             SecurityUtils.getUsername(),
             DateUtils.getTime(),
             op

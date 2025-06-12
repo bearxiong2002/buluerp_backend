@@ -1,5 +1,6 @@
 package com.ruoyi.web.interceptor;
 
+import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOperationLogMapper;
 import com.ruoyi.web.util.OperationUtil;
 import org.apache.ibatis.executor.Executor;
@@ -20,23 +21,21 @@ import java.util.*;
         @Signature(type = Executor.class, method = "update", args = { MappedStatement.class, Object.class })
 })
 public class UpdateSqlInterceptor implements Interceptor {
-    @Resource
-    private ErpOperationLogMapper erpOperationLogMapper;
-
 
     @Override
     public Object intercept(Invocation invocation) throws Throwable {
         Object[] args = invocation.getArgs();
         MappedStatement mappedStatement = (MappedStatement) args[0];
-
-        // 检查是否是 UPDATE 类型
-        if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType())) {
+        String methodName = mappedStatement.getId();
+        if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType()) &&
+                methodName.startsWith(ErpCustomersMapper.class.getPackage().getName())
+        ) {
             OperationUtil.addUpdateRecord(
                     OperationUtil.extractUpdateRecord(invocation)
             );
         }
 
-            // 执行原始方法
+        // 执行原始方法
         return invocation.proceed();
     }
 
