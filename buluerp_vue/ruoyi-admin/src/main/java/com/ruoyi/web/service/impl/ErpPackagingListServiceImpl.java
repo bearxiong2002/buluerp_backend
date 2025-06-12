@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.service.IErpPackagingListService;
@@ -32,11 +33,13 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     @Override
     public int insertErpPackagingList(ErpPackagingList erpPackagingList) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
+        erpPackagingList.setOperator(SecurityUtils.getUsername());
         return erpPackagingListMapper.insertErpPackagingList(erpPackagingList);
     }
 
     @Override
     public int updateErpPackagingList(ErpPackagingList erpPackagingList) {
+        erpPackagingList.setOperator(SecurityUtils.getUsername());
         return erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
     }
 
