@@ -3,6 +3,7 @@ package com.ruoyi.web.domain;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -16,6 +17,7 @@ import java.io.Serializable;
  * @date 2025-04-09
  */
 @TableName(value = "erp_design_style")
+@ApiModel("设计造型")
 public class ErpDesignStyle implements Serializable {
     private static final long serialVersionUID = 1L;
 

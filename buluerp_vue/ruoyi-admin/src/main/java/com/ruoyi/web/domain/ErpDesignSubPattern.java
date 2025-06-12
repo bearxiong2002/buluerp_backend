@@ -1,5 +1,6 @@
 package com.ruoyi.web.domain;
 
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -11,6 +12,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
  * @author ruoyi
  * @date 2025-04-09
  */
+@ApiModel(value = "设计子模式")
 public class ErpDesignSubPattern extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

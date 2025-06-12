@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModel;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @TableName(value = "erp_products")
+@ApiModel("产品")
 public class ErpProducts {
 
     /** $column.columnComment */

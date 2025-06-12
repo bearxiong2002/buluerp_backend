@@ -10,6 +10,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,6 +18,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.Date;
 
 @TableName(value = "erp_material_info")
+@ApiModel("物料资料")
 public class ErpMaterialInfo extends BaseEntity {
     @TableId(type = IdType.AUTO)
     @Excel(name = "物料id")
