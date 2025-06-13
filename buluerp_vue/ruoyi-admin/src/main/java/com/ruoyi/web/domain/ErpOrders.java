@@ -54,7 +54,7 @@ public class ErpOrders extends BaseEntity
 
     /** 交货期限 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull(groups = {Save.class}, message = "交货期限格式有误")
+    // @NotNull(groups = {Save.class}, message = "交货期限格式有误")
     @Excel(name = "交货期限", width = 30, dateFormat = "yyyy-MM-dd")
     @Example("2021-01-01")
     private Date deliveryDeadline;
