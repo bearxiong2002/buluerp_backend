@@ -20,7 +20,8 @@ import java.util.List;
 public class OperationLogAspect {
     private final Logger log = LoggerFactory.getLogger(OperationLogAspect.class);
 
-    // 定义切入点：匹配 com.ruoyi.web.controller.erp 包下所有以 Controller 结尾的类中的方法，并且这些方法带有 @PostMapping 注解
+    // 定义切入点：匹配 com.ruoyi.web.controller.erp 包下所有以 Controller 结尾的类中的方法，
+    // 并且这些方法带有 @ApiOperation 注解
     @Pointcut("execution(* com.ruoyi.web.controller.erp.*Controller.*(..)) &&" +
             "@annotation(io.swagger.annotations.ApiOperation)")
     public void operation() {}
@@ -31,24 +32,28 @@ public class OperationLogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        Object result = joinPoint.proceed();
+        try {
+            Object result = joinPoint.proceed();
 
-        ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
-        String op = apiOperation.value();  // 获取 value 属性
-        log.info(
-            "{} 在 {} 执行了{}",
-            SecurityUtils.getUsername(),
-            DateUtils.getTime(),
-            op
-        );
+            ApiOperation apiOperation = method.getAnnotation(ApiOperation.class);
+            String op = apiOperation.value();  // 获取 value 属性
+            log.info(
+                    "{} 在 {} 执行了{}",
+                    SecurityUtils.getUsername(),
+                    DateUtils.getTime(),
+                    op
+            );
 
-        List<OperationUtil.UpdateRecord> updateRecords = OperationUtil.getUpdateRecords();
-        for (OperationUtil.UpdateRecord updateRecord : updateRecords) {
-            if (updateRecord.shouldDisplay()) {
-                log.info(updateRecord.display());
+            List<OperationUtil.UpdateRecord> updateRecords = OperationUtil.getUpdateRecords();
+            for (OperationUtil.UpdateRecord updateRecord : updateRecords) {
+                if (updateRecord.shouldDisplay()) {
+                    log.info(updateRecord.display());
+                }
             }
+
+            return result;
+        } finally {
+            OperationUtil.clearUpdateRecord();
         }
-        OperationUtil.clearUpdateRecord();
-        return result;
     }
 }

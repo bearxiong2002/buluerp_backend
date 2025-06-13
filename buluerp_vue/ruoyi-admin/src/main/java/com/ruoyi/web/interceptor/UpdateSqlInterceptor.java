@@ -30,9 +30,10 @@ public class UpdateSqlInterceptor implements Interceptor {
         if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType()) &&
                 methodName.startsWith(ErpCustomersMapper.class.getPackage().getName())
         ) {
-            OperationUtil.addUpdateRecord(
-                    OperationUtil.extractUpdateRecord(invocation)
-            );
+            OperationUtil.UpdateRecord updateRecord = OperationUtil.extractUpdateRecord(invocation);
+            Object result = invocation.proceed();
+            OperationUtil.addUpdateRecord(updateRecord);
+            return result;
         }
 
         // 执行原始方法
