@@ -133,6 +133,9 @@ public class OperationUtil {
     private static final ThreadLocal<List<UpdateRecord>> updateRecord = new ThreadLocal<>();
 
     public static List<UpdateRecord> getUpdateRecords() {
+        if (updateRecord.get() == null) {
+            updateRecord.set(new ArrayList<>());
+        }
         return updateRecord.get();
     }
 
@@ -142,10 +145,6 @@ public class OperationUtil {
 
     public static void addUpdateRecord(UpdateRecord updateRecord) {
         List<UpdateRecord> updateRecordList = getUpdateRecords();
-        if (updateRecordList == null) {
-            updateRecordList = new ArrayList<>();
-            setUpdateRecord(updateRecordList);
-        }
         updateRecordList.add(updateRecord);
     }
 
