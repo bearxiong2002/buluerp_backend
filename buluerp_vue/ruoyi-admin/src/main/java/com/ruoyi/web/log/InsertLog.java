@@ -10,8 +10,7 @@ public class InsertLog implements OperationLog {
     private Date operationTime;
     private String operator;
     private String tableName;
-    private List<String> columns;
-    private List<List<String>> values;
+    private Integer count;
 
     public void setOperator(String operator) {
         this.operator = operator;
@@ -50,25 +49,14 @@ public class InsertLog implements OperationLog {
         if (type.isEmpty()) {
             return "";
         }
-        if (columns == null || values == null) {
-            return "";
-        }
-        return "新建了" + values.size() + "条" + type + "记录";
+        return "新建了" + getCount() + "条" + type + "记录";
     }
 
-    public List<String> getColumns() {
-        return columns;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setColumns(List<String> columns) {
-        this.columns = columns;
-    }
-
-    public List<List<String>> getValues() {
-        return values;
-    }
-
-    public void setValues(List<List<String>> values) {
-        this.values = values;
+    public void setCount(Integer count) {
+        this.count = count;
     }
 }

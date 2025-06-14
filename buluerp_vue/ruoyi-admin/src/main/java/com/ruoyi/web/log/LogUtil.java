@@ -220,7 +220,7 @@ public class LogUtil {
     }
 
     public static final Pattern INSERT_PATTERN
-            = Pattern.compile("insert\\s+into\\s+(\\S+)\\s*\\((.+)\\)\\s+values\\s+\\((.+)\\);?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+            = Pattern.compile("insert\\s+into\\s+(\\S+)\\s*\\((.+)\\)\\s+values\\s+(.+);?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
     public static InsertLog extractInsertLog(Invocation invocation) {
         InsertLog insertLog = new InsertLog();
@@ -235,33 +235,9 @@ public class LogUtil {
         Matcher matcher = INSERT_PATTERN.matcher(sql);
         if (matcher.find()) {
             String tableName = matcher.group(1);
-            String fieldNames = matcher.group(2);
             String valuesString = matcher.group(3);
             insertLog.setTableName(tableName);
-            insertLog.setColumns(
-                    Arrays.stream(fieldNames.split(","))
-                            .map(String::trim)
-                            .collect(Collectors.toList())
-            );
-            List<List<String>> valuesList = new ArrayList<>();
-            List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
-
-            List<String> rowValues = new ArrayList<>();
-            for (ParameterMapping mapping : parameterMappings) {
-                String propertyName = mapping.getProperty();
-                Object value;
-
-                if (parameter instanceof Map) {
-                    value = ((Map<?, ?>) parameter).get(propertyName);
-                } else {
-                    value = ReflectUtils.getFieldValue(parameter, propertyName);
-                }
-
-                rowValues.add(value != null ? value.toString() : "NULL");
-            }
-
-            valuesList.add(rowValues);
-            insertLog.setValues(valuesList);
+            insertLog.setCount(valuesString.split("\\(").length - 1);
         }
 
         return insertLog;
