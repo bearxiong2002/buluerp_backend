@@ -18,7 +18,7 @@ PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
 	</settings>
 
     <plugins>
-        <plugin interceptor="com.ruoyi.web.interceptor.UpdateSqlInterceptor">
+        <plugin interceptor="com.ruoyi.web.interceptor.OperationLogInterceptor">
             <!-- 可选的配置项 -->
         </plugin>
     </plugins>

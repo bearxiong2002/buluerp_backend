@@ -2,7 +2,9 @@ package com.ruoyi.web.aspect;
 
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.web.util.OperationUtil;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.web.log.LogUtil;
+import com.ruoyi.web.log.OperationLog;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -32,6 +34,7 @@ public class OperationLogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
+        LogUtil.clearOperationLog();
         try {
             Object result = joinPoint.proceed();
 
@@ -44,16 +47,20 @@ public class OperationLogAspect {
                     op
             );
 
-            List<OperationUtil.UpdateRecord> updateRecords = OperationUtil.getUpdateRecords();
-            for (OperationUtil.UpdateRecord updateRecord : updateRecords) {
-                if (updateRecord.shouldDisplay()) {
-                    log.info(updateRecord.display());
+            List<OperationLog> opLogs = LogUtil.getOperationLog();
+            for (OperationLog opLog : opLogs) {
+                String details = opLog.getDetails();
+                if (!StringUtils.isBlank(details)) {
+                    log.info(
+                            "操作详情：{}",
+                            details
+                    );
                 }
             }
 
             return result;
         } finally {
-            OperationUtil.clearUpdateRecord();
+            LogUtil.clearOperationLog();
         }
     }
 }
