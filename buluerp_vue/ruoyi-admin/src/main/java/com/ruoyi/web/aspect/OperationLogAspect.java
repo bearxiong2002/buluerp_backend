@@ -1,5 +1,6 @@
 package com.ruoyi.web.aspect;
 
+import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
@@ -58,7 +59,17 @@ public class OperationLogAspect {
                 }
             }
 
+            if (result instanceof AjaxResult) {
+                AjaxResult ajaxResult = (AjaxResult) result;
+                if (ajaxResult.isError()) {
+                    log.info("该操作失败：{}", ajaxResult.get(AjaxResult.MSG_TAG));
+                }
+            }
+
             return result;
+        } catch (Throwable e) {
+            log.info("该操作异常结束");
+            throw e;
         } finally {
             LogUtil.clearOperationLog();
         }
