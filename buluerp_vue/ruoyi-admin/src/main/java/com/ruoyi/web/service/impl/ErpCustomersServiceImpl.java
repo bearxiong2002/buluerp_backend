@@ -4,12 +4,17 @@ import java.util.Date;
 import java.util.List;
 import javax.validation.Validator;
 
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.web.domain.ErpCustomers;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
+import com.ruoyi.web.mapper.ErpOrdersMapper;
+import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpCustomersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /**
@@ -25,7 +30,7 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
     private ErpCustomersMapper erpCustomersMapper;
 
     @Autowired
-    private Validator validator;
+    private ErpOrdersMapper erpOrdersMapper;
 
     /**
      * 查询【请填写功能名称】
@@ -37,6 +42,11 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
     public ErpCustomers selectErpCustomersById(Long id)
     {
         return erpCustomersMapper.selectErpCustomersById(id);
+    }
+
+    @Override
+    public ErpCustomers selectErpCustomersByName(String name) {
+        return erpCustomersMapper.getErpCustomersByName(name);
     }
 
     /**
@@ -91,9 +101,14 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
      * @return 结果
      */
     @Override
+    @Transactional
     public int deleteErpCustomersByIds(Long[] ids)
     {
-        return erpCustomersMapper.deleteErpCustomersByIds(ids);
+        int count = 0;
+        for (Long id : ids) {
+            count += deleteErpCustomersById(id);
+        }
+        return count;
     }
 
     /**
@@ -103,8 +118,15 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
      * @return 结果
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public int deleteErpCustomersById(Long id)
     {
+        ListOrderRequest orders = new ListOrderRequest();
+        orders.setCustomerId(id);
+        List<ErpOrders> ordersList = erpOrdersMapper.selectErpOrdersList(orders);
+        if (!ordersList.isEmpty()) {
+            throw new ServiceException("客户" + id  + "有订单，不能删除");
+        }
         return erpCustomersMapper.deleteErpCustomersById(id);
     }
 }

@@ -5,10 +5,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModel;
 
 import java.util.Date;
 
 @TableName(value = "erp_manufacturer")
+@ApiModel("厂家")
 public class ErpManufacturer {
 
     @TableId(type = IdType.AUTO)

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
  * @date 2025-04-09
  */
 @TableName(value = "erp_design_patterns")
+@ApiModel("设计总表")
 public class ErpDesignPatterns implements Serializable {
     private static final long serialVersionUID = 1L;
 

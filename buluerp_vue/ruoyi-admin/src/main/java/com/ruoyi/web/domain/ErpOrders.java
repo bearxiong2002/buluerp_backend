@@ -10,6 +10,7 @@ import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -24,6 +25,7 @@ import javax.validation.constraints.NotNull;
  * @author ruoyi
  * @date 2025-04-09
  */
+@ApiModel("订单")
 public class ErpOrders extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
@@ -52,7 +54,7 @@ public class ErpOrders extends BaseEntity
 
     /** 交货期限 */
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @NotNull(groups = {Save.class}, message = "交货期限格式有误")
+    // @NotNull(groups = {Save.class}, message = "交货期限格式有误")
     @Excel(name = "交货期限", width = 30, dateFormat = "yyyy-MM-dd")
     @Example("2021-01-01")
     private Date deliveryDeadline;

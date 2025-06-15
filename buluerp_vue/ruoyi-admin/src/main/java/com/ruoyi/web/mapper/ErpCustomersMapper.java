@@ -64,4 +64,6 @@ public interface ErpCustomersMapper
      * @return 结果
      */
     public int deleteErpCustomersByIds(Long[] ids);
+
+    ErpCustomers getErpCustomersByName(String name);
 }

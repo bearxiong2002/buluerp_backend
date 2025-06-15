@@ -6,6 +6,7 @@ import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
@@ -21,6 +22,7 @@ import javax.validation.constraints.Pattern;
  * @author ruoyi
  * @date 2025-04-09
  */
+@ApiModel("客户")
 public class ErpCustomers extends BaseEntity
 {
     private static final long serialVersionUID = 1L;

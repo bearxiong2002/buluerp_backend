@@ -1,17 +1,14 @@
 package com.ruoyi.web.service.impl;
 
-import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.*;
-import com.ruoyi.web.mapper.ErpCustomersMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
-import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpCustomersService;
@@ -58,7 +55,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                     new Long[]{erpOrdersProduct.getProductId()}
             );
             if (erpProducts.isEmpty()) {
-                throw new ServiceException("关联了无效的产品 ID：" + erpOrdersProduct.getProductId());
+                continue;
             }
             erpOrdersProduct.setProduct(erpProducts.get(0));
         }
@@ -95,7 +92,10 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Override
     public List<ErpOrders> selectErpOrdersListByIds(Long[] ids) {
-        return erpOrdersMapper.selectErpOrdersListByIds(ids);
+        return erpOrdersMapper.selectErpOrdersListByIds(ids)
+                .stream()
+                .map(this::fillErpOrders)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -114,10 +114,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrders.setOperator(loginUser.getUsername());
         }
         if (erpOrders.getCustomerId() == null && erpOrders.getCustomerName() != null) {
-            ErpCustomers erpCustomers = new ErpCustomers();
-            erpCustomers.setName(erpOrders.getCustomerName());
-            if (0 == erpCustomersService.insertErpCustomers(erpCustomers)) {
-                throw new ServiceException("添加客户信息失败");
+            ErpCustomers erpCustomers = erpCustomersService.selectErpCustomersByName(erpOrders.getCustomerName());
+            if (erpCustomers == null) {
+                erpCustomers = new ErpCustomers();
+                erpCustomers.setName(erpOrders.getCustomerName());
+                if (0 == erpCustomersService.insertErpCustomers(erpCustomers)) {
+                    throw new ServiceException("添加客户信息失败，客户ID无效");
+                }
             }
             erpOrders.setCustomerId(erpCustomers.getId());
         }
@@ -176,7 +179,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
            erpCustomers.setId(data.getCustomerId());
            erpCustomers.setName(erpOrders.getCustomerName());
            if (0 == erpCustomersService.updateErpCustomers(erpCustomers)) {
-               throw new ServiceException("更新客户信息失败");
+               throw new ServiceException("更新客户信息失败，客户ID无效");
            }
        }
         if (erpOrders.getProducts() != null) {

@@ -6,11 +6,13 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 
 import java.util.Date;
 
+@ApiModel("分包")
 public class ErpPackagingList extends BaseEntity {
     @Excel(name = "序号")
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")

@@ -8,6 +8,7 @@ import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -27,6 +28,7 @@ import javax.validation.constraints.Null;
  * @date 2025-04-08
  */
 @TableName("erp_purchase_info")
+@ApiModel("外购资料")
 public class ErpPurchaseInfo
 {
     @TableId(type = IdType.AUTO)
