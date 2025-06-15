@@ -64,7 +64,7 @@ public class ErpOrders extends BaseEntity
     private Date deliveryTime;
 
     /** 状态（0:创建 1:已发货 2:已完成等） */
-    @Excel(name = "状态", readConverterExp = "0=创建,1=已发货,2=已完成")
+    @Excel(name = "状态", readConverterExp = "0=创建(未审核),1=待设计,2=已设计,3=已发货,4=已完成")
     @Example("1")
     @NotNull(groups = {Save.class}, message = "状态值格式有误")
     private Integer status;

@@ -131,13 +131,6 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             throw new ServiceException("无法生成订单ID");
         }
 
-        /*
-        创建设计
-         */
-        AddDesignPatternsRequest addDesignPatternsRequest=new AddDesignPatternsRequest();
-        addDesignPatternsRequest.setOrderId(erpOrders1.getId());
-        erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
-
         return 1;
     }
 
