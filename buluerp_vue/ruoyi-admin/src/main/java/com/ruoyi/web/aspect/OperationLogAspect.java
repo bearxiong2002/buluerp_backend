@@ -43,7 +43,7 @@ public class OperationLogAspect {
             String op = apiOperation.value();  // 获取 value 属性
             log.info(
                     "{} 在 {} 执行了{}",
-                    SecurityUtils.getUsername(),
+                    LogUtil.getCurrentOperator(),
                     DateUtils.getTime(),
                     op
             );

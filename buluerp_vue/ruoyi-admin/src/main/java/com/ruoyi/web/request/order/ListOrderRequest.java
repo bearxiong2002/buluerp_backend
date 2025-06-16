@@ -11,6 +11,9 @@ public class ListOrderRequest extends ErpOrders {
     @ApiModelProperty(value = "创建时间结束")
     private Date createTimeTo;
 
+    @ApiModelProperty(value = "是否通过审核，true - 已通过，false - 未通过，null - 忽略是否通过")
+    private Boolean approved;
+
     public Date getCreateTimeFrom() {
         return createTimeFrom;
     }
@@ -25,5 +28,13 @@ public class ListOrderRequest extends ErpOrders {
 
     public void setCreateTimeTo(Date createTimeTo) {
         this.createTimeTo = createTimeTo;
+    }
+
+    public Boolean getApproved() {
+        return approved;
+    }
+
+    public void setApproved(Boolean approved) {
+        this.approved = approved;
     }
 }

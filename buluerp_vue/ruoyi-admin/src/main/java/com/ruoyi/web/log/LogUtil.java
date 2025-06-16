@@ -83,6 +83,14 @@ public class LogUtil {
         return result.toString();
     }
 
+    public static String getCurrentOperator() {
+        try {
+            return SecurityUtils.getUsername();
+        } catch (Exception e) {
+            return "系统";
+        }
+    }
+
     public static String extractUpdateTableName(String sql) {
         // 简单提取表名（适用于 UPDATE 表名 SET ...）
         String lowerSql = sql.toLowerCase();
@@ -177,7 +185,7 @@ public class LogUtil {
         BoundSql boundSql = mappedStatement.getBoundSql(parameter);
         String sql = boundSql.getSql();
         updateLog.setTableName(extractUpdateTableName(sql));
-        updateLog.setOperator(SecurityUtils.getUsername());
+        updateLog.setOperator(getCurrentOperator());
         updateLog.setOperationTime(DateUtils.getNowDate());
         updateLog.setId(ReflectUtils.getFieldValue(parameter, "id"));
         updateLog.setChanges(extractPropertyUpdates(invocation));
@@ -190,7 +198,7 @@ public class LogUtil {
 
     public static DeleteLog extractDeleteLog(Invocation invocation) throws SQLException {
         DeleteLog deleteLog = new DeleteLog();
-        deleteLog.setOperator(SecurityUtils.getUsername());
+        deleteLog.setOperator(getCurrentOperator());
         deleteLog.setOperationTime(DateUtils.getNowDate());
 
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
@@ -224,7 +232,7 @@ public class LogUtil {
 
     public static InsertLog extractInsertLog(Invocation invocation) {
         InsertLog insertLog = new InsertLog();
-        insertLog.setOperator(SecurityUtils.getUsername());
+        insertLog.setOperator(getCurrentOperator());
         insertLog.setOperationTime(DateUtils.getNowDate());
 
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];

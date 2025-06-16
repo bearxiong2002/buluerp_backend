@@ -70,6 +70,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="createTimeTo != null">
                 and o.create_time &lt;= #{createTimeTo}
             </if>
+            <if test="approved != null">
+                <if test="approved">
+                    and o.status > 0
+                </if>
+                <if test="!approved">
+                    and o.status &lt;= 0
+                </if>
+            </if>
         </where>
     </select>
     
