@@ -12,8 +12,8 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.request.order.ListOrderRequest;
+import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IOrderAuditService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,7 +42,7 @@ public class ErpOrdersController extends BaseController
     private IErpOrdersService erpOrdersService;
 
     @Autowired
-    private IOrderAuditService orderAuditService;
+    private IErpAuditRecordService erpAuditRecordService;
 
     /**
      * 查询订单列表
@@ -183,7 +183,7 @@ public class ErpOrdersController extends BaseController
             }
             
             // 4. 重新创建审核记录并发送通知
-            orderAuditService.handleOrderCreated(order);
+            erpAuditRecordService.handleOrderCreated(order);
             
             return success("订单重新提交审核成功");
             

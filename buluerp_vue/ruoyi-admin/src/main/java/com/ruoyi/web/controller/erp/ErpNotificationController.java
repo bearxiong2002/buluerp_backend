@@ -25,7 +25,7 @@ import java.util.List;
  * @date 2025-01-XX
  */
 @RestController
-@RequestMapping("/web/notification")
+@RequestMapping("/system/notification")
 public class ErpNotificationController extends BaseController
 {
     @Autowired
@@ -34,7 +34,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 查询通知列表
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:list')")
+    @PreAuthorize("@ss.hasPermi('system:notification:list')")
     @GetMapping("/list")
     public TableDataInfo list(ErpNotification erpNotification)
     {
@@ -46,7 +46,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 导出通知列表
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:export')")
+    @PreAuthorize("@ss.hasPermi('system:notification:export')")
     @Log(title = "通知", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, ErpNotification erpNotification)
@@ -59,7 +59,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 获取通知详细信息
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:query')")
+    @PreAuthorize("@ss.hasPermi('system:notification:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id)
     {
@@ -69,7 +69,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 新增通知
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:add')")
+    @PreAuthorize("@ss.hasPermi('system:notification:add')")
     @Log(title = "通知", businessType = BusinessType.INSERT)
     @PostMapping
     public AjaxResult add(@RequestBody ErpNotification erpNotification)
@@ -80,7 +80,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 修改通知
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:edit')")
+    @PreAuthorize("@ss.hasPermi('system:notification:edit')")
     @Log(title = "通知", businessType = BusinessType.UPDATE)
     @PutMapping
     public AjaxResult edit(@RequestBody ErpNotification erpNotification)
@@ -91,7 +91,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 删除通知
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:remove')")
+    @PreAuthorize("@ss.hasPermi('system:notification:remove')")
     @Log(title = "通知", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids)
@@ -146,7 +146,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 根据业务ID和类型查询通知
      */
-    @PreAuthorize("@ss.hasPermi('web:notification:query')")
+    @PreAuthorize("@ss.hasPermi('system:notification:query')")
     @GetMapping("/byBusiness")
     public AjaxResult getByBusiness(@RequestParam Long businessId, @RequestParam String businessType)
     {

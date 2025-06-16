@@ -11,11 +11,7 @@ import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
-import com.ruoyi.web.service.IErpCustomersService;
-import com.ruoyi.web.service.IErpDesignPatternsService;
-import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpProductsService;
-import com.ruoyi.web.service.IOrderAuditService;
+import com.ruoyi.web.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +42,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private IErpDesignPatternsService erpDesignPatternsService;
 
     @Autowired
-    private IOrderAuditService orderAuditService;
+    private IErpAuditRecordService erpAuditRecordService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
@@ -147,7 +143,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             ErpOrders completeOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
             
             // 触发订单审核流程
-            orderAuditService.handleOrderCreated(completeOrder);
+            erpAuditRecordService.handleOrderCreated(completeOrder);
         } catch (Exception e) {
             // 记录日志但不影响订单创建
             log.error("订单创建后处理审核流程失败，订单ID：{}", erpOrders.getId(), e);
