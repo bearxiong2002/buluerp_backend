@@ -15,6 +15,9 @@ import com.ruoyi.web.service.IErpCustomersService;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductsService;
+import com.ruoyi.web.service.IOrderAuditService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +32,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class ErpOrdersServiceImpl implements IErpOrdersService
 {
+    private static final Logger log = LoggerFactory.getLogger(ErpOrdersServiceImpl.class);
     @Autowired
     private ErpOrdersMapper erpOrdersMapper;
 
@@ -40,6 +44,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Autowired
     private IErpDesignPatternsService erpDesignPatternsService;
+
+    @Autowired
+    private IOrderAuditService orderAuditService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
@@ -134,12 +141,17 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             throw new ServiceException("无法生成订单ID");
         }
 
-        /*
-        创建设计
-         */
-        AddDesignPatternsRequest addDesignPatternsRequest=new AddDesignPatternsRequest();
-        addDesignPatternsRequest.setOrderId(erpOrders1.getId());
-        erpDesignPatternsService.insertErpDesignPatterns(addDesignPatternsRequest);
+        // 订单创建成功后，触发审核流程
+        try {
+            // 获取完整的订单信息（包含生成的订单编号）
+            ErpOrders completeOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
+            
+            // 触发订单审核流程
+            orderAuditService.handleOrderCreated(completeOrder);
+        } catch (Exception e) {
+            // 记录日志但不影响订单创建
+            log.error("订单创建后处理审核流程失败，订单ID：{}", erpOrders.getId(), e);
+        }
 
         return 1;
     }

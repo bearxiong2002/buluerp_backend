@@ -1,5 +1,6 @@
 package com.ruoyi.web.result;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.web.domain.ErpPurchaseOrderInvoice;
 import io.swagger.annotations.ApiModel;
@@ -17,6 +18,7 @@ public class PurchaseOrderResult {
     private Integer purchaseId;
     @ApiModelProperty(value = "订单金额",dataType = "int",required = true)
     private Double amount;
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @ApiModelProperty(dataType = "DateTime",value = "创建时间",required = false)
     private LocalDateTime createTime;
     @ApiModelProperty(dataType = "String",value = "创建用户",required = false)
