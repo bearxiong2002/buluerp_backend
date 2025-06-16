@@ -49,7 +49,6 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     /** 订单状态常量 */
     private static final Integer ORDER_STATUS_PENDING = 0;  // 待审核
     private static final Integer ORDER_STATUS_APPROVED = 1; // 已审核 待设计
-    private static final Integer ORDER_STATUS_REJECTED = -1; // 审核拒绝
     private static final Integer ORDER_STATUS_DESIGNING = 2; // 设计中
 
     /**
@@ -126,7 +125,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
      * 支持单个和批量审核
      * 
      * @param auditRecordIds 审核记录ID列表
-     * @param confirm 审核状态（1:通过 -1:拒绝）
+     * @param confirm 审核决定（1:通过 -1:拒绝）
      * @param auditor 审核人
      * @param auditComment 审核意见
      * @return 处理结果
@@ -141,7 +140,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             if (confirm == null || (!confirm.equals(1) && !confirm.equals(-1))) {
-                throw new IllegalArgumentException("审核状态参数错误，1=通过，-1=拒绝");
+                throw new IllegalArgumentException("审核决定参数错误，1=通过，-1=拒绝");
             }
             
             if (!StringUtils.hasText(auditor)) {
@@ -155,7 +154,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             for (Long auditRecordId : auditRecordIds) {
                 ErpAuditRecord auditRecord = new ErpAuditRecord();
                 auditRecord.setId(auditRecordId);
-                auditRecord.setConfirm(confirm);
+                auditRecord.setConfirm(1); // 无论通过还是拒绝，都标记为已处理
                 auditRecord.setAuditor(auditor);
                 auditRecord.setCheckTime(checkTime);
                 auditRecord.setAuditComment(auditComment);
@@ -202,12 +201,6 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             auditRecord.setToStatus(toStatus);
             auditRecord.setConfirm(0); // 未审核
             auditRecord.setCreateTime(DateUtils.getNowDate());
-            
-            // 设置创建人信息
-            LoginUser loginUser = SecurityUtils.getLoginUser();
-            if (loginUser != null) {
-                auditRecord.setCreateBy(loginUser.getUsername());
-            }
             
             erpAuditRecordMapper.insert(auditRecord);
             log.info("创建审核记录成功，审核类型：{}，审核对象ID：{}，记录ID：{}", 
@@ -317,7 +310,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     }
 
     /**
-     * 订单审核拒绝处理（更新订单状态并发送通知）
+     * 订单审核拒绝处理（发送通知，订单状态保持不变）
      * 
      * @param auditRecordId 审核记录ID
      * @param auditor 审核人
@@ -339,14 +332,11 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             ErpAuditRecord auditRecord = records.get(0);
             
-            // 2. 更新订单状态为审核拒绝
+            // 2. 获取订单信息（不修改订单状态，保持原状态）
             ErpOrders order = ordersService.selectErpOrdersById(auditRecord.getAuditId());
             if (order == null) {
                 throw new RuntimeException("订单不存在");
             }
-            
-            order.setStatus(ORDER_STATUS_REJECTED); // 设置为审核拒绝状态
-            ordersService.updateErpOrders(order);
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildOrderNotificationData(order);
@@ -361,7 +351,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 templateData
             );
             
-            log.info("订单审核拒绝流程处理完成，订单ID：{}，审核记录ID：{}", 
+            log.info("订单审核拒绝流程处理完成，订单ID：{}，审核记录ID：{}，订单状态保持不变", 
                     order.getId(), auditRecordId);
             
         } catch (Exception e) {
@@ -392,6 +382,51 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     }
 
     /**
+     * 订单状态变更审核处理（创建审核记录并发送通知）
+     * 
+     * @param order 订单信息
+     * @param newStatus 新状态
+     */
+    @Override
+    @Transactional
+    public void handleOrderStatusChange(ErpOrders order, Integer newStatus)
+    {
+        try {
+            log.info("开始处理订单状态变更审核流程，订单ID：{}，当前状态：{}，目标状态：{}", 
+                    order.getId(), order.getStatus(), newStatus);
+            
+            // 1. 创建审核记录
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.ORDER_AUDIT.getCode(),
+                order.getId(),
+                order.getStatus(), // 当前状态作为前状态
+                newStatus // 目标状态
+            );
+            
+            // 2. 构建通知模板数据
+            Map<String, Object> templateData = buildOrderNotificationData(order);
+            templateData.put("currentStatus", getStatusDescription(order.getStatus()));
+            templateData.put("targetStatus", getStatusDescription(newStatus));
+            
+            // 3. 发送通知给订单审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.ORDER_STATUS_CHANGE,
+                "order_auditor", // 订单审核人角色标识
+                order.getId(),
+                "ORDER",
+                templateData
+            );
+            
+            log.info("订单状态变更审核流程处理完成，订单ID：{}，审核记录ID：{}", 
+                    order.getId(), auditRecord.getId());
+            
+        } catch (Exception e) {
+            log.error("处理订单状态变更审核流程失败，订单ID：{}", order.getId(), e);
+            throw new RuntimeException("处理订单状态变更审核流程失败", e);
+        }
+    }
+
+    /**
      * 构建订单通知模板数据
      * 
      * @param order 订单信息
@@ -412,5 +447,26 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
         }
         
         return templateData;
+    }
+
+    /**
+     * 获取状态描述
+     * 
+     * @param status 状态值
+     * @return 状态描述
+     */
+    private String getStatusDescription(Integer status) {
+        if (status == null) {
+            return "未知";
+        }
+        switch (status) {
+            case -1: return "审核不通过";
+            case 0: return "创建(未审核)";
+            case 1: return "待设计";
+            case 2: return "已设计";
+            case 3: return "已发货";
+            case 4: return "已完成";
+            default: return "未知状态(" + status + ")";
+        }
     }
 } 

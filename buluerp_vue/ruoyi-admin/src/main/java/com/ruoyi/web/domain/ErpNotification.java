@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -19,7 +19,7 @@ import java.util.Date;
  * @date 2025-01-XX
  */
 @TableName("erp_notification")
-public class ErpNotification extends BaseEntity
+public class ErpNotification implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -93,6 +93,22 @@ public class ErpNotification extends BaseEntity
     @Excel(name = "阅读时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @TableField("read_time")
     private Date readTime;
+
+    /** 创建者 */
+    @Excel(name = "创建者")
+    @TableField("create_by")
+    private String createBy;
+
+    /** 创建时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @TableField("create_time")
+    private Date createTime;
+
+    /** 备注 */
+    @Excel(name = "备注")
+    @TableField("remark")
+    private String remark;
 
     public void setId(Long id) 
     {
@@ -232,6 +248,36 @@ public class ErpNotification extends BaseEntity
     public Date getReadTime() 
     {
         return readTime;
+    }
+
+    public void setCreateBy(String createBy) 
+    {
+        this.createBy = createBy;
+    }
+
+    public String getCreateBy() 
+    {
+        return createBy;
+    }
+
+    public void setCreateTime(Date createTime) 
+    {
+        this.createTime = createTime;
+    }
+
+    public Date getCreateTime() 
+    {
+        return createTime;
+    }
+
+    public void setRemark(String remark) 
+    {
+        this.remark = remark;
+    }
+
+    public String getRemark() 
+    {
+        return remark;
     }
 
     @Override

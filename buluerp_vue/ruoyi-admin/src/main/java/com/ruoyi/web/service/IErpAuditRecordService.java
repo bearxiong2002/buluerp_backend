@@ -91,4 +91,12 @@ public interface IErpAuditRecordService
      * @return 订单详情
      */
     ErpOrders getOrderDetail(Long orderId);
+
+    /**
+     * 订单状态变更审核处理（创建审核记录并发送通知）
+     * 
+     * @param order 订单信息
+     * @param newStatus 新状态
+     */
+    void handleOrderStatusChange(ErpOrders order, Integer newStatus);
 } 

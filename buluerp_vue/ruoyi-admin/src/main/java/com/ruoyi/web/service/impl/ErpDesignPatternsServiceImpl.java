@@ -9,7 +9,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
+import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
@@ -40,6 +42,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
     @Autowired
     private ErpProductsMapper erpProductsMapper;
+
+    @Autowired
+    private ErpOrdersMapper erpOrdersMapper;
 
     /**
      * 查询总表详情
@@ -155,14 +160,24 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
     @Transactional(rollbackFor = Exception.class)
     public int confirmErpDesignPatternsById(Long id){
-        Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
+        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
+        Long proId= erpDesignPatterns.getProductId();
         erpProductsMapper.updateStatusById(proId,1L);
+        ErpOrders erpOrders=new ErpOrders();
+        erpOrders.setStatus(2);
+        erpOrders.setId(erpDesignPatterns.getOrderId());
+        erpOrdersMapper.updateErpOrders(erpOrders);
         return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
     }
 
     @Transactional(rollbackFor = Exception.class)
     public int cancelConfirmById(Long id){
-        Long proId= erpDesignPatternsMapper.selectById(id).getProductId();
+        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
+        Long proId= erpDesignPatterns.getProductId();
+        ErpOrders erpOrders=new ErpOrders();
+        erpOrders.setStatus(1);
+        erpOrders.setId(erpDesignPatterns.getOrderId());
+        erpOrdersMapper.updateErpOrders(erpOrders);
         erpProductsMapper.updateStatusById(proId,0L);
         return erpDesignPatternsMapper.cancelConfirmById(id);
     }

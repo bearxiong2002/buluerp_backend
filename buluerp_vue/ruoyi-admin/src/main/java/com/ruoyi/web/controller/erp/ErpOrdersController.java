@@ -151,45 +151,5 @@ public class ErpOrdersController extends BaseController
         return toAjax(erpOrdersService.deleteErpOrdersByIds(ids));
     }
 
-    /**
-     * 重新提交订单审核
-     */
-    // @PreAuthorize("@ss.hasPermi('system:orders:add')") // 需要登录后获取 operatorId
-    @Anonymous
-    @Log(title = "重新提交订单审核", businessType = BusinessType.UPDATE)
-    @PostMapping("/resubmit/{id}")
-    @ApiOperation(value = "重新提交订单审核", notes = "用于状态为-1（审核拒绝）的订单重新提交审核")
-    public AjaxResult resubmitOrder(@ApiParam("订单ID") @PathVariable("id") Long id)
-    {
-        try {
-            // 1. 获取订单信息
-            ErpOrders order = erpOrdersService.selectErpOrdersById(id);
-            if (order == null) {
-                return error("订单不存在");
-            }
-            
-            // 2. 检查订单状态是否为审核拒绝(-1)
-            if (!Integer.valueOf(-1).equals(order.getStatus())) {
-                return error("只有审核拒绝状态的订单才能重新提交审核");
-            }
-            
-            // 3. 更新订单状态为待审核(0)
-            order.setStatus(0);
-            order.setUpdateTime(new Date());
-            int updateResult = erpOrdersService.updateErpOrders(order);
-            
-            if (updateResult <= 0) {
-                return error("更新订单状态失败");
-            }
-            
-            // 4. 重新创建审核记录并发送通知
-            erpAuditRecordService.handleOrderCreated(order);
-            
-            return success("订单重新提交审核成功");
-            
-        } catch (Exception e) {
-            logger.error("重新提交订单审核失败，订单ID：{}", id, e);
-            return error("重新提交订单审核失败：" + e.getMessage());
-        }
-    }
+
 }

@@ -131,7 +131,7 @@ public class ErpAuditRecordController extends BaseController
         } catch (Exception e) {
             logger.error("获取审核详情失败", e);
             return error("获取审核详情失败：" + e.getMessage());
-        }
+    }
     }
 
     // ==================== 订单审核接口 ====================
@@ -308,7 +308,7 @@ public class ErpAuditRecordController extends BaseController
             return success("布产审核" + action + "成功");
         } else {
             return error("审核处理失败");
-        }
+    }
     }
 
 
@@ -353,12 +353,12 @@ public class ErpAuditRecordController extends BaseController
         if (records.isEmpty()) {
             return error("审核记录不存在");
         }
-        
+
         ErpAuditRecord auditRecord = records.get(0);
         if (!AuditTypeEnum.SUBCONTRACT_AUDIT.getCode().equals(auditRecord.getAuditType())) {
             return error("该记录不是分包审核记录");
         }
-        
+
         // 处理审核
         int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
@@ -366,8 +366,8 @@ public class ErpAuditRecordController extends BaseController
             return success("分包审核" + action + "成功");
         } else {
             return error("审核处理失败");
-        }
+    }
     }
 
 
-}
+} 
