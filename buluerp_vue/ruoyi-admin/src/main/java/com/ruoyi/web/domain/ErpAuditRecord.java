@@ -6,10 +6,10 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -19,7 +19,7 @@ import java.util.Date;
  * @date 2025-01-XX
  */
 @TableName("erp_audit_record")
-public class ErpAuditRecord extends BaseEntity
+public class ErpAuditRecord implements Serializable
 {
     private static final long serialVersionUID = 1L;
 
@@ -47,8 +47,8 @@ public class ErpAuditRecord extends BaseEntity
     @TableField("to_status")
     private Integer toStatus;
 
-    /** 审核状态 0=未审核，1=已通过，-1=未通过 */
-    @Excel(name = "审核状态", readConverterExp = "0=未审核,1=已通过,-1=未通过")
+    /** 审核状态 0=未处理，1=已处理 */
+    @Excel(name = "审核状态", readConverterExp = "0=未处理,1=已处理")
     @TableField("confirm")
     private Integer confirm;
 
@@ -57,6 +57,12 @@ public class ErpAuditRecord extends BaseEntity
     @TableField("auditor")
     private String auditor;
 
+    /** 创建时间 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @Excel(name = "创建时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @TableField("create_time")
+    private Date createTime;
+
     /** 审核完成时间 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "审核完成时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
@@ -64,7 +70,8 @@ public class ErpAuditRecord extends BaseEntity
     private Date checkTime;
 
     /** 审核意见 */
-    @TableField(exist = false)
+    @Excel(name = "审核意见")
+    @TableField("audit_comment")
     private String auditComment;
 
     public void setId(Long id) 
@@ -135,6 +142,16 @@ public class ErpAuditRecord extends BaseEntity
     public String getAuditor() 
     {
         return auditor;
+    }
+
+    public void setCreateTime(Date createTime) 
+    {
+        this.createTime = createTime;
+    }
+
+    public Date getCreateTime() 
+    {
+        return createTime;
     }
 
     public void setCheckTime(Date checkTime) 

@@ -30,8 +30,11 @@ import java.util.stream.Collectors;
  * @date 2025-01-XX
  */
 @Service
-public class NotificationServiceImpl implements INotificationService 
+public class NotificationServiceImpl implements INotificationService
 {
+    @Autowired
+    private ErpNotificationMapper notificationMapper; 
+
     private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
 
     @Autowired
@@ -98,7 +101,19 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public List<ErpNotification> selectErpNotificationList(ErpNotification erpNotification)
     {
-        return erpNotificationMapper.selectErpNotificationList(erpNotification);
+        // 使用MyBatis Plus的方式查询
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        if (erpNotification.getUserId() != null) {
+            wrapper.eq(ErpNotification::getUserId, erpNotification.getUserId());
+        }
+        if (erpNotification.getStatus() != null) {
+            wrapper.eq(ErpNotification::getStatus, erpNotification.getStatus());
+        }
+        if (erpNotification.getNotificationType() != null) {
+            wrapper.eq(ErpNotification::getNotificationType, erpNotification.getNotificationType());
+        }
+        wrapper.orderByDesc(ErpNotification::getCreateTime);
+        return erpNotificationMapper.selectList(wrapper);
     }
 
     /**
@@ -110,7 +125,9 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public int insertErpNotification(ErpNotification erpNotification)
     {
-        erpNotification.setCreateTime(DateUtils.getNowDate());
+        if (erpNotification.getCreateTime() == null) {
+            erpNotification.setCreateTime(DateUtils.getNowDate());
+        }
         return erpNotificationMapper.insert(erpNotification);
     }
 
@@ -229,7 +246,7 @@ public class NotificationServiceImpl implements INotificationService
             }
             
             String title = template.getTitle();
-            //将templateData中的数据“填充”进static的模板中，生成审核记录中的内容
+            //将templateData中的数据"填充"进static的模板中，生成审核记录中的内容
             String content = buildContentFromTemplate(template.getContent(), templateData);
             
             // 2. 创建通知记录
@@ -267,7 +284,10 @@ public class NotificationServiceImpl implements INotificationService
             
             // 3. 批量保存到数据库
             if (!notifications.isEmpty()) {
-                erpNotificationMapper.batchInsertNotifications(notifications);
+                // 使用循环插入代替批量插入（避免SQL映射问题）
+                for (ErpNotification notification : notifications) {
+                    erpNotificationMapper.insert(notification);
+                }
                 log.info("批量保存通知成功，通知数量：{}", notifications.size());
             }
             
@@ -288,7 +308,11 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public List<ErpNotification> getUserNotifications(Long userId)
     {
-        return erpNotificationMapper.selectNotificationsByUserId(userId);
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpNotification::getUserId, userId)
+               .ne(ErpNotification::getStatus, 2) // 排除已删除的通知
+               .orderByDesc(ErpNotification::getCreateTime);
+        return erpNotificationMapper.selectList(wrapper);
     }
 
     /**
@@ -300,7 +324,10 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public int getUnreadNotificationCount(Long userId)
     {
-        return erpNotificationMapper.countUnreadNotificationsByUserId(userId);
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpNotification::getUserId, userId)
+               .eq(ErpNotification::getStatus, 0); // 未读状态
+        return Math.toIntExact(erpNotificationMapper.selectCount(wrapper));
     }
 
     /**
@@ -329,7 +356,16 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public int batchMarkNotificationsAsRead(Long userId, List<Long> notificationIds)
     {
-        return erpNotificationMapper.batchUpdateNotificationsAsRead(userId, notificationIds);
+        // 使用MyBatis Plus的方式批量更新
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpNotification::getUserId, userId)
+               .in(ErpNotification::getId, notificationIds);
+        
+        ErpNotification updateEntity = new ErpNotification();
+        updateEntity.setStatus(1); // 已读
+        updateEntity.setReadTime(new Date());
+        
+        return erpNotificationMapper.update(updateEntity, wrapper);
     }
 
     /**
@@ -342,7 +378,11 @@ public class NotificationServiceImpl implements INotificationService
     @Override
     public List<ErpNotification> selectNotificationsByBusiness(Long businessId, String businessType)
     {
-        return erpNotificationMapper.selectNotificationsByBusiness(businessId, businessType);
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpNotification::getBusinessId, businessId)
+               .eq(ErpNotification::getBusinessType, businessType)
+               .orderByDesc(ErpNotification::getCreateTime);
+        return erpNotificationMapper.selectList(wrapper);
     }
 
     /**
@@ -420,7 +460,11 @@ public class NotificationServiceImpl implements INotificationService
                 
                 // 更新推送状态
                 int pushStatus = success ? 1 : 2; // 1:已推送 2:推送失败
-                erpNotificationMapper.updatePushStatus(notification.getId(), pushStatus);
+                ErpNotification updateNotification = new ErpNotification();
+                updateNotification.setId(notification.getId());
+                updateNotification.setPushStatus(pushStatus);
+                updateNotification.setPushTime(new Date());
+                erpNotificationMapper.updateById(updateNotification);
                 
                 if (success) {
                     log.debug("WebSocket通知推送成功，用户ID：{}，通知ID：{}", 
@@ -435,8 +479,28 @@ public class NotificationServiceImpl implements INotificationService
                         notification.getUserId(), notification.getId(), e);
                 
                 // 标记推送失败
-                erpNotificationMapper.updatePushStatus(notification.getId(), 2);
+                ErpNotification failedNotification = new ErpNotification();
+                failedNotification.setId(notification.getId());
+                failedNotification.setPushStatus(2);
+                failedNotification.setPushTime(new Date());
+                erpNotificationMapper.updateById(failedNotification);
             }
         }
+    }
+
+    /**
+     * 获取用户未读通知列表
+     *
+     * @param userId 用户ID
+     * @return 未读通知列表
+     */
+    @Override
+    public List<ErpNotification> getUnreadNotifications(Long userId)
+    {
+        LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpNotification::getUserId, userId)
+               .eq(ErpNotification::getStatus, 0)  // 0表示未读
+               .orderByDesc(ErpNotification::getCreateTime);  // 按创建时间倒序
+        return notificationMapper.selectList(wrapper);
     }
 } 

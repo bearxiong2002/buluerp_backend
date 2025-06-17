@@ -11,11 +11,7 @@ import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
-import com.ruoyi.web.service.IErpCustomersService;
-import com.ruoyi.web.service.IErpDesignPatternsService;
-import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpProductsService;
-import com.ruoyi.web.service.IOrderAuditService;
+import com.ruoyi.web.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,7 +42,10 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private IErpDesignPatternsService erpDesignPatternsService;
 
     @Autowired
-    private IOrderAuditService orderAuditService;
+    private IErpAuditRecordService erpAuditRecordService;
+
+    @Autowired
+    private IErpAuditSwitchService erpAuditSwitchService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
@@ -141,13 +140,19 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             throw new ServiceException("无法生成订单ID");
         }
 
-        // 订单创建成功后，触发审核流程
+
+        // 订单创建成功后，检查审核开关并处理
         try {
-            // 获取完整的订单信息（包含生成的订单编号）
-            ErpOrders completeOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
+            // 检查订单审核开关是否启用
+            boolean auditEnabled = erpAuditSwitchService.isAuditEnabled(1); // 1 = 订单审核类型
             
-            // 触发订单审核流程
-            orderAuditService.handleOrderCreated(completeOrder);
+            if (auditEnabled) {
+                // 审核开关已启用，触发审核流程
+                ErpOrders completeOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
+                erpAuditRecordService.handleOrderCreated(completeOrder);
+            }
+            // 如果审核开关关闭，订单直接保持创建状态，不进入审核流程
+            
         } catch (Exception e) {
             // 记录日志但不影响订单创建
             log.error("订单创建后处理审核流程失败，订单ID：{}", erpOrders.getId(), e);
@@ -165,14 +170,58 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     @Transactional
     public int updateErpOrders(ErpOrders erpOrders) {
+        // 获取原始订单信息，检查是否涉及状态修改
+        ErpOrders originalOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
+        if (originalOrder == null) {
+            throw new ServiceException("订单不存在");
+        }
+        
+        boolean hasStatusChange = false;
+        Integer newStatus = null;
+        
+        // 检查是否涉及状态修改
+        if (erpOrders.getStatus() != null && !erpOrders.getStatus().equals(originalOrder.getStatus())) {
+            hasStatusChange = true;
+            newStatus = erpOrders.getStatus();
+        }
+        
+
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());
         }
-        if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
-            throw new ServiceException("操作失败");
+        
+        // 如果涉及状态修改，先更新其他字段，但暂时不更新状态
+        if (hasStatusChange) {
+            //创建一个副本，暂时不包含状态修改
+            ErpOrders ordersWithoutStatus = new ErpOrders();
+            ordersWithoutStatus.setId(erpOrders.getId());
+            ordersWithoutStatus.setUpdateTime(erpOrders.getUpdateTime());
+            ordersWithoutStatus.setOperator(erpOrders.getOperator());
+            ordersWithoutStatus.setQuantity(erpOrders.getQuantity());
+            ordersWithoutStatus.setDeliveryDeadline(erpOrders.getDeliveryDeadline());
+            ordersWithoutStatus.setDeliveryTime(erpOrders.getDeliveryTime());
+            ordersWithoutStatus.setCustomerId(erpOrders.getCustomerId());
+            ordersWithoutStatus.setProductId(erpOrders.getProductId());
+            ordersWithoutStatus.setProductionId(erpOrders.getProductionId());
+            ordersWithoutStatus.setPurchaseId(erpOrders.getPurchaseId());
+            ordersWithoutStatus.setSubcontractId(erpOrders.getSubcontractId());
+            ordersWithoutStatus.setRemark(erpOrders.getRemark());
+            ordersWithoutStatus.setInnerId(erpOrders.getInnerId());
+            ordersWithoutStatus.setOuterId(erpOrders.getOuterId());
+            // 不设置status字段
+            
+            if (0 == erpOrdersMapper.updateErpOrders(ordersWithoutStatus)) {
+                throw new ServiceException("更新订单信息失败");
+            }
+        } else {
+            // 原先逻辑
+            if (0 == erpOrdersMapper.updateErpOrders(erpOrders)) {
+                throw new ServiceException("操作失败");
+            }
         }
+        //原先逻辑
         if (erpOrders.getCustomerName() != null) {
            ErpOrders data = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
            ErpCustomers erpCustomers = new ErpCustomers();
@@ -191,6 +240,34 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                 erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
             }
         }
+
+                 // 如果涉及状态修改，检查审核开关并处理
+         if (hasStatusChange) {
+             try {
+                 // 检查订单审核开关是否启用
+                 boolean auditEnabled = erpAuditSwitchService.isAuditEnabled(1); // 1 = 订单审核类型
+                 
+                 if (auditEnabled) {
+                     // 审核开关已启用，创建审核记录并发送通知
+                     ErpOrders updatedOrder = fillErpOrders(erpOrdersMapper.selectErpOrdersById(erpOrders.getId()));
+                     erpAuditRecordService.handleOrderStatusChange(updatedOrder, newStatus);
+                 } else {
+                     // 审核开关已关闭，直接更新状态
+                     ErpOrders statusUpdate = new ErpOrders();
+                     statusUpdate.setId(erpOrders.getId());
+                     statusUpdate.setStatus(newStatus);
+                     statusUpdate.setUpdateTime(DateUtils.getNowDate());
+                     
+                     if (0 == erpOrdersMapper.updateErpOrders(statusUpdate)) {
+                         throw new ServiceException("更新订单状态失败");
+                     }
+                 }
+                 
+             } catch (Exception e) {
+                 throw new ServiceException("处理订单状态变更失败：" + e.getMessage());
+             }
+         }
+
        return 1;
     }
 

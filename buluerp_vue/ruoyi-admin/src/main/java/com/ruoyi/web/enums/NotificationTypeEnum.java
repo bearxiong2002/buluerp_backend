@@ -17,6 +17,9 @@ public enum NotificationTypeEnum {
     /** 订单审核拒绝通知 */
     ORDER_REJECTED("ORDER_REJECTED", "订单审核未通过", "order_user"),
     
+    /** 订单状态变更审核通知 */
+    ORDER_STATUS_CHANGE("ORDER_STATUS_CHANGE", "订单状态变更待审核", "order_auditor"),
+    
     /** 生产排期通知 */
     PRODUCTION_SCHEDULED("PRODUCTION_SCHEDULED", "生产排期通知", "production_manager"),
     

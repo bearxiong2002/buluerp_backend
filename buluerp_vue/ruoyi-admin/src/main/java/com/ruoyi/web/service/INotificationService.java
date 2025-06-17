@@ -148,4 +148,12 @@ public interface INotificationService
      * @return 通知列表
      */
     List<ErpNotification> selectNotificationsByBusiness(Long businessId, String businessType);
+
+    /**
+     * 获取用户未读通知列表
+     *
+     * @param userId 用户ID
+     * @return 未读通知列表
+     */
+    List<ErpNotification> getUnreadNotifications(Long userId);
 } 

@@ -1,6 +1,7 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpAuditRecord;
+import com.ruoyi.web.domain.ErpOrders;
 
 import java.util.List;
 
@@ -14,51 +15,36 @@ public interface IErpAuditRecordService
 {
     /**
      * 查询审核记录
+     * 支持多种查询方式：
+     * 1. 根据ID查询单条记录
+     * 2. 根据条件查询列表
+     * 3. 根据审核类型和对象ID精确查询
+     * 4. 查询待审核记录
      * 
-     * @param id 审核记录主键
-     * @return 审核记录
+     * @param erpAuditRecord 审核记录查询条件
+     * @param auditType 审核类型（可选）
+     * @param auditId 审核对象ID（可选）
+     * @param pendingOnly 是否只查询待审核记录（可选）
+     * @param auditor 审核人（可选，用于查询特定审核人的待审核记录）
+     * @return 审核记录列表
      */
-    ErpAuditRecord selectErpAuditRecordById(Long id);
+    List<ErpAuditRecord> selectAuditRecords(ErpAuditRecord erpAuditRecord, 
+                                           Integer auditType, 
+                                           Long auditId, 
+                                           Boolean pendingOnly, 
+                                           String auditor);
 
     /**
-     * 查询审核记录列表
+     * 审核处理
+     * 支持单个和批量审核
      * 
-     * @param erpAuditRecord 审核记录
-     * @return 审核记录集合
+     * @param auditRecordIds 审核记录ID列表
+     * @param confirm 审核状态（1:通过 -1:拒绝）
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     * @return 处理结果
      */
-    List<ErpAuditRecord> selectErpAuditRecordList(ErpAuditRecord erpAuditRecord);
-
-    /**
-     * 新增审核记录
-     * 
-     * @param erpAuditRecord 审核记录
-     * @return 结果
-     */
-    int insertErpAuditRecord(ErpAuditRecord erpAuditRecord);
-
-    /**
-     * 修改审核记录
-     * 
-     * @param erpAuditRecord 审核记录
-     * @return 结果
-     */
-    int updateErpAuditRecord(ErpAuditRecord erpAuditRecord);
-
-    /**
-     * 批量删除审核记录
-     * 
-     * @param ids 需要删除的审核记录主键集合
-     * @return 结果
-     */
-    int deleteErpAuditRecordByIds(Long[] ids);
-
-    /**
-     * 删除审核记录信息
-     * 
-     * @param id 审核记录主键
-     * @return 结果
-     */
-    int deleteErpAuditRecordById(Long id);
+    int processAudit(List<Long> auditRecordIds, Integer confirm, String auditor, String auditComment);
 
     /**
      * 创建审核记录
@@ -71,60 +57,46 @@ public interface IErpAuditRecordService
      */
     ErpAuditRecord createAuditRecord(Integer auditType, Long auditId, Integer preStatus, Integer toStatus);
 
+    // ==================== 订单审核业务方法 ====================
+
     /**
-     * 审核通过
+     * 订单创建后处理（创建审核记录并发送通知）
+     * 
+     * @param order 订单信息
+     */
+    void handleOrderCreated(ErpOrders order);
+
+    /**
+     * 订单审核通过处理（更新订单状态并发送通知）
      * 
      * @param auditRecordId 审核记录ID
      * @param auditor 审核人
      * @param auditComment 审核意见
-     * @return 结果
      */
-    int approveAudit(Long auditRecordId, String auditor, String auditComment);
+    void handleOrderApproved(Long auditRecordId, String auditor, String auditComment);
 
     /**
-     * 审核拒绝
+     * 订单审核拒绝处理（更新订单状态并发送通知）
      * 
      * @param auditRecordId 审核记录ID
      * @param auditor 审核人
      * @param auditComment 审核意见
-     * @return 结果
      */
-    int rejectAudit(Long auditRecordId, String auditor, String auditComment);
+    void handleOrderRejected(Long auditRecordId, String auditor, String auditComment);
 
     /**
-     * 根据审核类型和对象ID查询审核记录
+     * 获取订单详情
      * 
-     * @param auditType 审核类型
-     * @param auditId 审核对象ID
-     * @return 审核记录列表
+     * @param orderId 订单ID
+     * @return 订单详情
      */
-    List<ErpAuditRecord> selectByAuditTypeAndId(Integer auditType, Long auditId);
+    ErpOrders getOrderDetail(Long orderId);
 
     /**
-     * 查询待审核记录列表
+     * 订单状态变更审核处理（创建审核记录并发送通知）
      * 
-     * @param auditType 审核类型
-     * @return 待审核记录列表
+     * @param order 订单信息
+     * @param newStatus 新状态
      */
-    List<ErpAuditRecord> selectPendingAuditRecords(Integer auditType);
-
-    /**
-     * 查询用户的待审核记录数量
-     * 
-     * @param auditor 审核人
-     * @param auditType 审核类型
-     * @return 待审核记录数量
-     */
-    int countPendingAuditsByAuditor(String auditor, Integer auditType);
-
-    /**
-     * 批量审核
-     * 
-     * @param ids 审核记录ID列表
-     * @param confirm 审核状态（1:通过 -1:拒绝）
-     * @param auditor 审核人
-     * @param auditComment 审核意见
-     * @return 结果
-     */
-    int batchAudit(List<Long> ids, Integer confirm, String auditor, String auditComment);
+    void handleOrderStatusChange(ErpOrders order, Integer newStatus);
 } 

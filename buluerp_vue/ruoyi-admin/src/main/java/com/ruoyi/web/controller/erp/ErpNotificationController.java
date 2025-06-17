@@ -1,106 +1,35 @@
 package com.ruoyi.web.controller.erp;
 
-import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.SecurityUtils;
-import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpNotification;
-import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.service.INotificationService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
-import java.util.Arrays;
 import java.util.List;
 
 /**
- * 通知Controller
+ * 通知Controller - 精简版
+ * 主要用于用户查看和管理自己的通知
  * 
  * @author ruoyi
  * @date 2025-01-XX
  */
+@Api(tags = "通知管理")
 @RestController
-@RequestMapping("/web/notification")
+@RequestMapping("/system/notification")
 public class ErpNotificationController extends BaseController
 {
     @Autowired
     private INotificationService notificationService;
 
     /**
-     * 查询通知列表
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:list')")
-    @GetMapping("/list")
-    public TableDataInfo list(ErpNotification erpNotification)
-    {
-        startPage();
-        List<ErpNotification> list = notificationService.selectErpNotificationList(erpNotification);
-        return getDataTable(list);
-    }
-
-    /**
-     * 导出通知列表
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:export')")
-    @Log(title = "通知", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ErpNotification erpNotification)
-    {
-        List<ErpNotification> list = notificationService.selectErpNotificationList(erpNotification);
-        ExcelUtil<ErpNotification> util = new ExcelUtil<ErpNotification>(ErpNotification.class);
-        util.exportExcel(response, list, "通知数据");
-    }
-
-    /**
-     * 获取通知详细信息
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:query')")
-    @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
-        return success(notificationService.selectErpNotificationById(id));
-    }
-
-    /**
-     * 新增通知
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:add')")
-    @Log(title = "通知", businessType = BusinessType.INSERT)
-    @PostMapping
-    public AjaxResult add(@RequestBody ErpNotification erpNotification)
-    {
-        return toAjax(notificationService.insertErpNotification(erpNotification));
-    }
-
-    /**
-     * 修改通知
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:edit')")
-    @Log(title = "通知", businessType = BusinessType.UPDATE)
-    @PutMapping
-    public AjaxResult edit(@RequestBody ErpNotification erpNotification)
-    {
-        return toAjax(notificationService.updateErpNotification(erpNotification));
-    }
-
-    /**
-     * 删除通知
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:remove')")
-    @Log(title = "通知", businessType = BusinessType.DELETE)
-    @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
-        return toAjax(notificationService.deleteErpNotificationByIds(ids));
-    }
-
-    /**
-     * 获取当前用户的通知列表
+     * 获取当前用户的通知列表（支持分页）
      */
     @GetMapping("/my")
     public TableDataInfo getMyNotifications()
@@ -112,54 +41,72 @@ public class ErpNotificationController extends BaseController
     }
 
     /**
-     * 获取当前用户未读通知数量
+     * 获取当前用户未读通知列表
      */
-    @GetMapping("/unreadCount")
-    public AjaxResult getUnreadCount()
+    @ApiOperation("获取当前用户未读通知列表")
+    @GetMapping("/unread")
+    public TableDataInfo getUnread()
     {
+        startPage();
         Long userId = SecurityUtils.getUserId();
-        int count = notificationService.getUnreadNotificationCount(userId);
-        return success(count);
+        List<ErpNotification> list = notificationService.getUnreadNotifications(userId);
+        return getDataTable(list);
     }
 
     /**
-     * 标记通知为已读
+     * 标记通知为已读（支持单个或批量）
+     * @param ids 通知ID，多个ID用逗号分隔，例如：1,2,3
      */
-    @PostMapping("/markRead/{id}")
-    public AjaxResult markAsRead(@PathVariable Long id)
+    @PostMapping("/markRead/{ids}")
+    public AjaxResult markAsRead(@PathVariable String ids)
     {
-        int result = notificationService.markNotificationAsRead(id);
+        Long userId = SecurityUtils.getUserId();
+        
+        // 解析ID字符串
+        String[] idArray = ids.split(",");
+        List<Long> notificationIds = new java.util.ArrayList<>();
+        
+        for (String idStr : idArray) {
+            try {
+                notificationIds.add(Long.parseLong(idStr.trim()));
+            } catch (NumberFormatException e) {
+                return error("无效的通知ID格式：" + idStr);
+            }
+        }
+        
+        if (notificationIds.isEmpty()) {
+            return error("通知ID不能为空");
+        }
+        
+        // 单个或批量处理
+        int result;
+        if (notificationIds.size() == 1) {
+            result = notificationService.markNotificationAsRead(notificationIds.get(0));
+        } else {
+            result = notificationService.batchMarkNotificationsAsRead(userId, notificationIds);
+        }
+        
         return toAjax(result);
     }
 
     /**
-     * 批量标记通知为已读
+     * 标记所有通知为已读
      */
-    @PostMapping("/batchMarkRead")
-    public AjaxResult batchMarkAsRead(@RequestBody List<Long> notificationIds)
+    @PostMapping("/markAllRead")
+    public AjaxResult markAllAsRead()
     {
         Long userId = SecurityUtils.getUserId();
-        int result = notificationService.batchMarkNotificationsAsRead(userId, notificationIds);
-        return toAjax(result);
-    }
-
-    /**
-     * 根据业务ID和类型查询通知
-     */
-    @PreAuthorize("@ss.hasPermi('web:notification:query')")
-    @GetMapping("/byBusiness")
-    public AjaxResult getByBusiness(@RequestParam Long businessId, @RequestParam String businessType)
-    {
-        List<ErpNotification> list = notificationService.selectNotificationsByBusiness(businessId, businessType);
-        return success(list);
-    }
-
-    /**
-     * 获取通知类型枚举
-     */
-    @GetMapping("/notificationTypes")
-    public AjaxResult getNotificationTypes()
-    {
-        return success(Arrays.asList(NotificationTypeEnum.values()));
+        // 获取用户所有未读通知
+        List<ErpNotification> unreadNotifications = notificationService.getUserNotifications(userId);
+        List<Long> unreadIds = unreadNotifications.stream()
+                .filter(n -> n.getStatus() == 0) // 未读状态
+                .map(ErpNotification::getId)
+                .collect(java.util.stream.Collectors.toList());
+        
+        if (!unreadIds.isEmpty()) {
+            int result = notificationService.batchMarkNotificationsAsRead(userId, unreadIds);
+            return toAjax(result);
+        }
+        return success("没有未读通知");
     }
 } 
