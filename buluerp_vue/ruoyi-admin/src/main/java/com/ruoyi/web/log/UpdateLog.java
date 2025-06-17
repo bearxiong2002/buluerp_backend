@@ -1,8 +1,6 @@
 package com.ruoyi.web.log;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class UpdateLog implements OperationLog {
@@ -12,28 +10,16 @@ public class UpdateLog implements OperationLog {
         return tableName;
     }
 
-    public void setTableName(String tableName) {
-        this.tableName = tableName;
-    }
-
-    public List<PropertyChange> getChanges() {
+    public Map<String, List<PropertyChange>> getChanges() {
         return changes;
     }
 
-    public void setChanges(List<PropertyChange> changes) {
+    public void setChanges(Map<String, List<PropertyChange>> changes) {
         this.changes = changes;
     }
 
-    public void addChange(PropertyChange change) {
-        this.changes.add(change);
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
+    public void setTableName(String tableName) {
+        this.tableName = tableName;
     }
 
     @Override
@@ -58,8 +44,7 @@ public class UpdateLog implements OperationLog {
 
     private Date operationTime;
     private String tableName;
-    private Long id;
-    private List<PropertyChange> changes = new ArrayList<>();
+    private Map<String, List<PropertyChange>> changes = new HashMap<>();
 
     @Override
     public String getOperationType() {
@@ -72,19 +57,25 @@ public class UpdateLog implements OperationLog {
         if (type.isEmpty()) {
             return "";
         }
-        String updates = changes.stream()
-                .filter(change -> !LogUtil.translateFieldName(tableName, change.getName()).isEmpty())
-                .map(change -> String.format(
-                        "%s从\"%s\"修改为\"%s\"",
-                        LogUtil.translateFieldName(tableName, change.getName()),
-                        change.getOldValue(),
-                        change.getNewValue()
-                ))
+        return changes.entrySet().stream()
+                .map(change -> {
+                    String id = change.getKey();
+                    String updates = change.getValue().stream()
+                            .map(fieldChange -> String.format(
+                                    "%s从\"%s\"改为\"%s\"",
+                                    fieldChange.getName(),
+                                    fieldChange.getOldValue(),
+                                    fieldChange.getNewValue()
+                            ))
+                            .collect(Collectors.joining(", "));
+                    return String.format(
+                            "将%s%s的%s",
+                            type,
+                            id,
+                            updates
+                    );
+                })
                 .collect(Collectors.joining(", "));
-        if (updates.isEmpty()) {
-            return "";
-        }
-        return String.format("将%s%d的", type, id) + updates;
     }
 
     public static class PropertyChange {
@@ -96,11 +87,11 @@ public class UpdateLog implements OperationLog {
             this.name = name;
         }
 
-        public String getOldValue() {
+        public Object getOldValue() {
             return oldValue;
         }
 
-        public void setOldValue(String oldValue) {
+        public void setOldValue(Object oldValue) {
             this.oldValue = oldValue;
         }
 
@@ -113,7 +104,7 @@ public class UpdateLog implements OperationLog {
         }
 
         private String name;
-        private String oldValue;
+        private Object oldValue;
         private Object newValue;
     }
 }
