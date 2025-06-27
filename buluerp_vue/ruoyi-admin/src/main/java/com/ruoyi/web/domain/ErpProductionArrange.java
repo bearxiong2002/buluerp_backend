@@ -65,7 +65,7 @@ public class ErpProductionArrange {
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间，记录创建时的时间戳 [list|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     private Date creationTime;
@@ -86,7 +86,7 @@ public class ErpProductionArrange {
     private Integer productionId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "布产时间")
+    @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "布产时间，计划开始生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")
@@ -158,14 +158,14 @@ public class ErpProductionArrange {
     private String remarks;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "安排时间")
+    @Excel(name = "安排时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "安排时间，计划安排生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")
     private Date scheduledTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "完成时间")
+    @Excel(name = "完成时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "完成时间，实际完成生产的时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2025-05-28")

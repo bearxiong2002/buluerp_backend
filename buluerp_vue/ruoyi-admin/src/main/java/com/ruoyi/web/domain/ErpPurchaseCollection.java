@@ -24,7 +24,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     private Date creationTime;
 
     @Excel(name = "操作人", type = Excel.Type.EXPORT)
@@ -34,7 +34,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Example("1")
     private Long productId;
 
-    @Excel(name = "下单时间")
+    @Excel(name = "下单时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Example("2022-05-28 10:00:00")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date orderTime;
@@ -82,7 +82,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     private String deliveryTime;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "交货日期，实际交货日期")
+    @Excel(name = "交货日期，实际交货日期", dateFormat = "yyyy-MM-dd")
     @Example("2022-05-28")
     private Date deliveryDate;
 

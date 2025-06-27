@@ -12,12 +12,14 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.annotation.LogIdentifier;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -37,10 +39,14 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "内部编号")
     @Example("BLK20250528000001")
     @LogIdentifier
+    @NotBlank(groups = {Save.class}, message = "内部编号不能为空")
+    @NullOrNotBlank(groups = {Update.class}, message = "内部编号不能为空")
     private String innerId;
 
     @Excel(name = "外部编号")
     @Example("OUT20250528000001")
+    @NotBlank(groups = {Save.class}, message = "外部编号不能为空")
+    @NullOrNotBlank(groups = {Update.class}, message = "外部编号不能为空")
     private String outerId;
 
     /** 操作人ID（外键引用用户表） */
@@ -103,6 +109,9 @@ public class ErpOrders extends BaseEntity
     private String remark;
 
     private String customerName;
+
+    @ApiModelProperty(value = "通过设计总表关联的产品，仅用于响应")
+    private ErpProducts product;
 
     private List<ErpOrdersProduct> products;
 
@@ -292,5 +301,13 @@ public class ErpOrders extends BaseEntity
 
     public void setProducts(List<ErpOrdersProduct> products) {
         this.products = products;
+    }
+
+    public ErpProducts getProduct() {
+        return product;
+    }
+
+    public void setProduct(ErpProducts product) {
+        this.product = product;
     }
 }
