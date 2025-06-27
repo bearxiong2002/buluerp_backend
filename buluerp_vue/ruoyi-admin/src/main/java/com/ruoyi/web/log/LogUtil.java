@@ -175,6 +175,22 @@ public class LogUtil {
         return null;
     }
 
+    public static Object getValueByPath(Object obj, String path) {
+        String[] paths = path.split("\\.");
+        Object result = obj;
+        for (String pathPart : paths) {
+            if (result == null) {
+                return null;
+            }
+            if (result instanceof Map) {
+                result = ((Map<?, ?>) result).get(pathPart);
+            } else {
+                result = ReflectUtils.getFieldValue(result, pathPart);
+            }
+        }
+        return result;
+    }
+
     public static Map<String, List<UpdateLog.PropertyChange>> extractUpdateChanges(Invocation invocation) throws SQLException {
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         Object parameter = invocation.getArgs()[1];
@@ -212,24 +228,10 @@ public class LogUtil {
                     UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
                     propertyChange.setName(translatedFieldName);
                     propertyChange.setOldValue(oldValues.getObject(i));
-                    Object paramEntity = parameter;
-                    if (parameter instanceof MapperMethod.ParamMap) {
-                        // mybatis-plus 的更新参数
-                        Optional<Map.Entry> first = ((MapperMethod.ParamMap) parameter)
-                                .entrySet()
-                                .stream()
-                                .findFirst();
-                        if (first.isPresent()) {
-                            paramEntity = first.get().getValue();
-                        } else {
-                            continue;
-                        }
-                    }
-                    if (paramEntity instanceof Map) {
-                        propertyChange.setNewValue(((Map) paramEntity).get(fieldName));
-                    } else {
-                        propertyChange.setNewValue(ReflectUtils.getFieldValue(paramEntity, fieldName));
-                    }
+                    parameterMappings.stream()
+                            .filter(mapping -> mapping.getProperty().equals(fieldName) || mapping.getProperty().endsWith("." + fieldName))
+                            .findFirst()
+                            .ifPresent(fieldMapping -> propertyChange.setNewValue(getValueByPath(parameter, fieldMapping.getProperty())));
                     propertyChanges.add(propertyChange);
                 }
                 if (propertyChanges.isEmpty()) {
@@ -277,30 +279,19 @@ public class LogUtil {
             String identifierFieldName = getIdentifierFieldName(tableName);
             String identifierColumnName = camelCaseToSnakeCase(identifierFieldName);
             deleteLog.setTableName(tableName);
-            // 尝试从原SQL解析删除的ID
-            Pattern pattern = Pattern.compile(
-                    String.format("WHERE\\s+%s\\s*=\\s*(\\S+)\\s+(;|$)", identifierColumnName),
-                    Pattern.CASE_INSENSITIVE | Pattern.DOTALL
-            );
-            Matcher idMatcher = pattern.matcher(sql);
-            if (idMatcher.find()) {
-                String identifierValue = idMatcher.group(1);
-                deleteLog.addId(identifierValue);
-            } else {
-                String query = String.format("SELECT %s.%s FROM %s WHERE %s", tableName, identifierColumnName, tableName, conditions);
-                Connection conn = executor.getTransaction().getConnection();
-                PreparedStatement statement = conn.prepareStatement(query);
-                ParameterHandler parameterHandler = mappedStatement.getConfiguration()
-                        .newParameterHandler(mappedStatement, parameter, boundSql);
-                parameterHandler.setParameters(statement);
-                try (ResultSet resultSet = statement.executeQuery()) {
-                    while (resultSet.next()) {
-                        String identifierValue = resultSet.getString(identifierColumnName);
-                        deleteLog.addId(identifierValue);
-                    }
+
+            String query = String.format("SELECT %s.%s FROM %s WHERE %s", tableName, identifierColumnName, tableName, conditions);
+            Connection conn = executor.getTransaction().getConnection();
+            PreparedStatement statement = conn.prepareStatement(query);
+            ParameterHandler parameterHandler = mappedStatement.getConfiguration()
+                    .newParameterHandler(mappedStatement, parameter, boundSql);
+            parameterHandler.setParameters(statement);
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String identifierValue = resultSet.getString(identifierColumnName);
+                    deleteLog.addId(identifierValue);
                 }
             }
-
         }
         return deleteLog;
     }
