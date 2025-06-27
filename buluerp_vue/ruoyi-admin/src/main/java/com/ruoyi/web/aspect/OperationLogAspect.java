@@ -35,11 +35,10 @@ public class OperationLogAspect {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
-        if (method.isAnnotationPresent(AutologIgnore.class)) {
-            return joinPoint.proceed();
-        }
-
         LogUtil.clearOperationLog();
+        if (method.isAnnotationPresent(AutologIgnore.class)) {
+            LogUtil.setAutoLog(false);
+        }
         try {
             Object result = joinPoint.proceed();
 

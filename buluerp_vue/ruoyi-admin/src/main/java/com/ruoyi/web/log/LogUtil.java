@@ -29,12 +29,24 @@ import java.util.regex.Pattern;
 public class LogUtil {
 
     private static final ThreadLocal<List<OperationLog>> OPETATION_LOG = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> IS_AUTOLOG = new ThreadLocal<>();
 
     public static List<OperationLog> getOperationLog() {
         if (OPETATION_LOG.get() == null) {
             OPETATION_LOG.set(new ArrayList<>());
         }
         return OPETATION_LOG.get();
+    }
+
+    public static boolean isAutoLog() {
+        if (IS_AUTOLOG.get() == null) {
+            IS_AUTOLOG.set(true);
+        }
+        return IS_AUTOLOG.get();
+    }
+
+    public static void setAutoLog(boolean isAutoLog) {
+        IS_AUTOLOG.set(isAutoLog);
     }
 
     public static void setOperationLog(List<OperationLog> opLog) {

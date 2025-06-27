@@ -24,7 +24,7 @@ public class OperationLogInterceptor implements Interceptor {
         String methodName = mappedStatement.getId();
 
         OperationLog operationLog = null;
-        if (methodName.startsWith(ErpCustomersMapper.class.getPackage().getName())) {
+        if (LogUtil.isAutoLog() && methodName.startsWith(ErpCustomersMapper.class.getPackage().getName())) {
             if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType())) {
                 operationLog = LogUtil.extractUpdateLog(invocation);
             } else if (SqlCommandType.DELETE.equals(mappedStatement.getSqlCommandType())) {
