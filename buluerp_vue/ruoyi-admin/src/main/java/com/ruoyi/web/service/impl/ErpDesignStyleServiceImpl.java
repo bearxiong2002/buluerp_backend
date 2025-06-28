@@ -90,7 +90,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
 
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(productId,addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
-        return erpDesignStyleMapper.insertErpDesignStyle(erpDesignStyle);
+        return erpDesignStyleMapper.insert(erpDesignStyle);
     }
 
     /**
