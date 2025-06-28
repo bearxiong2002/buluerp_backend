@@ -15,6 +15,7 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 /*
@@ -156,6 +157,21 @@ public class ErpProductionArrange {
     @ApiModelProperty(value = "备注，其他需要说明的信息 [list|POST|PUT|response]", dataType = "String")
     @Example("无")
     private String remarks;
+
+    public @NotNull(groups = Save.class, message = "布产ID无效") @Range(min = 1, message = "布产ID不能小于1", groups = {Save.class, Update.class}) Long getScheduleId() {
+        return scheduleId;
+    }
+
+    public void setScheduleId(@NotNull(groups = Save.class, message = "布产ID无效") @Range(min = 1, message = "布产ID不能小于1", groups = {Save.class, Update.class}) Long scheduleId) {
+        this.scheduleId = scheduleId;
+    }
+
+    @Excel(name = "布产ID")
+    @Example("1")
+    @ApiModelProperty(value = "对应布产ID，对应的布产编号 [list|POST|PUT|response]", dataType = "Long")
+    @NotNull(groups = Save.class, message = "布产ID无效")
+    @Range(min = 1, message = "布产ID不能小于1", groups = {Save.class, Update.class})
+    private Long scheduleId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "安排时间", dateFormat = "yyyy-MM-dd")
