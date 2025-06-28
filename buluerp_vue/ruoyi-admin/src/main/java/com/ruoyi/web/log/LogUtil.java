@@ -158,7 +158,7 @@ public class LogUtil {
             String identifierColumnName = camelCaseToSnakeCase(
                     getIdentifierFieldName(tableName)
             );
-            if (Arrays.stream(fields).noneMatch(field -> field.endsWith(identifierColumnName))) {
+            if (Arrays.stream(fields).noneMatch(field -> field.equals(identifierColumnName) || field.endsWith("." + identifierColumnName))) {
                 fieldsString = fieldsString + "," + tableName + "." + identifierColumnName;
             }
             long setParamsCount = Arrays.stream(setClauses)
