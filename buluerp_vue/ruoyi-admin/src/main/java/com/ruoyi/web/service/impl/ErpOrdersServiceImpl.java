@@ -142,6 +142,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         }
         // erpOrders.setInnerId(ErpOrders.INNER_ID_PLACEHOLDER);
         // erpOrders.setOuterId(ErpOrders.OUTER_ID_PLACEHOLDER);
+        if (erpOrdersMapper.selectErpOrdersByInnerId(erpOrders.getInnerId()) != null) {
+            throw new ServiceException("订单内部ID已存在");
+        }
+        if (erpOrdersMapper.selectErpOrdersByOuterId(erpOrders.getOuterId()) != null) {
+            throw new ServiceException("订单外部ID已存在");
+        }
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
             throw new ServiceException("操作失败");
         }
