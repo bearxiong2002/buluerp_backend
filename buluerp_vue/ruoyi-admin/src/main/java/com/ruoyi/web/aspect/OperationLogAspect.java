@@ -2,8 +2,8 @@ package com.ruoyi.web.aspect;
 
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.web.log.AutologIgnore;
 import com.ruoyi.web.log.LogUtil;
 import com.ruoyi.web.log.OperationLog;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -31,11 +31,14 @@ public class OperationLogAspect {
 
     // 在目标方法执行后记录 @ApiOperation 的 value 值
     @Around("operation()")
-    public Object logApiOperationValue(ProceedingJoinPoint joinPoint) throws Throwable {
+    public Object logOperation(ProceedingJoinPoint joinPoint) throws Throwable {
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
 
         LogUtil.clearOperationLog();
+        if (method.isAnnotationPresent(AutologIgnore.class)) {
+            LogUtil.setAutoLog(false);
+        }
         try {
             Object result = joinPoint.proceed();
 

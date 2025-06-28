@@ -8,7 +8,7 @@ import java.util.stream.Collectors;
 public class DeleteLog implements OperationLog {
     public static final String OPERATION_TYPE = "DELETE";
 
-    private List<Long> ids = new ArrayList<>();
+    private List<String> ids = new ArrayList<>();
 
     private String tableName;
     private String operator;
@@ -42,15 +42,15 @@ public class DeleteLog implements OperationLog {
                 ids.stream().map(String::valueOf).collect(Collectors.joining(", "));
     }
 
-    public List<Long> getIds() {
+    public List<String> getIds() {
         return ids;
     }
 
-    public void setIds(List<Long> ids) {
+    public void setIds(List<String> ids) {
         this.ids = ids;
     }
 
-    public void addId(Long id) {
+    public void addId(String id) {
         this.ids.add(id);
     }
 

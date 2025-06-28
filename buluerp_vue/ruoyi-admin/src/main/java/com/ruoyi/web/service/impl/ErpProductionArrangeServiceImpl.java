@@ -27,8 +27,6 @@ public class ErpProductionArrangeServiceImpl
             if (erpProductionArrange.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpProductionArrange.getPicture());
                 erpProductionArrange.setPictureUrl(url);
-            } else {
-                erpProductionArrange.setPictureUrl(null);
             }
             count += baseMapper.insert(erpProductionArrange);
         }
@@ -41,8 +39,6 @@ public class ErpProductionArrangeServiceImpl
         if (erpProductionArrange.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionArrange.getPicture());
             erpProductionArrange.setPictureUrl(url);
-        } else {
-            erpProductionArrange.setPictureUrl(null);
         }
         return baseMapper.updateById(erpProductionArrange);
     }
