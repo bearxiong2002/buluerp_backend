@@ -30,7 +30,7 @@ public class ErpProductionSchedule {
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间 [list|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     private Date creationTime;
@@ -46,7 +46,7 @@ public class ErpProductionSchedule {
     private Long productId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "布产时间")
+    @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "布产时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2022-05-28")
@@ -145,7 +145,7 @@ public class ErpProductionSchedule {
     private Double timeHours;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "出货时间")
+    @Excel(name = "出货时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "出货时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2022-05-28 10:00:00")

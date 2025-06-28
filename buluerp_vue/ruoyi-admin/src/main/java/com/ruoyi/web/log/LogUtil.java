@@ -5,32 +5,48 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
+import com.ruoyi.web.annotation.LogIdentifier;
 import com.ruoyi.web.domain.ErpCustomers;
 import io.swagger.annotations.ApiModel;
+import org.apache.ibatis.binding.MapperMethod;
+import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
-import org.apache.ibatis.mapping.BoundSql;
-import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ParameterMapping;
+import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.Invocation;
+import org.apache.ibatis.scripting.defaults.RawSqlSource;
+import org.apache.ibatis.session.Configuration;
+import org.apache.ibatis.session.ResultHandler;
+import org.apache.ibatis.session.RowBounds;
 
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
-import java.util.Date;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class LogUtil {
 
     private static final ThreadLocal<List<OperationLog>> OPETATION_LOG = new ThreadLocal<>();
+    private static final ThreadLocal<Boolean> IS_AUTOLOG = new ThreadLocal<>();
 
     public static List<OperationLog> getOperationLog() {
         if (OPETATION_LOG.get() == null) {
             OPETATION_LOG.set(new ArrayList<>());
         }
         return OPETATION_LOG.get();
+    }
+
+    public static boolean isAutoLog() {
+        if (IS_AUTOLOG.get() == null) {
+            IS_AUTOLOG.set(true);
+        }
+        return IS_AUTOLOG.get();
+    }
+
+    public static void setAutoLog(boolean isAutoLog) {
+        IS_AUTOLOG.set(isAutoLog);
     }
 
     public static void setOperationLog(List<OperationLog> opLog) {
@@ -91,6 +107,22 @@ public class LogUtil {
         }
     }
 
+    public static String getIdentifierFieldName(String tableName) {
+        Class<?> clazz = getClassByTableName(tableName);
+        if (clazz == null) {
+            return "id";
+        }
+        while (clazz != Object.class) {
+            for (Field field : clazz.getDeclaredFields()) {
+                if (field.isAnnotationPresent(LogIdentifier.class)) {
+                    return field.getName();
+                }
+            }
+            clazz = clazz.getSuperclass();
+        }
+        return "id";
+    }
+
     public static String extractUpdateTableName(String sql) {
         // 简单提取表名（适用于 UPDATE 表名 SET ...）
         String lowerSql = sql.toLowerCase();
@@ -107,75 +139,121 @@ public class LogUtil {
     public static final Pattern UPDATE_PATTERN
             = Pattern.compile("update\\s+(.+)\\s+set\\s+(.+)\\s+where\\s+(.+);?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    public static ResultSet selectBeforeUpdate(String sql, Long id, Connection conn) throws SQLException {
+    public static ResultSet selectOldValuesBeforeUpdate(Executor executor, MappedStatement originalStatement, Object parameter) throws SQLException {
         // 提取 UPDATE 表名 SET ... WHERE ... 中的旧值
-        Matcher matcher = UPDATE_PATTERN.matcher(sql);
+        BoundSql originalBoundSql = originalStatement.getBoundSql(parameter);
+        String originalSql = originalBoundSql.getSql();
+        Matcher matcher = UPDATE_PATTERN.matcher(originalSql);
 
         if (matcher.find()) {
-            String tableName = matcher.group(1);
+            String tableName = matcher.group(1).trim();
             String setClause = matcher.group(2);
             String[] setClauses = Arrays.stream(setClause.split(","))
                     .map(String::trim)
                     .toArray(String[]::new);
-            String fields = Arrays.stream(setClauses)
+            String[] fields = Arrays.stream(setClauses)
                     .map(clause -> clause.split("=")[0].trim())
-                    .collect(Collectors.joining(","));
-            String query = String.format("SELECT %s FROM %s WHERE id = %d", fields, tableName, id);
-            Statement statement = conn.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-            if (resultSet.next()) {
-                return resultSet;
+                    .toArray(String[]::new);
+            String fieldsString = String.join(",", fields);
+            String identifierColumnName = camelCaseToSnakeCase(
+                    getIdentifierFieldName(tableName)
+            );
+            if (Arrays.stream(fields).noneMatch(field -> field.equals(identifierColumnName) || field.endsWith("." + identifierColumnName))) {
+                fieldsString = fieldsString + "," + tableName + "." + identifierColumnName;
             }
+            long setParamsCount = Arrays.stream(setClauses)
+                    .map(clause -> clause.split("=")[1].trim())
+                    .filter(param -> param.equals("?"))
+                    .count();
+            StringBuilder extraParam = new StringBuilder("1");
+            for (int i = 0; i < setParamsCount; i++) {
+                extraParam.append(" OR ? is null");
+            }
+            String whereClause = matcher.group(3);
+            String selectSql = String.format(
+                    "select %s from %s where (%s) and (%s)",
+                    fieldsString,
+                    tableName,
+                    extraParam,
+                    whereClause
+            );
+            Connection connection = executor.getTransaction().getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(selectSql);
+            ParameterHandler parameterHandler = originalStatement.getConfiguration()
+                    .newParameterHandler(originalStatement, parameter, originalBoundSql);
+            parameterHandler.setParameters(preparedStatement);
+            return preparedStatement.executeQuery();
         }
         return null;
     }
 
-    public static List<UpdateLog.PropertyChange> extractPropertyUpdates(Invocation invocation) throws SQLException {
+    public static Object getValueByPath(Object obj, String path) {
+        String[] paths = path.split("\\.");
+        Object result = obj;
+        for (String pathPart : paths) {
+            if (result == null) {
+                return null;
+            }
+            if (result instanceof Map) {
+                result = ((Map<?, ?>) result).get(pathPart);
+            } else {
+                result = ReflectUtils.getFieldValue(result, pathPart);
+            }
+        }
+        return result;
+    }
+
+    public static Map<String, List<UpdateLog.PropertyChange>> extractUpdateChanges(Invocation invocation) throws SQLException {
         MappedStatement mappedStatement = (MappedStatement) invocation.getArgs()[0];
         Object parameter = invocation.getArgs()[1];
         BoundSql boundSql = mappedStatement.getBoundSql(parameter);
         List<ParameterMapping> parameterMappings = boundSql.getParameterMappings();
         String sql = boundSql.getSql();
+        String tableName = extractUpdateTableName(sql);
+        String identifierFieldName = getIdentifierFieldName(tableName);
 
-        List<UpdateLog.PropertyChange> propertyChanges = new ArrayList<>();
+        Map<String, List<UpdateLog.PropertyChange>> changes = new HashMap<>();
 
-        if (parameter == null || parameterMappings == null || parameterMappings.isEmpty()) {
-            return propertyChanges;
+        if (parameterMappings == null || parameterMappings.isEmpty()) {
+            return changes;
         }
 
         Executor executor = (Executor) invocation.getTarget();
-        Connection conn = executor.getTransaction().getConnection();
-        Long id = ReflectUtils.getFieldValue(parameter, "id");
-        ResultSet oldValues = LogUtil.selectBeforeUpdate(sql, id, conn);
-        if (oldValues == null) {
-            return propertyChanges;
-        }
-
-        for (ParameterMapping mapping : parameterMappings) {
-            String propertyName = mapping.getProperty();
-            String columnName = LogUtil.camelCaseToSnakeCase(propertyName);
-            if ("id".equalsIgnoreCase(propertyName)) {
-                continue;
+        try (ResultSet oldValues = selectOldValuesBeforeUpdate(executor, mappedStatement, parameter)) {
+            if (oldValues == null) {
+                return changes;
             }
-            String oldValue;
-            Object newValue;
+            ResultSetMetaData metaData = oldValues.getMetaData();
 
-            oldValue = oldValues.getString(columnName);
-
-            if (parameter instanceof Map) {
-                newValue = ((Map<?, ?>) parameter).get(propertyName);
-            } else {
-                newValue = ReflectUtils.getFieldValue(parameter, propertyName);
+            while (oldValues.next()) {
+                String identifierValue = oldValues.getString(camelCaseToSnakeCase(identifierFieldName));
+                List<UpdateLog.PropertyChange> propertyChanges = new ArrayList<>();
+                for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                    String fieldName = snakeCaseToCamelCase(metaData.getColumnName(i), false);
+                    if (identifierFieldName.equals(fieldName)) {
+                        continue;
+                    }
+                    String translatedFieldName = translateFieldName(tableName, fieldName);
+                    if (translatedFieldName.isEmpty()) {
+                        continue;
+                    }
+                    UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
+                    propertyChange.setName(translatedFieldName);
+                    propertyChange.setOldValue(oldValues.getObject(i));
+                    parameterMappings.stream()
+                            .filter(mapping -> mapping.getProperty().equals(fieldName) || mapping.getProperty().endsWith("." + fieldName))
+                            .findFirst()
+                            .ifPresent(fieldMapping -> propertyChange.setNewValue(getValueByPath(parameter, fieldMapping.getProperty())));
+                    propertyChanges.add(propertyChange);
+                }
+                if (propertyChanges.isEmpty()) {
+                    continue;
+                }
+                changes.put(identifierValue, propertyChanges);
             }
 
-            UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
-            propertyChange.setName(propertyName);
-            propertyChange.setOldValue(oldValue);
-            propertyChange.setNewValue(newValue);
-            propertyChanges.add(propertyChange);
+            return changes;
         }
-
-        return propertyChanges;
     }
 
     public static UpdateLog extractUpdateLog(Invocation invocation) throws SQLException {
@@ -187,8 +265,7 @@ public class LogUtil {
         updateLog.setTableName(extractUpdateTableName(sql));
         updateLog.setOperator(getCurrentOperator());
         updateLog.setOperationTime(DateUtils.getNowDate());
-        updateLog.setId(ReflectUtils.getFieldValue(parameter, "id"));
-        updateLog.setChanges(extractPropertyUpdates(invocation));
+        updateLog.setChanges(extractUpdateChanges(invocation));
         return updateLog;
     }
 
@@ -209,19 +286,23 @@ public class LogUtil {
         Matcher matcher = DELETE_PATTERN.matcher(sql);
         if (matcher.find()) {
             Executor executor = (Executor) invocation.getTarget();
-            Connection conn = executor.getTransaction().getConnection();
-            String tableName = matcher.group(1);
+            String tableName = matcher.group(1).trim();
             String conditions = matcher.group(2);
-            String query = String.format("SELECT id FROM %s WHERE %s", tableName, conditions);
+            String identifierFieldName = getIdentifierFieldName(tableName);
+            String identifierColumnName = camelCaseToSnakeCase(identifierFieldName);
+            deleteLog.setTableName(tableName);
+
+            String query = String.format("SELECT %s.%s FROM %s WHERE %s", tableName, identifierColumnName, tableName, conditions);
+            Connection conn = executor.getTransaction().getConnection();
             PreparedStatement statement = conn.prepareStatement(query);
             ParameterHandler parameterHandler = mappedStatement.getConfiguration()
                     .newParameterHandler(mappedStatement, parameter, boundSql);
             parameterHandler.setParameters(statement);
-            ResultSet resultSet = statement.executeQuery();
-
-            deleteLog.setTableName(tableName);
-            while (resultSet.next()) {
-                deleteLog.addId(resultSet.getLong("id"));
+            try (ResultSet resultSet = statement.executeQuery()) {
+                while (resultSet.next()) {
+                    String identifierValue = resultSet.getString(identifierColumnName);
+                    deleteLog.addId(identifierValue);
+                }
             }
         }
         return deleteLog;
@@ -249,6 +330,16 @@ public class LogUtil {
         }
 
         return insertLog;
+    }
+
+    public static Class<?> getClassByTableName(String tableName) {
+        try {
+            String entityClassName = ErpCustomers.class
+                    .getPackage().getName() + "." + snakeCaseToCamelCase(tableName, true);
+            return Class.forName(entityClassName);
+        } catch (ClassNotFoundException e) {
+            return null;
+        }
     }
 
     public static String translateFieldName(String tableName, String fieldName) {

@@ -36,6 +36,7 @@ public class ErpPackagingMaterialInventoryChange {
     /** 变更日期 */
     @Excel(name = "变更日期")
     @TableField("change_date")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date changeDate;
 
     /** 编辑动作（例如：1=入库，2=出库） */

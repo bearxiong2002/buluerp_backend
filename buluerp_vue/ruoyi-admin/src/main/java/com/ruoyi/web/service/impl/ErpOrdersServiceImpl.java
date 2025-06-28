@@ -10,6 +10,7 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
+import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.*;
 import org.slf4j.Logger;
@@ -58,6 +59,19 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             }
             erpOrdersProduct.setProduct(erpProducts.get(0));
         }
+
+        ListDesignPatternsRequest request = new ListDesignPatternsRequest();
+        request.setOrderId(erpOrders.getId());
+        List<ErpDesignPatterns> erpDesignPatterns = erpDesignPatternsService.selectErpDesignPatternsList(request);
+        if (!erpDesignPatterns.isEmpty()) {
+            ErpDesignPatterns designPatterns = erpDesignPatterns.get(0);
+            Long productId = designPatterns.getProductId();
+            List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(new Long[]{productId});
+            if (!erpProducts.isEmpty()) {
+                erpOrders.setProduct(erpProducts.get(0));
+            }
+        }
+
         erpOrders.setProducts(products);
         return erpOrders;
     }
@@ -126,19 +140,19 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (erpOrders.getProducts() != null && !erpOrders.getProducts().isEmpty()) {
             erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
-        erpOrders.setInnerId(ErpOrders.INNER_ID_PLACEHOLDER);
-        erpOrders.setOuterId(ErpOrders.OUTER_ID_PLACEHOLDER);
+        // erpOrders.setInnerId(ErpOrders.INNER_ID_PLACEHOLDER);
+        // erpOrders.setOuterId(ErpOrders.OUTER_ID_PLACEHOLDER);
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
             throw new ServiceException("操作失败");
         }
 
-        ErpOrders erpOrders1 = new ErpOrders();
-        erpOrders1.setId(erpOrders.getId());
-        erpOrders1.setInnerId(erpOrders.generateInnerId());
-        erpOrders1.setOuterId(erpOrders.generateOuterId());
-        if (0 == erpOrdersMapper.updateErpOrders(erpOrders1)) {
-            throw new ServiceException("无法生成订单ID");
-        }
+        // ErpOrders erpOrders1 = new ErpOrders();
+        // erpOrders1.setId(erpOrders.getId());
+        // erpOrders1.setInnerId(erpOrders.generateInnerId());
+        // erpOrders1.setOuterId(erpOrders.generateOuterId());
+        // if (0 == erpOrdersMapper.updateErpOrders(erpOrders1)) {
+        //     throw new ServiceException("无法生成订单ID");
+        // }
 
 
         // 订单创建成功后，检查审核开关并处理

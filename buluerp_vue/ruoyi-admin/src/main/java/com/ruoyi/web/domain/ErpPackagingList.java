@@ -24,7 +24,7 @@ public class ErpPackagingList extends BaseEntity {
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "创建时间", type = Excel.Type.EXPORT)
+    @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间 [list|response]")
     private Date creationTime;
 
@@ -48,7 +48,7 @@ public class ErpPackagingList extends BaseEntity {
     private String packagingListNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "发布日期")
+    @Excel(name = "发布日期", dateFormat = "yyyy-MM-dd")
     @Example("2022-05-28")
     @ApiModelProperty(value = "发布日期 [list|POST|PUT|response]")
     private Date releaseDate;
