@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,8 +70,10 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     public List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest) {
         LambdaQueryWrapper<ErpProducts> wrapper= Wrappers.lambdaQuery();
         if(listProductRequest.getId()!=null) wrapper.eq(ErpProducts::getId,listProductRequest.getId());
-        if(!StringUtils.isBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
-        if(!StringUtils.isBlank(listProductRequest.getCreateUsername())) wrapper.like(ErpProducts::getCreateUsername,listProductRequest.getCreateUsername());
+        if(StringUtils.isNotBlank(listProductRequest.getInnerId())) wrapper.like(ErpProducts::getInnerId,listProductRequest.getInnerId());
+        if(StringUtils.isNotBlank(listProductRequest.getOuterId())) wrapper.like(ErpProducts::getOuterId,listProductRequest.getOuterId());
+        if(StringUtils.isNotBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
+        if(StringUtils.isNotBlank(listProductRequest.getCreateUsername())) wrapper.like(ErpProducts::getCreateUsername,listProductRequest.getCreateUsername());
         if(listProductRequest.getCreateTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeTo());
         if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
         if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
@@ -96,6 +99,18 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             String url=FileUploadUtils.upload(addProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
         }
+        LambdaQueryWrapper<ErpProducts> innerWrapper=Wrappers.lambdaQuery();
+        innerWrapper.eq(ErpProducts::getInnerId,addProductRequest.getInnerId());
+        LambdaQueryWrapper<ErpProducts> outerWrapper=Wrappers.lambdaQuery();
+        outerWrapper.eq(ErpProducts::getOuterId,addProductRequest.getOuterId());
+        if(erpProductsMapper.selectCount(innerWrapper)>0){
+            throw new RuntimeException("内部编号已存在");
+        }
+        if(erpProductsMapper.selectCount(outerWrapper)>0){
+            throw new RuntimeException("外部编号已存在");
+        }
+        erpProducts.setInnerId(addProductRequest.getInnerId());
+        erpProducts.setOuterId(addProductRequest.getOuterId());
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
         erpProducts.setOrderId(addProductRequest.getOrderId());
         erpProducts.setName(addProductRequest.getName());
@@ -200,8 +215,13 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpOrdersMapper.clearOrdersProductsByProduct(erpProducts.getId());
             String url=erpProducts.getPictureUrl();
             if(!StringUtils.isBlank(url)){
-                url=parseActualPath(url);
-                FileUtils.deleteFile(url);
+                try {
+                    url=parseActualPath(url);
+                    FileUtils.deleteFile(url);
+                } catch (Exception e) {
+                    // 记录错误日志但不中断删除流程
+                    System.err.println("删除产品文件失败，产品ID: " + erpProducts.getId() + ", 文件URL: " + url + ", 错误: " + e.getMessage());
+                }
             }
         }
         return erpProductsMapper.deleteBatchIds(ids);
