@@ -51,11 +51,15 @@ public class ErpProductsController extends BaseController {
             @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "string", paramType = "query", format = "date-time", example = "2023-01-01 00:00:00"),
             @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "string", paramType = "query", format = "date-time", example = "2023-12-31 23:59:59"),
             @ApiImplicitParam(name = "designStatus", value = "设计状态(0未完成/1完成)", dataType = "integer", paramType = "query", allowableValues = "0,1", example = "1"),
-            @ApiImplicitParam(name = "orderId", value = "订单id", dataType = "integer")})
+            @ApiImplicitParam(name = "orderId", value = "订单id", dataType = "integer"),
+            @ApiImplicitParam(name = "innerId", value = "内部编号", dataType = "String"),
+            @ApiImplicitParam(name = "outerId", value = "外部编号", dataType = "String")})
 
     @GetMapping("/list")
     public TableDataInfo list(
             @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String innerId,
+            @RequestParam(required = false) String outerId,
             @RequestParam(required = false) Integer orderId,
             @RequestParam(required = false) String name,
             @RequestParam(required = false) String createUsername,
@@ -65,6 +69,8 @@ public class ErpProductsController extends BaseController {
 
         ListProductRequest request = new ListProductRequest();
         request.setId(id);
+        request.setInnerId(innerId);
+        request.setOuterId(outerId);
         request.setOrderId(orderId);
         request.setName(name);
         request.setCreateUsername(createUsername);
@@ -107,7 +113,7 @@ public class ErpProductsController extends BaseController {
             // 使用工具类直接获取图片，第4列（索引3）
             Map<Integer, List<String>> productImages = 
                 ExcelImageImportUtil.importInvoiceImages(
-                    file.getInputStream(), 3); // 图片在第4列（索引3）
+                    file.getInputStream(), 5); // 图片在第4列（索引3）
             
             // 将图片数据映射到对应的行（转换为从0开始的索引）
             productImages.forEach((rowIndex, images) -> {
@@ -223,6 +229,8 @@ public class ErpProductsController extends BaseController {
         List<AddProductRequest> templateData = new ArrayList<>();
         AddProductRequest example = new AddProductRequest();
         example.setOrderId(123); // 订单ID（整数）
+        example.setInnerId("inner123");
+        example.setOuterId("outer123");
         example.setName("示例产品"); // 产品名称（非空）
         example.setMaterialString("1,2,3"); // 物料ID列表（逗号分隔整数）
         example.setPictureStr("请在此单元格插入图片"); // 图片字段提示

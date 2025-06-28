@@ -105,8 +105,8 @@ public class ErpNotificationController extends BaseController
         
         if (!unreadIds.isEmpty()) {
             int result = notificationService.batchMarkNotificationsAsRead(userId, unreadIds);
-            return toAjax(result);
-        }
+        return toAjax(result);
+    }
         return success("没有未读通知");
     }
 } 

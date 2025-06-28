@@ -23,6 +23,12 @@ public class ErpProducts {
     @Excel(name = "订单id")
     private Integer orderId;
 
+    @Excel(name= "内部编码")
+    private String innerId;
+
+    @Excel(name="外部编码")
+    private String outerId;
+
     @Excel(name = "产品名")
     private String name;
 
@@ -48,6 +54,21 @@ public class ErpProducts {
     @TableField(exist = false)
     private List<Integer> materialIds;
 
+    public String getInnerId() {
+        return innerId;
+    }
+
+    public void setInnerId(String innerId) {
+        this.innerId = innerId;
+    }
+
+    public String getOuterId() {
+        return outerId;
+    }
+
+    public void setOuterId(String outerId) {
+        this.outerId = outerId;
+    }
 
     public Integer getOrderId() {
         return orderId;

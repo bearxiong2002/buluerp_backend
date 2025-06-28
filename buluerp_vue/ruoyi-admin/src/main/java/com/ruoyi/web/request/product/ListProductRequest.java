@@ -22,6 +22,24 @@ public class ListProductRequest {
     private LocalDateTime createTimeTo;
     @ApiModelProperty(dataType = "int",value = "产品设计是否完成 0未完成 1完成",required = false)
     private Integer designStatus;
+    private String innerId;
+    private String outerId;
+
+    public String getInnerId() {
+        return innerId;
+    }
+
+    public void setInnerId(String innerId) {
+        this.innerId = innerId;
+    }
+
+    public String getOuterId() {
+        return outerId;
+    }
+
+    public void setOuterId(String outerId) {
+        this.outerId = outerId;
+    }
 
     public Integer getOrderId() {
         return orderId;

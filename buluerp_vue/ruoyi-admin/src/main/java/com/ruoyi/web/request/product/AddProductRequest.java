@@ -17,9 +17,15 @@ import java.util.List;
 public class AddProductRequest {
 
     @Excel(name = "订单id")
-    @ApiModelProperty(dataType = "int",value = "订单id",required = true)
+    @ApiModelProperty(dataType = "int",value = "订单id",required = false)
     @NotNull
     private Integer orderId;
+    @Excel(name = "内部编号")
+    @ApiModelProperty(dataType = "String",value = "内部编号",required = true)
+    private String innerId;
+    @Excel(name = "外部编号")
+    @ApiModelProperty(dataType = "String",value = "外部编号",required = true)
+    private String outerId;
     @Excel(name ="产品名")
     @ApiModelProperty(dataType = "Long",value = "产品名称",required = true)
     @NotBlank
@@ -35,6 +41,22 @@ public class AddProductRequest {
     private List<Integer> materialIds;
 
     private Integer rowNumber;
+
+    public String getInnerId() {
+        return innerId;
+    }
+
+    public void setInnerId(String innerId) {
+        this.innerId = innerId;
+    }
+
+    public String getOuterId() {
+        return outerId;
+    }
+
+    public void setOuterId(String outerId) {
+        this.outerId = outerId;
+    }
 
     public Integer getRowNumber() {
         return rowNumber;
