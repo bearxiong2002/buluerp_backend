@@ -13,6 +13,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 import java.util.List;
 
@@ -44,6 +45,13 @@ public class ErpProductionSchedule {
     @ApiModelProperty(value = "产品ID [list|POST|PUT|response]", dataType = "Long", required = true)
     @Example("1")
     private Long productId;
+
+    @Excel(name = "排产ID")
+    @Example("1")
+    @ApiModelProperty(value = "对应排产ID [list|POST|PUT|response]", dataType = "Long")
+    @NotNull(groups = Save.class, message = "排产ID无效")
+    @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class})
+    private Long arrangeId;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
@@ -406,5 +414,13 @@ public class ErpProductionSchedule {
 
     public void setMaterialIds(List<Long> materialIds) {
         this.materialIds = materialIds;
+    }
+
+    public @NotNull(groups = Save.class, message = "排产ID无效") @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long getArrangeId() {
+        return arrangeId;
+    }
+
+    public void setArrangeId(@NotNull(groups = Save.class, message = "排产ID无效") @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long arrangeId) {
+        this.arrangeId = arrangeId;
     }
 }
