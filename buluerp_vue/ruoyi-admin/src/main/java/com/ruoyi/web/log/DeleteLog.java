@@ -35,14 +35,10 @@ public class DeleteLog implements OperationLog {
 
     @Override
     public String getDetails() {
-        String type = LogUtil.translateTableName(tableName);
-        if (type.isEmpty()) {
-            return "";
-        }
         if (ids == null || ids.isEmpty()) {
             return "";
         }
-        return "删除了" + type +
+        return "删除了" + LogUtil.translateTableName(tableName) +
                 ids.stream().map(String::valueOf).collect(Collectors.joining(", "));
     }
 

@@ -303,7 +303,7 @@ public class LogUtil {
                         continue;
                     }
                     String translatedFieldName = translateFieldName(tableName, fieldName);
-                    if (translatedFieldName.isEmpty()) {
+                    if (!isTranslationSuccess(translatedFieldName)) {
                         continue;
                     }
                     UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
@@ -445,7 +445,7 @@ public class LogUtil {
         } catch (ClassNotFoundException e) {
             // 忽略
         }
-        return "";
+        return "<" + fieldName + ">";
     }
 
     public static String translateTableName(String tableName) {
@@ -459,6 +459,10 @@ public class LogUtil {
         } catch (ClassNotFoundException e) {
             // 忽略
         }
-        return "";
+        return "<" + tableName + ">";
+    }
+
+    public static boolean isTranslationSuccess(String nameCn) {
+        return !nameCn.startsWith("<") || !nameCn.endsWith(">");
     }
 }
