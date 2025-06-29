@@ -4,7 +4,6 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class UpdateLog implements OperationLog {
-    public static final String OPERATION_TYPE = "UPDATE";
     public static final String[] IGNORE_FIELDS = new String[]{"^operator", "^updateTime$"};
 
     public static boolean isIgnoreField(String fieldName) {
@@ -64,7 +63,7 @@ public class UpdateLog implements OperationLog {
 
     @Override
     public String getOperationType() {
-        return OPERATION_TYPE;
+        return "更新" + LogUtil.translateTableName(tableName);
     }
 
     @Override

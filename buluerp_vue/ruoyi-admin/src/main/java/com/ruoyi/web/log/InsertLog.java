@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class InsertLog implements OperationLog {
-    public static final String OPERATION_TYPE = "INSERT";
-
     private Date operationTime;
     private String operator;
     private String tableName;
@@ -36,7 +34,7 @@ public class InsertLog implements OperationLog {
 
     @Override
     public String getOperationType() {
-        return OPERATION_TYPE;
+        return "新增" + LogUtil.translateTableName(this.tableName);
     }
 
     @Override
@@ -60,7 +58,7 @@ public class InsertLog implements OperationLog {
         if (recordId.isEmpty()) {
             return "";
         }
-        return "新建了" + recordId;
+        return "新增了" + recordId;
     }
 
     public List<String> getIds() {

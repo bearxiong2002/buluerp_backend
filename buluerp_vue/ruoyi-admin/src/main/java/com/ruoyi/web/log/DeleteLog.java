@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class DeleteLog implements OperationLog {
-    public static final String OPERATION_TYPE = "DELETE";
-
     private List<String> ids = new ArrayList<>();
 
     private String tableName;
@@ -21,7 +19,7 @@ public class DeleteLog implements OperationLog {
 
     @Override
     public String getOperationType() {
-        return OPERATION_TYPE;
+        return "删除" + LogUtil.translateTableName(tableName);
     }
 
     @Override

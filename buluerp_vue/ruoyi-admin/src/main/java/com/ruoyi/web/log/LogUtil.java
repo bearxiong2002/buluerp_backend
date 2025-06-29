@@ -5,8 +5,10 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
+import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.web.annotation.LogIdentifier;
 import com.ruoyi.web.domain.ErpCustomers;
+import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.ApiModel;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.builder.StaticSqlSource;
@@ -18,7 +20,9 @@ import org.apache.ibatis.scripting.defaults.RawSqlSource;
 import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
+import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
@@ -27,6 +31,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+@Component
 public class LogUtil {
 
     private static final ThreadLocal<List<OperationLog>> OPETATION_LOG = new ThreadLocal<>();
@@ -57,6 +62,17 @@ public class LogUtil {
     public static void addOperationLog(OperationLog opLog) {
         List<OperationLog> opLogList = getOperationLog();
         opLogList.add(opLog);
+    }
+
+    private static IErpOperationLogService erpOperationLogService = null;
+
+    // Controller 层方法成功结束后自动调用，其它情况需要手动调用
+    public void commitOperationLogs() {
+        if (erpOperationLogService == null) {
+            erpOperationLogService = SpringUtils.getBean(IErpOperationLogService.class);
+        }
+        erpOperationLogService.saveOperations(getOperationLog());
+        LogUtil.clearOperationLog();
     }
 
     public static void clearOperationLog() {
@@ -100,12 +116,53 @@ public class LogUtil {
         return result.toString();
     }
 
+    public static final ThreadLocal<Boolean> USER_OPERATING = new ThreadLocal<>();
+
+    // 当前是否为用户操作（即是否为 Controller 层方法调用过程）
+    public static boolean isUserOperating() {
+        if (USER_OPERATING.get() == null) {
+            return false;
+        }
+        return USER_OPERATING.get();
+    }
+
+    public static void setUserOperating(boolean isUserOperating) {
+        USER_OPERATING.set(isUserOperating);
+    }
+
+    public static void resetUserOperating() {
+        USER_OPERATING.remove();
+    }
+
+    private static final ThreadLocal<String> CURRENT_OPERATOR = new ThreadLocal<>();
+    public static final String OPERATOR_SYSTEM = "系统";
+    public static final String OPERATOR_UNKNOWN = "未知";
+
+    // 修改当前线程中自动日志的操作人
+    public static void setCurrentOperator(String operator) {
+        CURRENT_OPERATOR.set(operator);
+    }
+
+    public static void setSystemOperator() {
+        setCurrentOperator(OPERATOR_SYSTEM);
+    }
+
     public static String getCurrentOperator() {
+        if (CURRENT_OPERATOR.get() != null) {
+            return CURRENT_OPERATOR.get();
+        }
+        if (!isUserOperating()) {
+            return OPERATOR_SYSTEM;
+        }
         try {
             return SecurityUtils.getUsername();
         } catch (Exception e) {
-            return "系统";
+            return OPERATOR_UNKNOWN;
         }
+    }
+
+    public static void resetCurrentOperator() {
+        CURRENT_OPERATOR.remove();
     }
 
     public static String getIdentifierFieldName(String tableName) {
