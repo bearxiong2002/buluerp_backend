@@ -37,7 +37,9 @@ public class ErpOperationLogController extends BaseController {
             @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
     })
     public AjaxResult list(ListOperationLogRequest request) {
-        return success(erpOperationLogService.listOperationLogs(request));
+        startPage();
+        List<ErpOperationLog> erpOperationLogs = erpOperationLogService.listOperationLogs(request);
+        return success(erpOperationLogs);
     }
 
     @Anonymous
