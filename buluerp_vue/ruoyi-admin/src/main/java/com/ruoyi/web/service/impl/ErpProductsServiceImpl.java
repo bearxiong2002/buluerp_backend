@@ -69,7 +69,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     @Override
     public List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest) {
         LambdaQueryWrapper<ErpProducts> wrapper= Wrappers.lambdaQuery();
-        if(listProductRequest.getId()!=null) wrapper.eq(ErpProducts::getId,listProductRequest.getId());
+        if(listProductRequest.getId()!=null) wrapper.like(ErpProducts::getId,listProductRequest.getId().toString());
         if(StringUtils.isNotBlank(listProductRequest.getInnerId())) wrapper.like(ErpProducts::getInnerId,listProductRequest.getInnerId());
         if(StringUtils.isNotBlank(listProductRequest.getOuterId())) wrapper.like(ErpProducts::getOuterId,listProductRequest.getOuterId());
         if(StringUtils.isNotBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
