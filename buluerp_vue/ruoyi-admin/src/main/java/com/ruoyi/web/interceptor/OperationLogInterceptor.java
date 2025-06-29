@@ -58,7 +58,9 @@ public class OperationLogInterceptor implements Interceptor {
                 if (operationLog instanceof InsertLog) {
                     operationLog = LogUtil.completeInsertLog((InsertLog) operationLog, invocation);
                 }
-                LogUtil.addOperationLog(operationLog);
+                if (operationLog != null) {
+                    LogUtil.addOperationLog(operationLog);
+                }
             }
         } catch (Exception e) {
             throw new AutoLogException("自动记录日志失败：" + e.getMessage(), e);
