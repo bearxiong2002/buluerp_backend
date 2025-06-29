@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class LogUtil {
 
@@ -238,7 +239,7 @@ public class LogUtil {
                         continue;
                     }
                     UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
-                    propertyChange.setName(translatedFieldName);
+                    propertyChange.setName(fieldName);
                     propertyChange.setOldValue(oldValues.getObject(i));
                     parameterMappings.stream()
                             .filter(mapping -> mapping.getProperty().equals(fieldName) || mapping.getProperty().endsWith("." + fieldName))
@@ -267,6 +268,29 @@ public class LogUtil {
         updateLog.setOperationTime(DateUtils.getNowDate());
         updateLog.setChanges(extractUpdateChanges(invocation));
         return updateLog;
+    }
+
+    public static InsertLog completeInsertLog(InsertLog insertLog, Invocation invocation) {
+        String identifierFieldName = getIdentifierFieldName(insertLog.getTableName());
+        Object parameter = invocation.getArgs()[1];
+        if (parameter instanceof MapperMethod.ParamMap) {
+            MapperMethod.ParamMap<?> paramMap = (MapperMethod.ParamMap<?>) parameter;
+            String firstParamName = paramMap.keySet().stream().findFirst().orElse(null);
+            parameter = paramMap.get(firstParamName);
+        }
+        if (parameter instanceof List) {
+            insertLog.setIds(((List<?>) parameter).stream()
+                    .map(item -> getValueByPath(item, identifierFieldName))
+                    .filter(Objects::nonNull)
+                    .map(Object::toString)
+                    .collect(Collectors.toList()));
+        } else {
+            Object id = getValueByPath(parameter, identifierFieldName);
+            if (id != null) {
+                insertLog.setIds(Collections.singletonList(id.toString()));
+            }
+        }
+        return insertLog;
     }
 
 
@@ -324,9 +348,7 @@ public class LogUtil {
         Matcher matcher = INSERT_PATTERN.matcher(sql);
         if (matcher.find()) {
             String tableName = matcher.group(1);
-            String valuesString = matcher.group(3);
             insertLog.setTableName(tableName);
-            insertLog.setCount(valuesString.split("\\(").length - 1);
         }
 
         return insertLog;

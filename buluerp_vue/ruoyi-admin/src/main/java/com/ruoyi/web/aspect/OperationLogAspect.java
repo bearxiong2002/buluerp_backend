@@ -3,7 +3,7 @@ package com.ruoyi.web.aspect;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.StringUtils;
-import com.ruoyi.web.log.AutologIgnore;
+import com.ruoyi.web.log.AutoLogIgnore;
 import com.ruoyi.web.log.LogUtil;
 import com.ruoyi.web.log.OperationLog;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -36,7 +36,7 @@ public class OperationLogAspect {
         Method method = signature.getMethod();
 
         LogUtil.clearOperationLog();
-        if (method.isAnnotationPresent(AutologIgnore.class)) {
+        if (method.isAnnotationPresent(AutoLogIgnore.class) || method.getDeclaringClass().isAnnotationPresent(AutoLogIgnore.class)) {
             LogUtil.setAutoLog(false);
         }
         try {

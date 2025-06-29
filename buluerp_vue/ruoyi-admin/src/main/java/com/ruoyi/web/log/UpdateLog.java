@@ -5,6 +5,16 @@ import java.util.stream.Collectors;
 
 public class UpdateLog implements OperationLog {
     public static final String OPERATION_TYPE = "UPDATE";
+    public static final String[] IGNORE_FIELDS = new String[]{"^operator", "^updateTime$"};
+
+    public static boolean isIgnoreField(String fieldName) {
+        for (String ignoreField : IGNORE_FIELDS) {
+            if (fieldName.matches(ignoreField)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     public String getTableName() {
         return tableName;
@@ -42,6 +52,12 @@ public class UpdateLog implements OperationLog {
         this.operationTime = operationTime;
     }
 
+    @Override
+    public String getRecordId() {
+        return LogUtil.translateTableName(tableName) +
+                String.join(", ", changes.keySet());
+    }
+
     private Date operationTime;
     private String tableName;
     private Map<String, List<PropertyChange>> changes = new HashMap<>();
@@ -61,13 +77,17 @@ public class UpdateLog implements OperationLog {
                 .map(change -> {
                     String id = change.getKey();
                     String updates = change.getValue().stream()
+                            .filter(fieldChange -> !UpdateLog.isIgnoreField(fieldChange.getName()))
                             .map(fieldChange -> String.format(
                                     "%s从\"%s\"改为\"%s\"",
-                                    fieldChange.getName(),
+                                    LogUtil.translateFieldName(tableName, fieldChange.getName()),
                                     fieldChange.getOldValue(),
                                     fieldChange.getNewValue()
                             ))
                             .collect(Collectors.joining(", "));
+                    if (updates.isEmpty()) {
+                        return "";
+                    }
                     return String.format(
                             "将%s%s的%s",
                             type,

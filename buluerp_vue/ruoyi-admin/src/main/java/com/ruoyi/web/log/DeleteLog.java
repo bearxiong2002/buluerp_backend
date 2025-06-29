@@ -25,6 +25,12 @@ public class DeleteLog implements OperationLog {
     }
 
     @Override
+    public String getRecordId() {
+        return LogUtil.translateTableName(tableName) +
+                ids.stream().map(String::valueOf).collect(Collectors.joining(", "));
+    }
+
+    @Override
     public String getOperator() {
         return operator;
     }

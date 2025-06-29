@@ -215,25 +215,6 @@ public class ErpOrders extends BaseEntity
         return subcontractId;
     }
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("id", getId())
-            .append("createTime", getCreateTime())
-            .append("operator", getOperator())
-            .append("quantity", getQuantity())
-            .append("deliveryDeadline", getDeliveryDeadline())
-            .append("deliveryTime", getDeliveryTime())
-            .append("status", getStatus())
-            .append("customerId", getCustomerId())
-            .append("productId", getProductId())
-            .append("productionId", getProductionId())
-            .append("purchaseId", getPurchaseId())
-            .append("subcontractId", getSubcontractId())
-            .append("updateTime", getUpdateTime())
-            .toString();
-    }
-
     public String generateInnerId() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
         String date = sdf.format(getCreateTime());
