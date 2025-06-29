@@ -263,26 +263,26 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * pmc确认设计总表
      */
-    @ApiOperation(value = "pmc确认设计总表")
+    @ApiOperation(value = "pmc确认产品设计(传产品id)")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:confirm')")
     //@Log(title = "pmc确认设计总表", businessType = BusinessType.UPDATE)
     @PutMapping("/{id}")
     public AjaxResult confirm(@PathVariable Long id)
     {
-        return toAjax(erpDesignPatternsService.confirmErpDesignPatternsById(id));
+        return toAjax(erpDesignPatternsService.confirmProduct(id));
     }
 
     /**
      * pmc确认设计总表
      */
-    @ApiOperation(value = "pmc取消确认设计总表")
+    @ApiOperation(value = "pmc取消确认产品设计(传产品id)")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:confirm')")
     //@Log(title = "pmc取消确认设计总表", businessType = BusinessType.UPDATE)
     @PutMapping("/cancel/{id}")
     public AjaxResult cancel(@PathVariable Long id)
     {
-        return toAjax(erpDesignPatternsService.cancelConfirmById(id));
+        return toAjax(erpDesignPatternsService.cancelConfirmProductById(id));
     }
 }

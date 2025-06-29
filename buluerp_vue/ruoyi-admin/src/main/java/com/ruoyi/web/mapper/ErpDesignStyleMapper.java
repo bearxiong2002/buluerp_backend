@@ -85,4 +85,6 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
 
     Integer sumQuantityById(Long id);
 
+    Long selectConfirm(Long id);
+
 }

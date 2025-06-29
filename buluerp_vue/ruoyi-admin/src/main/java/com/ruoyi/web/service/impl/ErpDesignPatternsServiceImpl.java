@@ -49,7 +49,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     /**
      * 查询总表详情
      * 
-     * @param id design_pattern_id
+     * @param productId productId
      * @return 造型表之和
      */
     @Override
@@ -65,7 +65,8 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 erpDesignStyleMapper.selectColorSet(productId),
                 erpDesignStyleMapper.selectProductNameSet(productId),
                 erpDesignStyleMapper.sumQuantityById(productId),
-                erpDesignStyleMapper.selectMaterialSet(productId)
+                erpDesignStyleMapper.selectMaterialSet(productId),
+                erpDesignStyleMapper.selectConfirm(productId)
         );
     }
 
@@ -155,6 +156,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.deleteErpDesignPatternsById(id);
     }
 
+    //弃用方法
     @Transactional(rollbackFor = Exception.class)
     public int confirmErpDesignPatternsById(Long id){
         ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
@@ -167,6 +169,8 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
     }
 
+
+    //弃用方法
     @Transactional(rollbackFor = Exception.class)
     public int cancelConfirmById(Long id){
         ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
@@ -179,4 +183,13 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.cancelConfirmById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public int confirmProduct(Long proId){
+        return erpProductsMapper.updateStatusById(proId,1L);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public int cancelConfirmProductById(Long proId){
+        return erpProductsMapper.updateStatusById(proId,0L);
+    }
 }
