@@ -99,6 +99,16 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     List<Long> materialIds;
 
+    private Long status;
+
+    public Long getStatus() {
+        return status;
+    }
+
+    public void setStatus(Long status) {
+        this.status = status;
+    }
+
     public List<Long> getMaterialIds() {
         return materialIds;
     }

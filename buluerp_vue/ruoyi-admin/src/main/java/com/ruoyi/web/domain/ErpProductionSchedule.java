@@ -191,7 +191,6 @@ public class ErpProductionSchedule {
     @TableField(exist = false)
     @ApiModelProperty(value = "物料ID列表 [response]", dataType = "List<Long>")
     private List<Long> materialIds;
-
     @ApiModelProperty(value = "布产状态", dataType = "Long")
     private Long status;
 

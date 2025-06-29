@@ -27,7 +27,43 @@ public enum NotificationTypeEnum {
     INVENTORY_LOW("INVENTORY_LOW", "库存不足预警", "inventory_manager"),
     
     /** 采购审批通知 */
-    PURCHASE_APPROVED("PURCHASE_APPROVED", "采购审批通知", "purchase_creator");
+    PURCHASE_APPROVED("PURCHASE_APPROVED", "采购审批通知", "purchase_creator"),
+    
+    /** 审核待处理通知 */
+    AUDIT_PENDING("AUDIT_PENDING", "待审核通知", "auditor"),
+    
+    /** 审核通过通知 */
+    AUDIT_APPROVED("AUDIT_APPROVED", "审核通过通知", "creator"),
+    
+    /** 审核拒绝通知 */
+    AUDIT_REJECTED("AUDIT_REJECTED", "审核拒绝通知", "creator"),
+    
+    /** 布产审核通过通知 */
+    PRODUCTION_AUDIT_APPROVED("PRODUCTION_AUDIT_APPROVED", "布产审核通过", "production_user"),
+    
+    /** 布产审核拒绝通知 */
+    PRODUCTION_AUDIT_REJECTED("PRODUCTION_AUDIT_REJECTED", "布产审核拒绝", "production_user"),
+    
+    /** 采购审核拒绝通知 */
+    PURCHASE_AUDIT_REJECTED("PURCHASE_AUDIT_REJECTED", "采购审核拒绝", "purchase_user"),
+    
+    /** 布产创建待审核通知 */
+    PRODUCTION_AUDIT_PENDING("PRODUCTION_AUDIT_PENDING", "布产计划待审核", "production_auditor"),
+    
+    /** 采购创建待审核通知 */
+    PURCHASE_AUDIT_PENDING("PURCHASE_AUDIT_PENDING", "采购汇总待审核", "purchase_auditor"),
+    
+    /** 布产审核通过通知注塑部 */
+    PRODUCTION_APPROVED_TO_DEPT("PRODUCTION_APPROVED_TO_DEPT", "布产审核通过", "injectionmolding_dept"),
+    
+    /** 采购审核通过通知采购部 */
+    PURCHASE_APPROVED_TO_DEPT("PURCHASE_APPROVED_TO_DEPT", "采购审核通过", "purchase_dept"),
+    
+    /** 布产审核拒绝通知PMC */
+    PRODUCTION_REJECTED_TO_PMC("PRODUCTION_REJECTED_TO_PMC", "布产审核拒绝", "pmc_dept"),
+    
+    /** 采购审核拒绝通知PMC */
+    PURCHASE_REJECTED_TO_PMC("PURCHASE_REJECTED_TO_PMC", "采购审核拒绝", "pmc_dept");
     
     private final String code;
     private final String description;

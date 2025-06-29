@@ -106,18 +106,18 @@ public class ErpAuditRecordController extends BaseController
                     // 调用审核记录服务获取订单详情
                     businessDetail = erpAuditRecordService.getOrderDetail(auditId);
                     break;
-                case OUTSOURCING_AUDIT:
-                    // TODO: 调用委外加工单服务获取详情
-                    // businessDetail = outsourcingAuditService.getOutsourcingDetail(auditId);
-                    return error("委外加工单审核详情功能待实现");
                 case PRODUCTION_AUDIT:
-                    // TODO: 调用布产服务获取详情
-                    // businessDetail = productionAuditService.getProductionDetail(auditId);
-                    return error("布产审核详情功能待实现");
+                    // 调用布产服务获取详情
+                    businessDetail = erpAuditRecordService.getProductionScheduleDetail(auditId);
+                    break;
                 case SUBCONTRACT_AUDIT:
                     // TODO: 调用分包服务获取详情
                     // businessDetail = subcontractAuditService.getSubcontractDetail(auditId);
                     return error("分包审核详情功能待实现");
+                case PURCHASE_AUDIT:
+                    // 调用采购汇总服务获取详情
+                    businessDetail = erpAuditRecordService.getPurchaseCollectionDetail(auditId);
+                    break;
                 default:
                     return error("不支持的审核类型");
             }
@@ -200,7 +200,7 @@ public class ErpAuditRecordController extends BaseController
     // ==================== 委外加工单审核接口 ====================
 
     /**
-     * 查询待审核委外加工单列表（委外审核人权限）
+     * 查询待审核委外加工单列表（采购审核人权限）
      */
     @ApiOperation("查询待审核委外加工单列表")
     @PreAuthorize("@ss.hasPermi('system:audit:outsourcing:list')")
@@ -208,12 +208,12 @@ public class ErpAuditRecordController extends BaseController
     public TableDataInfo getOutsourcingPendingList()
     {
         startPage();
-        List<ErpAuditRecord> list = erpAuditRecordService.selectAuditRecords(null, AuditTypeEnum.OUTSOURCING_AUDIT.getCode(), null, true, null);
+        List<ErpAuditRecord> list = erpAuditRecordService.selectAuditRecords(null, AuditTypeEnum.PURCHASE_AUDIT.getCode(), null, true, null);
         return getDataTable(list);
     }
 
     /**
-     * 委外加工单审核（委外审核人权限）
+     * 委外加工单审核（采购审核人权限）
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
@@ -239,15 +239,15 @@ public class ErpAuditRecordController extends BaseController
         }
         
         ErpAuditRecord auditRecord = records.get(0);
-        if (!AuditTypeEnum.OUTSOURCING_AUDIT.getCode().equals(auditRecord.getAuditType())) {
-            return error("该记录不是委外加工单审核记录");
+        if (!AuditTypeEnum.PURCHASE_AUDIT.getCode().equals(auditRecord.getAuditType())) {
+            return error("该记录不是采购审核记录");
         }
         
         // 处理审核
         int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
             String action = auditRequest.getConfirm().equals(1) ? "通过" : "拒绝";
-            return success("委外加工单审核" + action + "成功");
+            return success("采购审核" + action + "成功");
         } else {
             return error("审核处理失败");
         }
@@ -304,11 +304,17 @@ public class ErpAuditRecordController extends BaseController
         // 处理审核
         int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
-            String action = auditRequest.getConfirm().equals(1) ? "通过" : "拒绝";
-            return success("布产审核" + action + "成功");
+            // 根据confirm字段调用相应的业务处理
+            if (auditRequest.getConfirm().equals(1)) {
+                erpAuditRecordService.handleProductionScheduleApproved(id, auditor, auditRequest.getAuditComment());
+                return success("布产审核通过成功");
+            } else {
+                erpAuditRecordService.handleProductionScheduleRejected(id, auditor, auditRequest.getAuditComment());
+                return success("布产审核拒绝成功");
+            }
         } else {
             return error("审核处理失败");
-    }
+        }
     }
 
 
@@ -343,9 +349,9 @@ public class ErpAuditRecordController extends BaseController
         if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
             return error("审核状态参数错误，1=通过，-1=拒绝");
         }
-        
+
         String auditor = SecurityUtils.getUsername();
-        
+
         // 验证是否为分包审核记录
         ErpAuditRecord queryRecord = new ErpAuditRecord();
         queryRecord.setId(id);
@@ -366,8 +372,69 @@ public class ErpAuditRecordController extends BaseController
             return success("分包审核" + action + "成功");
         } else {
             return error("审核处理失败");
-    }
+        }
     }
 
+    // ==================== 采购审核接口 ====================
 
-} 
+    /**
+     * 查询待审核采购列表（采购审核人权限）
+     */
+    @ApiOperation("查询待审核采购列表")
+    @PreAuthorize("@ss.hasPermi('system:audit:purchase:list')")
+    @GetMapping("/purchase/pending")
+    public TableDataInfo getPurchasePendingList()
+    {
+        startPage();
+        List<ErpAuditRecord> list = erpAuditRecordService.selectAuditRecords(null, AuditTypeEnum.PURCHASE_AUDIT.getCode(), null, true, null);
+        return getDataTable(list);
+    }
+
+    /**
+     * 采购审核（采购审核人权限）
+     * @param id 审核记录ID
+     * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
+     */
+    @ApiOperation("采购审核")
+    @PreAuthorize("@ss.hasPermi('system:audit:purchase:audit')")
+    @Log(title = "采购审核", businessType = BusinessType.UPDATE)
+    @PostMapping("/purchase/audit/{id}")
+    public AjaxResult auditPurchase(@ApiParam("审核记录ID") @PathVariable Long id,
+                                   @Validated @RequestBody AuditRequest auditRequest)
+    {
+        if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
+            return error("审核状态参数错误，1=通过，-1=拒绝");
+        }
+
+        String auditor = SecurityUtils.getUsername();
+
+        // 验证是否为采购审核记录
+        ErpAuditRecord queryRecord = new ErpAuditRecord();
+        queryRecord.setId(id);
+        List<ErpAuditRecord> records = erpAuditRecordService.selectAuditRecords(queryRecord, null, null, null, null);
+        if (records.isEmpty()) {
+            return error("审核记录不存在");
+        }
+
+        ErpAuditRecord auditRecord = records.get(0);
+        if (!AuditTypeEnum.PURCHASE_AUDIT.getCode().equals(auditRecord.getAuditType())) {
+            return error("该记录不是采购审核记录");
+        }
+
+        // 处理审核
+        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
+        if (result > 0) {
+            // 根据confirm字段调用相应的业务处理
+            if (auditRequest.getConfirm().equals(1)) {
+                erpAuditRecordService.handlePurchaseCollectionApproved(id, auditor, auditRequest.getAuditComment());
+                return success("采购审核通过成功");
+            } else {
+                erpAuditRecordService.handlePurchaseCollectionRejected(id, auditor, auditRequest.getAuditComment());
+                return success("采购审核拒绝成功");
+            }
+        } else {
+            return error("审核处理失败");
+        }
+    }
+
+}

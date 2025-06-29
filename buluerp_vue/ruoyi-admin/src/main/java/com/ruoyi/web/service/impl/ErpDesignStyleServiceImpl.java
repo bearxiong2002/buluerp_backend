@@ -64,7 +64,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         LambdaQueryWrapper<ErpDesignStyle> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listDesignRequest.getId()!=null,ErpDesignStyle::getId,listDesignRequest.getId())
                 .eq(listDesignRequest.getGroupId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getGroupId())
-                .eq(listDesignRequest.getProductId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getProductId());
+                .like(listDesignRequest.getProductId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getProductId().toString());
         return erpDesignStyleMapper.selectList(wrapper);
     }
 

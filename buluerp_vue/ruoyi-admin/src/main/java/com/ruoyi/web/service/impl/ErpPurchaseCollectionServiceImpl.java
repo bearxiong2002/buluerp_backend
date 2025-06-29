@@ -5,7 +5,10 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
+import com.ruoyi.web.service.IErpAuditRecordService;
+import com.ruoyi.web.service.IErpAuditSwitchService;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,12 @@ import java.util.List;
 public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionService {
     @Autowired
     private ErpPurchaseCollectionMapper erpPurchaseCollectionMapper;
+
+    @Autowired
+    private IErpAuditRecordService auditRecordService;
+
+    @Autowired
+    private IErpAuditSwitchService auditSwitchService;
 
     @Override
     @Transactional
@@ -38,6 +47,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Override
     @Transactional
     public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+        // 获取原始记录以检查状态变更
+        ErpPurchaseCollection oldCollection = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());
+        
         erpPurchaseCollection.setUpdateTime(DateUtils.getNowDate());
         erpPurchaseCollection.setOperator(
                 SecurityUtils.getLoginUser().getUsername()
@@ -57,12 +69,25 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     erpPurchaseCollection.getMaterialIds()
             );
         }
+
+        // 检查状态变更
+        if (erpPurchaseCollection.getStatus() != null && 
+            oldCollection != null && 
+            !erpPurchaseCollection.getStatus().equals(oldCollection.getStatus()) &&
+            auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {
+            
+            auditRecordService.handlePurchaseCollectionStatusChange(erpPurchaseCollection, erpPurchaseCollection.getStatus().intValue());
+        }
+
         return 1;
     }
 
     @Override
     @Transactional
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+        // 设置初始状态为待审核
+        erpPurchaseCollection.setStatus(0L);
+
         erpPurchaseCollection.setCreateTime(DateUtils.getNowDate());
         erpPurchaseCollection.setUpdateTime(DateUtils.getNowDate());
         erpPurchaseCollection.setCreationTime(DateUtils.getNowDate());
@@ -83,6 +108,17 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     erpPurchaseCollection.getMaterialIds()
             );
         }
+
+        // 检查是否启用采购审核
+        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {
+            // 创建审核记录并发送通知
+            auditRecordService.handlePurchaseCollectionCreated(erpPurchaseCollection);
+        } else {
+            // 如果未启用审核，直接设置为已审核状态
+            erpPurchaseCollection.setStatus(1L);
+            updateErpPurchaseCollection(erpPurchaseCollection);
+        }
+
         return 1;
     }
 

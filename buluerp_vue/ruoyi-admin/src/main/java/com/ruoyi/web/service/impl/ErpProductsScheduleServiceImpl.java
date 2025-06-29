@@ -7,8 +7,12 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
+import com.ruoyi.web.service.IErpAuditRecordService;
+import com.ruoyi.web.service.IErpAuditSwitchService;
 import com.ruoyi.web.service.IErpProductsScheduleService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,9 +24,18 @@ import java.util.List;
 public class ErpProductsScheduleServiceImpl
         extends ServiceImpl<ErpProductionScheduleMapper, ErpProductionSchedule>
         implements IErpProductsScheduleService {
+
+    @Autowired
+    private IErpAuditRecordService auditRecordService;
+
+    @Autowired
+    private IErpAuditSwitchService auditSwitchService;
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
+        // 设置初始状态为待审核
+        erpProductionSchedule.setStatus(0L);
+        
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
@@ -40,11 +53,26 @@ public class ErpProductsScheduleServiceImpl
                     erpProductionSchedule.getMaterialIds()
             );
         }
+
+        // 检查是否启用布产审核
+        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
+            // 创建审核记录并发送通知
+            auditRecordService.handleProductionScheduleCreated(erpProductionSchedule);
+        } else {
+            // 如果未启用审核，直接设置为已审核状态
+            erpProductionSchedule.setStatus(1L);
+            updateById(erpProductionSchedule);
+        }
+
         return 1;
     }
 
     @Override
+    @Transactional
     public int updateErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
+        // 获取原始记录以检查状态变更
+        ErpProductionSchedule oldSchedule = getById(erpProductionSchedule.getId());
+        
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
@@ -62,6 +90,16 @@ public class ErpProductsScheduleServiceImpl
                     erpProductionSchedule.getMaterialIds()
             );
         }
+
+        // 检查状态变更
+        if (erpProductionSchedule.getStatus() != null && 
+            oldSchedule != null && 
+            !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus()) &&
+            auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
+            
+            auditRecordService.handleProductionScheduleStatusChange(erpProductionSchedule, erpProductionSchedule.getStatus().intValue());
+        }
+
         return 1;
     }
 

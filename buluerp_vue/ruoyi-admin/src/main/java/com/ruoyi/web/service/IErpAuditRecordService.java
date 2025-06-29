@@ -2,6 +2,8 @@ package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.domain.ErpPurchaseCollection;
 
 import java.util.List;
 
@@ -99,4 +101,90 @@ public interface IErpAuditRecordService
      * @param newStatus 新状态
      */
     void handleOrderStatusChange(ErpOrders order, Integer newStatus);
+
+    // ==================== 布产审核业务方法 ====================
+
+    /**
+     * 布产计划创建后处理（创建审核记录并发送通知）
+     * 
+     * @param schedule 布产计划信息
+     */
+    void handleProductionScheduleCreated(ErpProductionSchedule schedule);
+
+    /**
+     * 布产计划审核通过处理（更新状态并发送通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handleProductionScheduleApproved(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 布产计划审核拒绝处理（更新状态并发送通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handleProductionScheduleRejected(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 布产计划状态变更审核处理
+     * 
+     * @param schedule 布产计划信息
+     * @param newStatus 新状态
+     */
+    void handleProductionScheduleStatusChange(ErpProductionSchedule schedule, Integer newStatus);
+
+    /**
+     * 获取布产计划详情
+     * 
+     * @param scheduleId 布产计划ID
+     * @return 布产计划详情
+     */
+    ErpProductionSchedule getProductionScheduleDetail(Long scheduleId);
+
+    // ==================== 采购审核业务方法 ====================
+
+    /**
+     * 采购汇总创建后处理（创建审核记录并发送通知）
+     * 
+     * @param collection 采购汇总信息
+     */
+    void handlePurchaseCollectionCreated(ErpPurchaseCollection collection);
+
+    /**
+     * 采购汇总审核通过处理（更新状态并发送通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handlePurchaseCollectionApproved(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 采购汇总审核拒绝处理（更新状态并发送通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handlePurchaseCollectionRejected(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 采购汇总状态变更审核处理
+     * 
+     * @param collection 采购汇总信息
+     * @param newStatus 新状态
+     */
+    void handlePurchaseCollectionStatusChange(ErpPurchaseCollection collection, Integer newStatus);
+
+    /**
+     * 获取采购汇总详情
+     * 
+     * @param collectionId 采购汇总ID
+     * @return 采购汇总详情
+     */
+    ErpPurchaseCollection getPurchaseCollectionDetail(Long collectionId);
 } 
