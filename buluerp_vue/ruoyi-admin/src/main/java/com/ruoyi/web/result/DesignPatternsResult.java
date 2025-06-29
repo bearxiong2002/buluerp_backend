@@ -152,7 +152,7 @@ public class DesignPatternsResult {
         this.productName = productName;
         this.quantity = quantity;
         this.material = material;
-        this.confirm = confirm;
+        this.confirm=confirm;
     }
 
     @Override

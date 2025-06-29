@@ -35,8 +35,8 @@ public class DesignPatternsExportDTO {
     @Excel(name = "模具用料")
     private String material;
 
-    @Excel(name = "设计是否已确认", readConverterExp = "1=已确认,0=未确认")
-    private Long confirm;
+//    @Excel(name = "设计是否已确认", readConverterExp = "1=已确认,0=未确认")
+//    private Long confirm;
 
     // 构造函数：将 Set 转换为逗号分隔字符串
     public DesignPatternsExportDTO(DesignPatternsResult result) {
@@ -50,7 +50,6 @@ public class DesignPatternsExportDTO {
         this.productName = String.join(",", result.getProductName());
         this.quantity = result.getQuantity();
         this.material = String.join(",", result.getMaterial());
-        this.confirm = result.getConfirm();
     }
 
     public Long getId() {
@@ -133,11 +132,4 @@ public class DesignPatternsExportDTO {
         this.material = material;
     }
 
-    public Long getConfirm() {
-        return confirm;
-    }
-
-    public void setConfirm(Long confirm) {
-        this.confirm = confirm;
-    }
 }

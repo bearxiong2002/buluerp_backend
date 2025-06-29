@@ -49,16 +49,14 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     /**
      * 查询总表详情
      * 
-     * @param id design_pattern_id
+     * @param productId productId
      * @return 造型表之和
      */
     @Override
-    public DesignPatternsResult selectErpDesignPatternsById(Long id)
+    public DesignPatternsResult selectErpDesignPatternsById(Long productId)
     {
-        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
-        Long productId=erpDesignPatterns.getProductId();
         return new DesignPatternsResult(
-                id,
+                productId,
                 erpDesignStyleMapper.selectMouldNumberSet(productId),
                 erpDesignStyleMapper.selectLddNumberSet(productId),
                 erpDesignStyleMapper.selectMouldCategorySet(productId),
@@ -68,7 +66,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 erpDesignStyleMapper.selectProductNameSet(productId),
                 erpDesignStyleMapper.sumQuantityById(productId),
                 erpDesignStyleMapper.selectMaterialSet(productId),
-                erpDesignPatterns.getConfirm()
+                erpDesignStyleMapper.selectConfirm(productId)
         );
     }
 
@@ -158,6 +156,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.deleteErpDesignPatternsById(id);
     }
 
+    //弃用方法
     @Transactional(rollbackFor = Exception.class)
     public int confirmErpDesignPatternsById(Long id){
         ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
@@ -170,6 +169,8 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
     }
 
+
+    //弃用方法
     @Transactional(rollbackFor = Exception.class)
     public int cancelConfirmById(Long id){
         ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
@@ -182,4 +183,13 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.cancelConfirmById(id);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    public int confirmProduct(Long proId){
+        return erpProductsMapper.updateStatusById(proId,1L);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public int cancelConfirmProductById(Long proId){
+        return erpProductsMapper.updateStatusById(proId,0L);
+    }
 }
