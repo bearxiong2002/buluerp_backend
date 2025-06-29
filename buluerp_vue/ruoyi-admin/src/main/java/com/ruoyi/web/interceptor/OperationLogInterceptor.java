@@ -1,15 +1,15 @@
 package com.ruoyi.web.interceptor;
 
-import com.ruoyi.web.log.DeleteLog;
-import com.ruoyi.web.log.OperationLog;
-import com.ruoyi.web.log.UpdateLog;
+import com.ruoyi.web.exception.AutoLogException;
+import com.ruoyi.web.log.*;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
-import com.ruoyi.web.log.LogUtil;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
 import org.apache.ibatis.plugin.*;
+import org.springframework.util.ReflectionUtils;
 
+import java.lang.reflect.Method;
 import java.util.*;
 
 @Intercepts({
@@ -24,19 +24,44 @@ public class OperationLogInterceptor implements Interceptor {
         String methodName = mappedStatement.getId();
 
         OperationLog operationLog = null;
-        if (LogUtil.isAutoLog() && methodName.startsWith(ErpCustomersMapper.class.getPackage().getName())) {
-            if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType())) {
-                operationLog = LogUtil.extractUpdateLog(invocation);
-            } else if (SqlCommandType.DELETE.equals(mappedStatement.getSqlCommandType())) {
-                operationLog = LogUtil.extractDeleteLog(invocation);
-            } else if (SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())) {
-                operationLog = LogUtil.extractInsertLog(invocation);
+        try {
+            boolean autoLog = LogUtil.isAutoLog() &&
+                    methodName.startsWith(ErpCustomersMapper.class.getPackage().getName());
+            if (autoLog) {
+                String className = methodName.substring(0, methodName.lastIndexOf("."));
+                String methodSimpleName = methodName.substring(methodName.lastIndexOf(".") + 1);
+                Class<?> mapperClass = Class.forName(className);
+                Method[] methods = ReflectionUtils.getAllDeclaredMethods(mapperClass);
+                Method method = Arrays.stream(methods)
+                        .filter(m -> m.getName().equals(methodSimpleName))
+                        .findFirst()
+                        .orElse(null);
+                autoLog = !mapperClass.isAnnotationPresent(AutoLogIgnore.class) &&
+                        (method == null || !method.isAnnotationPresent(AutoLogIgnore.class));
             }
+            if (autoLog) {
+                if (SqlCommandType.UPDATE.equals(mappedStatement.getSqlCommandType())) {
+                    operationLog = LogUtil.extractUpdateLog(invocation);
+                } else if (SqlCommandType.DELETE.equals(mappedStatement.getSqlCommandType())) {
+                    operationLog = LogUtil.extractDeleteLog(invocation);
+                } else if (SqlCommandType.INSERT.equals(mappedStatement.getSqlCommandType())) {
+                    operationLog = LogUtil.extractInsertLog(invocation);
+                }
+            }
+        } catch (Exception e) {
+            throw new AutoLogException("自动提取日志失败：" + e.getMessage(), e);
         }
 
         Object result = invocation.proceed();
-        if (operationLog != null) {
-            LogUtil.addOperationLog(operationLog);
+        try {
+            if (operationLog != null) {
+                if (operationLog instanceof InsertLog) {
+                    operationLog = LogUtil.completeInsertLog((InsertLog) operationLog, invocation);
+                }
+                LogUtil.addOperationLog(operationLog);
+            }
+        } catch (Exception e) {
+            throw new AutoLogException("自动记录日志失败：" + e.getMessage(), e);
         }
         return result;
     }

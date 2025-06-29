@@ -136,12 +136,25 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                 }
             }
             erpOrders.setCustomerId(erpCustomers.getId());
+        } else if (erpOrders.getCustomerId() != null) {
+            ErpCustomers erpCustomers = erpCustomersService.selectErpCustomersById(erpOrders.getCustomerId());
+            if (erpCustomers == null) {
+                throw new ServiceException("客户ID无效");
+            }
+        } else {
+            throw new ServiceException("客户ID无效");
         }
         if (erpOrders.getProducts() != null && !erpOrders.getProducts().isEmpty()) {
             erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
         }
         // erpOrders.setInnerId(ErpOrders.INNER_ID_PLACEHOLDER);
         // erpOrders.setOuterId(ErpOrders.OUTER_ID_PLACEHOLDER);
+        if (erpOrdersMapper.selectErpOrdersByInnerId(erpOrders.getInnerId()) != null) {
+            throw new ServiceException("订单内部ID已存在");
+        }
+        if (erpOrdersMapper.selectErpOrdersByOuterId(erpOrders.getOuterId()) != null) {
+            throw new ServiceException("订单外部ID已存在");
+        }
         if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
             throw new ServiceException("操作失败");
         }

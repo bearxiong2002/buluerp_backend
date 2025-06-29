@@ -26,6 +26,10 @@ public interface ErpOrdersMapper
      */
     public ErpOrders selectErpOrdersById(Long id);
 
+    ErpOrders selectErpOrdersByInnerId(String innerId);
+
+    ErpOrders selectErpOrdersByOuterId(String outerId);
+
     /**
      * 查询订单列表
      * 

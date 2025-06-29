@@ -95,6 +95,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectOrdersProducts" resultType="com.ruoyi.web.domain.ErpOrdersProduct">
         select id, orders_id, product_id, quantity from erp_orders_product where orders_id = #{ordersId}
     </select>
+    <select id="selectErpOrdersByInnerId" resultType="com.ruoyi.web.domain.ErpOrders">
+        <include refid="selectErpOrdersVo"/>
+        where inner_id = #{innerId}
+    </select>
+    <select id="selectErpOrdersByOuterId" resultType="com.ruoyi.web.domain.ErpOrders">
+        <include refid="selectErpOrdersVo"/>
+        where outer_id = #{outerId}
+    </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders
