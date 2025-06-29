@@ -9,7 +9,7 @@ import java.util.Set;
 public class DesignPatternsResult {
 
     /** 主设记编号 */
-    @Excel(name = "主设计编号")
+    @Excel(name = "产品id")
     private Long id;
 
     /** 模具编号，用于唯一标识模具 */

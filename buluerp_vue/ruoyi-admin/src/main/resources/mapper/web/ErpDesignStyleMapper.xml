@@ -6,7 +6,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     
     <resultMap type="ErpDesignStyle" id="ErpDesignStyleResult">
         <result property="id"    column="id"    />
-        <result property="designPatternId"    column="design_pattern_id"    />
+        <result property="productId"    column="product_id"    />
         <result property="groupId"    column="group_id"    />
         <result property="mouldNumber"    column="mould_number"    />
         <result property="lddNumber"    column="ldd_number"    />
@@ -26,7 +26,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <select id="selectErpDesignStyleList" parameterType="ErpDesignStyle" resultMap="ErpDesignStyleResult">
         <include refid="selectErpDesignStyleVo"/>
         <where>  
-            <if test="designPatternId != null "> and design_pattern_id = #{designPatternId}</if>
+            <if test="productId != null "> and product_id = #{productId}</if>
             <if test="groupId != null "> and group_id = #{groupId}</if>
             <if test="mouldNumber != null  and mouldNumber != ''"> and mould_number = #{mouldNumber}</if>
             <if test="lddNumber != null  and lddNumber != ''"> and ldd_number = #{lddNumber}</if>

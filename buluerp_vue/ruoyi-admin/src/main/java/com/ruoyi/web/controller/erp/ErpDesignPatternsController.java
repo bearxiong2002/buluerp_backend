@@ -212,7 +212,7 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * 获取设计总表详细信息
      */
-    @ApiOperation(value = "获得设计总表详细信息 /{id}")
+    @ApiOperation(value = "获得设计详细信息(传产品id)")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:query')")
     @GetMapping(value = "/{id}")

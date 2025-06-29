@@ -54,18 +54,18 @@ public class ErpDesignStyleController extends BaseController
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "造型表ID(可选)", dataType = "integer", paramType = "query", example = "1"),
             @ApiImplicitParam(name = "groupId", value = "分组编号", dataType = "integer", paramType = "query", example = "100"),
-            @ApiImplicitParam(name = "designPatternId", value = "主设计编号", dataType = "integer", paramType = "query", required = true, example = "2023")
+            @ApiImplicitParam(name = "productId", value = "产品id", dataType = "integer", paramType = "query",  example = "2023")
     })
     @GetMapping("/list")
     public TableDataInfo list(
             @RequestParam(name = "id", required = false) Long id,
             @RequestParam(name = "groupId", required = false) Long groupId,
-            @RequestParam(name = "designPatternId") @NotNull(message = "主设计编号不能为空") Long designPatternId) {
+            @RequestParam(name = "productId") @NotNull(message = "产品id") Long productId) {
 
         ListDesignRequest request = new ListDesignRequest();
         request.setId(id);
         request.setGroupId(groupId);
-        request.setDesignPatternId(designPatternId);
+        request.setProductId(productId);
 
         startPage();
         List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(request);
@@ -253,7 +253,7 @@ public class ErpDesignStyleController extends BaseController
 
         // 设置必填字段示例值（符合验证规则）
         example.setGroupId(1001L);       // 示例分组编号
-        example.setDesignPatternId(2001L);// 示例设计编号
+        example.setProductId(2001L);// 示例产品编号
         example.setMouldNumber("MD-2023-001"); // 模具编号示例
         example.setLddNumber("LDD-00123");    // LDD编号示例
         example.setMouldCategory("注塑模具");  // 模具类别示例
