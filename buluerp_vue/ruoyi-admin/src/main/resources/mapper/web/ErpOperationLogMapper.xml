@@ -1,7 +1,47 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="com.ruoyi.web.mapper.ErpOperationLogMapper">
-    <select id="executeQuery" resultType="java.util.HashMap">
-        select ${arg0}
+    <resultMap id="ErpOperationLog" type="com.ruoyi.web.domain.ErpOperationLog">
+        <id property="id" column="id"/>
+        <result property="operationTime" column="operation_time"/>
+        <result property="operationType" column="operation_type"/>
+        <result property="recordId" column="record_id"/>
+        <result property="operator" column="operator"/>
+        <result property="details" column="details"/>
+    </resultMap>
+    <sql id="selectOperationLog">
+        select id,
+        operation_type as operationType,
+        record_id as recordId,
+        operator,
+        operation_time as operationTime,
+        details
+        from erp_operation_log
+    </sql>
+    <select id="listOperationLogs" resultMap="ErpOperationLog">
+        <include refid="selectOperationLog"/>
+        <where>
+            <if test="id != null">
+                and id = #{id}
+            </if>
+            <if test="operationTimeFrom != null">
+                and operation_time >= #{operationTimeFrom}
+            </if>
+            <if test="operationTimeTo != null">
+                and operation_time &lt;= #{operationTimeTo}
+            </if>
+            <if test="operationType != null">
+                and operation_type like concat('%',#{operationType},'%')
+            </if>
+            <if test="recordId != null">
+                and record_id = like concat('%',#{recordId},'%')
+            </if>
+            <if test="operator != null">
+                and operator like concat('%',#{operator},'%')
+            </if>
+            <if test="details != null">
+                and details like concat('%',#{details},'%')
+            </if>
+        </where>
     </select>
 </mapper>

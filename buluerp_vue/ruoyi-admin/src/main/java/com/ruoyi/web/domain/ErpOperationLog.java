@@ -4,26 +4,33 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.web.log.OperationLog;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
 public class ErpOperationLog {
     @TableId(value = "id", type = IdType.AUTO)
+    @ApiModelProperty(value = "操作日志项ID")
     private Long id;
 
-    @Excel(name = "操作时间")
+    @Excel(name = "操作时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @ApiModelProperty(value = "操作时间")
     private Date operationTime;
 
     @Excel(name = "业务类型")
+    @ApiModelProperty(value = "业务类型")
     private String operationType;
 
     @Excel(name = "记录ID")
+    @ApiModelProperty(value = "操作对象记录的ID")
     private String recordId;
 
     @Excel(name = "操作人")
+    @ApiModelProperty(value = "操作人（用户名）")
     private String operator;
 
-    @Excel(name = "操作详情")
+    @Excel(name = "操作详情", width = 100)
+    @ApiModelProperty(value = "操作详情")
     private String details;
 
     public static ErpOperationLog fromOperationLog(OperationLog log) {
