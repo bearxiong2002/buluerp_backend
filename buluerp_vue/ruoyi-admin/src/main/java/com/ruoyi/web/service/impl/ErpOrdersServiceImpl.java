@@ -136,6 +136,13 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                 }
             }
             erpOrders.setCustomerId(erpCustomers.getId());
+        } else if (erpOrders.getCustomerId() != null) {
+            ErpCustomers erpCustomers = erpCustomersService.selectErpCustomersById(erpOrders.getCustomerId());
+            if (erpCustomers == null) {
+                throw new ServiceException("客户ID无效");
+            }
+        } else {
+            throw new ServiceException("客户ID无效");
         }
         if (erpOrders.getProducts() != null && !erpOrders.getProducts().isEmpty()) {
             erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
