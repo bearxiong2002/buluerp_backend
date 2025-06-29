@@ -81,7 +81,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     {
         LambdaQueryWrapper<ErpDesignPatterns> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listDesignPatternsRequest.getConfirm()!=null,ErpDesignPatterns::getConfirm,listDesignPatternsRequest.getConfirm())
-                .like(listDesignPatternsRequest.getProductId()!=null,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId().toString())
+                .like(listDesignPatternsRequest.getProductId()!=null,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
                 .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
                 .eq(listDesignPatternsRequest.getOrderId()!=null,ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId());
         return erpDesignPatternsMapper.selectList(wrapper);
@@ -110,7 +110,21 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         ErpDesignPatterns erpDesignPatterns=new ErpDesignPatterns(addDesignPatternsRequest.getProductId(),userId, addDesignPatternsRequest.getOrderId());
         erpDesignPatterns.setCreateTime(LocalDateTime.now());
 
-        return erpDesignPatternsMapper.insert(erpDesignPatterns);
+        int result = erpDesignPatternsMapper.insert(erpDesignPatterns);
+        
+        // 检查产品的confirm状态
+        if (result > 0) {
+            Long productConfirm = erpDesignStyleMapper.selectConfirm(addDesignPatternsRequest.getProductId());
+            if (productConfirm != null && productConfirm.equals(1L)) {
+                // 如果产品confirm为1，更新订单状态为已设计（状态2）
+                ErpOrders erpOrders = new ErpOrders();
+                erpOrders.setId(addDesignPatternsRequest.getOrderId());
+                erpOrders.setStatus(2); // 已设计
+                erpOrdersMapper.updateErpOrders(erpOrders);
+            }
+        }
+
+        return result;
     }
 
     /**
