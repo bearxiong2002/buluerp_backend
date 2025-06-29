@@ -6,11 +6,13 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModel;
 
 import java.time.LocalDateTime;
 import java.util.Date;
 
 @TableName("erp_part_inventory_change")
+@ApiModel("胶件库存变更")
 public class ErpPartInventoryChange {
 
     @TableId(type = IdType.AUTO)

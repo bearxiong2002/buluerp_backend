@@ -1,5 +1,8 @@
 package com.ruoyi.web.domain;
 
+import io.swagger.annotations.ApiModel;
+
+@ApiModel("订单产品关联")
 public class ErpOrdersProduct {
     private Long id;
     private Long ordersId;
