@@ -11,10 +11,10 @@
     </resultMap>
     <sql id="selectOperationLog">
         select id,
-        operation_type as operationType,
-        record_id as recordId,
+        operation_type,
+        record_id,
         operator,
-        operation_time as operationTime,
+        operation_time,
         details
         from erp_operation_log
     </sql>

@@ -21,9 +21,6 @@ import java.util.List;
 public class OperationLogAspect {
     private final Logger log = LoggerFactory.getLogger(OperationLogAspect.class);
 
-    @Resource
-    private IErpOperationLogService erpOperationLogService;
-
     // 定义切入点：匹配 com.ruoyi.web.controller.erp 包下所有以 Controller 结尾的类中的方法，
     // 并且这些方法带有 @ApiOperation 注解
     @Pointcut("execution(* com.ruoyi.web.controller.erp.*Controller.*(..)) &&" +
@@ -43,28 +40,12 @@ public class OperationLogAspect {
         }
         try {
             Object result = joinPoint.proceed();
-
-            List<OperationLog> opLogs = LogUtil.getOperationLog();
-            for (OperationLog opLog : opLogs) {
-                debugOperation(opLog);
-            }
-            erpOperationLogService.saveOperations(opLogs);
-
+            LogUtil.commitOperationLogs();
             return result;
         } finally {
             LogUtil.clearOperationLog();
             LogUtil.resetCurrentOperator();
             LogUtil.resetUserOperating();
         }
-    }
-
-    public void debugOperation(OperationLog opLog) {
-        log.debug("==================== 操作日志 ====================");
-        log.debug("操作时间:\t{}", DateUtils.getTime());
-        log.debug("操作人:\t{}", LogUtil.getCurrentOperator());
-        log.debug("操作类型:\t{}", opLog.getOperationType());
-        log.debug("操作记录ID:\t{}", opLog.getRecordId());
-        log.debug("操作详情:\t{}", opLog.getDetails());
-        log.debug("==================================================");
     }
 }

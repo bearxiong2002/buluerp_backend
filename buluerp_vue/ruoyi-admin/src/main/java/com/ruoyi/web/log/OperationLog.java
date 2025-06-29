@@ -27,7 +27,7 @@ public interface OperationLog {
             return this;
         }
 
-        private Builder recordId(String recordId) {
+        public Builder recordId(String recordId) {
             this.recordId = recordId;
             return this;
         }

@@ -11,22 +11,17 @@ import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.ApiModel;
 import org.apache.ibatis.binding.MapperMethod;
-import org.apache.ibatis.builder.StaticSqlSource;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
 import org.apache.ibatis.mapping.*;
 import org.apache.ibatis.plugin.Invocation;
-import org.apache.ibatis.scripting.defaults.RawSqlSource;
-import org.apache.ibatis.session.Configuration;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.RowBounds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Field;
 import java.sql.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -36,6 +31,18 @@ public class LogUtil {
 
     private static final ThreadLocal<List<OperationLog>> OPETATION_LOG = new ThreadLocal<>();
     private static final ThreadLocal<Boolean> IS_AUTOLOG = new ThreadLocal<>();
+
+    private static final Logger logger = LoggerFactory.getLogger(LogUtil.class);
+
+    public static void debugOperation(OperationLog opLog) {
+        logger.debug("==================== 操作日志 ====================");
+        logger.debug("操作时间:\t{}", DateUtils.getTime());
+        logger.debug("操作人:\t{}", LogUtil.getCurrentOperator());
+        logger.debug("操作类型:\t{}", opLog.getOperationType());
+        logger.debug("操作记录ID:\t{}", opLog.getRecordId());
+        logger.debug("操作详情:\t{}", opLog.getDetails());
+        logger.debug("==================================================");
+    }
 
     public static List<OperationLog> getOperationLog() {
         if (OPETATION_LOG.get() == null) {
@@ -67,11 +74,15 @@ public class LogUtil {
     private static IErpOperationLogService erpOperationLogService = null;
 
     // Controller 层方法成功结束后自动调用，其它情况需要手动调用
-    public void commitOperationLogs() {
+    public static void commitOperationLogs() {
         if (erpOperationLogService == null) {
             erpOperationLogService = SpringUtils.getBean(IErpOperationLogService.class);
         }
-        erpOperationLogService.saveOperations(getOperationLog());
+        List<OperationLog> operationLog = getOperationLog();
+        for (OperationLog log : operationLog) {
+            debugOperation(log);
+        }
+        erpOperationLogService.saveOperations(operationLog);
         LogUtil.clearOperationLog();
     }
 
