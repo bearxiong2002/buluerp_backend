@@ -55,13 +55,21 @@ public class NotificationServiceImpl implements INotificationService
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_CREATED, 
             new NotificationTemplate("新订单待审核", "订单编号：{orderCode}，客户：{customerName}，数量：{quantity}，交货期限：{deliveryDeadline}"));
         
-        // 订单审核通过通知模板
+        // 订单审核通过通知模板（通用，用于其他状态变更）
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_APPROVED, 
             new NotificationTemplate("订单审核通过", "订单编号：{orderCode} 已审核通过，请安排设计工作"));
         
-        // 订单审核拒绝通知模板
+        // 订单审核拒绝通知模板（通用，用于其他状态变更）
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_REJECTED, 
             new NotificationTemplate("订单审核未通过", "订单编号：{orderCode} 审核未通过，原因：{rejectReason}"));
+        
+        // 订单审核通过专用通知模板（通知设计部）
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_AUDIT_APPROVED, 
+            new NotificationTemplate("新订单待设计", "订单编号：{orderCode} 已审核通过，客户：{customerName}，数量：{quantity}，交货期限：{deliveryDeadline}，审核人：{auditor}，审核意见：{auditComment}，请安排设计工作"));
+        
+        // 订单审核拒绝专用通知模板（通知销售部）
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_AUDIT_REJECTED, 
+            new NotificationTemplate("订单审核未通过", "订单编号：{orderCode} 审核未通过，客户：{customerName}，数量：{quantity}，交货期限：{deliveryDeadline}，拒绝原因：{rejectReason}，请修改订单后重新提交"));
         
         // 审核待处理通知模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_PENDING, 

@@ -305,21 +305,23 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             ErpAuditRecord auditRecord = records.get(0);
             
-            // 2. 更新订单状态为设计中
+            // 2. 更新订单状态为已审核待设计
             ErpOrders order = ordersService.selectErpOrdersById(auditRecord.getAuditId());
             if (order == null) {
                 throw new RuntimeException("订单不存在");
             }
             
-            order.setStatus(ORDER_STATUS_DESIGNING); // 设置为设计中状态
+            order.setStatus(ORDER_STATUS_APPROVED); // 设置为已审核待设计状态（状态1）
             ordersService.updateErpOrders(order);
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildOrderNotificationData(order);
+            templateData.put("auditor", auditor);
+            templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
             
             // 4. 发送通知给设计部用户
             notificationService.sendNotificationToRole(
-                NotificationTypeEnum.ORDER_APPROVED,
+                NotificationTypeEnum.ORDER_AUDIT_APPROVED,
                 "design-dept", // 设计部用户角色标识
                 order.getId(),
                 "ORDER",
@@ -366,12 +368,13 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildOrderNotificationData(order);
+            templateData.put("auditor", auditor);
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
             
-            // 4. 发送通知给订单部用户
+            // 4. 发送通知给销售部用户
             notificationService.sendNotificationToRole(
-                NotificationTypeEnum.ORDER_REJECTED,
-                "order_user", // 订单部用户角色标识
+                NotificationTypeEnum.ORDER_AUDIT_REJECTED,
+                "sell-dept", // 销售部用户角色标识
                 order.getId(),
                 "ORDER",
                 templateData

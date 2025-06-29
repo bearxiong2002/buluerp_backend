@@ -63,7 +63,13 @@ public enum NotificationTypeEnum {
     PRODUCTION_REJECTED_TO_PMC("PRODUCTION_REJECTED_TO_PMC", "布产审核拒绝", "pmc_dept"),
     
     /** 采购审核拒绝通知PMC */
-    PURCHASE_REJECTED_TO_PMC("PURCHASE_REJECTED_TO_PMC", "采购审核拒绝", "pmc_dept");
+    PURCHASE_REJECTED_TO_PMC("PURCHASE_REJECTED_TO_PMC", "采购审核拒绝", "pmc_dept"),
+    
+    /** 订单审核通过通知设计部 */
+    ORDER_AUDIT_APPROVED("ORDER_AUDIT_APPROVED", "新订单待设计", "design_dept"),
+    
+    /** 订单审核拒绝通知销售部 */
+    ORDER_AUDIT_REJECTED("ORDER_AUDIT_REJECTED", "订单审核未通过", "sell_dept");
     
     private final String code;
     private final String description;
