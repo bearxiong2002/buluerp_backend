@@ -227,6 +227,9 @@
     <select id="selectErpPurchaseCollectionList" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
         <include refid="selectErpPurchaseCollection"/>
         <where>
+            <if test="id != null">
+                and id like concat('%', #{id}, '%')
+            </if>
             <if test="orderCode != null and orderCode != ''">
                 and order_code like concat('%', #{orderCode}, '%')
             </if>

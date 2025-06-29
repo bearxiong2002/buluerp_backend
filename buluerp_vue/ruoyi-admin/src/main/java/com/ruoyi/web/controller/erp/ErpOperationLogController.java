@@ -9,6 +9,8 @@ import com.ruoyi.web.log.AutoLogIgnore;
 import com.ruoyi.web.request.log.ListOperationLogRequest;
 import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +30,12 @@ public class ErpOperationLogController extends BaseController {
     @Anonymous
     @GetMapping(value = "/list")
     @ApiOperation(value = "搜索操作日志列表", notes = "搜索操作日志列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "string"),
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "string"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string"),
+            @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
+    })
     public AjaxResult list(ListOperationLogRequest request) {
         return success(erpOperationLogService.listOperationLogs(request));
     }
