@@ -397,6 +397,9 @@ public class LogUtil {
                 }
             }
         }
+        if (deleteLog.getIds().isEmpty()) {
+            return null;
+        }
         return deleteLog;
     }
 
