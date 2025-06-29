@@ -62,9 +62,9 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     public List<ErpDesignStyle> selectErpDesignStyleList(ListDesignRequest listDesignRequest)
     {
         LambdaQueryWrapper<ErpDesignStyle> wrapper= Wrappers.lambdaQuery();
-        wrapper.eq(listDesignRequest.getId()!=null,ErpDesignStyle::getGroupId,listDesignRequest.getId())
+        wrapper.eq(listDesignRequest.getId()!=null,ErpDesignStyle::getId,listDesignRequest.getId())
                 .eq(listDesignRequest.getGroupId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getGroupId())
-                .eq(listDesignRequest.getDesignPatternId()!=null,ErpDesignStyle::getProductId,erpDesignPatternsMapper.selectById(listDesignRequest.getDesignPatternId()).getProductId());
+                .eq(listDesignRequest.getProductId()!=null,ErpDesignStyle::getProductId,listDesignRequest.getProductId());
         return erpDesignStyleMapper.selectList(wrapper);
     }
 
@@ -86,9 +86,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         String url=null;
         if(addDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(addDesignRequest.getPicture());
 
-        Long productId=erpDesignPatternsMapper.selectById(addDesignRequest.getDesignPatternId()).getProductId();
-
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(productId,addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getProductId(), addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
         return erpDesignStyleMapper.insert(erpDesignStyle);
     }
@@ -103,8 +101,8 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
     @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignStyle(UpdateDesignRequest updateDesignRequest) throws IOException {
         String url=null;
-        Long productId=null;
-        if(updateDesignRequest.getDesignPatternId()!=null) productId=erpDesignPatternsMapper.selectById(updateDesignRequest.getDesignPatternId()).getProductId();
+        //Long productId=null;
+        //if(updateDesignRequest.getDesignPatternId()!=null) productId=erpDesignPatternsMapper.selectById(updateDesignRequest.getDesignPatternId()).getProductId();
         if(updateDesignRequest.getPicture()==null){
             String preUrl=erpDesignStyleMapper.selectById(updateDesignRequest.getId()).getPictureUrl();
             if(preUrl!=null){
@@ -125,7 +123,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
             }
             url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), productId, updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getProductId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateById(erpDesignStyle);
     }
 

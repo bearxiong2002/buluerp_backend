@@ -24,10 +24,10 @@ public class AddDesignRequest {
     @ApiModelProperty(dataType = "Long", value = "造型表分组编号", required = true)
     private Long groupId;
 
-    @NotNull(message = "主设计编号不能为空")
-    @Excel(name = "主设计编号")
-    @ApiModelProperty(dataType = "Long", value = "主设计编号", required = true)
-    private Long designPatternId;
+    @NotNull(message = "产品id不能为空")
+    @Excel(name = "产品id")
+    @ApiModelProperty(dataType = "Long", value = "产品id", required = true)
+    private Long productId;
 
     @NotBlank(message = "模具编号不能为空")
     @Excel(name = "模具编号")
@@ -202,12 +202,12 @@ public class AddDesignRequest {
         this.groupId = groupId;
     }
 
-    public Long getDesignPatternId() {
-        return designPatternId;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setDesignPatternId(Long designPatternId) {
-        this.designPatternId = designPatternId;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 
     public String getMouldNumber() {

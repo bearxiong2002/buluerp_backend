@@ -13,8 +13,8 @@ public class ListDesignRequest {
     private Long GroupId;
 
     /** 主设计编号 */
-    @ApiModelProperty(dataType = "Long",value = "主设计编号",required = true)
-    private Long designPatternId;
+    @ApiModelProperty(dataType = "Long",value = "产品id",required = false)
+    private Long productId;
 
 //    /** 模具编号，用于唯一标识模具 */
 //    @ApiModelProperty(dataType = "String",value = "模具编号",required = true)
@@ -69,11 +69,11 @@ public class ListDesignRequest {
         GroupId = groupId;
     }
 
-    public Long getDesignPatternId() {
-        return designPatternId;
+    public Long getProductId() {
+        return productId;
     }
 
-    public void setDesignPatternId(Long designPatternId) {
-        this.designPatternId = designPatternId;
+    public void setProductId(Long productId) {
+        this.productId = productId;
     }
 }
