@@ -67,7 +67,7 @@ public class LogUtil {
     private static IErpOperationLogService erpOperationLogService = null;
 
     // Controller 层方法成功结束后自动调用，其它情况需要手动调用
-    public void commitOperationLogs() {
+    public static void commitOperationLogs() {
         if (erpOperationLogService == null) {
             erpOperationLogService = SpringUtils.getBean(IErpOperationLogService.class);
         }
