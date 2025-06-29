@@ -62,6 +62,54 @@ public class NotificationServiceImpl implements INotificationService
         // 订单审核拒绝通知模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_REJECTED, 
             new NotificationTemplate("订单审核未通过", "订单编号：{orderCode} 审核未通过，原因：{rejectReason}"));
+        
+        // 审核待处理通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_PENDING, 
+            new NotificationTemplate("待审核通知", "有新的业务需要您审核，请及时处理"));
+        
+        // 审核通过通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_APPROVED, 
+            new NotificationTemplate("审核通过通知", "您的业务已审核通过，可以继续下一步操作"));
+        
+        // 审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_REJECTED, 
+            new NotificationTemplate("审核拒绝通知", "您的业务审核未通过，请检查后重新提交"));
+        
+        // 布产审核通过通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_AUDIT_APPROVED, 
+            new NotificationTemplate("布产审核通过", "布产计划编号：{scheduleId} 已审核通过，订单编号：{orderCode}，产品编码：{productCode}，模具编码：{mouldCode}，布产数量：{productionQuantity}，布产时间：{productionTime}，操作员：{operator}，可以开始生产"));
+        
+        // 布产审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_AUDIT_REJECTED, 
+            new NotificationTemplate("布产审核拒绝", "布产计划编号：{scheduleId} 审核未通过，订单编号：{orderCode}，产品编码：{productCode}，模具编码：{mouldCode}，布产数量：{productionQuantity}，布产时间：{productionTime}，操作员：{operator}，原因：{rejectReason}"));
+        
+        // 采购审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_AUDIT_REJECTED, 
+            new NotificationTemplate("采购审核拒绝", "采购汇总编号：{collectionId} 审核未通过，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，原因：{rejectReason}"));
+        
+        // 布产创建待审核通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_AUDIT_PENDING, 
+            new NotificationTemplate("布产计划待审核", "布产计划编号：{scheduleId}，订单编号：{orderCode}，产品编码：{productCode}，模具编码：{mouldCode}，布产数量：{productionQuantity}，布产时间：{productionTime}，操作员：{operator}，请及时审核"));
+        
+        // 采购创建待审核通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_AUDIT_PENDING, 
+            new NotificationTemplate("采购汇总待审核", "采购汇总编号：{collectionId}，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，请及时审核"));
+        
+        // 布产审核通过通知注塑部模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_APPROVED_TO_DEPT, 
+            new NotificationTemplate("布产审核通过", "布产计划编号：{scheduleId} 已审核通过，订单编号：{orderCode}，产品编码：{productCode}，模具编码：{mouldCode}，布产数量：{productionQuantity}，布产时间：{productionTime}，操作员：{operator}，请安排注塑生产"));
+        
+        // 采购审核通过通知采购部模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_APPROVED_TO_DEPT, 
+            new NotificationTemplate("采购审核通过", "采购汇总编号：{collectionId} 已审核通过，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，请安排采购执行"));
+        
+        // 布产审核拒绝通知PMC模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_REJECTED_TO_PMC, 
+            new NotificationTemplate("布产审核拒绝", "布产计划编号：{scheduleId} 审核未通过，订单编号：{orderCode}，产品编码：{productCode}，模具编码：{mouldCode}，布产数量：{productionQuantity}，布产时间：{productionTime}，操作员：{operator}，拒绝原因：{rejectReason}，请重新调整计划"));
+        
+        // 采购审核拒绝通知PMC模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC, 
+            new NotificationTemplate("采购审核拒绝", "采购汇总编号：{collectionId} 审核未通过，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，拒绝原因：{rejectReason}，请重新调整计划"));
     }
 
     /**

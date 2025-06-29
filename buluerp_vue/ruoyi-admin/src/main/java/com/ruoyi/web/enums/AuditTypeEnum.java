@@ -11,8 +11,8 @@ public enum AuditTypeEnum {
     /** 订单审核 */
     ORDER_AUDIT(1, "订单审核", "order_auditor"),
     
-    /** 委外加工单审核 */
-    OUTSOURCING_AUDIT(2, "委外加工单审核", "outsourcing_auditor"),
+    /** 采购审核 */
+    PURCHASE_AUDIT(2, "采购审核", "purchase_auditor"),
     
     /** 布产审核 */
     PRODUCTION_AUDIT(3, "布产审核", "production_auditor"),

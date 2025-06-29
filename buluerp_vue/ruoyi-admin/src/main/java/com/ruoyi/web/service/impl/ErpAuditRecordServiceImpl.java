@@ -6,11 +6,15 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.mapper.ErpAuditRecordMapper;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpOrdersService;
+import com.ruoyi.web.service.IErpProductsScheduleService;
+import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.INotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +50,12 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     @Autowired
     private IErpOrdersService ordersService;
 
+    @Autowired
+    private IErpProductsScheduleService productionScheduleService;
+
+    @Autowired
+    private IErpPurchaseCollectionService purchaseCollectionService;
+
     /** 订单状态常量 */
     private static final Integer ORDER_STATUS_PENDING = 0;  // 待审核
     private static final Integer ORDER_STATUS_APPROVED = 1; // 已审核 待设计
@@ -74,45 +84,61 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                                                   String auditor)
     {
         try {
+            // 使用 MyBatis-Plus 的 LambdaQueryWrapper 进行查询
+            LambdaQueryWrapper<ErpAuditRecord> wrapper = new LambdaQueryWrapper<>();
+            
             // 如果同时指定了审核类型和审核对象ID，使用精确查询
             if (auditType != null && auditId != null) {
-                return erpAuditRecordMapper.selectByAuditTypeAndId(auditType, auditId);
+                wrapper.eq(ErpAuditRecord::getAuditType, auditType)
+                       .eq(ErpAuditRecord::getAuditId, auditId);
+                return erpAuditRecordMapper.selectList(wrapper);
             }
             
             // 如果只查询待审核记录
             if (Boolean.TRUE.equals(pendingOnly)) {
+                wrapper.eq(ErpAuditRecord::getConfirm, 0); // 未审核状态
                 if (auditType != null) {
-                    return erpAuditRecordMapper.selectPendingAuditRecords(auditType);
-                } else {
-                    // 查询所有待审核记录
-                    LambdaQueryWrapper<ErpAuditRecord> wrapper = new LambdaQueryWrapper<>();
-                    wrapper.eq(ErpAuditRecord::getConfirm, 0); // 未审核状态
-                    if (StringUtils.hasText(auditor)) {
-                        wrapper.eq(ErpAuditRecord::getAuditor, auditor);
-                    }
-                    return erpAuditRecordMapper.selectList(wrapper);
+                    wrapper.eq(ErpAuditRecord::getAuditType, auditType);
                 }
+                if (StringUtils.hasText(auditor)) {
+                    wrapper.eq(ErpAuditRecord::getAuditor, auditor);
+                }
+                wrapper.orderByDesc(ErpAuditRecord::getCreateTime); // 按创建时间倒序
+                return erpAuditRecordMapper.selectList(wrapper);
             }
             
             // 设置可选查询条件
-            if (erpAuditRecord == null) {
-                erpAuditRecord = new ErpAuditRecord();
+            if (erpAuditRecord != null && erpAuditRecord.getId() != null) {
+                wrapper.eq(ErpAuditRecord::getId, erpAuditRecord.getId());
             }
             
             if (auditType != null) {
-                erpAuditRecord.setAuditType(auditType);
+                wrapper.eq(ErpAuditRecord::getAuditType, auditType);
             }
             
             if (auditId != null) {
-                erpAuditRecord.setAuditId(auditId);
+                wrapper.eq(ErpAuditRecord::getAuditId, auditId);
             }
             
             if (StringUtils.hasText(auditor)) {
-                erpAuditRecord.setAuditor(auditor);
+                wrapper.eq(ErpAuditRecord::getAuditor, auditor);
             }
             
-            // 使用通用查询方法
-            return erpAuditRecordMapper.selectErpAuditRecordList(erpAuditRecord);
+            // 如果传入了 erpAuditRecord 对象，设置其他查询条件
+            if (erpAuditRecord != null) {
+                if (erpAuditRecord.getConfirm() != null) {
+                    wrapper.eq(ErpAuditRecord::getConfirm, erpAuditRecord.getConfirm());
+                }
+                if (erpAuditRecord.getPreStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getPreStatus, erpAuditRecord.getPreStatus());
+                }
+                if (erpAuditRecord.getToStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getToStatus, erpAuditRecord.getToStatus());
+                }
+            }
+            
+            wrapper.orderByDesc(ErpAuditRecord::getCreateTime);
+            return erpAuditRecordMapper.selectList(wrapper);
             
         } catch (Exception e) {
             log.error("查询审核记录失败", e);
@@ -466,6 +492,475 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             case 2: return "已设计";
             case 3: return "已发货";
             case 4: return "已完成";
+            default: return "未知状态(" + status + ")";
+        }
+    }
+
+    // ==================== 布产审核业务方法实现 ====================
+
+    /**
+     * 布产计划创建后处理（创建审核记录并发送通知）
+     */
+    @Override
+    @Transactional
+    public void handleProductionScheduleCreated(ErpProductionSchedule schedule) {
+        try {
+            log.info("开始处理布产计划创建审核流程，布产计划ID：{}", schedule.getId());
+            
+            // 1. 创建审核记录
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
+                schedule.getId(),
+                0, // 创建状态
+                1  // 目标状态：审核通过
+            );
+            
+            // 2. 构建通知模板数据
+            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+            
+            // 3. 发送通知给布产审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PRODUCTION_AUDIT_PENDING,
+                "production-auditor", // 布产审核人角色标识
+                schedule.getId(),
+                "PRODUCTION_SCHEDULE",
+                templateData
+            );
+            
+            log.info("布产计划创建审核流程处理完成，布产计划ID：{}，审核记录ID：{}", 
+                    schedule.getId(), auditRecord.getId());
+            
+        } catch (Exception e) {
+            log.error("处理布产计划创建审核流程失败，布产计划ID：{}", schedule.getId(), e);
+            throw new RuntimeException("处理布产计划创建审核流程失败", e);
+        }
+    }
+
+    /**
+     * 布产计划审核通过处理
+     */
+    @Override
+    @Transactional
+    public void handleProductionScheduleApproved(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理布产计划审核通过流程，审核记录ID：{}", auditRecordId);
+            
+            // 1. 获取审核记录信息
+            ErpAuditRecord queryRecord = new ErpAuditRecord();
+            queryRecord.setId(auditRecordId);
+            List<ErpAuditRecord> records = selectAuditRecords(queryRecord, null, null, null, null);
+            if (records.isEmpty()) {
+                throw new RuntimeException("审核记录不存在");
+            }
+            ErpAuditRecord auditRecord = records.get(0);
+            
+            // 2. 更新布产计划状态为已审核
+            ErpProductionSchedule schedule = productionScheduleService.getById(auditRecord.getAuditId());
+            if (schedule == null) {
+                throw new RuntimeException("布产计划不存在");
+            }
+            
+            schedule.setStatus(1L); // 设置为已审核状态
+            productionScheduleService.updateById(schedule);
+            
+            // 3. 构建通知模板数据
+            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+            templateData.put("auditor", auditor);
+            templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
+            
+            // 4. 发送通知给注塑部
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PRODUCTION_APPROVED_TO_DEPT,
+                "injectionmolding-dept", // 注塑部角色标识
+                schedule.getId(),
+                "PRODUCTION_SCHEDULE",
+                templateData
+            );
+            
+            log.info("布产计划审核通过流程处理完成，布产计划ID：{}，审核记录ID：{}", 
+                    schedule.getId(), auditRecordId);
+            
+        } catch (Exception e) {
+            log.error("处理布产计划审核通过流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理布产计划审核通过流程失败", e);
+        }
+    }
+
+    /**
+     * 布产计划审核拒绝处理
+     */
+    @Override
+    @Transactional
+    public void handleProductionScheduleRejected(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理布产计划审核拒绝流程，审核记录ID：{}", auditRecordId);
+            
+            // 1. 获取审核记录信息
+            ErpAuditRecord queryRecord = new ErpAuditRecord();
+            queryRecord.setId(auditRecordId);
+            List<ErpAuditRecord> records = selectAuditRecords(queryRecord, null, null, null, null);
+            if (records.isEmpty()) {
+                throw new RuntimeException("审核记录不存在");
+            }
+            ErpAuditRecord auditRecord = records.get(0);
+            
+            // 2. 获取布产计划信息（不修改状态，保持原状态）
+            ErpProductionSchedule schedule = productionScheduleService.getById(auditRecord.getAuditId());
+            if (schedule == null) {
+                throw new RuntimeException("布产计划不存在");
+            }
+            
+            // 3. 构建通知模板数据
+            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+            templateData.put("auditor", auditor);
+            templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
+            
+            // 4. 发送通知给PMC部门
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PRODUCTION_REJECTED_TO_PMC,
+                "pmc-dept", // PMC部门角色标识
+                schedule.getId(),
+                "PRODUCTION_SCHEDULE",
+                templateData
+            );
+            
+            log.info("布产计划审核拒绝流程处理完成，布产计划ID：{}，审核记录ID：{}", 
+                    schedule.getId(), auditRecordId);
+            
+        } catch (Exception e) {
+            log.error("处理布产计划审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理布产计划审核拒绝流程失败", e);
+        }
+    }
+
+    /**
+     * 布产计划状态变更审核处理
+     */
+    @Override
+    @Transactional
+    public void handleProductionScheduleStatusChange(ErpProductionSchedule schedule, Integer newStatus) {
+        try {
+            log.info("开始处理布产计划状态变更审核流程，布产计划ID：{}，当前状态：{}，目标状态：{}", 
+                    schedule.getId(), schedule.getStatus(), newStatus);
+            
+            // 1. 创建审核记录
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
+                schedule.getId(),
+                schedule.getStatus() != null ? schedule.getStatus().intValue() : 0,
+                newStatus
+            );
+            
+            // 2. 构建通知模板数据
+            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+            templateData.put("currentStatus", getProductionStatusDescription(schedule.getStatus()));
+            templateData.put("targetStatus", getProductionStatusDescription(Long.valueOf(newStatus)));
+            
+            // 3. 发送通知给布产审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PRODUCTION_AUDIT_PENDING,
+                "production-auditor", // 布产审核人角色标识
+                schedule.getId(),
+                "PRODUCTION_SCHEDULE",
+                templateData
+            );
+            
+            log.info("布产计划状态变更审核流程处理完成，布产计划ID：{}，审核记录ID：{}", 
+                    schedule.getId(), auditRecord.getId());
+            
+        } catch (Exception e) {
+            log.error("处理布产计划状态变更审核流程失败，布产计划ID：{}", schedule.getId(), e);
+            throw new RuntimeException("处理布产计划状态变更审核流程失败", e);
+        }
+    }
+
+    /**
+     * 获取布产计划详情
+     */
+    @Override
+    public ErpProductionSchedule getProductionScheduleDetail(Long scheduleId) {
+        try {
+            log.info("获取布产计划详情，布产计划ID：{}", scheduleId);
+            ErpProductionSchedule schedule = productionScheduleService.getById(scheduleId);
+            if (schedule == null) {
+                log.warn("布产计划不存在，布产计划ID：{}", scheduleId);
+            }
+            return schedule;
+        } catch (Exception e) {
+            log.error("获取布产计划详情失败，布产计划ID：{}", scheduleId, e);
+            throw new RuntimeException("获取布产计划详情失败", e);
+        }
+    }
+
+    // ==================== 采购审核业务方法实现 ====================
+
+    /**
+     * 采购汇总创建后处理（创建审核记录并发送通知）
+     */
+    @Override
+    @Transactional
+    public void handlePurchaseCollectionCreated(ErpPurchaseCollection collection) {
+        try {
+            log.info("开始处理采购汇总创建审核流程，采购汇总ID：{}", collection.getId());
+            
+            // 1. 创建审核记录（使用采购审核类型）
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.PURCHASE_AUDIT.getCode(),
+                collection.getId(),
+                0, // 创建状态
+                1  // 目标状态：审核通过
+            );
+            
+            // 2. 构建通知模板数据
+            Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
+            
+            // 3. 发送通知给采购审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PURCHASE_AUDIT_PENDING,
+                "purchase-auditor", // 采购审核人角色标识
+                collection.getId(),
+                "PURCHASE_COLLECTION",
+                templateData
+            );
+            
+            log.info("采购汇总创建审核流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
+                    collection.getId(), auditRecord.getId());
+            
+        } catch (Exception e) {
+            log.error("处理采购汇总创建审核流程失败，采购汇总ID：{}", collection.getId(), e);
+            throw new RuntimeException("处理采购汇总创建审核流程失败", e);
+        }
+    }
+
+    /**
+     * 采购汇总审核通过处理
+     */
+    @Override
+    @Transactional
+    public void handlePurchaseCollectionApproved(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理采购汇总审核通过流程，审核记录ID：{}", auditRecordId);
+            
+            // 1. 获取审核记录信息
+            ErpAuditRecord queryRecord = new ErpAuditRecord();
+            queryRecord.setId(auditRecordId);
+            List<ErpAuditRecord> records = selectAuditRecords(queryRecord, null, null, null, null);
+            if (records.isEmpty()) {
+                throw new RuntimeException("审核记录不存在");
+            }
+            ErpAuditRecord auditRecord = records.get(0);
+            
+            // 2. 更新采购汇总状态为已审核
+            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(auditRecord.getAuditId());
+            if (collection == null) {
+                throw new RuntimeException("采购汇总不存在");
+            }
+            
+            collection.setStatus(1L); // 设置为已审核状态
+            purchaseCollectionService.updateErpPurchaseCollection(collection);
+            
+            // 3. 构建通知模板数据
+            Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
+            templateData.put("auditor", auditor);
+            templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
+            
+            // 4. 发送通知给采购部
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PURCHASE_APPROVED_TO_DEPT,
+                "purchase-dept", // 采购部角色标识
+                collection.getId(),
+                "PURCHASE_COLLECTION",
+                templateData
+            );
+            
+            log.info("采购汇总审核通过流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
+                    collection.getId(), auditRecordId);
+            
+        } catch (Exception e) {
+            log.error("处理采购汇总审核通过流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理采购汇总审核通过流程失败", e);
+        }
+    }
+
+    /**
+     * 采购汇总审核拒绝处理
+     */
+    @Override
+    @Transactional
+    public void handlePurchaseCollectionRejected(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理采购汇总审核拒绝流程，审核记录ID：{}", auditRecordId);
+            
+            // 1. 获取审核记录信息
+            ErpAuditRecord queryRecord = new ErpAuditRecord();
+            queryRecord.setId(auditRecordId);
+            List<ErpAuditRecord> records = selectAuditRecords(queryRecord, null, null, null, null);
+            if (records.isEmpty()) {
+                throw new RuntimeException("审核记录不存在");
+            }
+            ErpAuditRecord auditRecord = records.get(0);
+            
+            // 2. 获取采购汇总信息（不修改状态，保持原状态）
+            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(auditRecord.getAuditId());
+            if (collection == null) {
+                throw new RuntimeException("采购汇总不存在");
+            }
+            
+            // 3. 构建通知模板数据
+            Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
+            templateData.put("auditor", auditor);
+            templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
+            
+            // 4. 发送通知给PMC部门
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC,
+                "pmc-dept", // PMC部门角色标识
+                collection.getId(),
+                "PURCHASE_COLLECTION",
+                templateData
+            );
+            
+            log.info("采购汇总审核拒绝流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
+                    collection.getId(), auditRecordId);
+            
+        } catch (Exception e) {
+            log.error("处理采购汇总审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理采购汇总审核拒绝流程失败", e);
+        }
+    }
+
+    /**
+     * 采购汇总状态变更审核处理
+     */
+    @Override
+    @Transactional
+    public void handlePurchaseCollectionStatusChange(ErpPurchaseCollection collection, Integer newStatus) {
+        try {
+            log.info("开始处理采购汇总状态变更审核流程，采购汇总ID：{}，当前状态：{}，目标状态：{}", 
+                    collection.getId(), collection.getStatus(), newStatus);
+            
+            // 1. 创建审核记录（使用采购审核类型）
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.PURCHASE_AUDIT.getCode(),
+                collection.getId(),
+                collection.getStatus() != null ? collection.getStatus().intValue() : 0,
+                newStatus
+            );
+            
+            // 2. 构建通知模板数据
+            Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
+            templateData.put("currentStatus", getPurchaseStatusDescription(collection.getStatus()));
+            templateData.put("targetStatus", getPurchaseStatusDescription(Long.valueOf(newStatus)));
+            
+            // 3. 发送通知给采购审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.PURCHASE_AUDIT_PENDING,
+                "purchase-auditor", // 采购审核人角色标识
+                collection.getId(),
+                "PURCHASE_COLLECTION",
+                templateData
+            );
+            
+            log.info("采购汇总状态变更审核流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
+                    collection.getId(), auditRecord.getId());
+            
+        } catch (Exception e) {
+            log.error("处理采购汇总状态变更审核流程失败，采购汇总ID：{}", collection.getId(), e);
+            throw new RuntimeException("处理采购汇总状态变更审核流程失败", e);
+        }
+    }
+
+    /**
+     * 获取采购汇总详情
+     */
+    @Override
+    public ErpPurchaseCollection getPurchaseCollectionDetail(Long collectionId) {
+        try {
+            log.info("获取采购汇总详情，采购汇总ID：{}", collectionId);
+            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(collectionId);
+            if (collection == null) {
+                log.warn("采购汇总不存在，采购汇总ID：{}", collectionId);
+            }
+            return collection;
+        } catch (Exception e) {
+            log.error("获取采购汇总详情失败，采购汇总ID：{}", collectionId, e);
+            throw new RuntimeException("获取采购汇总详情失败", e);
+        }
+    }
+
+    // ==================== 辅助方法 ====================
+
+    /**
+     * 构建布产计划通知模板数据
+     */
+    private Map<String, Object> buildProductionScheduleNotificationData(ErpProductionSchedule schedule) {
+        Map<String, Object> templateData = new HashMap<>();
+        templateData.put("scheduleId", schedule.getId());
+        templateData.put("orderCode", schedule.getOrderCode());
+        templateData.put("productCode", schedule.getProductCode());
+        templateData.put("mouldCode", schedule.getMouldCode());
+        templateData.put("productionQuantity", schedule.getProductionQuantity());
+        templateData.put("operator", schedule.getOperator());
+        
+        // 格式化布产时间
+        if (schedule.getProductionTime() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            templateData.put("productionTime", sdf.format(schedule.getProductionTime()));
+        } else {
+            templateData.put("productionTime", "未设置");
+        }
+        
+        return templateData;
+    }
+
+    /**
+     * 构建采购汇总通知模板数据
+     */
+    private Map<String, Object> buildPurchaseCollectionNotificationData(ErpPurchaseCollection collection) {
+        Map<String, Object> templateData = new HashMap<>();
+        templateData.put("collectionId", collection.getId());
+        templateData.put("orderCode", collection.getOrderCode());
+        templateData.put("purchaseCode", collection.getPurchaseCode());
+        templateData.put("mouldNumber", collection.getMouldNumber());
+        templateData.put("purchaseQuantity", collection.getPurchaseQuantity());
+        templateData.put("supplier", collection.getSupplier());
+        templateData.put("operator", collection.getOperator());
+        
+        // 格式化下单时间
+        if (collection.getOrderTime() != null) {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            templateData.put("orderTime", sdf.format(collection.getOrderTime()));
+        } else {
+            templateData.put("orderTime", "未设置");
+        }
+        
+        return templateData;
+    }
+
+    /**
+     * 获取布产状态描述
+     */
+    private String getProductionStatusDescription(Long status) {
+        if (status == null) {
+            return "未知";
+        }
+        switch (status.intValue()) {
+            case 0: return "待审核";
+            case 1: return "已审核";
+            default: return "未知状态(" + status + ")";
+        }
+    }
+
+    /**
+     * 获取采购状态描述
+     */
+    private String getPurchaseStatusDescription(Long status) {
+        if (status == null) {
+            return "未知";
+        }
+        switch (status.intValue()) {
+            case 0: return "待审核";
+            case 1: return "已审核";
             default: return "未知状态(" + status + ")";
         }
     }
