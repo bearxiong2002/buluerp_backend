@@ -53,12 +53,10 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      * @return 造型表之和
      */
     @Override
-    public DesignPatternsResult selectErpDesignPatternsById(Long id)
+    public DesignPatternsResult selectErpDesignPatternsById(Long productId)
     {
-        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
-        Long productId=erpDesignPatterns.getProductId();
         return new DesignPatternsResult(
-                id,
+                productId,
                 erpDesignStyleMapper.selectMouldNumberSet(productId),
                 erpDesignStyleMapper.selectLddNumberSet(productId),
                 erpDesignStyleMapper.selectMouldCategorySet(productId),
@@ -67,8 +65,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 erpDesignStyleMapper.selectColorSet(productId),
                 erpDesignStyleMapper.selectProductNameSet(productId),
                 erpDesignStyleMapper.sumQuantityById(productId),
-                erpDesignStyleMapper.selectMaterialSet(productId),
-                erpDesignPatterns.getConfirm()
+                erpDesignStyleMapper.selectMaterialSet(productId)
         );
     }
 
