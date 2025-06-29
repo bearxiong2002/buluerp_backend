@@ -39,9 +39,8 @@ public class InsertLog implements OperationLog {
 
     @Override
     public String getRecordId() {
-        String tableName = LogUtil.translateTableName(this.tableName);
-        if (!tableName.isEmpty() && ids != null && !ids.isEmpty()) {
-            return tableName +
+        if (ids != null && !ids.isEmpty()) {
+            return LogUtil.translateTableName(this.tableName) +
                     ids.stream().map(String::valueOf).collect(Collectors.joining(", "));
         }
         return "";

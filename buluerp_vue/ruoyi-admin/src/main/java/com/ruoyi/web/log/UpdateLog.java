@@ -68,10 +68,6 @@ public class UpdateLog implements OperationLog {
 
     @Override
     public String getDetails() {
-        String type = LogUtil.translateTableName(tableName);
-        if (type.isEmpty()) {
-            return "";
-        }
         return changes.entrySet().stream()
                 .map(change -> {
                     String id = change.getKey();
@@ -89,7 +85,7 @@ public class UpdateLog implements OperationLog {
                     }
                     return String.format(
                             "将%s%s的%s",
-                            type,
+                            LogUtil.translateTableName(tableName),
                             id,
                             updates
                     );

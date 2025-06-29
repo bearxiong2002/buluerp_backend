@@ -6,10 +6,12 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModel;
 
 import java.time.LocalDateTime;
 
 @TableName("erp_product_inventory")
+@ApiModel("产品库存")
 public class ErpProductInventory {
 
     @Excel(name = "记录ID")

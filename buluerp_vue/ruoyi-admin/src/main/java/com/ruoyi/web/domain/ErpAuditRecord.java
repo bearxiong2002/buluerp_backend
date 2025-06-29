@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
+import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 
@@ -19,6 +20,7 @@ import java.util.Date;
  * @date 2025-01-XX
  */
 @TableName("erp_audit_record")
+@ApiModel("审核记录")
 public class ErpAuditRecord implements Serializable
 {
     private static final long serialVersionUID = 1L;

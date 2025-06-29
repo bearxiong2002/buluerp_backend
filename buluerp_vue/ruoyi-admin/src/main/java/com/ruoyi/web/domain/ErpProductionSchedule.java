@@ -61,7 +61,7 @@ public class ErpProductionSchedule {
     private Date productionTime;
 
     @Excel(name = "产品编码")
-    @ApiModelProperty(value = "产品编码 [list|POST|PUT|response]", dataType = "String", required = true)
+    @ApiModelProperty(value = "产品编码 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Example("123456")
     private String productCode;
