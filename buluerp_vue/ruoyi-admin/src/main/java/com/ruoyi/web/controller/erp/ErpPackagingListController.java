@@ -74,7 +74,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @GetMapping(value = "/{id}")
     @ApiOperation(value = "获取分包详细信息", notes = "获取分包详细信息")
-    public AjaxResult getInfo(@PathVariable("id") Integer id) {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(requiresNotNull(packagingListService.selectErpPackagingListById(id)));
     }
 
@@ -98,7 +98,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @DeleteMapping("/{ids}")
     @ApiOperation(value = "删除分包", notes = "删除分包")
-    public AjaxResult remove(@PathVariable Integer[] ids) {
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(packagingListService.deleteErpPackagingListByIds(ids));
     }
 }

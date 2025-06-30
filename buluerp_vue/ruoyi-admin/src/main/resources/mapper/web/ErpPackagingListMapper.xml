@@ -8,7 +8,6 @@
         <result property="operator" column="operator" />
         <result property="productId" column="product_id" />
         <result property="productNameCn" column="product_name_cn" />
-        <result property="packagingListNumber" column="packaging_list_number" />
         <result property="releaseDate" column="release_date" />
         <result property="accessoryType" column="accessory_type" />
         <result property="accessoryTotal" column="accessory_total" />
@@ -16,13 +15,9 @@
         <result property="isMinifigure" column="is_minifigure" />
         <result property="isTool" column="is_tool" />
         <result property="productionLine" column="production_line" />
-        <result property="bagWeight" column="bag_weight" />
-        <result property="bagSpecification" column="bag_specification" />
-        <result property="packageAccessories" column="package_accessories" />
-        <result property="packageQuantity" column="package_quantity" />
     </resultMap>
     <sql id="selectErpPackagingList">
-        select id, order_code, creation_time, operator, product_id, product_name_cn, packaging_list_number, release_date, accessory_type, accessory_total, is_manual, is_minifigure, is_tool, production_line, bag_weight, bag_specification, package_accessories, package_quantity from erp_packaging_list
+        select id, order_code, creation_time, operator, product_id, product_name_cn, release_date, accessory_type, accessory_total, is_manual, is_minifigure, is_tool, production_line from erp_packaging_list
     </sql>
     <select id="selectErpPackagingListById" resultType="com.ruoyi.web.domain.ErpPackagingList" resultMap="ErpPackagingListResult">
         <include refid="selectErpPackagingList"/>
@@ -44,20 +39,11 @@
             <if test="productNameCn != null and productNameCn != ''">
                 and product_name_cn like concat('%', #{productNameCn}, '%')
             </if>
-            <if test="packagingListNumber != null and packagingListNumber != ''">
-                and packaging_list_number like concat('%', #{packagingListNumber}, '%')
-            </if>
             <if test="accessoryType != null and accessoryType != ''">
                 and accessory_type like concat('%', #{accessoryType}, '%')
             </if>
             <if test="productionLine != null and productionLine != ''">
                 and production_line like concat('%', #{productionLine}, '%')
-            </if>
-            <if test="bagSpecification != null and bagSpecification != ''">
-                and bag_specification like concat('%', #{bagSpecification}, '%')
-            </if>
-            <if test="packageAccessories != null and packageAccessories != ''">
-                and package_accessories like concat('%', #{packageAccessories}, '%')
             </if>
 
             <!-- 非字符串字段 - 精确查询 -->
@@ -79,12 +65,6 @@
             <if test="isTool != null">
                 and is_tool = #{isTool}
             </if>
-            <if test="bagWeight != null">
-                and bag_weight = #{bagWeight}
-            </if>
-            <if test="packageQuantity != null">
-                and package_quantity = #{packageQuantity}
-            </if>
         </where>
     </select>
     <select id="selectErpPackagingListListByIds" resultType="com.ruoyi.web.domain.ErpPackagingList">
@@ -103,7 +83,6 @@
             <if test="operator != null">operator,</if>
             <if test="productId != null">product_id,</if>
             <if test="productNameCn != null">product_name_cn,</if>
-            <if test="packagingListNumber != null">packaging_list_number,</if>
             <if test="releaseDate != null">release_date,</if>
             <if test="accessoryType != null">accessory_type,</if>
             <if test="accessoryTotal != null">accessory_total,</if>
@@ -111,10 +90,6 @@
             <if test="isMinifigure != null">is_minifigure,</if>
             <if test="isTool != null">is_tool,</if>
             <if test="productionLine != null">production_line,</if>
-            <if test="bagWeight != null">bag_weight,</if>
-            <if test="bagSpecification != null">bag_specification,</if>
-            <if test="packageAccessories != null">package_accessories,</if>
-            <if test="packageQuantity != null">package_quantity,</if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -123,7 +98,6 @@
             <if test="operator != null">#{operator},</if>
             <if test="productId != null">#{productId},</if>
             <if test="productNameCn != null">#{productNameCn},</if>
-            <if test="packagingListNumber != null">#{packagingListNumber},</if>
             <if test="releaseDate != null">#{releaseDate},</if>
             <if test="accessoryType != null">#{accessoryType},</if>
             <if test="accessoryTotal != null">#{accessoryTotal},</if>
@@ -131,10 +105,6 @@
             <if test="isMinifigure != null">#{isMinifigure},</if>
             <if test="isTool != null">#{isTool},</if>
             <if test="productionLine != null">#{productionLine},</if>
-            <if test="bagWeight != null">#{bagWeight},</if>
-            <if test="bagSpecification != null">#{bagSpecification},</if>
-            <if test="packageAccessories != null">#{packageAccessories},</if>
-            <if test="packageQuantity != null">#{packageQuantity},</if>
         </trim>
     </insert>
 
@@ -146,7 +116,6 @@
             <if test="operator != null">operator = #{operator},</if>
             <if test="productId != null">product_id = #{productId},</if>
             <if test="productNameCn != null">product_name_cn = #{productNameCn},</if>
-            <if test="packagingListNumber != null">packaging_list_number = #{packagingListNumber},</if>
             <if test="releaseDate != null">release_date = #{releaseDate},</if>
             <if test="accessoryType != null">accessory_type = #{accessoryType},</if>
             <if test="accessoryTotal != null">accessory_total = #{accessoryTotal},</if>
@@ -154,10 +123,6 @@
             <if test="isMinifigure != null">is_minifigure = #{isMinifigure},</if>
             <if test="isTool != null">is_tool = #{isTool},</if>
             <if test="productionLine != null">production_line = #{productionLine},</if>
-            <if test="bagWeight != null">bag_weight = #{bagWeight},</if>
-            <if test="bagSpecification != null">bag_specification = #{bagSpecification},</if>
-            <if test="packageAccessories != null">package_accessories = #{packageAccessories},</if>
-            <if test="packageQuantity != null">package_quantity = #{packageQuantity},</if>
         </set>
         where id = #{id}
     </update>

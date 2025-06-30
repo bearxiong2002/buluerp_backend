@@ -1,5 +1,6 @@
 package com.ruoyi.web.domain;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
@@ -10,17 +11,20 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 
+import javax.validation.constraints.NotNull;
 import java.util.Date;
+import java.util.List;
 
-@ApiModel("分包")
+@ApiModel("分包表")
 public class ErpPackagingList extends BaseEntity {
     @Excel(name = "序号")
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")
-    private Integer id;
+    private Long id;
 
     @Excel(name = "订单ID")
     @Example("BLK20250528000001")
     @ApiModelProperty(value = "订单编号 [list|POST|PUT|response]")
+    @NotNull(message = "订单编号不能为空", groups = {Save.class})
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -35,17 +39,13 @@ public class ErpPackagingList extends BaseEntity {
     @Excel(name = "产品编号")
     @Example("1")
     @ApiModelProperty(value = "产品编号 [list|POST|PUT|response]")
+    @NotNull(message = "产品编号不能为空", groups = {Save.class})
     private Long productId;
 
     @Excel(name = "产品中文名称")
     @Example("厨房八件套")
     @ApiModelProperty(value = "产品中文名称 [list|POST|PUT|response]")
     private String productNameCn;
-
-    @Excel(name = "分包表编号")
-    @Example("xxx")
-    @ApiModelProperty(value = "分包表编号 [list|POST|PUT|response]")
-    private String packagingListNumber;
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "发布日期", dateFormat = "yyyy-MM-dd")
@@ -87,41 +87,15 @@ public class ErpPackagingList extends BaseEntity {
     @ApiModelProperty(value = "生产线 [list|POST|PUT|response]")
     private String productionLine;
 
-    @Excel(name = "本袋重量（≈/KG）")
-    @Range(min = 0, message = "本袋重量不能小于0", groups = {Save.class, Update.class})
-    @Example("789")
-    @ApiModelProperty(value = "本袋重量 [list|POST|PUT|response]")
-    private Double bagWeight;
+    @TableField(exist = false)
+    @ApiModelProperty(value = "分包袋列表 [response]")
+    private List<ErpPackagingBag> bagList;
 
-    @Excel(name = "本袋规格")
-    @Example("789")
-    @ApiModelProperty(value = "本袋规格 [list|POST|PUT|response]")
-    private String bagSpecification;
-
-    @Excel(name = "本包配件/种")
-    @Example("789")
-    @ApiModelProperty(value = "本包配件/种 [list|POST|PUT|response]")
-    private String packageAccessories;
-
-    @Excel(name = "本包数量/PCS")
-    @Range(min = 0, message = "本包数量不能小于0", groups = {Save.class, Update.class})
-    @Example("789")
-    @ApiModelProperty(value = "本包数量 [list|POST|PUT|response]")
-    private Integer packageQuantity;
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -149,20 +123,20 @@ public class ErpPackagingList extends BaseEntity {
         this.operator = operator;
     }
 
+    public Long getProductId() {
+        return productId;
+    }
+
+    public void setProductId(Long productId) {
+        this.productId = productId;
+    }
+
     public String getProductNameCn() {
         return productNameCn;
     }
 
     public void setProductNameCn(String productNameCn) {
         this.productNameCn = productNameCn;
-    }
-
-    public String getPackagingListNumber() {
-        return packagingListNumber;
-    }
-
-    public void setPackagingListNumber(String packagingListNumber) {
-        this.packagingListNumber = packagingListNumber;
     }
 
     public Date getReleaseDate() {
@@ -181,36 +155,36 @@ public class ErpPackagingList extends BaseEntity {
         this.accessoryType = accessoryType;
     }
 
-    public Integer getAccessoryTotal() {
+    public @Range(min = 0, message = "配件总数不能小于0", groups = {Save.class, Update.class}) Integer getAccessoryTotal() {
         return accessoryTotal;
     }
 
-    public void setAccessoryTotal(Integer accessoryTotal) {
+    public void setAccessoryTotal(@Range(min = 0, message = "配件总数不能小于0", groups = {Save.class, Update.class}) Integer accessoryTotal) {
         this.accessoryTotal = accessoryTotal;
     }
 
-    public Integer getIsManual() {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsManual() {
         return isManual;
     }
 
-    public void setIsManual(Integer manual) {
-        isManual = manual;
+    public void setIsManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isManual) {
+        this.isManual = isManual;
     }
 
-    public Integer getIsMinifigure() {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsMinifigure() {
         return isMinifigure;
     }
 
-    public void setIsMinifigure(Integer minifigure) {
-        isMinifigure = minifigure;
+    public void setIsMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isMinifigure) {
+        this.isMinifigure = isMinifigure;
     }
 
-    public Integer getIsTool() {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsTool() {
         return isTool;
     }
 
-    public void setIsTool(Integer tool) {
-        isTool = tool;
+    public void setIsTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isTool) {
+        this.isTool = isTool;
     }
 
     public String getProductionLine() {
@@ -221,36 +195,11 @@ public class ErpPackagingList extends BaseEntity {
         this.productionLine = productionLine;
     }
 
-    public Double getBagWeight() {
-        return bagWeight;
+    public List<ErpPackagingBag> getBagList() {
+        return bagList;
     }
 
-    public void setBagWeight(Double bagWeight) {
-        this.bagWeight = bagWeight;
+    public void setBagList(List<ErpPackagingBag> bagList) {
+        this.bagList = bagList;
     }
-
-    public String getBagSpecification() {
-        return bagSpecification;
-    }
-
-    public void setBagSpecification(String bagSpecification) {
-        this.bagSpecification = bagSpecification;
-    }
-
-    public String getPackageAccessories() {
-        return packageAccessories;
-    }
-
-    public void setPackageAccessories(String packageAccessories) {
-        this.packageAccessories = packageAccessories;
-    }
-
-    public Integer getPackageQuantity() {
-        return packageQuantity;
-    }
-
-    public void setPackageQuantity(Integer packageQuantity) {
-        this.packageQuantity = packageQuantity;
-    }
-
 }
