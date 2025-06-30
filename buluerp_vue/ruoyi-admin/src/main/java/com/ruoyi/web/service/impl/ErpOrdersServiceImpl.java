@@ -49,6 +49,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private IErpAuditSwitchService erpAuditSwitchService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
+        if (erpOrders == null) {
+            return null;
+        }
         List<ErpOrdersProduct> products = erpOrdersMapper.selectOrdersProducts(erpOrders.getId());
         for (ErpOrdersProduct erpOrdersProduct : products) {
             List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(
@@ -86,6 +89,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public ErpOrders selectErpOrdersById(Long id)
     {
         return fillErpOrders(erpOrdersMapper.selectErpOrdersById(id));
+    }
+
+    @Override
+    public ErpOrders selectByOrderCode(String orderCode) {
+        return fillErpOrders(erpOrdersMapper.selectErpOrdersByInnerId(orderCode));
     }
 
     /**

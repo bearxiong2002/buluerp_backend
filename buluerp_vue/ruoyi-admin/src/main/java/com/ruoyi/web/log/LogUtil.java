@@ -335,6 +335,9 @@ public class LogUtil {
         updateLog.setOperator(getCurrentOperator());
         updateLog.setOperationTime(DateUtils.getNowDate());
         updateLog.setChanges(extractUpdateChanges(invocation));
+        if (updateLog.getDetails().isEmpty()) {
+            return null;
+        }
         return updateLog;
     }
 
@@ -357,6 +360,9 @@ public class LogUtil {
             if (id != null) {
                 insertLog.setIds(Collections.singletonList(id.toString()));
             }
+        }
+        if (insertLog.getIds() == null || insertLog.getIds().isEmpty()) {
+            return null;
         }
         return insertLog;
     }
