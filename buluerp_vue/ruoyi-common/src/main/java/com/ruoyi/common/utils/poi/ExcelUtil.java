@@ -1,14 +1,11 @@
 package com.ruoyi.common.utils.poi;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -22,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.ArrayUtils;
@@ -85,7 +83,7 @@ import com.ruoyi.common.utils.file.FileTypeUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.common.utils.file.ImageUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
-import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * Excel相关处理
@@ -108,7 +106,7 @@ public class ExcelUtil<T>
     /**
      * Excel sheet最大行数，默认65536
      */
-    public static final int sheetSize = 65536;
+    // public static final int sheetSize = 65536;
 
     /**
      * 工作表名称
@@ -343,16 +341,29 @@ public class ExcelUtil<T>
 
     /**
      * 对excel表单指定表格索引名转换成list
-     * 
+     *
      * @param sheetName 表格索引名
      * @param titleNum 标题占用行数
      * @param is 输入流
      * @return 转换后集合
      */
-    public List<T> importExcel(String sheetName, InputStream is, int titleNum) throws Exception
+    public List<T> importExcel(String sheetName, InputStream is, int titleNum) throws Exception {
+        Workbook workbook = WorkbookFactory.create(is);
+        return importExcel(sheetName, workbook, titleNum);
+    }
+
+    /**
+     * 对excel表单指定表格索引名转换成list
+     * 
+     * @param sheetName 表格索引名
+     * @param titleNum 标题占用行数
+     * @param wb 工作簿
+     * @return 转换后集合
+     */
+    public List<T> importExcel(String sheetName, Workbook wb, int titleNum) throws Exception
     {
         this.type = Type.IMPORT;
-        this.wb = WorkbookFactory.create(is);
+        this.wb = wb;
         List<T> list = new ArrayList<T>();
         // 如果指定sheet名,则取指定sheet中的内容 否则默认指向第1个sheet
         Sheet sheet = StringUtils.isNotEmpty(sheetName) ? wb.getSheet(sheetName) : wb.getSheetAt(0);
@@ -686,83 +697,63 @@ public class ExcelUtil<T>
      */
     public void writeSheet()
     {
-        // 取出一共有多少个sheet.
-        int sheetNo = Math.max(1, (int) Math.ceil(list.size() * 1.0 / sheetSize));
-        for (int index = 0; index < sheetNo; index++)
+        // 产生一行
+        Row row = sheet.createRow(rownum);
+        int column = 0;
+        // 写入各个字段的列头名称
+        for (Object[] os : fields)
         {
-            createSheet(sheetNo, index);
-
-            // 产生一行
-            Row row = sheet.createRow(rownum);
-            int column = 0;
-            // 写入各个字段的列头名称
-            for (Object[] os : fields)
+            Field field = (Field) os[0];
+            Excel excel = (Excel) os[1];
+            if (Collection.class.isAssignableFrom(field.getType()))
             {
-                Field field = (Field) os[0];
-                Excel excel = (Excel) os[1];
-                if (Collection.class.isAssignableFrom(field.getType()))
+                for (Field subField : subFields)
                 {
-                    for (Field subField : subFields)
-                    {
-                        Excel subExcel = subField.getAnnotation(Excel.class);
-                        this.createHeadCell(subExcel, row, column++);
-                    }
-                }
-                else
-                {
-                    this.createHeadCell(excel, row, column++);
+                    Excel subExcel = subField.getAnnotation(Excel.class);
+                    this.createHeadCell(subExcel, row, column++);
                 }
             }
-            if (Type.EXPORT.equals(type))
+            else
             {
-                fillExcelData(index, row);
-                addStatisticsRow();
+                this.createHeadCell(excel, row, column++);
             }
+        }
+        if (Type.EXPORT.equals(type))
+        {
+            fillExcelData();
+            addStatisticsRow();
         }
     }
 
     /**
      * 填充excel数据
-     * 
-     * @param index 序号
-     * @param row 单元格行
      */
     @SuppressWarnings("unchecked")
-    public void fillExcelData(int index, Row row)
+    public void fillExcelData()
     {
-        int startNo = index * sheetSize;
-        int endNo = Math.min(startNo + sheetSize, list.size());
         int currentRowNum = rownum + 1; // 从标题行后开始
 
-        for (int i = startNo; i < endNo; i++)
-        {
-            row = sheet.createRow(currentRowNum);
-            T vo = (T) list.get(i);
+        for (T t : list) {
+            Row row = sheet.createRow(currentRowNum);
+            T vo = (T) t;
             int column = 0;
             int maxSubListSize = getCurrentMaxSubListSize(vo);
-            for (Object[] os : fields)
-            {
+            for (Object[] os : fields) {
                 Field field = (Field) os[0];
                 Excel excel = (Excel) os[1];
-                if (Collection.class.isAssignableFrom(field.getType()))
-                {
-                    try
-                    {
+                if (Collection.class.isAssignableFrom(field.getType())) {
+                    try {
                         Collection<?> subList = (Collection<?>) getTargetValue(vo, field, excel);
-                        if (subList != null && !subList.isEmpty())
-                        {
+                        if (subList != null && !subList.isEmpty()) {
                             int subIndex = 0;
-                            for (Object subVo : subList)
-                            {
+                            for (Object subVo : subList) {
                                 Row subRow = sheet.getRow(currentRowNum + subIndex);
-                                if (subRow == null)
-                                {
+                                if (subRow == null) {
                                     subRow = sheet.createRow(currentRowNum + subIndex);
                                 }
 
                                 int subColumn = column;
-                                for (Field subField : subFields)
-                                {
+                                for (Field subField : subFields) {
                                     Excel subExcel = subField.getAnnotation(Excel.class);
                                     addCell(subExcel, subRow, (T) subVo, subField, subColumn++);
                                 }
@@ -770,18 +761,13 @@ public class ExcelUtil<T>
                             }
                             column += subFields.size();
                         }
-                    }
-                    catch (Exception e)
-                    {
+                    } catch (Exception e) {
                         log.error("填充集合数据失败", e);
                     }
-                }
-                else
-                {
+                } else {
                     // 创建单元格并设置值
                     addCell(excel, row, vo, field, column);
-                    if (maxSubListSize > 1 && excel.needMerge())
-                    {
+                    if (maxSubListSize > 1 && excel.needMerge()) {
                         sheet.addMergedRegion(new CellRangeAddress(currentRowNum, currentRowNum + maxSubListSize - 1, column, column));
                     }
                     column++;
@@ -1638,27 +1624,14 @@ public class ExcelUtil<T>
      */
     public void createWorkbook()
     {
-        this.wb = new SXSSFWorkbook(500);
-        this.sheet = wb.createSheet();
-        wb.setSheetName(0, sheetName);
-        this.styles = createStyles(wb);
-    }
-
-    /**
-     * 创建工作表
-     * 
-     * @param sheetNo sheet数量
-     * @param index 序号
-     */
-    public void createSheet(int sheetNo, int index)
-    {
-        // 设置工作表的名称.
-        if (sheetNo > 1 && index > 0)
+        if (this.wb == null)
         {
-            this.sheet = wb.createSheet();
-            this.createTitle();
-            wb.setSheetName(index, sheetName + index);
+            this.wb = new SXSSFWorkbook(500);
         }
+        int sheetNo = this.wb.getNumberOfSheets();
+        this.sheet = wb.createSheet();
+        wb.setSheetName(sheetNo, sheetName);
+        this.styles = createStyles(wb);
     }
 
     /**
@@ -1897,5 +1870,74 @@ public class ExcelUtil<T>
             log.error("获取对象异常{}", e.getMessage());
         }
         return method;
+    }
+
+    /**
+     * 多Sheet导出：支持不同实体类导出到多个Sheet，并写入浏览器响应体
+     *
+     * @param sheetDataMap sheet名称 -> 数据列表（不同实体类）
+     * @param title 文件标题
+     * @param response Http响应
+     */
+    public static void exportMultipleSheets(HttpServletResponse response, Map<String, List<Object>> sheetDataMap, String title) {
+        SXSSFWorkbook workbook = new SXSSFWorkbook(500);
+        try {
+            for (Map.Entry<String, List<Object>> entry : sheetDataMap.entrySet()) {
+                String sheetName = entry.getKey();
+                List<?> dataList = entry.getValue();
+                if (dataList == null || dataList.isEmpty()) continue;
+
+                Class<?> clazz = dataList.get(0).getClass();
+                ExcelUtil<?> util = new ExcelUtil<>(clazz);
+                util.wb = workbook;
+                util.init((List) dataList, sheetName, title, Type.EXPORT);
+                util.writeSheet();
+            }
+
+            // 设置响应头
+            response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            response.setCharacterEncoding("utf-8");
+            String filename = URLEncoder.encode(title + ".xlsx", "UTF-8").replaceAll("\\+", "%20");
+            response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + filename);
+
+            workbook.write(response.getOutputStream());
+        } catch (Exception e) {
+            log.error("多sheet导出异常", e);
+            throw new UtilException("导出Excel失败，请联系网站管理员！");
+        } finally {
+            IOUtils.closeQuietly(workbook);
+        }
+    }
+
+    public static void exportMultipleSheets(HttpServletResponse response, Map<String, List<Object>> sheetDataMap) {
+        exportMultipleSheets(response, sheetDataMap, StringUtils.EMPTY);
+    }
+
+    public static Map<String, List<Object>> importMultipleSheets(InputStream is, Function<String, Class<?>> sheetName2Class, int titleNum) throws Exception {
+        Map<String, List<Object>> sheetDataMap = new HashMap<>();
+        Workbook wb = WorkbookFactory.create(is);
+        for (String sheetName : getAllSheetNames(wb)) {
+            Class<?> clazz = sheetName2Class.apply(sheetName);
+            if (clazz == null) {
+                continue;
+            }
+            ExcelUtil<?> excelUtil = new ExcelUtil<>(clazz);
+            List<Object> list = (List<Object>) excelUtil.importExcel(sheetName, wb, titleNum);
+            sheetDataMap.put(sheetName, list);
+        }
+        return sheetDataMap;
+    }
+
+    public static Map<String, List<Object>> importMultipleSheets(InputStream is, Function<String, Class<?>> sheetName2Class) throws Exception {
+        return importMultipleSheets(is, sheetName2Class, 0);
+    }
+
+    public static List<String> getAllSheetNames(Workbook workbook) {
+        List<String> sheetNames = new ArrayList<>();
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            String sheetName = workbook.getSheetName(i);
+            sheetNames.add(sheetName);
+        }
+        return sheetNames;
     }
 }

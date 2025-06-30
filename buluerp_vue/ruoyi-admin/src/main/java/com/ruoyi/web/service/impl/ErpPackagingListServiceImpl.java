@@ -1,20 +1,24 @@
 package com.ruoyi.web.service.impl;
 
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.exception.excel.ExcelRowErrorInfo;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.common.validation.Save;
 import com.ruoyi.web.domain.ErpPackagingBag;
+import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
-import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpPackagingBagService;
-import com.ruoyi.web.service.IErpPackagingListService;
-import com.ruoyi.web.service.IErpProductsService;
+import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import java.io.InputStream;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +34,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
 
     @Autowired
     private IErpPackagingBagService erpPackagingBagService;
+
+    @Autowired
+    private IErpPackagingDetailService erpPackagingDetailService;
+
+    @Autowired
+    private Validator validator;
 
     public void checkReferences(ErpPackagingList erpPackagingList) {
         if (erpPackagingList.getOrderCode() != null) {
@@ -69,7 +79,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     @Override
-    public List<ErpPackagingList> selectErpPackagingListListByIds(Integer[] ids) {
+    public List<ErpPackagingList> selectErpPackagingListListByIds(Long[] ids) {
         return fill(erpPackagingListMapper.selectErpPackagingListListByIds(ids));
     }
 

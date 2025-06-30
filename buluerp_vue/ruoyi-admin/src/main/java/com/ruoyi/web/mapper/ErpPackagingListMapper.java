@@ -9,10 +9,10 @@ import java.util.List;
 public interface ErpPackagingListMapper {
     ErpPackagingList selectErpPackagingListById(Long id);
     List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList);
-    List<ErpPackagingList> selectErpPackagingListListByIds(Integer[] ids);
+    List<ErpPackagingList> selectErpPackagingListListByIds(Long[] ids);
     int insertErpPackagingList(ErpPackagingList erpPackagingList);
     int updateErpPackagingList(ErpPackagingList erpPackagingList);
-    int deleteErpPackagingListById(Integer id);
+    int deleteErpPackagingListById(Long id);
     int deleteErpPackagingListByIds(Long[] ids);
     int deleteErpPackagingListByProductId(Long productId);
 }

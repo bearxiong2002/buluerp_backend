@@ -8,7 +8,6 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
 import io.swagger.annotations.ApiOperation;
@@ -41,7 +40,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PostMapping("/export")
     @ApiOperation(value = "导出分包列表", notes = "导出分包列表")
-    public void export(HttpServletResponse response, Integer[] ids) {
+    public void export(HttpServletResponse response, Long[] ids) {
         List<ErpPackagingList> list = packagingListService.selectErpPackagingListListByIds(ids);
         ExcelUtil<ErpPackagingList> util = new ExcelUtil<ErpPackagingList>(ErpPackagingList.class);
         util.exportExcel(response, list, "分包数据");
