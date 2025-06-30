@@ -79,10 +79,10 @@ public class ErpDesignStyleController extends BaseController
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:style:export')")
     @Log(title = "设计造型", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ListDesignRequest listDesignRequest)
+    @PostMapping("/export/{ids}")
+    public void export(HttpServletResponse response, @PathVariable List<Integer> ids)
     {
-        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleList(listDesignRequest);
+        List<ErpDesignStyle> list = erpDesignStyleService.selectErpDesignStyleListByIds(ids);
         ExcelUtil<ErpDesignStyle> util = new ExcelUtil<ErpDesignStyle>(ErpDesignStyle.class);
         util.exportExcel(response, list, "设计造型数据");
     }

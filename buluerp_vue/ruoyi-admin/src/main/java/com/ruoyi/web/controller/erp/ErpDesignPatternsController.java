@@ -82,29 +82,25 @@ public class ErpDesignPatternsController extends BaseController
     /**
      * 导出【请填写功能名称】列表
      */
-    @ApiOperation(value = "导出设计总表")
+    @ApiOperation(value = "导出产品造型表汇总")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:export')")
     //@Log(title = "导出", businessType = BusinessType.EXPORT)
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, Long[] ids)
+    @PostMapping("/export/{ids}")
+    public void export(HttpServletResponse response,@PathVariable List<Integer> ids)
     {
-        // 1. 查询原始数据
-        ListDesignPatternsRequest request = new ListDesignPatternsRequest();
-        List<ErpDesignPatterns> originList = erpDesignPatternsService.selectErpDesignPatternsList(request);
 
-        // 2. 转换为 DTO 列表
         List<DesignPatternsExportDTO> exportList = new ArrayList<>();
-        for (ErpDesignPatterns designPatterns : originList) {
+        for (Integer id : ids) {
             // 获取原始结果对象
-            DesignPatternsResult result = erpDesignPatternsService.selectErpDesignPatternsById(designPatterns.getId());
+            DesignPatternsResult result = erpDesignPatternsService.selectErpDesignPatternsById(id.longValue());
             // 转换为 DTO
             exportList.add(new DesignPatternsExportDTO(result));
         }
 
         // 3. 使用 ExcelUtil 导出 DTO
         ExcelUtil<DesignPatternsExportDTO> util = new ExcelUtil<>(DesignPatternsExportDTO.class);
-        util.exportExcel(response, exportList, "设计总表数据");
+        util.exportExcel(response, exportList, "产品设计数据");
     }
 
     @Anonymous

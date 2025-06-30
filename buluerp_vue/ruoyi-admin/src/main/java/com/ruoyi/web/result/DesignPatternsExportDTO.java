@@ -5,7 +5,7 @@ import com.ruoyi.web.result.DesignPatternsResult;
 
 public class DesignPatternsExportDTO {
 
-    @Excel(name = "主设计编号")
+    @Excel(name = "产品编号")
     private Long id;
 
     @Excel(name = "模具编号")
