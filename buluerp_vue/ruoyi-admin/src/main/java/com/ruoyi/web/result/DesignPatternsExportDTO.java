@@ -5,7 +5,7 @@ import com.ruoyi.web.result.DesignPatternsResult;
 
 public class DesignPatternsExportDTO {
 
-    @Excel(name = "主设计编号")
+    @Excel(name = "产品编号")
     private Long id;
 
     @Excel(name = "模具编号")
@@ -20,7 +20,7 @@ public class DesignPatternsExportDTO {
     @Excel(name = "模具ID")
     private String mouldId;
 
-    @Excel(name = "模具图片的URL")
+    @Excel(name = "模具图片",cellType = Excel.ColumnType.IMAGE, height = 80)
     private String pictureUrl;
 
     @Excel(name = "模具的颜色描述")
