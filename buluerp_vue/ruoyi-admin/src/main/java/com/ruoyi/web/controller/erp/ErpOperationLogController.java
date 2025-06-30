@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "operation-log")
+@RequestMapping(value = "system/operation-log")
 @AutoLogIgnore
 @Api(tags = "操作日志")
 public class ErpOperationLogController extends BaseController {
