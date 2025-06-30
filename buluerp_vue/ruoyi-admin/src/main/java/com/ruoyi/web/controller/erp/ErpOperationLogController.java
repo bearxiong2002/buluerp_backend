@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.erp;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpOperationLog;
 import com.ruoyi.web.log.AutoLogIgnore;
@@ -20,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "operation-log")
+@RequestMapping(value = "system/operation-log")
 @AutoLogIgnore
 @Api(tags = "操作日志")
 public class ErpOperationLogController extends BaseController {
@@ -36,8 +37,10 @@ public class ErpOperationLogController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string"),
             @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
     })
-    public AjaxResult list(ListOperationLogRequest request) {
-        return success(erpOperationLogService.listOperationLogs(request));
+    public TableDataInfo list(ListOperationLogRequest request) {
+        startPage();
+        List<ErpOperationLog> erpOperationLogs = erpOperationLogService.listOperationLogs(request);
+        return getDataTable(erpOperationLogs);
     }
 
     @Anonymous

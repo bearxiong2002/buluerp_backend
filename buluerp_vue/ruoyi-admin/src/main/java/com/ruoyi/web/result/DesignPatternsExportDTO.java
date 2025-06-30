@@ -20,7 +20,7 @@ public class DesignPatternsExportDTO {
     @Excel(name = "模具ID")
     private String mouldId;
 
-    @Excel(name = "模具图片的URL")
+    @Excel(name = "模具图片",cellType = Excel.ColumnType.IMAGE, height = 80)
     private String pictureUrl;
 
     @Excel(name = "模具的颜色描述")

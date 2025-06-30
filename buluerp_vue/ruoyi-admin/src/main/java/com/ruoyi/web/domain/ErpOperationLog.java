@@ -2,6 +2,7 @@ package com.ruoyi.web.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.web.log.OperationLog;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +15,7 @@ public class ErpOperationLog {
     private Long id;
 
     @Excel(name = "操作时间", width = 30, dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "操作时间")
     private Date operationTime;
 

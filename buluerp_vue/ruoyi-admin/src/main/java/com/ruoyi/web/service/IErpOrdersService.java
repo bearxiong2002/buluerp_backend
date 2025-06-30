@@ -23,6 +23,8 @@ public interface IErpOrdersService
      */
     public ErpOrders selectErpOrdersById(Long id);
 
+    ErpOrders selectByOrderCode(String orderCode);
+
     /**
      * 查询订单列表
      * 
