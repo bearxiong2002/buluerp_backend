@@ -13,13 +13,11 @@ import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Null;
 
 /**
  * 外购资料，用于存储外购物料的基本信息和相关数据对象 erp_purchase_info
@@ -51,21 +49,6 @@ public class ErpPurchaseInfo
     @ApiModelProperty(value = "图片链接，填空字符串且不上传文件可删除图片 [list|POST|PUT|response]")
     private String pictureUrl;
 
-    /** 外购模具编号，与模具相关联的编号 */
-    @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "外购模具编号")
-    @Example("ABC123")
-    @ApiModelProperty(value = "外购模具编号，与模具相关联的编号 [list|POST|PUT|response]")
-    private String mouldNumber;
-
-    /** 单重，单位为克，表示单个物料的重量 */
-    @Excel(name = "单重/g")
-    @Example("123.456")
-    @NotNull(groups = {Save.class}, message = "单重不能为空")
-    @Range(min = 0, message = "单重不能小于0", groups = {Save.class, Update.class})
-    @ApiModelProperty(value = "单重，单位为克，表示单个物料的重量 [list|POST|PUT|response]", required = true)
-    private BigDecimal singleWeight;
-
     /** 单价，单位为货币单位，表示物料的单价 */
     @Excel(name = "单价")
     @Example("123.456")
@@ -80,8 +63,8 @@ public class ErpPurchaseInfo
     @Example("ABS")
     @NotBlank(groups = {Save.class}, message = "材料不能为空白")
     @NullOrNotBlank(groups = {Update.class}, message = "材料不能为空白")
-    @ApiModelProperty(value = "材料，用于描述外购物料的材料类型 [list|POST|PUT|response]", required = true)
-    private String material;
+    @ApiModelProperty(value = "材料类型，用于描述外购物料的材料类型 [list|POST|PUT|response]", required = true)
+    private String materialType;
 
     /** 供应商，提供外购物料的供应商名称 */
     @TableField(condition = SqlCondition.LIKE)
@@ -91,15 +74,6 @@ public class ErpPurchaseInfo
     @NullOrNotBlank(groups = {Update.class}, message = "供应商不能为空白")
     @ApiModelProperty(value = "供应商，提供外购物料的供应商名称 [list|POST|PUT|response]", required = true)
     private String supplier;
-
-    /** 规格名称，外购物料的具体规格描述 */
-    @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "规格名称")
-    @Example("A1")
-    @NotBlank(groups = {Save.class}, message = "规格名称不能为空白")
-    @NullOrNotBlank(groups = {Update.class}, message = "规格名称不能为空白")
-    @ApiModelProperty(value = "规格名称，外购物料的具体规格描述 [list|POST|PUT|response]", required = true)
-    private String specificationName;
 
     @JsonIgnore
     @TableField(exist = false)
@@ -126,26 +100,6 @@ public class ErpPurchaseInfo
         return pictureUrl;
     }
 
-    public void setMouldNumber(String mouldNumber) 
-    {
-        this.mouldNumber = mouldNumber;
-    }
-
-    public String getMouldNumber() 
-    {
-        return mouldNumber;
-    }
-
-    public void setSingleWeight(BigDecimal singleWeight) 
-    {
-        this.singleWeight = singleWeight;
-    }
-
-    public BigDecimal getSingleWeight() 
-    {
-        return singleWeight;
-    }
-
     public void setUnitPrice(BigDecimal unitPrice) 
     {
         this.unitPrice = unitPrice;
@@ -156,14 +110,14 @@ public class ErpPurchaseInfo
         return unitPrice;
     }
 
-    public void setMaterial(String material) 
+    public void setMaterialType(String materialType)
     {
-        this.material = material;
+        this.materialType = materialType;
     }
 
-    public String getMaterial() 
+    public String getMaterialType()
     {
-        return material;
+        return materialType;
     }
 
     public void setSupplier(String supplier) 
@@ -174,30 +128,6 @@ public class ErpPurchaseInfo
     public String getSupplier() 
     {
         return supplier;
-    }
-
-    public void setSpecificationName(String specificationName) 
-    {
-        this.specificationName = specificationName;
-    }
-
-    public String getSpecificationName() 
-    {
-        return specificationName;
-    }
-
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("purchaseCode", getPurchaseCode())
-            .append("pictureUrl", getPictureUrl())
-            .append("mouldNumber", getMouldNumber())
-            .append("singleWeight", getSingleWeight())
-            .append("unitPrice", getUnitPrice())
-            .append("material", getMaterial())
-            .append("supplier", getSupplier())
-            .append("specificationName", getSpecificationName())
-            .toString();
     }
 
     public MultipartFile getPicture() {

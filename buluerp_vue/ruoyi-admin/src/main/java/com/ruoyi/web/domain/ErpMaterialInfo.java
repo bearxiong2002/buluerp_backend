@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
@@ -15,7 +16,11 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.util.Date;
+import java.util.List;
 
 @TableName(value = "erp_material_info")
 @ApiModel("物料资料")
@@ -51,6 +56,8 @@ public class ErpMaterialInfo extends BaseEntity {
 
     @Excel(name = "料别")
     @Example("123,456,789")
+    @NotBlank(message = "物料类型不能为空", groups = {Save.class})
+    @Null(message = "不允许修改物料类型", groups = {Update.class}) // 被其他表引用，不允许修改
     private String materialType;
 
     @Excel(name = "常规编码")
@@ -86,6 +93,8 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "备用编码")
     @Example("-")
     private String spareCode;
+
+    private List<ErpPurchaseInfo> purchaseInfos;
 
     @JsonIgnore
     private MultipartFile drawingReferenceFile;
@@ -238,5 +247,13 @@ public class ErpMaterialInfo extends BaseEntity {
 
     public void setDeleteDrawingReference(Boolean deleteDrawingReference) {
         this.deleteDrawingReference = deleteDrawingReference;
+    }
+
+    public List<ErpPurchaseInfo> getPurchaseInfos() {
+        return purchaseInfos;
+    }
+
+    public void setPurchaseInfos(List<ErpPurchaseInfo> purchaseInfos) {
+        this.purchaseInfos = purchaseInfos;
     }
 }

@@ -13,6 +13,8 @@ import com.ruoyi.web.domain.ErpPurchaseInfo;
  * @date 2025-04-08
  */
 public interface IErpPurchaseInfoService extends IService<ErpPurchaseInfo> {
+    List<ErpPurchaseInfo> selectErpPurchaseInfoByMaterialType(String materialType);
     int insertErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException;
     int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException;
+    boolean deleteErpPurchaseInfoByMaterialIds(Long[] ids);
 }
