@@ -6,10 +6,12 @@ import com.ruoyi.web.domain.ErpProductionSchedule;
 import java.io.IOException;
 import java.util.List;
 
-public interface IErpProductsScheduleService extends IService<ErpProductionSchedule> {
+public interface IErpProductionScheduleService extends IService<ErpProductionSchedule> {
     int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;
 
     int updateErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;
+
+    int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
 
     List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
 

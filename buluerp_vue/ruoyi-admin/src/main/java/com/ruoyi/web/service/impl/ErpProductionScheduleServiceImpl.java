@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
@@ -11,19 +12,18 @@ import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpAuditSwitchService;
-import com.ruoyi.web.service.IErpProductsScheduleService;
+import com.ruoyi.web.service.IErpProductionScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class ErpProductsScheduleServiceImpl
+public class ErpProductionScheduleServiceImpl
         extends ServiceImpl<ErpProductionScheduleMapper, ErpProductionSchedule>
-        implements IErpProductsScheduleService {
+        implements IErpProductionScheduleService {
 
     @Autowired
     private IErpAuditRecordService auditRecordService;
@@ -101,6 +101,11 @@ public class ErpProductsScheduleServiceImpl
         }
 
         return 1;
+    }
+
+    @Override
+    public int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
+        return baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
     }
 
     @Override

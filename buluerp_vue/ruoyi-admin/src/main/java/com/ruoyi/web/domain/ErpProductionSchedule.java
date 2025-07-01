@@ -10,6 +10,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.apache.commons.math3.analysis.function.Add;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,7 @@ public class ErpProductionSchedule {
     @ApiModelProperty(value = "订单编号", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
     @Example("BLK20250528000001 [list|POST|PUT|response]")
+    @NotNull(message = "订单编号不能为空", groups = {Save.class})
     private String orderCode;
 
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
@@ -44,12 +46,13 @@ public class ErpProductionSchedule {
     @Excel(name = "产品ID")
     @ApiModelProperty(value = "产品ID [list|POST|PUT|response]", dataType = "Long", required = true)
     @Example("1")
+    @NotNull(groups = {Save.class}, message = "产品ID不能为空")
     private Long productId;
 
     @Excel(name = "排产ID")
     @Example("1")
     @ApiModelProperty(value = "对应排产ID [list|POST|PUT|response]", dataType = "Long")
-    @NotNull(groups = Save.class, message = "排产ID无效")
+    // @NotNull(groups = Save.class, message = "排产ID无效")
     @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class})
     private Long arrangeId;
 
@@ -70,7 +73,8 @@ public class ErpProductionSchedule {
     @ApiModelProperty(value = "模具编码 [list|POST|PUT|response]", dataType = "String", required = true)
     @TableField(condition = SqlCondition.LIKE)
     @Example("客户")
-    private String mouldCode;
+    @NotNull(message = "模具编码不能为空", groups = {Save.class})
+    private String mouldNumber;
 
     @Excel(name = "模具状态")
     @ApiModelProperty(value = "模具状态 [list|POST|PUT|response]", dataType = "String")
@@ -258,12 +262,12 @@ public class ErpProductionSchedule {
         this.productCode = productCode;
     }
 
-    public String getMouldCode() {
-        return mouldCode;
+    public String getMouldNumber() {
+        return mouldNumber;
     }
 
-    public void setMouldCode(String mouldCode) {
-        this.mouldCode = mouldCode;
+    public void setMouldNumber(String mouldNumber) {
+        this.mouldNumber = mouldNumber;
     }
 
     public String getMouldCondition() {
@@ -426,11 +430,11 @@ public class ErpProductionSchedule {
         this.materialIds = materialIds;
     }
 
-    public @NotNull(groups = Save.class, message = "排产ID无效") @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long getArrangeId() {
+    public @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long getArrangeId() {
         return arrangeId;
     }
 
-    public void setArrangeId(@NotNull(groups = Save.class, message = "排产ID无效") @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long arrangeId) {
+    public void setArrangeId(@Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long arrangeId) {
         this.arrangeId = arrangeId;
     }
 }

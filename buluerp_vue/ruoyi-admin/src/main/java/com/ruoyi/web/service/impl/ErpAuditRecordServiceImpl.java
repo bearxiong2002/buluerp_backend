@@ -1,9 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProductionSchedule;
@@ -13,7 +11,7 @@ import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.mapper.ErpAuditRecordMapper;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpProductsScheduleService;
+import com.ruoyi.web.service.IErpProductionScheduleService;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.INotificationService;
 import org.slf4j.Logger;
@@ -24,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +48,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     private IErpOrdersService ordersService;
 
     @Autowired
-    private IErpProductsScheduleService productionScheduleService;
+    private IErpProductionScheduleService productionScheduleService;
 
     @Autowired
     private IErpPurchaseCollectionService purchaseCollectionService;
@@ -901,7 +898,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
         templateData.put("scheduleId", schedule.getId());
         templateData.put("orderCode", schedule.getOrderCode());
         templateData.put("productCode", schedule.getProductCode());
-        templateData.put("mouldCode", schedule.getMouldCode());
+        templateData.put("mouldCode", schedule.getMouldNumber());
         templateData.put("productionQuantity", schedule.getProductionQuantity());
         templateData.put("operator", schedule.getOperator());
         
