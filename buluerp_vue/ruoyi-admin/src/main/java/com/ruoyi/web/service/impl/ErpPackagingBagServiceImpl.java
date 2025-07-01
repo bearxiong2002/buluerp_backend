@@ -63,6 +63,16 @@ public class ErpPackagingBagServiceImpl
 
     @Override
     @Transactional
+    public void insertCascade(ErpPackagingBag entity) {
+        for (ErpPackagingDetail detail : entity.getDetails()) {
+            detail.setPackagingBagId(entity.getId());
+            erpPackagingDetailService.saveOrUpdate(detail);
+        }
+        saveOrUpdate(entity);
+    }
+
+    @Override
+    @Transactional
     public boolean deleteCascadeByListIds(Long[] listIds) {
         erpPackagingDetailService.deleteByListIds(listIds);
 

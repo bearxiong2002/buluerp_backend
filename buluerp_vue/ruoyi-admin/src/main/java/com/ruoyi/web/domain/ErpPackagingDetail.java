@@ -1,5 +1,7 @@
 package com.ruoyi.web.domain;
 
+import com.alibaba.excel.metadata.data.ImageData;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -7,6 +9,8 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.validation.Save;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,6 +18,9 @@ import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotNull;
+import java.io.*;
+import java.nio.file.Paths;
+import java.util.Collections;
 
 @ApiModel("分包明细")
 public class ErpPackagingDetail {
@@ -73,8 +80,16 @@ public class ErpPackagingDetail {
     @Range(min = 0, message = "套料数量不能为负数")
     private Integer setQuantity;
 
+    @Excel(name = "重量")
+    @Example("0.5")
+    @ApiModelProperty("重量，单位为克，表示总重量 [list|POST|PUT|response]")
+    @Range(min = 0, message = "重量不能为负数")
+    private Double totalWeight;
+
+
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "备注")
+    @Example("无")
     @ApiModelProperty("备注，其它需要说明的信息 [list|POST|PUT|response]")
     private String remarks;
 
@@ -87,6 +102,60 @@ public class ErpPackagingDetail {
     @JsonIgnore
     @ApiModelProperty("胶件图片文件 [POST|PUT]")
     private MultipartFile partImageFile;
+
+    @TableField(exist = false)
+    @JsonIgnore
+    private WriteCellData<Void> imageData;
+
+    public static String parseActualPath(String url) {
+        if (!url.startsWith(Constants.RESOURCE_PREFIX)) {
+            throw new IllegalArgumentException("文件URL必须以 " + Constants.RESOURCE_PREFIX + " 开头");
+        }
+
+        // 2. 移除资源前缀（保留后续路径部分）
+        String relativePath = url.substring(Constants.RESOURCE_PREFIX.length());
+
+        // 3. 拼接实际存储路径
+        return Paths.get(
+                RuoYiConfig.getProfile(), // 基础路径（如 D:/ruoyi/uploadPath）
+                relativePath.split("/")   // 拆分路径部分（如 ["", "2025", "05", "10", "xxx.txt"]）
+        ).toString();
+    }
+
+    public void loadExcelImage() {
+        if (partImageUrl == null || partImageUrl.isEmpty()) {
+            return;
+        }
+        String path = parseActualPath(partImageUrl);
+        File file = new File(path);
+
+        if (!file.exists()) {
+            return;
+        }
+
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            // 使用 ByteArrayOutputStream 手动读取字节（Java 8 兼容）
+            ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+            byte[] bytes = new byte[1024];
+            int bytesRead;
+            while ((bytesRead = inputStream.read(bytes)) != -1) {
+                buffer.write(bytes, 0, bytesRead);
+            }
+
+            ImageData imageData = new ImageData();
+            imageData.setImage(buffer.toByteArray()); // 设置图片字节数组
+
+            WriteCellData<Void> cellData = new WriteCellData<>();
+            cellData.setRichTextStringDataValue(null); // 清除文本内容
+            cellData.setImageDataList(Collections.singletonList(imageData));
+
+            this.imageData = cellData;
+        } catch (IOException e) {
+            throw new RuntimeException("读取图片文件失败: " + path, e);
+        }
+    }
+
+
 
     public MultipartFile getPartImageFile() {
         return partImageFile;
@@ -182,5 +251,21 @@ public class ErpPackagingDetail {
 
     public void setPackagingBagId(@NotNull(message = "分包袋编号不能为空", groups = {Save.class}) Long packagingBagId) {
         this.packagingBagId = packagingBagId;
+    }
+
+    public WriteCellData<Void> getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(WriteCellData<Void> imageData) {
+        this.imageData = imageData;
+    }
+
+    public Double getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(Double totalWeight) {
+        this.totalWeight = totalWeight;
     }
 }

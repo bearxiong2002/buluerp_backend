@@ -228,6 +228,11 @@ public class BaseController
     public <Type> List<Type> validateExcel(MultipartFile file, Class<Type> clazz) throws IOException {
         ExcelUtil<Type> util = new ExcelUtil<>(clazz);
         List<Type> list = util.importExcel(file.getInputStream());
+        List<ExcelRowErrorInfo> errorList = validateList(list, validator);
+        return list;
+    }
+
+    public static <Type> List<ExcelRowErrorInfo> validateList(List<Type> list, Validator validator) {
         List<ExcelRowErrorInfo> errorList = new ArrayList<>();
         int rowIndex = 1;
         for (Type row : list) {
@@ -242,10 +247,7 @@ public class BaseController
             }
             rowIndex++;
         }
-        if (!errorList.isEmpty()) {
-            throw new ExcelImportException(errorList);
-        }
-        return list;
+        return errorList;
     }
 
     public static <Type> ExcelUtil<Type> createTemplateExcelUtil(Class<Type> clazz) {

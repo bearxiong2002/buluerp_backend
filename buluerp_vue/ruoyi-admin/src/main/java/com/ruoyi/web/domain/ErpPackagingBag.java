@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel("分包袋")
@@ -56,6 +58,20 @@ public class ErpPackagingBag {
     @TableField(exist = false)
     @ApiModelProperty("分包明细列表 [response]")
     private List<ErpPackagingDetail> details;
+
+    public static ErpPackagingBag createExample() {
+        try {
+            ErpPackagingBag example = BaseEntity.createExample(ErpPackagingBag.class);
+            List<ErpPackagingDetail> details = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                details.add(BaseEntity.createExample(ErpPackagingDetail.class));
+            }
+            example.setDetails(details);
+            return example;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Long getId() {
         return id;

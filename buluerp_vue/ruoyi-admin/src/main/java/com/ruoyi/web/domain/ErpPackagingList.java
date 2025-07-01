@@ -1,10 +1,14 @@
 package com.ruoyi.web.domain;
 
+import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.format.DateTimeFormat;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
@@ -12,8 +16,10 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
-import java.util.Date;
-import java.util.List;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @ApiModel("分包表")
 public class ErpPackagingList extends BaseEntity {
@@ -49,12 +55,13 @@ public class ErpPackagingList extends BaseEntity {
 
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Excel(name = "发布日期", dateFormat = "yyyy-MM-dd")
+    @DateTimeFormat("yyyy-MM-dd")
     @Example("2022-05-28")
     @ApiModelProperty(value = "发布日期 [list|POST|PUT|response]")
     private Date releaseDate;
 
     @Excel(name = "配件种类")
-    @Example("345种")
+    @Example("AA")
     @ApiModelProperty(value = "配件种类 [list|POST|PUT|response]")
     private String accessoryType;
 
@@ -64,23 +71,23 @@ public class ErpPackagingList extends BaseEntity {
     @ApiModelProperty(value = "配件总数 [list|POST|PUT|response]")
     private Integer accessoryTotal;
 
-    @Excel(name = "是否是说明书", readConverterExp = "1=是,0=否")
+    @Excel(name = "是否是说明书")
     @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
-    @Example("1")
+    @Example("true")
     @ApiModelProperty(value = "是否是说明书 [list|POST|PUT|response]")
-    private Integer isManual;
+    private Boolean isManual;
 
-    @Excel(name = "是否是人仔", readConverterExp = "1=是,0=否")
+    @Excel(name = "是否是人仔")
     @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
-    @Example("1")
+    @Example("false")
     @ApiModelProperty(value = "是否是人仔 [list|POST|PUT|response]")
-    private Integer isMinifigure;
+    private Boolean isMinifigure;
 
-    @Excel(name = "是否是起件器", readConverterExp = "1=是,0=否")
+    @Excel(name = "是否是起件器")
     @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
-    @Example("1")
+    @Example("false")
     @ApiModelProperty(value = "是否是起件器 [list|POST|PUT|response]")
-    private Integer isTool;
+    private Boolean isTool;
 
     @Excel(name = "生产线")
     @Example("自动拉")
@@ -90,6 +97,20 @@ public class ErpPackagingList extends BaseEntity {
     @TableField(exist = false)
     @ApiModelProperty(value = "分包袋列表 [response]")
     private List<ErpPackagingBag> bagList;
+
+    public static ErpPackagingList createExample() {
+        try {
+            ErpPackagingList e = BaseEntity.createExample(ErpPackagingList.class);
+            List<ErpPackagingBag> bagList = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                bagList.add(ErpPackagingBag.createExample());
+            }
+            e.setBagList(bagList);
+            return e;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Long getId() {
         return id;
@@ -163,27 +184,51 @@ public class ErpPackagingList extends BaseEntity {
         this.accessoryTotal = accessoryTotal;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsManual() {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getManual() {
         return isManual;
     }
 
-    public void setIsManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isManual) {
-        this.isManual = isManual;
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsManual() {
+        return isManual;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsMinifigure() {
+    public void setManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean manual) {
+        isManual = manual;
+    }
+
+    public void setIsManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean manual) {
+        isManual = manual;
+    }
+
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getMinifigure() {
         return isMinifigure;
     }
 
-    public void setIsMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isMinifigure) {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsMinifigure() {
+        return isMinifigure;
+    }
+
+    public void setMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean minifigure) {
+        isMinifigure = minifigure;
+    }
+
+    public void setIsMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean isMinifigure) {
         this.isMinifigure = isMinifigure;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer getIsTool() {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getTool() {
         return isTool;
     }
 
-    public void setIsTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Integer isTool) {
+    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsTool() {
+        return isTool;
+    }
+
+    public void setTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean tool) {
+        isTool = tool;
+    }
+
+    public void setIsTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean isTool) {
         this.isTool = isTool;
     }
 
@@ -201,5 +246,74 @@ public class ErpPackagingList extends BaseEntity {
 
     public void setBagList(List<ErpPackagingBag> bagList) {
         this.bagList = bagList;
+    }
+
+    public static class ExcelData extends ErpPackagingList {
+
+        public static final String CHECKED_CHAR = "☑";
+        public static final String UNCHECKED_CHAR = "☐";
+
+        private String manualChar;
+        private String minifigureChar;
+        private String toolChar;
+
+        private String releaseDateStr;
+
+        public ErpPackagingList toEntity() {
+            ErpPackagingList entity = new ErpPackagingList();
+            BeanUtils.copyBeanProp(entity, this);
+            entity.setManual(Objects.equals(manualChar, CHECKED_CHAR));
+            entity.setMinifigure(Objects.equals(minifigureChar, CHECKED_CHAR));
+            entity.setTool(Objects.equals(toolChar, CHECKED_CHAR));
+            try {
+                entity.setReleaseDate(DateUtils.parseDate(releaseDateStr, "yyyy-MM-dd"));
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            return entity;
+        }
+
+        public static ExcelData fromEntity(ErpPackagingList entity) {
+            ExcelData data = new ExcelData();
+            BeanUtils.copyBeanProp(data, entity);
+            data.setManualChar(entity.getManual() ? CHECKED_CHAR : UNCHECKED_CHAR);
+            data.setMinifigureChar(entity.getMinifigure() ? CHECKED_CHAR : UNCHECKED_CHAR);
+            data.setToolChar(entity.getTool() ? CHECKED_CHAR : UNCHECKED_CHAR);
+            SimpleDateFormat f = new SimpleDateFormat("yyyy-MM-dd");
+            data.setReleaseDateStr(f.format(entity.getReleaseDate()));
+            return data;
+        }
+
+        public String getManualChar() {
+            return manualChar;
+        }
+
+        public void setManualChar(String manualChar) {
+            this.manualChar = manualChar;
+        }
+
+        public String getMinifigureChar() {
+            return minifigureChar;
+        }
+
+        public void setMinifigureChar(String minifigureChar) {
+            this.minifigureChar = minifigureChar;
+        }
+
+        public String getToolChar() {
+            return toolChar;
+        }
+
+        public void setToolChar(String toolChar) {
+            this.toolChar = toolChar;
+        }
+
+        public String getReleaseDateStr() {
+            return releaseDateStr;
+        }
+
+        public void setReleaseDateStr(String releaseDateStr) {
+            this.releaseDateStr = releaseDateStr;
+        }
     }
 }

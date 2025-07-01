@@ -40,19 +40,17 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PostMapping("/export")
     @ApiOperation(value = "导出分包列表", notes = "导出分包列表")
-    public void export(HttpServletResponse response, Long[] ids) {
-        List<ErpPackagingList> list = packagingListService.selectErpPackagingListListByIds(ids);
-        ExcelUtil<ErpPackagingList> util = new ExcelUtil<ErpPackagingList>(ErpPackagingList.class);
-        util.exportExcel(response, list, "分包数据");
+    public void export(HttpServletResponse response, Long id) throws IOException {
+        ErpPackagingList erpPackagingList = packagingListService.selectErpPackagingListById(id);
+        packagingListService.exportExcel(response, erpPackagingList);
     }
 
     @Anonymous
     @GetMapping("/export/template")
     @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
-    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpPackagingList> list = Collections.singletonList(BaseEntity.createExample(ErpPackagingList.class));
-        ExcelUtil<ErpPackagingList> util = createTemplateExcelUtil(ErpPackagingList.class);
-        util.exportExcel(response, list, "分包数据");
+    public void exportTemplate(HttpServletResponse response) throws IOException {
+        ErpPackagingList example = ErpPackagingList.createExample();
+        packagingListService.exportExcel(response, example);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:import')")
@@ -60,13 +58,9 @@ public class ErpPackagingListController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入分包列表", notes = "导入分包列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpPackagingList> list = validateExcel(file, ErpPackagingList.class);
-        int count = 0;
-        for (ErpPackagingList erpPackagingList : list) {
-            packagingListService.insertErpPackagingList(erpPackagingList);
-            count++;
-        }
-        return toAjax(count);
+        ErpPackagingList erpPackagingList = packagingListService.importExcel(file.getInputStream());
+        packagingListService.insertCascade(erpPackagingList);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:query')")
