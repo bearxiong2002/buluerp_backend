@@ -38,7 +38,7 @@ public class ErpPackagingDetail {
     private String mouldNumber;
 
     @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "胶件图片")
+    @Excel(name = "胶件图片", cellType = Excel.ColumnType.IMAGE)
     @Example
     @ApiModelProperty("胶件图片，模具零件的图片链接 [list|POST|PUT|response]")
     private String partImageUrl;
