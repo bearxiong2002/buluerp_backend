@@ -50,8 +50,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpOrdersVo"/>
         <where>
             <if test="id != null "> and o.id = #{id}</if>
-            <if test="innerId != null "> and o.inner_id = #{innerId}</if>
-            <if test="outerId != null "> and o.outer_id = #{outerId}</if>
+            <if test="innerId != null "> and o.inner_id like CONCAT('%', #{innerId}, '%')</if>
+            <if test="outerId != null "> and o.outer_id like CONCAT('%', #{outerId}, '%')</if>
             <if test="operator != null "> and o.operator like concact('%',#{operator},'%')</if>
             <if test="quantity != null "> and o.quantity = #{quantity}</if>
             <if test="deliveryDeadline != null "> and DATE(o.delivery_deadline) = DATE(#{deliveryDeadline})</if>
