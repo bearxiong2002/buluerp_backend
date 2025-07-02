@@ -58,7 +58,7 @@ public class ErpPackagingDetailController extends BaseController {
     @PutMapping
     @ApiOperation(value = "修改分包明细", notes = "修改分包明细")
     public AjaxResult update(@ModelAttribute @Validated(Update.class) ErpPackagingDetail entity) throws IOException {
-        erpPackagingDetailService.check(entity);
+        erpPackagingDetailService.checkReferences(entity);
         erpPackagingDetailService.uploadImage(entity);
         return toAjax(
                 erpPackagingDetailService.updateById(entity)
