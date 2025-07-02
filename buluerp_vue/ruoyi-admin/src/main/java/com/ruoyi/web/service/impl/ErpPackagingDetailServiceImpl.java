@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ErpPackagingDetailServiceImpl
@@ -32,9 +33,13 @@ public class ErpPackagingDetailServiceImpl
 
     @Override
     public void checkUnique(ErpPackagingDetail entity) {
+        // if (entity.getMouldNumber() == null) {
+        //     return;
+        // }
         // LambdaQueryWrapper<ErpPackagingDetail> queryWrapper = new LambdaQueryWrapper<>();
         // queryWrapper.eq(ErpPackagingDetail::getMouldNumber, entity.getMouldNumber());
-        // if (baseMapper.selectOne(queryWrapper) != null) {
+        // ErpPackagingDetail original = baseMapper.selectOne(queryWrapper);
+        // if (original != null && !Objects.equals(original.getId(), entity.getId())) {
         //     throw new ServiceException("此模号已存在：" + entity.getMouldNumber());
         // }
     }

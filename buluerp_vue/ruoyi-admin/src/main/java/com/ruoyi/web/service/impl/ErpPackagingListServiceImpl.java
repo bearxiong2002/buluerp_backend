@@ -8,6 +8,7 @@ import com.alibaba.excel.read.metadata.ReadSheet;
 import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.excel.ExcelImportException;
@@ -76,6 +77,22 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         }
     }
 
+    public void checkUnique(ErpPackagingList erpPackagingList) {
+        if (erpPackagingList.getOrderCode()!= null) {
+            LambdaQueryWrapper<ErpPackagingList> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpPackagingList::getOrderCode, erpPackagingList.getOrderCode());
+            ErpPackagingList original = erpPackagingListMapper.selectOne(queryWrapper);
+            if (original != null && !Objects.equals(erpPackagingList.getId(), original.getId())) {
+                throw new ServiceException("订单已存在分包" + original.getId());
+            }
+        }
+    }
+
+    public void check(ErpPackagingList erpPackagingList) {
+        checkReferences(erpPackagingList);
+        checkUnique(erpPackagingList);
+    }
+
     public ErpPackagingList fill(ErpPackagingList entity) {
         if (entity == null) {
             return null;
@@ -111,14 +128,14 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     public int insertErpPackagingList(ErpPackagingList erpPackagingList) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
-        checkReferences(erpPackagingList);
+        check(erpPackagingList);
         return erpPackagingListMapper.insertErpPackagingList(erpPackagingList);
     }
 
     @Override
     public int updateErpPackagingList(ErpPackagingList erpPackagingList) {
         erpPackagingList.setOperator(SecurityUtils.getUsername());
-        checkReferences(erpPackagingList);
+        check(erpPackagingList);
         return erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
     }
 
