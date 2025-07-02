@@ -10,6 +10,8 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -31,6 +33,12 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "查询分包列表", notes = "查询分包列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "int", paramType = "query", defaultValue = "1"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", dataType = "int", paramType = "query", defaultValue = "10"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "isAsc", value = "排序方式", dataType = "String", paramType = "query", defaultValue = "asc")
+    })
     public TableDataInfo list(ErpPackagingList erpPackagingList) {
         startPage();
         return getDataTable(packagingListService.selectErpPackagingListList(erpPackagingList));
