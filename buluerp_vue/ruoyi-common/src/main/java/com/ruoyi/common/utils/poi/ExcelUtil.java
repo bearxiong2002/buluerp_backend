@@ -2097,14 +2097,10 @@ public class ExcelUtil<T>
 
         String strValue = value.toString();
 
-        // 处理日期格式
-        if (StringUtils.isNotEmpty(excel.dateFormat())) {
-            if (Date.class.isAssignableFrom(fieldType)) {
-                value = DateUtils.parseDate(strValue, excel.dateFormat());
-            } else {
-                strValue = parseDateToStr(excel.dateFormat(), value);
-                value = strValue;
-            }
+        // 处理后缀
+        if (StringUtils.isNotEmpty(excel.suffix()) && strValue.endsWith(excel.suffix())) {
+            strValue = strValue.substring(0, strValue.length() - excel.suffix().length());
+            value = strValue;
         }
 
         // 处理字典类型
@@ -2119,10 +2115,14 @@ public class ExcelUtil<T>
             value = strValue;
         }
 
-        // 处理后缀
-        if (StringUtils.isNotEmpty(excel.suffix())) {
-            strValue = strValue.replace(excel.suffix(), "");
-            value = strValue;
+        // 处理日期格式
+        if (StringUtils.isNotEmpty(excel.dateFormat())) {
+            if (Date.class.isAssignableFrom(fieldType)) {
+                value = DateUtils.parseDate(strValue, excel.dateFormat());
+            } else {
+                strValue = parseDateToStr(excel.dateFormat(), value);
+                value = strValue;
+            }
         }
 
         // 处理 BigDecimal 精度和舍入规则

@@ -71,17 +71,17 @@ public class ErpPackagingList extends BaseEntity {
     @ApiModelProperty(value = "配件总数 [list|POST|PUT|response]")
     private Integer accessoryTotal;
 
-    @Excel(name = "说明书", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
+    @Excel(name = "说明书", readConverterExp = "true="  + ExcelData.CHECKED_CHAR + ",false=" + ExcelData.UNCHECKED_CHAR)
     @Example("true")
     @ApiModelProperty(value = "是否是说明书 [list|POST|PUT|response]")
     private Boolean isManual;
 
-    @Excel(name = "人仔", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
+    @Excel(name = "人仔", readConverterExp = "true="  + ExcelData.CHECKED_CHAR + ",false=" + ExcelData.UNCHECKED_CHAR)
     @Example("false")
     @ApiModelProperty(value = "是否是人仔 [list|POST|PUT|response]")
     private Boolean isMinifigure;
 
-    @Excel(name = "起件器", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
+    @Excel(name = "起件器", readConverterExp = "true="  + ExcelData.CHECKED_CHAR + ",false=" + ExcelData.UNCHECKED_CHAR)
     @Example("false")
     @ApiModelProperty(value = "是否是起件器 [list|POST|PUT|response]")
     private Boolean isTool;
