@@ -32,7 +32,10 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     private List<ErpMaterialInfo> fill(List<ErpMaterialInfo> erpMaterialInfoList) {
-        return erpMaterialInfoList.stream().map(this::fill).collect(Collectors.toList());
+        for (ErpMaterialInfo erpMaterialInfo : erpMaterialInfoList) {
+            fill(erpMaterialInfo);
+        }
+        return erpMaterialInfoList;
     }
 
     @Override

@@ -51,7 +51,10 @@ public class ErpPackagingBagServiceImpl
     }
 
     public List<ErpPackagingBag> fill(List<ErpPackagingBag> entities) {
-        return entities.stream().map(this::fill).collect(Collectors.toList());
+        for (ErpPackagingBag entity : entities) {
+            fill(entity);
+        }
+        return entities;
     }
 
     @Override

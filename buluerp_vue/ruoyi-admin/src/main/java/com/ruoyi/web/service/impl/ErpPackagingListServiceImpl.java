@@ -86,7 +86,10 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     public List<ErpPackagingList> fill(List<ErpPackagingList> entities) {
-        return entities.stream().map(this::fill).collect(Collectors.toList());
+        for (ErpPackagingList entity : entities) {
+            fill(entity);
+        }
+        return entities;
     }
 
     @Override
