@@ -22,7 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @ApiModel("分包表")
-public class ErpPackagingList extends BaseEntity {
+public class ErpPackagingList {
     @Excel(name = "分包序号")
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")
     private Long id;

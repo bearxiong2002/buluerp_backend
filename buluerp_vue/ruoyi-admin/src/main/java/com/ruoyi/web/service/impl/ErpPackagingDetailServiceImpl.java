@@ -38,7 +38,7 @@ public class ErpPackagingDetailServiceImpl
         // }
         // LambdaQueryWrapper<ErpPackagingDetail> queryWrapper = new LambdaQueryWrapper<>();
         // queryWrapper.eq(ErpPackagingDetail::getMouldNumber, entity.getMouldNumber());
-        // ErpPackagingDetail original = baseMapper.selectOne(queryWrapper);
+        // ErpPackagingDetail original = baseMapper.selut ectOne(queryWrapper);
         // if (original != null && !Objects.equals(original.getId(), entity.getId())) {
         //     throw new ServiceException("此模号已存在：" + entity.getMouldNumber());
         // }
