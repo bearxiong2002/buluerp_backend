@@ -64,11 +64,11 @@ public class ErpPackagingBagServiceImpl
     @Override
     @Transactional
     public void insertCascade(ErpPackagingBag entity) {
+        saveOrUpdate(entity);
         for (ErpPackagingDetail detail : entity.getDetails()) {
             detail.setPackagingBagId(entity.getId());
             erpPackagingDetailService.saveOrUpdate(detail);
         }
-        saveOrUpdate(entity);
     }
 
     @Override

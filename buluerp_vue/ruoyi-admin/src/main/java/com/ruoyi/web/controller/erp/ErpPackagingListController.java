@@ -57,7 +57,7 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PostMapping("/import")
     @ApiOperation(value = "导入分包列表", notes = "导入分包列表")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws Exception {
         ErpPackagingList erpPackagingList = packagingListService.importExcel(file.getInputStream());
         packagingListService.insertCascade(erpPackagingList);
         return success();

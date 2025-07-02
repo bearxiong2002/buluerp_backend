@@ -31,28 +31,32 @@ public class ErpPackagingBag {
     @NotNull(message = "分包列表编号不能为空", groups = {Save.class})
     private Long packagingListId;
 
-    @Excel(name = "本包重量")
+    @Excel(name = "本袋重量")
     @Example("10.0")
-    @ApiModelProperty("本包重量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "本包重量不能小于0", groups = {Save.class, Update.class})
+    @ApiModelProperty("本袋重量 [list|POST|PUT|response]")
+    @NotNull(message = "本袋重量不能为空", groups = {Save.class})
+    @Range(min = 0, message = "本袋重量不能小于0", groups = {Save.class, Update.class})
     private Double bagWeight;
 
-    @Excel(name = "本包规格")
+    @Excel(name = "本袋规格")
     @Example("ABC")
     @TableField(condition = SqlCondition.LIKE)
-    @ApiModelProperty("本包规格 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋规格 [list|POST|PUT|response]")
+    @NotNull(message = "本袋规格不能为空", groups = {Save.class})
     private String bagSpecification;
 
-    @Excel(name = "本包配件/种")
+    @Excel(name = "本袋配件")
     @Example("10")
-    @ApiModelProperty("本包配件/种 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋配件/种 [list|POST|PUT|response]")
     @Range(min = 0, message = "本包配件/种不能小于0", groups = {Save.class, Update.class})
+    @NotNull(message = "本袋配件不能为空", groups = {Save.class})
     private Integer bagAccessory;
 
-    @Excel(name = "本包数量")
+    @Excel(name = "本袋数量")
     @Example("10")
-    @ApiModelProperty("本包数量 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋数量 [list|POST|PUT|response]")
     @Range(min = 0, message = "本包数量不能小于0", groups = {Save.class, Update.class})
+    @NotNull(message = "本袋数量不能为空", groups = {Save.class})
     private Integer bagQuantity;
 
     @TableField(exist = false)

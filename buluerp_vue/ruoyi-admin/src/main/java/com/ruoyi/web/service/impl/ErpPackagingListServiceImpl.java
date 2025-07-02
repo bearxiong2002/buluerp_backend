@@ -56,15 +56,10 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     private Validator validator;
 
     public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
-    public static final String BAG_TEMPLATE = "excel" + File.separator + "packaging_bag.xlsx";
     public static final Integer BAG_TEMPLATE_HEADER_ROW = 2;
 
     public static InputStream getListTemplate() {
         return ErpPackagingListServiceImpl.class.getClassLoader().getResourceAsStream(LIST_TEMPLATE);
-    }
-
-    public static InputStream getBagTemplate() {
-        return ErpPackagingListServiceImpl.class.getClassLoader().getResourceAsStream(BAG_TEMPLATE);
     }
 
     public void checkReferences(ErpPackagingList erpPackagingList) {
@@ -276,19 +271,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     @Override
-    public ErpPackagingList importExcel(InputStream inputStream) throws IOException {
+    public ErpPackagingList importExcel(InputStream inputStream) throws Exception {
         // 读取大表
-        ErpPackagingList erpPackagingList = EasyExcel.read(inputStream)
-                .excelType(ExcelTypeEnum.XLSX)
-                .head(ErpPackagingList.ExcelData.class)
-                .sheet("分包表")
-                .headRowNumber(0)
-                .doReadSync()
-                .stream()
-                .map(data -> (ErpPackagingList.ExcelData) data)
-                .map(ErpPackagingList.ExcelData::toEntity)
-                .findFirst()
-                .orElseThrow(() -> new ServiceException("导入数据为空"));
+        Workbook workbook = WorkbookFactory.create(inputStream);
+        Sheet mainSheet = workbook.getSheet("分包表");
+        ErpPackagingList erpPackagingList = ExcelUtil
+                .extractEntityFromSheet(mainSheet, ErpPackagingList.class);
 
         // 验证大表
         List<ExcelRowErrorInfo> errorInfos = BaseController.validateList(
@@ -301,26 +289,30 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
                 })
                 .collect(Collectors.toList());
 
-        // 识别小包表 sheet
-        List<String> sheetNames = new ArrayList<>();
-        try (ExcelReader excelReader = EasyExcel.read(inputStream).excelType(ExcelTypeEnum.XLSX).build()) {
-            List<ReadSheet> sheets = excelReader.excelExecutor().sheetList();
-            for (ReadSheet sheet : sheets) {
-                sheetNames.add(sheet.getSheetName());
-            }
-        }
-        List<String> bagSheetNames = sheetNames.stream()
-                .filter(name -> name.startsWith("分包袋"))
-                .collect(Collectors.toList());
-
         // 读取小包表
         erpPackagingList.setBagList(new ArrayList<>());
-        for (String bagSheetName : bagSheetNames) {
+        for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
+            String bagSheetName = workbook.getSheetName(i);
+            if (!bagSheetName.startsWith("分包袋")) {
+                continue;
+            }
             // TODO: 读取小包
-            ErpPackagingBag bag = new ErpPackagingBag();
+            Sheet bagSheet = workbook.getSheet(bagSheetName);
+            ErpPackagingBag bag = ExcelUtil
+                   .extractEntityFromSheet(
+                           bagSheet,
+                           ErpPackagingBag.class,
+                           bagSheet.getFirstRowNum(),
+                           bagSheet.getFirstRowNum() + BAG_TEMPLATE_HEADER_ROW - 1
+                   );
+            bag.setPackagingListId(1L); // 为了通过验证，但不是实际的分包ID
             erpPackagingList.getBagList().add(bag);
             // TODO: 读取详情
-            List<ErpPackagingDetail> details = new ArrayList<>();
+            ExcelUtil<ErpPackagingDetail> excelUtil = new ExcelUtil<>(ErpPackagingDetail.class);
+            List<ErpPackagingDetail> details = excelUtil.importExcel(bagSheetName, workbook, BAG_TEMPLATE_HEADER_ROW);
+            for (ErpPackagingDetail detail : details) {
+                detail.setPackagingBagId(1L); // 为了通过验证，但不是实际的小包ID
+            }
             bag.setDetails(details);
 
             // 验证小包
@@ -355,6 +347,8 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void insertCascade(ErpPackagingList erpPackagingList) {
+        erpPackagingList.setCreationTime(DateUtils.getNowDate());
+        erpPackagingList.setOperator(SecurityUtils.getUsername());
         if (erpPackagingListMapper.insertErpPackagingList(erpPackagingList) <= 0) {
             throw new ServiceException("插入分包表失败");
         }

@@ -22,6 +22,8 @@ import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
+
+import com.ruoyi.common.utils.file.FileUploadUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -1641,7 +1643,7 @@ public class ExcelUtil<T>
      * @param column 获取单元格列号
      * @return 单元格值
      */
-    public Object getCellValue(Row row, int column)
+    public static Object getCellValue(Row row, int column)
     {
         if (row == null)
         {
@@ -1789,7 +1791,7 @@ public class ExcelUtil<T>
      * @param val 被格式化的日期对象
      * @return 格式化后的日期字符
      */
-    public String parseDateToStr(String dateFormat, Object val)
+    public static String parseDateToStr(String dateFormat, Object val)
     {
         if (val == null)
         {
@@ -1940,4 +1942,281 @@ public class ExcelUtil<T>
         }
         return sheetNames;
     }
+
+    // ... 已有代码 ...
+
+    /**
+     * 按先行后列顺序遍历一个 sheet 所有单元格，合并单元格只获取有数据的（左上角）单元格
+     *
+     * @param sheet 需要遍历的 sheet 对象
+     * @return 包含所有符合条件单元格的列表
+     */
+    public static List<Cell> getNonMergedCells(Sheet sheet) {
+        return getNonMergedCells(sheet, sheet.getFirstRowNum(), sheet.getLastRowNum());
+    }
+
+    /**
+     * 按先行后列顺序遍历一个 sheet 指定范围的单元格，合并单元格只获取有数据的（左上角）单元格
+     *
+     * @param sheet 需要遍历的 sheet 对象
+     * @param startRow 起始行号
+     * @param endRow 结束行号
+     * @return 包含所有符合条件单元格的列表
+     */
+    public static List<Cell> getNonMergedCells(Sheet sheet, int startRow, int endRow) {
+        List<Cell> cellList = new ArrayList<>();
+        // 获取合并区域列表
+        List<CellRangeAddress> mergedRegions = sheet.getMergedRegions();
+
+        // 确保起始行和结束行在有效范围内
+        startRow = Math.max(startRow, sheet.getFirstRowNum());
+        endRow = Math.min(endRow, sheet.getLastRowNum());
+
+        for (int rowIndex = startRow; rowIndex <= endRow; rowIndex++) {
+            Row row = sheet.getRow(rowIndex);
+            if (row == null) {
+                continue;
+            }
+
+            for (int colIndex = row.getFirstCellNum(); colIndex < row.getLastCellNum(); colIndex++) {
+                // 检查当前单元格是否属于合并区域
+                CellRangeAddress mergedRegion = getMergedRegion(mergedRegions, rowIndex, colIndex);
+                if (mergedRegion != null && !isMergedRegionTopLeft(mergedRegion, rowIndex, colIndex)) {
+                    // 如果是合并区域且不是左上角单元格，则跳过
+                    continue;
+                }
+
+                Cell cell = row.getCell(colIndex);
+                if (cell != null) {
+                    cellList.add(cell);
+                }
+            }
+        }
+        return cellList;
+    }
+
+    /**
+     * 检查指定单元格是否在合并区域内
+     *
+     * @param mergedRegions 合并区域列表
+     * @param rowIndex 行号
+     * @param colIndex 列号
+     * @return 若在合并区域内返回对应的 CellRangeAddress，否则返回 null
+     */
+    private static CellRangeAddress getMergedRegion(List<CellRangeAddress> mergedRegions, int rowIndex, int colIndex) {
+        for (CellRangeAddress region : mergedRegions) {
+            if (rowIndex >= region.getFirstRow() && rowIndex <= region.getLastRow()
+                    && colIndex >= region.getFirstColumn() && colIndex <= region.getLastColumn()) {
+                return region;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 检查指定单元格是否为合并区域的左上角单元格
+     *
+     * @param region 合并区域
+     * @param rowIndex 行号
+     * @param colIndex 列号
+     * @return 若是左上角单元格返回 true，否则返回 false
+     */
+    private static boolean isMergedRegionTopLeft(CellRangeAddress region, int rowIndex, int colIndex) {
+        return rowIndex == region.getFirstRow() && colIndex == region.getFirstColumn();
+    }
+
+    /**
+     * 从 sheet 提取一个实体类，按先行后列顺序遍历所有单元格
+     *
+     * @param sheet 需要提取数据的 sheet 对象
+     * @param clazz 实体类的 Class 对象
+     * @return 提取的实体类对象
+     */
+    public static <Type> Type extractEntityFromSheet(Sheet sheet, Class<Type> clazz) throws Exception {
+        return extractEntityFromSheet(sheet, clazz, sheet.getFirstRowNum(), sheet.getLastRowNum());
+    }
+
+    /**
+     * 从 sheet 指定范围提取一个实体类，按先行后列顺序遍历单元格
+     *
+     * @param sheet 需要提取数据的 sheet 对象
+     * @param clazz 实体类的 Class 对象
+     * @param startRow 起始行号
+     * @param endRow 结束行号
+     * @return 提取的实体类对象
+     */
+    public static <Type> Type extractEntityFromSheet(Sheet sheet, Class<Type> clazz, int startRow, int endRow) throws Exception {
+        Type entity = clazz.newInstance();
+        List<Cell> cells = getNonMergedCells(sheet, startRow, endRow);
+        Map<String, Field> fieldMap = getExcelNameToFieldMap(clazz);
+
+        for (int i = 0; i < cells.size() - 1; i++) {
+            Cell keyCell = cells.get(i);
+            Cell valueCell = cells.get(i + 1);
+            if (!keyCell.getCellType().equals(CellType.STRING)) {
+                continue;
+            }
+            String key = keyCell.getStringCellValue().trim();
+            key = key.replaceAll("[:：]$", "");
+
+            if (fieldMap.containsKey(key)) {
+                Field field = fieldMap.get(key);
+                Excel excel = field.getAnnotation(Excel.class);
+
+                if (excel.type() == Excel.Type.IMPORT || excel.type() == Excel.Type.ALL) {
+                    Object value = getCellValue(valueCell.getRow(), valueCell.getColumnIndex());
+                    value = processValue(value, valueCell, excel, sheet.getWorkbook(), field.getType());
+                    // 处理值类型转换
+                    Class<?> fieldType = field.getType();
+                    if (value instanceof String && fieldType != String.class) {
+                        value = convertValue((String) value, fieldType);
+                    }
+                    ReflectUtils.setFieldValue(entity, field.getName(), value);
+                }
+            }
+        }
+        return entity;
+    }
+
+    /**
+     * 处理单元格值，根据 @Excel 注解进行转换
+     *
+     * @param value 原始值
+     * @param cell 单元格对象
+     * @param excel 注解对象
+     * @param wb 工作簿对象
+     * @param fieldType 字段类型
+     * @return 处理后的值
+     * @throws Exception 异常
+     */
+    private static Object processValue(Object value, Cell cell, Excel excel, Workbook wb, Class<?> fieldType) throws Exception {
+        // 处理图片类型
+        if (excel.cellType() == Excel.ColumnType.IMAGE) {
+            value = processImage(cell, wb);
+        }
+
+        String strValue = value.toString();
+
+        // 处理日期格式
+        if (StringUtils.isNotEmpty(excel.dateFormat())) {
+            if (Date.class.isAssignableFrom(fieldType)) {
+                value = DateUtils.parseDate(strValue, excel.dateFormat());
+            } else {
+                strValue = parseDateToStr(excel.dateFormat(), value);
+                value = strValue;
+            }
+        }
+
+        // 处理字典类型
+        if (StringUtils.isNotEmpty(excel.dictType())) {
+            strValue = reverseDictByExp(strValue, excel.dictType(), excel.separator());
+            value = strValue;
+        }
+
+        // 处理读取内容转表达式
+        if (StringUtils.isNotEmpty(excel.readConverterExp())) {
+            strValue = reverseByExp(strValue, excel.readConverterExp(), excel.separator());
+            value = strValue;
+        }
+
+        // 处理后缀
+        if (StringUtils.isNotEmpty(excel.suffix())) {
+            strValue = strValue.replace(excel.suffix(), "");
+            value = strValue;
+        }
+
+        // 处理 BigDecimal 精度和舍入规则
+        if (excel.scale() >= 0) {
+            BigDecimal bd = new BigDecimal(strValue);
+            bd = bd.setScale(excel.scale(), excel.roundingMode());
+            value = bd;
+        }
+
+        return value;
+    }
+
+    /**
+     * 处理图片类型单元格
+     *
+     * @param cell 单元格对象
+     * @param wb 工作簿对象
+     * @return 图片文件路径
+     * @throws IOException 异常
+     */
+    private static String processImage(Cell cell, Workbook wb) throws IOException {
+        Map<String, PictureData> pictures = new HashMap<>();
+        if (wb instanceof HSSFWorkbook) {
+            pictures = getSheetPictures03((HSSFSheet) cell.getSheet(), (HSSFWorkbook) wb);
+        } else if (wb instanceof XSSFWorkbook) {
+            pictures = getSheetPictures07((XSSFSheet) cell.getSheet(), (XSSFWorkbook) wb);
+        }
+
+        if (StringUtils.isEmpty(pictures)) {
+            return "";
+        }
+        String picIndex = cell.getRowIndex() + "_" + cell.getColumnIndex();
+        PictureData image = pictures.get(picIndex);
+        if (image == null) {
+            return "";
+        }
+        byte[] data = image.getData();
+        return FileUtils.writeImportBytes(data);
+    }
+
+    /**
+     * 获取文件扩展名
+     *
+     * @param suggestExtension 建议的扩展名
+     * @return 扩展名
+     */
+    private static String getFileExtension(String suggestExtension) {
+        return suggestExtension.toLowerCase();
+    }
+
+    /**
+     * 获取 @Excel 注解的 name 字段到实体类 Field 的映射，支持查找基类中的字段
+     *
+     * @param clazz 实体类的 Class 对象
+     * @return 映射关系 Map
+     */
+    private static <Type> Map<String, Field> getExcelNameToFieldMap(Class<Type> clazz) {
+        Map<String, Field> fieldMap = new HashMap<>();
+        // 遍历类及其父类的所有字段
+        for (Class<?> currentClass = clazz; currentClass != Object.class; currentClass = currentClass.getSuperclass()) {
+            Field[] fields = currentClass.getDeclaredFields();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(Excel.class)) {
+                    Excel excel = field.getAnnotation(Excel.class);
+                    fieldMap.put(excel.name(), field);
+                }
+            }
+        }
+        return fieldMap;
+    }
+
+    /**
+     * 将字符串值转换为指定类型的值
+     *
+     * @param value 字符串值
+     * @param fieldType 目标类型
+     * @return 转换后的值
+     */
+    private static Object convertValue(String value, Class<?> fieldType) {
+        if (StringUtils.isEmpty(value) && fieldType != String.class) {
+            return null;
+        }
+        if (Integer.TYPE == fieldType || Integer.class == fieldType) {
+            return Integer.parseInt(value);
+        } else if (Long.TYPE == fieldType || Long.class == fieldType) {
+            return Long.parseLong(value);
+        } else if (Double.TYPE == fieldType || Double.class == fieldType) {
+            return Double.parseDouble(value);
+        } else if (Float.TYPE == fieldType || Float.class == fieldType) {
+            return Float.parseFloat(value);
+        } else if (Boolean.TYPE == fieldType || Boolean.class == fieldType) {
+            return Boolean.parseBoolean(value);
+        }
+        return value;
+    }
+
 }

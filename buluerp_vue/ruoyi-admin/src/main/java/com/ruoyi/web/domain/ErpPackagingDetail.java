@@ -32,7 +32,7 @@ public class ErpPackagingDetail {
 
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "模具编号")
-    @Example("ABC123")
+    @Example(Example.GEN_UUID)
     @ApiModelProperty("模具编号，用于标识模具 [list|POST|PUT|response]")
     @NotNull(groups = {Save.class}, message = "模具编号不能为空")
     private String mouldNumber;
@@ -50,7 +50,7 @@ public class ErpPackagingDetail {
     private String materialType;
 
     @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "颜色编号")
+    @Excel(name = "颜色")
     @Example("RGB")
     @ApiModelProperty("颜色编号，模具零件的颜色编码 [list|POST|PUT|response]")
     private String colorCode;

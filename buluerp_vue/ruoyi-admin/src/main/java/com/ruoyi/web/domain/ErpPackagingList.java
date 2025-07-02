@@ -23,11 +23,11 @@ import java.util.*;
 
 @ApiModel("分包表")
 public class ErpPackagingList extends BaseEntity {
-    @Excel(name = "序号")
+    @Excel(name = "分包序号")
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")
     private Long id;
 
-    @Excel(name = "订单ID")
+    @Excel(name = "订单编号")
     @Example("BLK20250528000001")
     @ApiModelProperty(value = "订单编号 [list|POST|PUT|response]")
     @NotNull(message = "订单编号不能为空", groups = {Save.class})
@@ -42,13 +42,13 @@ public class ErpPackagingList extends BaseEntity {
     @ApiModelProperty(value = "操作人 [list|response]")
     private String operator;
 
-    @Excel(name = "产品编号")
+    @Excel(name = "产品货号")
     @Example("1")
     @ApiModelProperty(value = "产品编号 [list|POST|PUT|response]")
     @NotNull(message = "产品编号不能为空", groups = {Save.class})
     private Long productId;
 
-    @Excel(name = "产品中文名称")
+    @Excel(name = "中文名称")
     @Example("厨房八件套")
     @ApiModelProperty(value = "产品中文名称 [list|POST|PUT|response]")
     private String productNameCn;
@@ -71,20 +71,17 @@ public class ErpPackagingList extends BaseEntity {
     @ApiModelProperty(value = "配件总数 [list|POST|PUT|response]")
     private Integer accessoryTotal;
 
-    @Excel(name = "是否是说明书")
-    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Excel(name = "说明书", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
     @Example("true")
     @ApiModelProperty(value = "是否是说明书 [list|POST|PUT|response]")
     private Boolean isManual;
 
-    @Excel(name = "是否是人仔")
-    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Excel(name = "人仔", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
     @Example("false")
     @ApiModelProperty(value = "是否是人仔 [list|POST|PUT|response]")
     private Boolean isMinifigure;
 
-    @Excel(name = "是否是起件器")
-    @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class})
+    @Excel(name = "起件器", readConverterExp = ExcelData.CHECKED_CHAR + "=是," + ExcelData.UNCHECKED_CHAR + "=否")
     @Example("false")
     @ApiModelProperty(value = "是否是起件器 [list|POST|PUT|response]")
     private Boolean isTool;
@@ -184,51 +181,51 @@ public class ErpPackagingList extends BaseEntity {
         this.accessoryTotal = accessoryTotal;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getManual() {
+    public  Boolean getManual() {
         return isManual;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsManual() {
+    public  Boolean getIsManual() {
         return isManual;
     }
 
-    public void setManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean manual) {
+    public void setManual( Boolean manual) {
         isManual = manual;
     }
 
-    public void setIsManual(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean manual) {
+    public void setIsManual( Boolean manual) {
         isManual = manual;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getMinifigure() {
+    public  Boolean getMinifigure() {
         return isMinifigure;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsMinifigure() {
+    public  Boolean getIsMinifigure() {
         return isMinifigure;
     }
 
-    public void setMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean minifigure) {
+    public void setMinifigure( Boolean minifigure) {
         isMinifigure = minifigure;
     }
 
-    public void setIsMinifigure(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean isMinifigure) {
+    public void setIsMinifigure( Boolean isMinifigure) {
         this.isMinifigure = isMinifigure;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getTool() {
+    public  Boolean getTool() {
         return isTool;
     }
 
-    public @Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean getIsTool() {
+    public  Boolean getIsTool() {
         return isTool;
     }
 
-    public void setTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean tool) {
+    public void setTool( Boolean tool) {
         isTool = tool;
     }
 
-    public void setIsTool(@Range(min = 0, max = 1, message = "值无效：是否有说明书。有效值为“是”或“否”", groups = {Save.class, Update.class}) Boolean isTool) {
+    public void setIsTool( Boolean isTool) {
         this.isTool = isTool;
     }
 

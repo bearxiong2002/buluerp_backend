@@ -19,6 +19,6 @@ public interface IErpPackagingListService {
 
     void exportExcel(OutputStream outputStream, ErpPackagingList erpPackagingList) throws IOException;
     void exportExcel(HttpServletResponse response, ErpPackagingList erpPackagingList) throws IOException;
-    ErpPackagingList importExcel(InputStream inputStream) throws IOException;
+    ErpPackagingList importExcel(InputStream inputStream) throws Exception;
     void insertCascade(ErpPackagingList erpPackagingList);
 }
