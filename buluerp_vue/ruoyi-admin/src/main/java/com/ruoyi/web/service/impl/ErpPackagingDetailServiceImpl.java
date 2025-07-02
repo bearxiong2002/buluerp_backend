@@ -32,11 +32,11 @@ public class ErpPackagingDetailServiceImpl
 
     @Override
     public void checkUnique(ErpPackagingDetail entity) {
-        LambdaQueryWrapper<ErpPackagingDetail> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ErpPackagingDetail::getMouldNumber, entity.getMouldNumber());
-        if (baseMapper.selectOne(queryWrapper) != null) {
-            throw new ServiceException("此模号已存在：" + entity.getMouldNumber());
-        }
+        // LambdaQueryWrapper<ErpPackagingDetail> queryWrapper = new LambdaQueryWrapper<>();
+        // queryWrapper.eq(ErpPackagingDetail::getMouldNumber, entity.getMouldNumber());
+        // if (baseMapper.selectOne(queryWrapper) != null) {
+        //     throw new ServiceException("此模号已存在：" + entity.getMouldNumber());
+        // }
     }
 
     @Override
