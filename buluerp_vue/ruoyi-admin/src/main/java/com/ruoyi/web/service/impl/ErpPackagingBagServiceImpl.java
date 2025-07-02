@@ -67,6 +67,7 @@ public class ErpPackagingBagServiceImpl
         saveOrUpdate(entity);
         for (ErpPackagingDetail detail : entity.getDetails()) {
             detail.setPackagingBagId(entity.getId());
+            erpPackagingDetailService.checkUnique(detail);
             erpPackagingDetailService.saveOrUpdate(detail);
         }
     }

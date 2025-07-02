@@ -35,7 +35,7 @@ public class ErpPackagingDetailServiceImpl
         LambdaQueryWrapper<ErpPackagingDetail> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpPackagingDetail::getMouldNumber, entity.getMouldNumber());
         if (baseMapper.selectOne(queryWrapper) != null) {
-            throw new ServiceException("此模号已存在");
+            throw new ServiceException("此模号已存在：" + entity.getMouldNumber());
         }
     }
 
