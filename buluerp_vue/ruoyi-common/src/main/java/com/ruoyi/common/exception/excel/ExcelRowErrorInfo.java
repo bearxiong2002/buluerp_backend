@@ -1,9 +1,19 @@
 package com.ruoyi.common.exception.excel;
 
 public class ExcelRowErrorInfo {
+    String sheetName;
+
     Integer rowNum;
 
     String errorMsg;
+
+    public String getSheetName() {
+        return sheetName;
+    }
+
+    public void setSheetName(String sheetName) {
+        this.sheetName = sheetName;
+    }
 
     public String getErrorMsg() {
         return errorMsg;

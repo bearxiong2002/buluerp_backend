@@ -16,6 +16,8 @@ public interface IErpPackagingBagService extends IService<ErpPackagingBag> {
 
     List<ErpPackagingBag> listByPackagingList(Long listId);
 
+    void insertCascade(ErpPackagingBag entity);
+
     boolean deleteCascadeByListIds(Long[] listIds);
 
     boolean deleteCascade(Long[] ids);

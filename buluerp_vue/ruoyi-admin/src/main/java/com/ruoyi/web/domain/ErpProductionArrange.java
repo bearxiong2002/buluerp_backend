@@ -57,14 +57,6 @@ public class ErpProductionArrange {
     @ApiModelProperty(notes = "[GET|list|PUT|DELETE|response]")
     private Long id;
 
-    @Excel(name = "订单编码")
-    @ApiModelProperty(value = "订单编码，唯一标识订单 [list|POST|PUT|response]", dataType = "String", required = true)
-    @NotBlank(groups = Save.class, message = "订单编码不能为空白")
-    @NullOrNotBlank(groups = Update.class, message = "订单编码不能为空白")
-    @TableField(condition = SqlCondition.LIKE)
-    @Example("BLK20250528000001")
-    private String orderCode;
-
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间，记录创建时的时间戳 [list|response]", dataType = "Date")
@@ -75,29 +67,6 @@ public class ErpProductionArrange {
     @ApiModelProperty(value = "操作人，执行排产操作的人员 [list|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     private String operator;
-
-    @Excel(name = "产品编号")
-    @ApiModelProperty(value = "产品编号，产品在系统中的编号 [list|POST|PUT|response]", dataType = "String", required = true)
-    @Example("1")
-    private Long productId;
-
-    @Excel(name = "布产编号")
-    @ApiModelProperty(value = "布产编号 [list|POST|PUT|response]", dataType = "Integer", required = true)
-    @Example("1")
-    private Integer productionId;
-
-    @JsonFormat(pattern = "yyyy-MM-dd")
-    @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
-    @ApiModelProperty(value = "布产时间，计划开始生产的时间 [list|POST|PUT|response]", dataType = "Date")
-    @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
-    @Example("2025-05-28")
-    private Date productionTime;
-
-    @Excel(name = "产品编码")
-    @ApiModelProperty(value = "产品编码，产品的具体编码 [list|POST|PUT|response]", dataType = "String")
-    @TableField(condition = SqlCondition.LIKE)
-    @Example("123")
-    private String productCode;
 
     @Excel(name = "模具编号")
     @ApiModelProperty(value = "模具编号，使用的模具编号 [list|POST|PUT|response]", dataType = "String")
@@ -127,7 +96,7 @@ public class ErpProductionArrange {
     @ApiModelProperty(value = "出模数(pcs)，每个模具的产出数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 0, message = "出模数(pcs)不能小于0", groups = {Save.class, Update.class})
     @Example("7873629")
-    private Integer mouldOutput;
+    private Long mouldOutput;
 
     @Excel(name = "单重(g)")
     @ApiModelProperty(value = "单重(g)，单个产品的重量，单位为克 [list|POST|PUT|response]", dataType = "Double")
@@ -139,13 +108,13 @@ public class ErpProductionArrange {
     @ApiModelProperty(value = "排产数量(pcs)，计划生产的总数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 1, message = "排产数量(pcs)不能小于1", groups = {Save.class, Update.class})
     @Example("1234")
-    private Integer productionQuantity;
+    private Long productionQuantity;
 
     @Excel(name = "排产模数/模")
     @ApiModelProperty(value = "排产模数（模），计划使用的模具数量 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 1, message = "排产模数（模）不能小于1", groups = {Save.class, Update.class})
     @Example("123")
-    private Integer productionMouldCount;
+    private Long productionMouldCount;
 
     @Excel(name = "排产重量(KG)")
     @ApiModelProperty(value = "排产重量(KG)，计划生产的总重量，单位为千克 [list|POST|PUT|response]", dataType = "Double")
@@ -185,14 +154,6 @@ public class ErpProductionArrange {
         this.id = id;
     }
 
-    public String getOrderCode() {
-        return orderCode;
-    }
-
-    public void setOrderCode(String orderCode) {
-        this.orderCode = orderCode;
-    }
-
     public Date getCreationTime() {
         return creationTime;
     }
@@ -207,30 +168,6 @@ public class ErpProductionArrange {
 
     public void setOperator(String operator) {
         this.operator = operator;
-    }
-
-    public Long getProductId() {
-        return productId;
-    }
-
-    public void setProductId(Long productId) {
-        this.productId = productId;
-    }
-
-    public Date getProductionTime() {
-        return productionTime;
-    }
-
-    public void setProductionTime(Date productionTime) {
-        this.productionTime = productionTime;
-    }
-
-    public String getProductCode() {
-        return productCode;
-    }
-
-    public void setProductCode(String productCode) {
-        this.productCode = productCode;
     }
 
     public String getMouldNumber() {
@@ -265,11 +202,11 @@ public class ErpProductionArrange {
         this.materialType = materialType;
     }
 
-    public Integer getMouldOutput() {
+    public Long getMouldOutput() {
         return mouldOutput;
     }
 
-    public void setMouldOutput(Integer mouldOutput) {
+    public void setMouldOutput(Long mouldOutput) {
         this.mouldOutput = mouldOutput;
     }
 
@@ -281,19 +218,19 @@ public class ErpProductionArrange {
         this.singleWeight = singleWeight;
     }
 
-    public Integer getProductionQuantity() {
+    public Long getProductionQuantity() {
         return productionQuantity;
     }
 
-    public void setProductionQuantity(Integer productionQuantity) {
+    public void setProductionQuantity(Long productionQuantity) {
         this.productionQuantity = productionQuantity;
     }
 
-    public Integer getProductionMouldCount() {
+    public Long getProductionMouldCount() {
         return productionMouldCount;
     }
 
-    public void setProductionMouldCount(Integer productionMouldCount) {
+    public void setProductionMouldCount(Long productionMouldCount) {
         this.productionMouldCount = productionMouldCount;
     }
 
@@ -335,13 +272,5 @@ public class ErpProductionArrange {
 
     public void setPicture(MultipartFile picture) {
         this.picture = picture;
-    }
-
-    public Integer getProductionId() {
-        return productionId;
-    }
-
-    public void setProductionId(Integer productionId) {
-        this.productionId = productionId;
     }
 }

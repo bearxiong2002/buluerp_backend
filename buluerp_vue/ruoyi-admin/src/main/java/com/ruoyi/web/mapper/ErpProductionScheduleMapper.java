@@ -15,4 +15,9 @@ public interface ErpProductionScheduleMapper extends BaseMapper<ErpProductionSch
             @Param("productionScheduleId") Long productionScheduleId,
             @Param("materialIds") List<Long> materialIds
     );
+
+    int attatchToArrange(
+            @Param("productionArrangeId") Long productionArrangeId,
+            @Param("productionScheduleIds") List<Long> productionScheduleIds
+    );
 }

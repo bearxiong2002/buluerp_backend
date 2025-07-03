@@ -3,9 +3,12 @@ package com.ruoyi.web.service.impl;
 import java.io.IOException;
 import java.util.List;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.mapper.ErpPurchaseInfoMapper;
+import com.ruoyi.web.service.IErpMaterialInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +27,24 @@ public class ErpPurchaseInfoServiceImpl
         extends ServiceImpl<ErpPurchaseInfoMapper, ErpPurchaseInfo>
         implements IErpPurchaseInfoService
 {
+    @Autowired
+    private IErpMaterialInfoService erpMaterialInfoService;
+
+    @Override
+    public List<ErpPurchaseInfo> selectErpPurchaseInfoByMaterialType(String materialType) {
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpPurchaseInfo::getMaterialType, materialType);
+        return this.list(queryWrapper);
+    }
+
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
         int count = 0;
         for (ErpPurchaseInfo erpPurchaseInfo : list) {
+            if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
+                throw new ServiceException("物料类型不存在，请先添加相应物料信息");
+            }
             if (erpPurchaseInfo.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
                 erpPurchaseInfo.setPictureUrl(url);
@@ -43,6 +59,9 @@ public class ErpPurchaseInfoServiceImpl
     public int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
         int count = 0;
         for (ErpPurchaseInfo erpPurchaseInfo : list) {
+            if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
+                throw new ServiceException("物料类型不存在，请先添加相应物料信息");
+            }
             if (erpPurchaseInfo.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
                 erpPurchaseInfo.setPictureUrl(url);
@@ -50,5 +69,10 @@ public class ErpPurchaseInfoServiceImpl
             count += baseMapper.updateById(erpPurchaseInfo);
         }
         return count;
+    }
+
+    @Override
+    public boolean deleteErpPurchaseInfoByMaterialIds(Long[] ids) {
+        return baseMapper.deleteByMaterialIds(ids) > 0;
     }
 }

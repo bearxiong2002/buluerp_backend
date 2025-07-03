@@ -51,7 +51,10 @@ public class ErpPackagingBagServiceImpl
     }
 
     public List<ErpPackagingBag> fill(List<ErpPackagingBag> entities) {
-        return entities.stream().map(this::fill).collect(Collectors.toList());
+        for (ErpPackagingBag entity : entities) {
+            fill(entity);
+        }
+        return entities;
     }
 
     @Override
@@ -59,6 +62,17 @@ public class ErpPackagingBagServiceImpl
         LambdaQueryWrapper<ErpPackagingBag> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpPackagingBag::getPackagingListId, listId);
         return fill(list(queryWrapper));
+    }
+
+    @Override
+    @Transactional
+    public void insertCascade(ErpPackagingBag entity) {
+        saveOrUpdate(entity);
+        for (ErpPackagingDetail detail : entity.getDetails()) {
+            detail.setPackagingBagId(entity.getId());
+            erpPackagingDetailService.checkUnique(detail);
+            erpPackagingDetailService.saveOrUpdate(detail);
+        }
     }
 
     @Override

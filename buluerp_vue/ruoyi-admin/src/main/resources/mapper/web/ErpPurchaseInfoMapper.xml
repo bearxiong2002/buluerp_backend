@@ -8,16 +8,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <id property="id" column="id" />
         <result property="purchaseCode"    column="purchase_code"    />
         <result property="pictureUrl"    column="picture_url"    />
-        <result property="mouldNumber"    column="mould_number"    />
-        <result property="singleWeight"    column="single_weight"    />
         <result property="unitPrice"    column="unit_price"    />
-        <result property="material"    column="material"    />
+        <result property="materialType"    column="material_type"    />
         <result property="supplier"    column="supplier"    />
-        <result property="specificationName"    column="specification_name"    />
     </resultMap>
 
     <sql id="selectErpPurchaseInfoVo">
-        select id, purchase_code, picture_url, mould_number, single_weight, unit_price, material, supplier, specification_name from erp_purchase_info
+        select id, purchase_code, picture_url, unit_price, material_type, supplier from erp_purchase_info
     </sql>
 
     <select id="selectErpPurchaseInfoList" parameterType="ErpPurchaseInfo" resultMap="ErpPurchaseInfoResult">
@@ -25,13 +22,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <where>
             <if test="id != null">and id = #{id}</if>
             <if test="purchaseCode != null  and purchaseCode != ''"> and purchase_code = #{purchaseCode}</if>
-            <if test="pictureUrl != null  and pictureUrl != ''"> and picture_url = #{pictureUrl}</if>
-            <if test="mouldNumber != null  and mouldNumber != ''"> and mould_number = #{mouldNumber}</if>
-            <if test="singleWeight != null "> and single_weight = #{singleWeight}</if>
+            <if test="pictureUrl != null  and pictureUrl != ''"> and picture_url = #{pictureUrl}</if>]
             <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
-            <if test="material != null  and material != ''"> and material = #{material}</if>
+            <if test="materialType != null and materialType != ''"> and material_type = #{materialType}</if>
             <if test="supplier != null  and supplier != ''"> and supplier = #{supplier}</if>
-            <if test="specificationName != null  and specificationName != ''"> and specification_name like concat('%', #{specificationName}, '%')</if>
         </where>
     </select>
     
@@ -52,22 +46,16 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="purchaseCode != null">purchase_code,</if>
             <if test="pictureUrl != null">picture_url,</if>
-            <if test="mouldNumber != null">mould_number,</if>
-            <if test="singleWeight != null">single_weight,</if>
             <if test="unitPrice != null">unit_price,</if>
-            <if test="material != null">material,</if>
+            <if test="materialType != null">materialType,</if>
             <if test="supplier != null">supplier,</if>
-            <if test="specificationName != null">specification_name,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="purchaseCode != null">#{purchaseCode},</if>
             <if test="pictureUrl != null">#{pictureUrl},</if>
-            <if test="mouldNumber != null">#{mouldNumber},</if>
-            <if test="singleWeight != null">#{singleWeight},</if>
             <if test="unitPrice != null">#{unitPrice},</if>
-            <if test="material != null">#{material},</if>
+            <if test="materialType != null">#{materialType},</if>
             <if test="supplier != null">#{supplier},</if>
-            <if test="specificationName != null">#{specificationName},</if>
          </trim>
     </insert>
 
@@ -76,12 +64,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <trim prefix="SET" suffixOverrides=",">
             <if test="purchaseCode != null">purchase_code = #{purchaseCode},</if>
             <if test="pictureUrl != null">picture_url = #{pictureUrl},</if>
-            <if test="mouldNumber != null">mould_number = #{mouldNumber},</if>
-            <if test="singleWeight != null">single_weight = #{singleWeight},</if>
             <if test="unitPrice != null">unit_price = #{unitPrice},</if>
-            <if test="material != null">material = #{material},</if>
+            <if test="materialType != null">material_type = #{materialType},</if>
             <if test="supplier != null">supplier = #{supplier},</if>
-            <if test="specificationName != null">specification_name = #{specificationName},</if>
         </trim>
         where id  = #{id}
     </update>
@@ -95,5 +80,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </delete>
+    <delete id="deleteByMaterialIds">
+        delete from erp_purchase_info where material_type in (
+            select material_type from erp_material_info
+            where id in
+            <foreach item="id" collection="array" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        )
     </delete>
 </mapper>

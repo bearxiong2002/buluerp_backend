@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
@@ -13,6 +14,7 @@ import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @ApiModel("分包袋")
@@ -29,33 +31,51 @@ public class ErpPackagingBag {
     @NotNull(message = "分包列表编号不能为空", groups = {Save.class})
     private Long packagingListId;
 
-    @Excel(name = "本包重量")
+    @Excel(name = "本袋重量")
     @Example("10.0")
-    @ApiModelProperty("本包重量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "本包重量不能小于0", groups = {Save.class, Update.class})
+    @ApiModelProperty("本袋重量 [list|POST|PUT|response]")
+    @NotNull(message = "本袋重量不能为空", groups = {Save.class})
+    @Range(min = 0, message = "本袋重量不能小于0", groups = {Save.class, Update.class})
     private Double bagWeight;
 
-    @Excel(name = "本包规格")
+    @Excel(name = "本袋规格")
     @Example("ABC")
     @TableField(condition = SqlCondition.LIKE)
-    @ApiModelProperty("本包规格 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋规格 [list|POST|PUT|response]")
+    @NotNull(message = "本袋规格不能为空", groups = {Save.class})
     private String bagSpecification;
 
-    @Excel(name = "本包配件/种")
+    @Excel(name = "本袋配件")
     @Example("10")
-    @ApiModelProperty("本包配件/种 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋配件/种 [list|POST|PUT|response]")
     @Range(min = 0, message = "本包配件/种不能小于0", groups = {Save.class, Update.class})
+    @NotNull(message = "本袋配件不能为空", groups = {Save.class})
     private Integer bagAccessory;
 
-    @Excel(name = "本包数量")
+    @Excel(name = "本袋数量")
     @Example("10")
-    @ApiModelProperty("本包数量 [list|POST|PUT|response]")
+    @ApiModelProperty("本袋数量 [list|POST|PUT|response]")
     @Range(min = 0, message = "本包数量不能小于0", groups = {Save.class, Update.class})
+    @NotNull(message = "本袋数量不能为空", groups = {Save.class})
     private Integer bagQuantity;
 
     @TableField(exist = false)
     @ApiModelProperty("分包明细列表 [response]")
     private List<ErpPackagingDetail> details;
+
+    public static ErpPackagingBag createExample() {
+        try {
+            ErpPackagingBag example = BaseEntity.createExample(ErpPackagingBag.class);
+            List<ErpPackagingDetail> details = new ArrayList<>();
+            for (int i = 0; i < 3; i++) {
+                details.add(BaseEntity.createExample(ErpPackagingDetail.class));
+            }
+            example.setDetails(details);
+            return example;
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public Long getId() {
         return id;
