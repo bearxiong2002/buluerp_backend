@@ -34,12 +34,12 @@ public class ErpProducts {
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "创建时间")
+    @Excel(name = "创建时间",dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;
 
     /** $column.columnComment */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
-    @Excel(name = "更新时间")
+    @Excel(name = "更新时间",dateFormat = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;
 
     @Excel(name = "图片", cellType = Excel.ColumnType.IMAGE, height = 80)

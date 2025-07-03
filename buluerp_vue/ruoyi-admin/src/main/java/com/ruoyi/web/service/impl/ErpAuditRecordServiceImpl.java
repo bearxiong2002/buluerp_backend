@@ -73,7 +73,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
      * @param auditType 审核类型（可选）
      * @param auditId 审核对象ID（可选）
      * @param pendingOnly 是否只查询待审核记录（可选）
-     * @param auditor 审核人（可选，用于查询特定审核人的待审核记录）
+     * @param dateParams 时间范围查询参数
      * @return 审核记录列表
      */
     @Override
@@ -81,7 +81,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                                                   Integer auditType, 
                                                   Long auditId, 
                                                   Boolean pendingOnly, 
-                                                  String auditor)
+                                                  Map<String, Date> dateParams)
     {
         try {
             // 使用 MyBatis-Plus 的 LambdaQueryWrapper 进行查询
@@ -100,16 +100,30 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 if (auditType != null) {
                     wrapper.eq(ErpAuditRecord::getAuditType, auditType);
                 }
-                if (StringUtils.hasText(auditor)) {
-                    wrapper.eq(ErpAuditRecord::getAuditor, auditor);
-                }
                 wrapper.orderByDesc(ErpAuditRecord::getCreateTime); // 按创建时间倒序
                 return erpAuditRecordMapper.selectList(wrapper);
             }
             
             // 设置可选查询条件
-            if (erpAuditRecord != null && erpAuditRecord.getId() != null) {
-                wrapper.eq(ErpAuditRecord::getId, erpAuditRecord.getId());
+            if (erpAuditRecord != null) {
+                if (erpAuditRecord.getId() != null) {
+                    wrapper.eq(ErpAuditRecord::getId, erpAuditRecord.getId());
+                }
+                if (erpAuditRecord.getConfirm() != null) {
+                    wrapper.eq(ErpAuditRecord::getConfirm, erpAuditRecord.getConfirm());
+                }
+                if (erpAuditRecord.getPreStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getPreStatus, erpAuditRecord.getPreStatus());
+                }
+                if (erpAuditRecord.getToStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getToStatus, erpAuditRecord.getToStatus());
+                }
+                if (StringUtils.hasText(erpAuditRecord.getAuditor())) {
+                    wrapper.eq(ErpAuditRecord::getAuditor, erpAuditRecord.getAuditor());
+                }
+                if (StringUtils.hasText(erpAuditRecord.getAuditComment())) {
+                    wrapper.like(ErpAuditRecord::getAuditComment, erpAuditRecord.getAuditComment());
+                }
             }
             
             if (auditType != null) {
@@ -119,21 +133,23 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (auditId != null) {
                 wrapper.eq(ErpAuditRecord::getAuditId, auditId);
             }
-            
-            if (StringUtils.hasText(auditor)) {
-                wrapper.eq(ErpAuditRecord::getAuditor, auditor);
-            }
-            
-            // 如果传入了 erpAuditRecord 对象，设置其他查询条件
-            if (erpAuditRecord != null) {
-                if (erpAuditRecord.getConfirm() != null) {
-                    wrapper.eq(ErpAuditRecord::getConfirm, erpAuditRecord.getConfirm());
+
+            // 处理时间范围查询
+            if (dateParams != null) {
+                // 创建时间范围
+                if (dateParams.get("createTimeStart") != null) {
+                    wrapper.ge(ErpAuditRecord::getCreateTime, dateParams.get("createTimeStart"));
                 }
-                if (erpAuditRecord.getPreStatus() != null) {
-                    wrapper.eq(ErpAuditRecord::getPreStatus, erpAuditRecord.getPreStatus());
+                if (dateParams.get("createTimeEnd") != null) {
+                    wrapper.le(ErpAuditRecord::getCreateTime, dateParams.get("createTimeEnd"));
                 }
-                if (erpAuditRecord.getToStatus() != null) {
-                    wrapper.eq(ErpAuditRecord::getToStatus, erpAuditRecord.getToStatus());
+                
+                // 审核时间范围
+                if (dateParams.get("checkTimeStart") != null) {
+                    wrapper.ge(ErpAuditRecord::getCheckTime, dateParams.get("checkTimeStart"));
+                }
+                if (dateParams.get("checkTimeEnd") != null) {
+                    wrapper.le(ErpAuditRecord::getCheckTime, dateParams.get("checkTimeEnd"));
                 }
             }
             
