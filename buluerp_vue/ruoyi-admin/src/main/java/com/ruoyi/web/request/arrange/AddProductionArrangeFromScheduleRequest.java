@@ -11,9 +11,9 @@ import java.util.List;
 
 public class AddProductionArrangeFromScheduleRequest {
     @ApiModelProperty(value = "布产ID列表")
-    @NotNull(message = "排产ID列表不能为空", groups = {Save.class})
-    @Size(min = 1, message = "排产ID列表不能为空", groups = {Save.class})
-    private List<Long> sheduleIds;
+    @NotNull(message = "布产ID列表不能为空", groups = {Save.class})
+    @Size(min = 1, message = "布产ID列表不能为空", groups = {Save.class})
+    private List<Long> scheduleIds;
 
     @ApiModelProperty(value = "排产图片URL")
     private String pictureUrl;
@@ -29,14 +29,6 @@ public class AddProductionArrangeFromScheduleRequest {
 
     @ApiModelProperty(value = "备注")
     private String remarks;
-
-    public List<Long> getSheduleIds() {
-        return sheduleIds;
-    }
-
-    public void setSheduleIds(List<Long> sheduleIds) {
-        this.sheduleIds = sheduleIds;
-    }
 
     public String getPictureUrl() {
         return pictureUrl;
@@ -76,5 +68,13 @@ public class AddProductionArrangeFromScheduleRequest {
 
     public void setMouldOutput(Long mouldOutput) {
         this.mouldOutput = mouldOutput;
+    }
+
+    public @NotNull(message = "布产ID列表不能为空", groups = {Save.class}) @Size(min = 1, message = "布产ID列表不能为空", groups = {Save.class}) List<Long> getScheduleIds() {
+        return scheduleIds;
+    }
+
+    public void setScheduleIds(@NotNull(message = "布产ID列表不能为空", groups = {Save.class}) @Size(min = 1, message = "布产ID列表不能为空", groups = {Save.class}) List<Long> scheduleIds) {
+        this.scheduleIds = scheduleIds;
     }
 }
