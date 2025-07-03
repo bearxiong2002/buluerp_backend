@@ -54,7 +54,7 @@ public class ErpAuditRecordController extends BaseController
     @ApiOperation(value = "查询审核记录列表", notes = "支持多条件组合查询，所有参数都是可选的")
     @ApiImplicitParams({
         @ApiImplicitParam(name = "id", value = "审核记录ID", paramType = "query", dataType = "Long"),
-        @ApiImplicitParam(name = "auditType", value = "审核类型（1=订单审核，2=布产审核，3=分包审核，4=采购审核）", paramType = "query", dataType = "Integer"),
+        @ApiImplicitParam(name = "auditType", value = "审核类型（1=订单审核，2=采购审核，3=布产审核，4=分包审核）", paramType = "query", dataType = "Integer"),
         @ApiImplicitParam(name = "auditId", value = "审核对象ID", paramType = "query", dataType = "Long"),
         @ApiImplicitParam(name = "preStatus", value = "审核前状态", paramType = "query", dataType = "Integer"),
         @ApiImplicitParam(name = "toStatus", value = "目标状态", paramType = "query", dataType = "Integer"),

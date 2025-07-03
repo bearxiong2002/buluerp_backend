@@ -6,6 +6,8 @@ import java.math.BigDecimal;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
+
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -177,22 +179,29 @@ public class BaseEntity implements Serializable
             Example exampleAnnotation = field.getAnnotation(Example.class);
             if (exampleAnnotation != null) {
                 Class<?> type = field.getType();
-                if (String.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), exampleAnnotation.value());
+                String value = exampleAnnotation.value();
+                if (value.equals(Example.GEN_UUID)) {
+                    if (String.class == type) {
+                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID().toString());
+                    } else if (UUID.class == type) {
+                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID());
+                    }
+                } else if (String.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), value);
                 } else if (Integer.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toInt(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toInt(value));
                 } else if (Long.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toLong(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toLong(value));
                 } else if (Double.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toDouble(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toDouble(value));
                 } else if (Float.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toFloat(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toFloat(value));
                 } else if (BigDecimal.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBigDecimal(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBigDecimal(value));
                 } else if (Date.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), DateUtils.parseDate(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), DateUtils.parseDate(value));
                 } else if (Boolean.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBool(exampleAnnotation.value()));
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBool(value));
                 } else {
                     throw new UnsupportedExampleTypeException("不支持的示例值类型");
                 }

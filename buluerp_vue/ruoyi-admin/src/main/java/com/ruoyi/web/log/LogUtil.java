@@ -208,7 +208,7 @@ public class LogUtil {
     public static final Pattern UPDATE_PATTERN
             = Pattern.compile("update\\s+(.+)\\s+set\\s+(.+)\\s+where\\s+(.+);?", Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
 
-    public static ResultSet selectOldValuesBeforeUpdate(Executor executor, MappedStatement originalStatement, Object parameter) throws SQLException {
+    public static ResultSet selectOldValuesBeforeUpdate(Executor executor, MappedStatement originalStatement, Object parameter, List<String> setClausesRecv) throws SQLException {
         // 提取 UPDATE 表名 SET ... WHERE ... 中的旧值
         BoundSql originalBoundSql = originalStatement.getBoundSql(parameter);
         String originalSql = originalBoundSql.getSql();
@@ -217,20 +217,23 @@ public class LogUtil {
         if (matcher.find()) {
             String tableName = matcher.group(1).trim();
             String setClause = matcher.group(2);
-            String[] setClauses = Arrays.stream(setClause.split(","))
+            List<String> setClauses = Arrays.stream(setClause.split(","))
                     .map(String::trim)
-                    .toArray(String[]::new);
-            String[] fields = Arrays.stream(setClauses)
+                    .collect(Collectors.toList());
+            if (setClausesRecv != null) {
+                setClausesRecv.addAll(setClauses);
+            }
+            List<String> fields = setClauses.stream()
                     .map(clause -> clause.split("=")[0].trim())
-                    .toArray(String[]::new);
+                    .collect(Collectors.toList());
             String fieldsString = String.join(",", fields);
             String identifierColumnName = camelCaseToSnakeCase(
                     getIdentifierFieldName(tableName)
             );
-            if (Arrays.stream(fields).noneMatch(field -> field.equals(identifierColumnName) || field.endsWith("." + identifierColumnName))) {
+            if (fields.stream().noneMatch(field -> field.equals(identifierColumnName) || field.endsWith("." + identifierColumnName))) {
                 fieldsString = fieldsString + "," + tableName + "." + identifierColumnName;
             }
-            long setParamsCount = Arrays.stream(setClauses)
+            long setParamsCount = setClauses.stream()
                     .map(clause -> clause.split("=")[1].trim())
                     .filter(param -> param.equals("?"))
                     .count();
@@ -288,17 +291,34 @@ public class LogUtil {
         }
 
         Executor executor = (Executor) invocation.getTarget();
-        try (ResultSet oldValues = selectOldValuesBeforeUpdate(executor, mappedStatement, parameter)) {
+        List<String> setClauses = new ArrayList<>();
+        try (ResultSet oldValues = selectOldValuesBeforeUpdate(executor, mappedStatement, parameter, setClauses)) {
             if (oldValues == null) {
                 return changes;
             }
             ResultSetMetaData metaData = oldValues.getMetaData();
 
+            Map<String, Object> newValues = new HashMap<>();
+            int paramIndex = 0;
+            for (String setClause : setClauses) {
+                String[] setClauseParts = setClause.split("=");
+                if (setClauseParts.length == 2) {
+                    String fieldName = setClauseParts[0].trim();
+                    String value = setClauseParts[1].trim();
+                    if (value.startsWith("?")) {
+                        ParameterMapping parameterMapping = parameterMappings.get(paramIndex++);
+                        newValues.put(fieldName, getValueByPath(parameter, parameterMapping.getProperty()));
+                    } else {
+                        newValues.put(fieldName, value);
+                    }
+                }
+            }
             while (oldValues.next()) {
                 String identifierValue = oldValues.getString(camelCaseToSnakeCase(identifierFieldName));
                 List<UpdateLog.PropertyChange> propertyChanges = new ArrayList<>();
                 for (int i = 1; i <= metaData.getColumnCount(); i++) {
-                    String fieldName = snakeCaseToCamelCase(metaData.getColumnName(i), false);
+                    String columnName = metaData.getColumnName(i);
+                    String fieldName = snakeCaseToCamelCase(columnName, false);
                     if (identifierFieldName.equals(fieldName)) {
                         continue;
                     }
@@ -309,10 +329,11 @@ public class LogUtil {
                     UpdateLog.PropertyChange propertyChange = new UpdateLog.PropertyChange();
                     propertyChange.setName(fieldName);
                     propertyChange.setOldValue(oldValues.getObject(i));
-                    parameterMappings.stream()
-                            .filter(mapping -> mapping.getProperty().equals(fieldName) || mapping.getProperty().endsWith("." + fieldName))
-                            .findFirst()
-                            .ifPresent(fieldMapping -> propertyChange.setNewValue(getValueByPath(parameter, fieldMapping.getProperty())));
+                    if (newValues.containsKey(columnName)) {
+                        propertyChange.setNewValue(newValues.get(columnName));
+                    } else {
+                        continue;
+                    }
                     propertyChanges.add(propertyChange);
                 }
                 if (propertyChanges.isEmpty()) {

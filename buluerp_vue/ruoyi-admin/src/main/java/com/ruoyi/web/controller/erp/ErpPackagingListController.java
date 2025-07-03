@@ -8,9 +8,10 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -32,6 +33,12 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "查询分包列表", notes = "查询分包列表")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "int", paramType = "query", defaultValue = "1"),
+            @ApiImplicitParam(name = "pageSize", value = "每页显示条数", dataType = "int", paramType = "query", defaultValue = "10"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "isAsc", value = "排序方式", dataType = "String", paramType = "query", defaultValue = "asc")
+    })
     public TableDataInfo list(ErpPackagingList erpPackagingList) {
         startPage();
         return getDataTable(packagingListService.selectErpPackagingListList(erpPackagingList));
@@ -41,33 +48,27 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @PostMapping("/export")
     @ApiOperation(value = "导出分包列表", notes = "导出分包列表")
-    public void export(HttpServletResponse response, Integer[] ids) {
-        List<ErpPackagingList> list = packagingListService.selectErpPackagingListListByIds(ids);
-        ExcelUtil<ErpPackagingList> util = new ExcelUtil<ErpPackagingList>(ErpPackagingList.class);
-        util.exportExcel(response, list, "分包数据");
+    public void export(HttpServletResponse response, Long id) throws IOException {
+        ErpPackagingList erpPackagingList = packagingListService.selectErpPackagingListById(id);
+        packagingListService.exportExcel(response, erpPackagingList);
     }
 
     @Anonymous
     @GetMapping("/export/template")
     @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
-    public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpPackagingList> list = Collections.singletonList(BaseEntity.createExample(ErpPackagingList.class));
-        ExcelUtil<ErpPackagingList> util = createTemplateExcelUtil(ErpPackagingList.class);
-        util.exportExcel(response, list, "分包数据");
+    public void exportTemplate(HttpServletResponse response) throws IOException {
+        ErpPackagingList example = ErpPackagingList.createExample();
+        packagingListService.exportExcel(response, example);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:import')")
     @Anonymous
     @PostMapping("/import")
     @ApiOperation(value = "导入分包列表", notes = "导入分包列表")
-    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpPackagingList> list = validateExcel(file, ErpPackagingList.class);
-        int count = 0;
-        for (ErpPackagingList erpPackagingList : list) {
-            packagingListService.insertErpPackagingList(erpPackagingList);
-            count++;
-        }
-        return toAjax(count);
+    public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws Exception {
+        ErpPackagingList erpPackagingList = packagingListService.importExcel(file.getInputStream());
+        packagingListService.insertCascade(erpPackagingList);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:query')")

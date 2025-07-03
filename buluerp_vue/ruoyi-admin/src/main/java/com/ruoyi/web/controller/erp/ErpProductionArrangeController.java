@@ -9,8 +9,8 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpProductionArrange;
+import com.ruoyi.web.request.arrange.AddProductionArrangeFromScheduleRequest;
 import com.ruoyi.web.service.IErpProductionArrangeService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -85,6 +85,13 @@ public class ErpProductionArrangeController extends BaseController {
         return toAjax(erpProductionArrangeService.insertErpProductionArrangeList(
                 Collections.singletonList(erpProductionArrange)
         ));
+    }
+
+    @Anonymous
+    @PostMapping("/from-schedule")
+    @ApiOperation(value = "从布产生成排产", notes = "从布产生成排产")
+    public AjaxResult addFromSchedule(@ModelAttribute @Validated({ Save.class }) AddProductionArrangeFromScheduleRequest request) throws IOException {
+        return toAjax(erpProductionArrangeService.insertFromSchedule(request));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:edit')")

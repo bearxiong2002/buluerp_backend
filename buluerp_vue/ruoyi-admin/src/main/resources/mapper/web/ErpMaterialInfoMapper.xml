@@ -188,7 +188,7 @@
         <include refid="selectErpMaterialInfo"/>
         <where>
             <if test="id != null">
-                and id = #{id}
+                and id like concat('%', #{id}, '%')
             </if>
             <if test="creatTime != null">
                 and DATE(creat_time) = DATE(#{creatTime})
@@ -247,5 +247,9 @@
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
+    </select>
+    <select id="selectErpMaterialInfoByMaterialType" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialInfo"/>
+        where material_type = #{materialType}
     </select>
 </mapper>

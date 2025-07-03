@@ -9,14 +9,12 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpProductionSchedule;
-import com.ruoyi.web.service.IErpProductsScheduleService;
+import com.ruoyi.web.service.IErpProductionScheduleService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,7 +29,7 @@ import java.util.List;
 @RequestMapping("/system/products-schedule")
 public class ErpProductionScheduleController extends BaseController {
     @Autowired
-    private IErpProductsScheduleService erpProductionScheduleService;
+    private IErpProductionScheduleService erpProductionScheduleService;
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:list')")
     @Anonymous
