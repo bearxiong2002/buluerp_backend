@@ -6,6 +6,7 @@ import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.result.OrderStatisticsResult;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.Date;
 import java.util.List;
@@ -91,11 +92,14 @@ public interface ErpOrdersMapper
 
     Integer getMinStatusValue();
 
-    Long getOrderCount();
+    Long getOrderCount(Date day);
 
-    Long getDeliveredOrderCount();
+    Long getDeliveredOrderCount(Date day);
 
-    Long getPunctualOrderCount();
+    Long getPunctualOrderCount(Date day);
 
-    List<OrderStatisticsResult.StatusCouunt> getOrderStatusCount();
+    List<OrderStatisticsResult.StatusCouunt> getOrderStatusCount(
+            @Param("startTime") Date startTime,
+            @Param("endTime") Date endTime
+    );
 }

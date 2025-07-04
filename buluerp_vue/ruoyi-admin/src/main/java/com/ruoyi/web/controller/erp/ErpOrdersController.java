@@ -154,7 +154,14 @@ public class ErpOrdersController extends BaseController
     @Anonymous
     @GetMapping("/statistics")
     @ApiOperation(value = "获取订单统计信息", notes = "获取订单统计信息")
-    public AjaxResult getStatistics() {
-        return success(erpOrdersService.getOrderStatistics());
+    public AjaxResult getStatistics(
+            @RequestParam(value = "startTime", required = false)
+            @ApiParam(value = "开始日期", example = "2024-01-01 00:00:00")
+            Date startTime,
+            @RequestParam(value = "endTime", required = false)
+            @ApiParam(value = "结束日期", example = "2024-12-31 23:59:59")
+            Date endTime
+    ) {
+        return success(erpOrdersService.getOrderStatistics(startTime, endTime));
     }
 }

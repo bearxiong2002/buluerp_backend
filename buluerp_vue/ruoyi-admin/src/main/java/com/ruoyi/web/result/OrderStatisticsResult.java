@@ -35,8 +35,41 @@ public class OrderStatisticsResult {
     @ApiModelProperty(value = "总订单数量")
     private Long totalCount;
 
+    @ApiModelProperty(value = "准时率，如果总数为0则为null")
+    private Double punctualRate;
+
+    @ApiModelProperty(value = "准时率周同比，如果总数为0则为null")
+    private Double punctualRateWeekOnWeek;
+
+    @ApiModelProperty(value = "准时率日环比，如果总数为0则为null")
+    private Double punctualRateDayOnDay;
+
     @ApiModelProperty(value = "各状态订单数量统计")
     private Map<String, Long> statusCount;
+
+    public Double getPunctualRateDayOnDay() {
+        return punctualRateDayOnDay;
+    }
+
+    public void setPunctualRateDayOnDay(Double punctualRateDayOnDay) {
+        this.punctualRateDayOnDay = punctualRateDayOnDay;
+    }
+
+    public Double getPunctualRateWeekOnWeek() {
+        return punctualRateWeekOnWeek;
+    }
+
+    public void setPunctualRateWeekOnWeek(Double punctualRateWeekOnWeek) {
+        this.punctualRateWeekOnWeek = punctualRateWeekOnWeek;
+    }
+
+    public Double getPunctualRate() {
+        return punctualRate;
+    }
+
+    public void setPunctualRate(Double punctualRate) {
+        this.punctualRate = punctualRate;
+    }
 
     public Map<String, Long> getStatusCount() {
         return statusCount;

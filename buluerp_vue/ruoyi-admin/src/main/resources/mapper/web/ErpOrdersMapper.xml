@@ -121,17 +121,36 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="getOrderCount" resultType="java.lang.Long">
         select count(*) from erp_orders
+        <where>
+            <if test="day != null">
+                and date(create_time) = date(#{day})
+            </if>
+        </where>
     </select>
     <select id="getDeliveredOrderCount" resultType="java.lang.Long">
         select count(*) from erp_orders
         where delivery_time is not null
+        <if test="date != null">
+            and date(delivery_time) = date(#{date})
+        </if>
     </select>
     <select id="getPunctualOrderCount" resultType="java.lang.Long">
         select count(*) from erp_orders
         where delivery_time is not null and delivery_time &lt;= delivery_deadline
+        <if test="day != null">
+            and date(delivery_time) = date(#{day})
+        </if>
     </select>
     <select id="getOrderStatusCount" resultType="com.ruoyi.web.result.OrderStatisticsResult$StatusCouunt">
         select status, count(*) as count from erp_orders
+        <where>
+            <if test="startTime!= null">
+                and create_time &gt;= #{startTime}
+            </if>
+            <if test="endTime!= null">
+                and create_time &lt;= #{endTime}
+            </if>
+        </where>
         group by status
     </select>
 

@@ -1,5 +1,6 @@
 package com.ruoyi.web.service.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -337,13 +338,41 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     }
 
     @Override
-    public OrderStatisticsResult getOrderStatistics() {
+    public OrderStatisticsResult getOrderStatistics(Date startTime, Date endTime) {
         OrderStatisticsResult result = new OrderStatisticsResult();
-        result.setTotalCount(erpOrdersMapper.getOrderCount());
-        result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount());
-        result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount());
+        result.setTotalCount(erpOrdersMapper.getOrderCount(null));
+        result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount(null));
+        result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount(null));
+        if (result.getTotalCount() != 0) {
+            result.setPunctualRate(result.getDeliveredCount() * 100 / (double) result.getTotalCount());
+
+            Date today = DateUtils.getNowDate();
+            Date yesterday = DateUtils.addDays(today, -1);
+            Date lastWeek = DateUtils.addDays(today, -7);
+            long punctualToday = erpOrdersMapper.getPunctualOrderCount(today);
+            long totalToday = erpOrdersMapper.getOrderCount(today);
+            long punctualYesterday = erpOrdersMapper.getPunctualOrderCount(yesterday);
+            long totalYesterday = erpOrdersMapper.getOrderCount(yesterday);
+            long punctualLastWeek = erpOrdersMapper.getPunctualOrderCount(lastWeek);
+            long totalLastWeek = erpOrdersMapper.getOrderCount(lastWeek);
+
+            if (totalToday != 0) {
+                if (totalYesterday != 0) {
+                    result.setPunctualRateDayOnDay(
+                            punctualToday * totalYesterday * 100 / (double) (punctualYesterday * totalToday)
+                    );
+                }
+                if (punctualLastWeek != 0) {
+                    result.setPunctualRateWeekOnWeek(
+                            punctualToday * totalLastWeek * 100 / (double) (punctualLastWeek * totalToday)
+                    );
+                }
+            }
+        }
+
+
         result.setStatusCount(
-                erpOrdersMapper.getOrderStatusCount().stream()
+                erpOrdersMapper.getOrderStatusCount(startTime, endTime).stream()
                         .collect(Collectors.toMap(
                                 statusCount -> getStatusLabel(statusCount.getStatus()),
                                 OrderStatisticsResult.StatusCouunt::getCount

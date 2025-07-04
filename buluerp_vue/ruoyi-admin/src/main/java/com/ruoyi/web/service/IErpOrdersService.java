@@ -68,7 +68,7 @@ public interface IErpOrdersService
      */
     public int deleteErpOrdersById(Long id);
 
-    OrderStatisticsResult getOrderStatistics();
+    OrderStatisticsResult getOrderStatistics(Date startTime, Date endTime);
 
     Integer getStatusValue(String label);
 
