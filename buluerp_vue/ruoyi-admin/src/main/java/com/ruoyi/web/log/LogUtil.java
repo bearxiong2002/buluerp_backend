@@ -385,7 +385,7 @@ public class LogUtil {
             }
             parameter = paramMap.get(firstParamName);
         }
-        if (parameter instanceof List) {
+        if (parameter instanceof List || parameter.getClass().isArray()) {
             insertLog.setIds(((List<?>) parameter).stream()
                     .map(item -> getValueByPath(item, identifierFieldName))
                     .filter(Objects::nonNull)
