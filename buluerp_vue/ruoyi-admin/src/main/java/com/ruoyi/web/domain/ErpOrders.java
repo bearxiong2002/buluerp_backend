@@ -33,6 +33,14 @@ public class ErpOrders extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
+    // 状态标签，通过订单服务可转换成状态值
+    public static final String STATUS_AUDIT_REJECT = "审核未通过";
+    public static final String STATUS_CREATED = "创建(未审核)";
+    public static final String STATUS_DESIGN_PENDING = "待设计";
+    public static final String STATUS_DESIGNED = "已设计";
+    public static final String STATUS_DELIVERED = "已发货";
+    public static final String STATUS_COMPLETED = "已完成";
+
     /** 主键ID */
     private Long id;
 
@@ -74,7 +82,7 @@ public class ErpOrders extends BaseEntity
     private Date deliveryTime;
 
     /** 状态（0:创建 1:已发货 2:已完成等） */
-    @Excel(name = "状态", readConverterExp = "-1=审核不通过,0=创建(未审核),1=待设计,2=已设计,3=已发货,4=已完成")
+    @Excel(name = "状态", dictType = "erp_order_status")
     @Example("1")
     // @NotNull(groups = {Save.class}, message = "状态值格式有误")
     private Integer status;

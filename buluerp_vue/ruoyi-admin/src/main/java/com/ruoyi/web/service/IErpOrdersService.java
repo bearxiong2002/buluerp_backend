@@ -2,6 +2,7 @@ package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.request.order.ListOrderRequest;
+import com.ruoyi.web.result.OrderStatisticsResult;
 
 import java.util.Date;
 import java.util.List;
@@ -66,4 +67,14 @@ public interface IErpOrdersService
      * @return 结果
      */
     public int deleteErpOrdersById(Long id);
+
+    OrderStatisticsResult getOrderStatistics();
+
+    Integer getStatusValue(String label);
+
+    String getStatusLabel(Integer status);
+
+    Integer getMaxStatusValue();
+
+    Integer getMinStatusValue();
 }

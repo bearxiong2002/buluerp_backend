@@ -151,5 +151,10 @@ public class ErpOrdersController extends BaseController
         return toAjax(erpOrdersService.deleteErpOrdersByIds(ids));
     }
 
-
+    @Anonymous
+    @GetMapping("/statistics")
+    @ApiOperation(value = "获取订单统计信息", notes = "获取订单统计信息")
+    public AjaxResult getStatistics() {
+        return success(erpOrdersService.getOrderStatistics());
+    }
 }
