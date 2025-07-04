@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -12,6 +13,7 @@ import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
+import com.ruoyi.web.result.OrderStatisticsResult;
 import com.ruoyi.web.service.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -332,5 +334,41 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int deleteErpOrdersById(Long id)
     {
         return erpOrdersMapper.deleteErpOrdersById(id);
+    }
+
+    @Override
+    public OrderStatisticsResult getOrderStatistics() {
+        OrderStatisticsResult result = new OrderStatisticsResult();
+        result.setTotalCount(erpOrdersMapper.getOrderCount());
+        result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount());
+        result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount());
+        result.setStatusCount(
+                erpOrdersMapper.getOrderStatusCount().stream()
+                        .collect(Collectors.toMap(
+                                statusCount -> getStatusLabel(statusCount.getStatus()),
+                                OrderStatisticsResult.StatusCouunt::getCount
+                        ))
+        );
+        return result;
+    }
+
+    @Override
+    public Integer getStatusValue(String label) {
+        return erpOrdersMapper.getStatusValue(label);
+    }
+
+    @Override
+    public String getStatusLabel(Integer status) {
+        return erpOrdersMapper.getStatusLabel(status);
+    }
+
+    @Override
+    public Integer getMaxStatusValue() {
+        return erpOrdersMapper.getMaxStatusValue();
+    }
+
+    @Override
+    public Integer getMinStatusValue() {
+        return erpOrdersMapper.getMinStatusValue();
     }
 }

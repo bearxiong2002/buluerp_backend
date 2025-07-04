@@ -3,10 +3,13 @@ package com.ruoyi.web.mapper;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.request.order.ListOrderRequest;
+import com.ruoyi.web.result.OrderStatisticsResult;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -79,4 +82,20 @@ public interface ErpOrdersMapper
     int clearOrdersProductsByProduct(Long productId);
 
     List<ErpOrdersProduct> selectOrdersProducts(Long ordersId);
+
+    Integer getStatusValue(String label);
+
+    String getStatusLabel(Integer value);
+
+    Integer getMaxStatusValue();
+
+    Integer getMinStatusValue();
+
+    Long getOrderCount();
+
+    Long getDeliveredOrderCount();
+
+    Long getPunctualOrderCount();
+
+    List<OrderStatisticsResult.StatusCouunt> getOrderStatusCount();
 }

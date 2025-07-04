@@ -103,6 +103,37 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpOrdersVo"/>
         where outer_id = #{outerId}
     </select>
+    <select id="getStatusValue" resultType="java.lang.Integer">
+        select cast(dict_value as int) from sys_dict_data
+        where dict_type = 'erp_order_status' and dict_label = #{label}
+    </select>
+    <select id="getStatusLabel" resultType="java.lang.String">
+        select dict_label from sys_dict_data
+        where dict_type = 'erp_order_status' and dict_value = #{value}
+    </select>
+    <select id="getMaxStatusValue" resultType="java.lang.Integer">
+        select max(cast(dict_value as int)) from sys_dict_data
+        where dict_type = 'erp_order_status'
+    </select>
+    <select id="getMinStatusValue" resultType="java.lang.Integer">
+        select min(cast(dict_value as int)) from sys_dict_data
+        where dict_type = 'erp_order_status'
+    </select>
+    <select id="getOrderCount" resultType="java.lang.Long">
+        select count(*) from erp_orders
+    </select>
+    <select id="getDeliveredOrderCount" resultType="java.lang.Long">
+        select count(*) from erp_orders
+        where delivery_time is not null
+    </select>
+    <select id="getPunctualOrderCount" resultType="java.lang.Long">
+        select count(*) from erp_orders
+        where delivery_time is not null and delivery_time &lt;= delivery_deadline
+    </select>
+    <select id="getOrderStatusCount" resultType="com.ruoyi.web.result.OrderStatisticsResult$StatusCouunt">
+        select status, count(*) as count from erp_orders
+        group by status
+    </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">
         insert into erp_orders
