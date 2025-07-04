@@ -34,7 +34,7 @@
                 and operation_type like concat('%',#{operationType},'%')
             </if>
             <if test="recordId != null">
-                and record_id = like concat('%',#{recordId},'%')
+                and record_id like concat('%',#{recordId},'%')
             </if>
             <if test="operator != null">
                 and operator like concat('%',#{operator},'%')
