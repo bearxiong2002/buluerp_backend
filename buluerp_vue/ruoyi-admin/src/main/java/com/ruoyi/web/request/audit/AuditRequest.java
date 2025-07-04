@@ -15,20 +15,20 @@ import javax.validation.constraints.NotNull;
 public class AuditRequest {
     
     /** 审核状态：1=通过，-1=拒绝 */
-    @NotNull
-    @ApiModelProperty(value = "审核状态", notes = "1=通过，-1=拒绝", required = true, example = "1")
+    @NotNull(message = "审核结果不能为空")
+    @ApiModelProperty(value = "审核结果", notes = "1=通过，-1=拒绝", required = true, example = "1")
     private Integer accept;
     
     /** 审核意见 */
     @ApiModelProperty(value = "审核意见", notes = "审核时的备注说明", example = "审核通过")
     private String auditComment;
     
-    public Integer getConfirm() {
+    public Integer getAccept() {
         return accept;
     }
     
-    public void setConfirm(Integer confirm) {
-        this.accept = confirm;
+    public void setAccept(Integer accept) {
+        this.accept = accept;
     }
     
     public String getAuditComment() {
@@ -42,7 +42,7 @@ public class AuditRequest {
     @Override
     public String toString() {
         return "AuditRequest{" +
-                "confirm=" + accept +
+                "accept=" + accept +
                 ", auditComment='" + auditComment + '\'' +
                 '}';
     }
