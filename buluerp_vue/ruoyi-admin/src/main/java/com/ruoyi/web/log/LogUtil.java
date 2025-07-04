@@ -366,8 +366,23 @@ public class LogUtil {
         String identifierFieldName = getIdentifierFieldName(insertLog.getTableName());
         Object parameter = invocation.getArgs()[1];
         if (parameter instanceof MapperMethod.ParamMap) {
+            // 从参数列表找到第一个非基本类型的参数
             MapperMethod.ParamMap<?> paramMap = (MapperMethod.ParamMap<?>) parameter;
-            String firstParamName = paramMap.keySet().stream().findFirst().orElse(null);
+            String firstParamName = paramMap.keySet()
+                    .stream()
+                    .filter(key -> {
+                        Object value = paramMap.get(key);
+                        if (value instanceof List || value instanceof Map || value.getClass().isArray()) {
+                            return true;
+                        }
+                        String className = value.getClass().getName();
+                        return !className.startsWith("java.lang.") && !className.startsWith("java.util.");
+                    })
+                    .findFirst()
+                    .orElse(null);
+            if (firstParamName == null) {
+                return null;
+            }
             parameter = paramMap.get(firstParamName);
         }
         if (parameter instanceof List) {
