@@ -220,7 +220,7 @@ public class ErpAuditRecordController extends BaseController
     @PostMapping("/order/audit/{id}")
     public AjaxResult auditOrder(@ApiParam("审核记录ID") @PathVariable Long id, @Validated @RequestBody AuditRequest auditRequest)
     {
-        if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
+        if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
             return error("审核状态参数错误，1=通过，-1=拒绝");
         }
         
@@ -240,10 +240,10 @@ public class ErpAuditRecordController extends BaseController
         }
         
         // 处理审核
-        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
+        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
             // 根据confirm字段调用相应的业务处理
-            if (auditRequest.getConfirm().equals(1)) {
+            if (auditRequest.getAccept().equals(1)) {
                 erpAuditRecordService.handleOrderApproved(id, auditor, auditRequest.getAuditComment());
                 return success("订单审核通过成功");
             } else {
@@ -282,7 +282,7 @@ public class ErpAuditRecordController extends BaseController
     public AjaxResult auditProduction(@ApiParam("审核记录ID") @PathVariable Long id, 
                                      @Validated @RequestBody AuditRequest auditRequest)
     {
-        if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
+        if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
             return error("审核状态参数错误，1=通过，-1=拒绝");
         }
         
@@ -302,10 +302,10 @@ public class ErpAuditRecordController extends BaseController
         }
         
         // 处理审核
-        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
+        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
             // 根据confirm字段调用相应的业务处理
-            if (auditRequest.getConfirm().equals(1)) {
+            if (auditRequest.getAccept().equals(1)) {
                 erpAuditRecordService.handleProductionScheduleApproved(id, auditor, auditRequest.getAuditComment());
                 return success("布产审核通过成功");
             } else {
@@ -344,7 +344,7 @@ public class ErpAuditRecordController extends BaseController
     public AjaxResult auditSubcontract(@ApiParam("审核记录ID") @PathVariable Long id, 
                                       @Validated @RequestBody AuditRequest auditRequest)
     {
-        if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
+        if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
             return error("审核状态参数错误，1=通过，-1=拒绝");
         }
 
@@ -364,9 +364,9 @@ public class ErpAuditRecordController extends BaseController
         }
 
         // 处理审核
-        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
+        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
-            String action = auditRequest.getConfirm().equals(1) ? "通过" : "拒绝";
+            String action = auditRequest.getAccept().equals(1) ? "通过" : "拒绝";
             return success("分包审核" + action + "成功");
         } else {
             return error("审核处理失败");
@@ -400,7 +400,7 @@ public class ErpAuditRecordController extends BaseController
     public AjaxResult auditPurchase(@ApiParam("审核记录ID") @PathVariable Long id,
                                    @Validated @RequestBody AuditRequest auditRequest)
     {
-        if (!auditRequest.getConfirm().equals(1) && !auditRequest.getConfirm().equals(-1)) {
+        if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
             return error("审核状态参数错误，1=通过，-1=拒绝");
         }
 
@@ -420,10 +420,10 @@ public class ErpAuditRecordController extends BaseController
         }
 
         // 处理审核
-        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getConfirm(), auditor, auditRequest.getAuditComment());
+        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
             // 根据confirm字段调用相应的业务处理
-            if (auditRequest.getConfirm().equals(1)) {
+            if (auditRequest.getAccept().equals(1)) {
                 erpAuditRecordService.handlePurchaseCollectionApproved(id, auditor, auditRequest.getAuditComment());
                 return success("采购/委外加工审核通过成功");
             } else {
