@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Component
 public class LogUtil {
@@ -386,11 +387,19 @@ public class LogUtil {
             parameter = paramMap.get(firstParamName);
         }
         if (parameter instanceof List || parameter.getClass().isArray()) {
-            insertLog.setIds(((List<?>) parameter).stream()
-                    .map(item -> getValueByPath(item, identifierFieldName))
-                    .filter(Objects::nonNull)
-                    .map(Object::toString)
-                    .collect(Collectors.toList()));
+            Stream<?> stream;
+            if (parameter instanceof List) {
+                stream = ((List<?>) parameter).stream();
+            } else {
+                stream = Arrays.stream((Object[]) parameter);
+            }
+            insertLog.setIds(
+                    stream
+                        .map(item -> getValueByPath(item, identifierFieldName))
+                        .filter(Objects::nonNull)
+                        .map(Object::toString)
+                        .collect(Collectors.toList())
+            );
         } else {
             Object id = getValueByPath(parameter, identifierFieldName);
             if (id != null) {
