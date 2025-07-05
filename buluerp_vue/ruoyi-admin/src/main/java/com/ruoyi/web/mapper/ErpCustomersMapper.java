@@ -65,5 +65,5 @@ public interface ErpCustomersMapper
      */
     public int deleteErpCustomersByIds(Long[] ids);
 
-    ErpCustomers getErpCustomersByName(String name);
+    List<ErpCustomers> getErpCustomersByName(String name);
 }
