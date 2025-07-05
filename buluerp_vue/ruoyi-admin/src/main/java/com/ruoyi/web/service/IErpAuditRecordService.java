@@ -190,4 +190,13 @@ public interface IErpAuditRecordService
      * @return 采购汇总详情
      */
     ErpPurchaseCollection getPurchaseCollectionDetail(Long collectionId);
+
+    /**
+     * 处理待审核对象被删除的逻辑
+     * 将相关的待审核记录标记为已处理
+     *
+     * @param auditType 审核类型
+     * @param auditId   被删除的审核对象ID
+     */
+    void handleAuditableEntityDeleted(Integer auditType, Long auditId);
 } 

@@ -980,4 +980,46 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             default: return "未知状态(" + status + ")";
         }
     }
+
+    @Override
+    @Transactional
+    public void handleAuditableEntityDeleted(Integer auditType, Long auditId) {
+        try {
+            if (auditType == null || auditId == null) {
+                log.warn("处理待审核对象删除事件时，auditType 或 auditId 为空，已跳过。");
+                return;
+            }
+
+            log.info("开始处理待审核对象删除事件，审核类型：{}，审核对象ID：{}", auditType, auditId);
+
+            // 1. 查找所有相关的待审核记录 (confirm = 0)
+            LambdaQueryWrapper<ErpAuditRecord> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(ErpAuditRecord::getAuditType, auditType)
+                   .eq(ErpAuditRecord::getAuditId, auditId)
+                   .eq(ErpAuditRecord::getConfirm, 0); // 仅查找待审核记录
+
+            List<ErpAuditRecord> pendingRecords = erpAuditRecordMapper.selectList(wrapper);
+
+            if (pendingRecords.isEmpty()) {
+                log.info("没有找到与对象（类型：{}，ID：{}）相关的待审核记录，无需处理。", auditType, auditId);
+                return;
+            }
+
+            // 2. 更新这些记录
+            for (ErpAuditRecord record : pendingRecords) {
+                record.setConfirm(1); // 标记为已处理
+                record.setAuditComment("待审核对象已被删除");
+                record.setAuditor("system"); // 标记为系统自动处理
+                record.setCheckTime(new Date());
+                erpAuditRecordMapper.updateById(record);
+            }
+
+            log.info("成功处理了 {} 条因对象删除而作废的待审核记录，审核类型：{}，审核对象ID：{}",
+                    pendingRecords.size(), auditType, auditId);
+
+        } catch (Exception e) {
+            log.error("处理待审核对象删除事件失败，审核类型：{}，审核对象ID：{}", auditType, auditId, e);
+            // 不向上抛出异常，以免影响主业务（如订单删除）的事务
+        }
+    }
 } 
