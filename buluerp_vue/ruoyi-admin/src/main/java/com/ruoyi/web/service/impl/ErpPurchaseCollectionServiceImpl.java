@@ -39,6 +39,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Transactional
     public int deleteErpPurchaseCollectionByIds(Long[] ids) {
         for (Long id : ids) {
+            // 在删除采购单之前，处理相关的待审核记录
+            auditRecordService.handleAuditableEntityDeleted(
+                AuditTypeEnum.PURCHASE_AUDIT.getCode(),
+                id
+            );
             erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(id);
         }
         return erpPurchaseCollectionMapper.deleteErpPurchaseCollectionByIds(ids);

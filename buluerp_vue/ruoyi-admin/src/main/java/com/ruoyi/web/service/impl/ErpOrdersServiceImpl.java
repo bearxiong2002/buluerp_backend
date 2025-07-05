@@ -10,6 +10,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.*;
+import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
@@ -323,7 +324,16 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int deleteErpOrdersByIds(Long[] ids)
     {
         for (Long id : ids) {
-            erpOrdersMapper.clearOrdersProducts(id);
+            // 在删除订单之前，处理相关的待审核记录
+            try {
+                erpAuditRecordService.handleAuditableEntityDeleted(
+                    AuditTypeEnum.ORDER_AUDIT.getCode(),
+                    id
+                );
+            } catch (Exception e) {
+                // 记录日志，但不要影响主删除流程
+                log.error("删除订单前，处理其待审核记录失败，订单ID：{}", id, e);
+            }
         }
         return erpOrdersMapper.deleteErpOrdersByIds(ids);
     }

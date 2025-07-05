@@ -117,6 +117,11 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public int removeErpProductionScheduleList(List<Long> ids) {
         for (Long id : ids) {
+            // 在删除布产计划之前，处理相关的待审核记录
+            auditRecordService.handleAuditableEntityDeleted(
+                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
+                id
+            );
             getBaseMapper().clearProductionScheduleMaterialIds(id);
         }
         return getBaseMapper().deleteBatchIds(ids);
