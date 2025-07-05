@@ -320,12 +320,12 @@ public class ErpAuditRecordController extends BaseController
     // ==================== 包装清单/分包审核接口 ====================
 
     /**
-     * 查询待审核的包装清单列表（分包审核人权限）
+     * 查询待审核的包装清单列表（包装清单审核人权限）
      */
     @ApiOperation("查询待审核包装清单列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:subcontract:list')")
-    @GetMapping("/subcontract/pending")
-    public TableDataInfo getSubcontractPendingList()
+    @PreAuthorize("@ss.hasPermi('system:audit:packaging:list')")
+    @GetMapping("/packaging/pending")
+    public TableDataInfo getPackagingPendingList()
     {
         startPage();
         List<ErpAuditRecord> list = erpAuditRecordService.selectAuditRecords(null, AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(), null, true, null);
@@ -333,15 +333,15 @@ public class ErpAuditRecordController extends BaseController
     }
 
     /**
-     * 包装清单审核（分包审核人权限）
+     * 包装清单审核（包装清单审核人权限）
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
     @ApiOperation("包装清单审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:subcontract:audit')")
+    @PreAuthorize("@ss.hasPermi('system:audit:packaging:audit')")
     @Log(title = "包装清单审核", businessType = BusinessType.UPDATE)
-    @PostMapping("/subcontract/audit/{id}")
-    public AjaxResult auditSubcontract(@ApiParam("审核记录ID") @PathVariable Long id, 
+    @PostMapping("/packaging/audit/{id}")
+    public AjaxResult auditPackaging(@ApiParam("审核记录ID") @PathVariable Long id,
                                       @Validated @RequestBody AuditRequest auditRequest)
     {
         if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
@@ -350,7 +350,7 @@ public class ErpAuditRecordController extends BaseController
 
         String auditor = SecurityUtils.getUsername();
 
-        // 验证是否为分包审核记录
+        // 验证是否为包装清单审核记录
         ErpAuditRecord queryRecord = new ErpAuditRecord();
         queryRecord.setId(id);
         List<ErpAuditRecord> records = erpAuditRecordService.selectAuditRecords(queryRecord, null, null, null, null);

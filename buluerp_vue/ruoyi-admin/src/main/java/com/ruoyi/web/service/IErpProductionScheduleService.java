@@ -16,4 +16,10 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
     List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
 
     int removeErpProductionScheduleList(List<Long> ids);
+
+    /**
+     * 在审核通过后，直接应用新的状态，不触发额外的审核流程
+     * @param erpProductionSchedule 包含新状态的布产计划对象
+     */
+    void applyApprovedStatus(ErpProductionSchedule erpProductionSchedule);
 }

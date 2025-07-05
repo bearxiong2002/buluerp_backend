@@ -166,4 +166,10 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids) {
         return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids));
     }
+
+    @Override
+    public void applyApprovedStatus(ErpPurchaseCollection erpPurchaseCollection) {
+        // 直接更新数据库，不包含其他业务逻辑
+        erpPurchaseCollectionMapper.updateErpPurchaseCollection(erpPurchaseCollection);
+    }
 }

@@ -325,14 +325,13 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             ErpAuditRecord auditRecord = records.get(0);
             
-            // 2. 更新订单状态为已审核待设计
+            // 2. 更新订单状态为审核记录中的目标状态
             ErpOrders order = ordersService.selectErpOrdersById(auditRecord.getAuditId());
             if (order == null) {
                 throw new RuntimeException("订单不存在");
             }
-            
-            order.setStatus(ORDER_STATUS_APPROVED); // 设置为已审核待设计状态（状态1）
-            ordersService.updateErpOrders(order);
+            order.setStatus(auditRecord.getToStatus());
+            ordersService.applyApprovedStatus(order);
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildOrderNotificationData(order);
@@ -577,14 +576,13 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             ErpAuditRecord auditRecord = records.get(0);
             
-            // 2. 更新布产计划状态为已审核
+            // 2. 更新布产计划状态
             ErpProductionSchedule schedule = productionScheduleService.getById(auditRecord.getAuditId());
             if (schedule == null) {
                 throw new RuntimeException("布产计划不存在");
             }
-            
-            schedule.setStatus(1L); // 设置为已审核状态
-            productionScheduleService.updateById(schedule);
+            schedule.setStatus(Long.valueOf(auditRecord.getToStatus()));
+            productionScheduleService.applyApprovedStatus(schedule);
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
@@ -773,15 +771,14 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             ErpAuditRecord auditRecord = records.get(0);
             
-            // 2. 更新采购汇总状态为已审核
+            // 2. 更新采购汇总状态
             ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(auditRecord.getAuditId());
             if (collection == null) {
                 throw new RuntimeException("采购汇总不存在");
             }
-            
-            collection.setStatus(1L); // 设置为已审核状态
-            purchaseCollectionService.updateErpPurchaseCollection(collection);
-            
+            collection.setStatus(Long.valueOf(auditRecord.getToStatus()));
+            purchaseCollectionService.applyApprovedStatus(collection);
+
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
             templateData.put("auditor", auditor);
@@ -1073,7 +1070,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
             // 2. 更新包装清单状态为审核记录中的目标状态
             packagingList.setStatus(auditRecord.getToStatus());
-            packagingListService.updateErpPackagingList(packagingList);
+            packagingListService.applyApprovedStatus(packagingList);
 
             // 3. 发送通知给仓库部门
             Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);

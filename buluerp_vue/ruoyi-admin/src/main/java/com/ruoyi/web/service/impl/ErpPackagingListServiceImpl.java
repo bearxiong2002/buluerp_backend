@@ -414,4 +414,10 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             erpPackagingBagService.insertCascade(bag);
         }
     }
+
+    @Override
+    public void applyApprovedStatus(ErpPackagingList packagingList) {
+        // 直接更新数据库，不包含其他业务逻辑
+        erpPackagingListMapper.updateErpPackagingList(packagingList);
+    }
 }

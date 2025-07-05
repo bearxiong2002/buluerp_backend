@@ -118,6 +118,18 @@ public class NotificationServiceImpl implements INotificationService
         // 采购审核拒绝通知PMC模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC, 
             new NotificationTemplate("采购审核拒绝", "采购汇总编号：{collectionId} 审核未通过，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，拒绝原因：{rejectReason}，请重新调整计划"));
+
+        // 包装清单/分包创建待审核通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_PENDING,
+            new NotificationTemplate("新包装清单待审核", "包装清单ID：{id}，关联订单号：{orderCode}，创建人：{creator}，创建时间：{creationTime}，请及时审核。"));
+
+        // 包装清单/分包审核通过通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_APPROVED,
+            new NotificationTemplate("包装清单审核通过", "包装清单ID：{id}（订单号：{orderCode}）已审核通过。审核人：{auditor}，审核意见：{auditComment}。"));
+        
+        // 包装清单/分包审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_REJECTED,
+            new NotificationTemplate("包装清单审核未通过", "包装清单ID：{id}（订单号：{orderCode}）审核未通过。审核人：{auditor}，拒绝原因：{rejectReason}。"));
     }
 
     /**

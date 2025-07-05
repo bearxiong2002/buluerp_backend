@@ -139,13 +139,16 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrders.setOperator(loginUser.getUsername());
         }
         if (erpOrders.getCustomerId() == null && erpOrders.getCustomerName() != null) {
-            ErpCustomers erpCustomers = erpCustomersService.selectErpCustomersByName(erpOrders.getCustomerName());
-            if (erpCustomers == null) {
+            List<ErpCustomers> erpCustomersList = erpCustomersService.selectErpCustomersByName(erpOrders.getCustomerName());
+            ErpCustomers erpCustomers;
+            if (erpCustomersList == null || erpCustomersList.isEmpty()) {
                 erpCustomers = new ErpCustomers();
                 erpCustomers.setName(erpOrders.getCustomerName());
                 if (0 == erpCustomersService.insertErpCustomers(erpCustomers)) {
                     throw new ServiceException("添加客户信息失败，客户ID无效");
                 }
+            } else {
+                erpCustomers = erpCustomersList.get(0);
             }
             erpOrders.setCustomerId(erpCustomers.getId());
         } else if (erpOrders.getCustomerId() != null) {
@@ -345,6 +348,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int deleteErpOrdersById(Long id)
     {
         return erpOrdersMapper.deleteErpOrdersById(id);
+    }
+
+    @Override
+    public void applyApprovedStatus(ErpOrders erpOrders) {
+        // 直接更新数据库，不包含其他业务逻辑
+        erpOrdersMapper.updateErpOrders(erpOrders);
     }
 
     @Override

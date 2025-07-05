@@ -45,7 +45,7 @@ public class ErpCustomersServiceImpl implements IErpCustomersService
     }
 
     @Override
-    public ErpCustomers selectErpCustomersByName(String name) {
+    public List<ErpCustomers> selectErpCustomersByName(String name) {
         return erpCustomersMapper.getErpCustomersByName(name);
     }
 
