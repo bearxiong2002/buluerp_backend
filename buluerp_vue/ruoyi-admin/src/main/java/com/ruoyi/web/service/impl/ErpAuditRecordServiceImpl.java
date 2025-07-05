@@ -1,11 +1,14 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.mapper.ErpAuditRecordMapper;
@@ -14,6 +17,7 @@ import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductionScheduleService;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.INotificationService;
+import com.ruoyi.web.service.IErpPackagingListService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +56,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
     @Autowired
     private IErpPurchaseCollectionService purchaseCollectionService;
+
+    @Autowired
+    private IErpPackagingListService packagingListService;
 
     /** 订单状态常量 */
     private static final Integer ORDER_STATUS_PENDING = 0;  // 待审核
@@ -822,20 +829,18 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 throw new RuntimeException("采购汇总不存在");
             }
             
-            // 3. 构建通知模板数据
+            // 3. 发送通知给PMC部门
             Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
             templateData.put("auditor", auditor);
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
-            
-            // 4. 发送通知给PMC部门
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC,
-                "pmc-dept", // PMC部门角色标识
+                "pmc-dept", // 发送给PMC部门
                 collection.getId(),
                 "PURCHASE_COLLECTION",
                 templateData
             );
-            
+
             log.info("采购汇总审核拒绝流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
                     collection.getId(), auditRecordId);
             
@@ -1021,5 +1026,166 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             log.error("处理待审核对象删除事件失败，审核类型：{}，审核对象ID：{}", auditType, auditId, e);
             // 不向上抛出异常，以免影响主业务（如订单删除）的事务
         }
+    }
+
+    // ==================== 包装清单/分包审核业务方法 ====================
+
+    @Override
+    @Transactional
+    public void handlePackagingListCreated(ErpPackagingList packagingList) {
+        try {
+            log.info("开始处理包装清单创建后流程，ID：{}", packagingList.getId());
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
+                packagingList.getId(),
+                null, // 新创建无前置状态
+                1 // 目标状态：审核通过
+            );
+
+            // 发送通知给分包审核员
+            Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.SUBCONTRACT_AUDIT_PENDING,
+                AuditTypeEnum.SUBCONTRACT_AUDIT.getRoleKey(),
+                packagingList.getId(),
+                "PACKAGING",
+                templateData
+            );
+
+            log.info("包装清单创建后流程处理完成，ID：{}", packagingList.getId());
+        } catch (Exception e) {
+            log.error("处理包装清单创建后流程失败，ID：{}", packagingList.getId(), e);
+            throw new RuntimeException("处理包装清单创建后流程失败", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handlePackagingListApproved(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理包装清单审核通过流程，审核记录ID：{}", auditRecordId);
+
+            // 1. 获取审核和包装清单信息
+            ErpAuditRecord auditRecord = erpAuditRecordMapper.selectById(auditRecordId);
+            if (auditRecord == null) throw new ServiceException("审核记录不存在");
+            ErpPackagingList packagingList = packagingListService.selectErpPackagingListById(auditRecord.getAuditId());
+            if (packagingList == null) throw new ServiceException("包装清单不存在");
+
+            // 2. 更新包装清单状态为审核记录中的目标状态
+            packagingList.setStatus(auditRecord.getToStatus());
+            packagingListService.updateErpPackagingList(packagingList);
+
+            // 3. 发送通知给仓库部门
+            Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);
+            templateData.put("auditor", auditor);
+            templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
+            
+            // 如果是状态变更审核，添加额外信息
+            if (auditRecord.getPreStatus() != null) {
+                templateData.put("isStatusChange", true);
+                templateData.put("fromStatus", auditRecord.getPreStatus());
+                templateData.put("toStatus", auditRecord.getToStatus());
+            }
+
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.SUBCONTRACT_AUDIT_APPROVED,
+                "warehouse", // 发送给仓库部门
+                packagingList.getId(),
+                "PACKAGING",
+                templateData
+            );
+
+            log.info("包装清单审核通过流程处理完成，ID：{}", packagingList.getId());
+        } catch (Exception e) {
+            log.error("处理包装清单审核通过流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理包装清单审核通过流程失败", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handlePackagingListRejected(Long auditRecordId, String auditor, String auditComment) {
+        try {
+            log.info("开始处理包装清单审核拒绝流程，审核记录ID：{}", auditRecordId);
+            
+            // 1. 获取审核和包装清单信息
+            ErpAuditRecord auditRecord = erpAuditRecordMapper.selectById(auditRecordId);
+            if (auditRecord == null) throw new ServiceException("审核记录不存在");
+            ErpPackagingList packagingList = packagingListService.selectErpPackagingListById(auditRecord.getAuditId());
+            if (packagingList == null) throw new ServiceException("包装清单不存在");
+
+            // 2. 发送通知给PMC部门
+            Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);
+            templateData.put("auditor", auditor);
+            templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
+
+            // 如果是状态变更审核，添加额外信息
+            if (auditRecord.getPreStatus() != null) {
+                templateData.put("isStatusChange", true);
+                templateData.put("fromStatus", auditRecord.getPreStatus());
+                templateData.put("toStatus", auditRecord.getToStatus());
+            }
+            
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.SUBCONTRACT_AUDIT_REJECTED,
+                "pmc-dept", // 发送给PMC部门
+                packagingList.getId(),
+                "PACKAGING",
+                templateData
+            );
+
+            log.info("包装清单审核拒绝流程处理完成，ID：{}", packagingList.getId());
+        } catch (Exception e) {
+            log.error("处理包装清单审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
+            throw new RuntimeException("处理包装清单审核拒绝流程失败", e);
+        }
+    }
+
+    @Override
+    @Transactional
+    public void handlePackagingListStatusChange(ErpPackagingList packagingList, Integer newStatus) {
+         try {
+            log.info("开始处理包装清单状态变更审核流程，ID：{}，当前状态：{}，目标状态：{}",
+                    packagingList.getId(), packagingList.getStatus(), newStatus);
+            createAuditRecord(
+                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
+                packagingList.getId(),
+                packagingList.getStatus(),
+                newStatus
+            );
+            
+            // 发送通知给分包审核员
+            Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);
+            templateData.put("isStatusChange", true);
+            templateData.put("fromStatus", packagingList.getStatus());
+            templateData.put("toStatus", newStatus);
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.SUBCONTRACT_AUDIT_PENDING,
+                AuditTypeEnum.SUBCONTRACT_AUDIT.getRoleKey(),
+                packagingList.getId(),
+                "PACKAGING",
+                templateData
+            );
+        } catch (Exception e) {
+            log.error("处理包装清单状态变更审核流程失败，ID：{}", packagingList.getId(), e);
+            throw new RuntimeException("处理包装清单状态变更审核流程失败", e);
+        }
+    }
+
+    @Override
+    public ErpPackagingList getPackagingListDetail(Long packagingListId) {
+        return packagingListService.selectErpPackagingListById(packagingListId);
+    }
+
+    /**
+     * 构建包装清单通知所需的数据
+     */
+    private Map<String, Object> buildPackagingListNotificationData(ErpPackagingList packagingList) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("id", packagingList.getId());
+        data.put("orderCode", packagingList.getOrderCode());
+        data.put("creator", packagingList.getOperator());
+        data.put("creationTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(packagingList.getCreationTime()));
+        return data;
     }
 } 

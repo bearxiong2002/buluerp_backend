@@ -18,7 +18,7 @@ public enum AuditTypeEnum {
     PRODUCTION_AUDIT(3, "布产审核", "production_auditor"),
     
     /** 分包审核 */
-    SUBCONTRACT_AUDIT(4, "分包审核", "subcontract_auditor");
+    SUBCONTRACT_AUDIT(4, "分包审核", "packaging_auditor");
     
     private final Integer code;
     private final String description;

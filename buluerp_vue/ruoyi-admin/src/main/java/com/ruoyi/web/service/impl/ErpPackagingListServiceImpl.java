@@ -20,6 +20,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.web.domain.ErpPackagingBag;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
+import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.service.*;
 import org.apache.commons.math3.stat.descriptive.summary.Product;
@@ -55,6 +56,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
 
     @Autowired
     private Validator validator;
+
+    @Autowired
+    private IErpAuditRecordService auditRecordService;
+
+    @Autowired
+    private IErpAuditSwitchService auditSwitchService;
 
     public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
     public static final Integer BAG_TEMPLATE_HEADER_ROW = 2;
@@ -129,19 +136,49 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
         check(erpPackagingList);
-        return erpPackagingListMapper.insertErpPackagingList(erpPackagingList);
+        int result = erpPackagingListMapper.insertErpPackagingList(erpPackagingList);
+
+        // 检查是否启用分包审核
+        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
+            // 创建审核记录
+            auditRecordService.handlePackagingListCreated(erpPackagingList);
+        } else {
+            // 如果审核关闭，可设置默认状态，例如直接"已审核"
+            erpPackagingList.setStatus(1); // 1为已审核
+            erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
+        }
+        return result;
     }
 
     @Override
     public int updateErpPackagingList(ErpPackagingList erpPackagingList) {
         erpPackagingList.setOperator(SecurityUtils.getUsername());
         check(erpPackagingList);
+
+        // 检查状态变更是否需要触发审核
+        ErpPackagingList oldPackagingList = erpPackagingListMapper.selectErpPackagingListById(erpPackagingList.getId());
+        if (erpPackagingList.getStatus() != null &&
+            !erpPackagingList.getStatus().equals(oldPackagingList.getStatus()) &&
+            auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
+            
+            auditRecordService.handlePackagingListStatusChange(erpPackagingList, erpPackagingList.getStatus());
+            // 状态变更进入审核流程，本次不直接更新状态
+            erpPackagingList.setStatus(oldPackagingList.getStatus());
+        }
+
         return erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
     }
 
     @Override
     @Transactional
     public int deleteErpPackagingListByIds(Long[] ids) {
+        for (Long id : ids) {
+            // 删除前处理关联的待审核记录
+            auditRecordService.handleAuditableEntityDeleted(
+                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
+                id
+            );
+        }
         erpPackagingBagService.deleteCascadeByListIds(ids);
         return erpPackagingListMapper.deleteErpPackagingListByIds(ids);
     }

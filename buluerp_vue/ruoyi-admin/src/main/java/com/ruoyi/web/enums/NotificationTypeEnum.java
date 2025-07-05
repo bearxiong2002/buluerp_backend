@@ -69,7 +69,16 @@ public enum NotificationTypeEnum {
     ORDER_AUDIT_APPROVED("ORDER_AUDIT_APPROVED", "新订单待设计", "design_dept"),
     
     /** 订单审核拒绝通知销售部 */
-    ORDER_AUDIT_REJECTED("ORDER_AUDIT_REJECTED", "订单审核未通过", "sell_dept");
+    ORDER_AUDIT_REJECTED("ORDER_AUDIT_REJECTED", "订单审核未通过", "sell_dept"),
+
+    /** 包装清单/分包创建待审核通知 */
+    SUBCONTRACT_AUDIT_PENDING("SUBCONTRACT_AUDIT_PENDING", "新包装清单待审核", "subcontract_auditor"),
+
+    /** 包装清单/分包审核通过通知 */
+    SUBCONTRACT_AUDIT_APPROVED("SUBCONTRACT_AUDIT_APPROVED", "包装清单审核通过", "creator"), // 'creator' can be a placeholder for the actual user role
+
+    /** 包装清单/分包审核拒绝通知 */
+    SUBCONTRACT_AUDIT_REJECTED("SUBCONTRACT_AUDIT_REJECTED", "包装清单审核未通过", "creator");
     
     private final String code;
     private final String description;

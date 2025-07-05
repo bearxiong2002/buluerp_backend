@@ -4,6 +4,7 @@ import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.domain.ErpPackagingList;
 
 import java.util.Date;
 import java.util.List;
@@ -199,4 +200,47 @@ public interface IErpAuditRecordService
      * @param auditId   被删除的审核对象ID
      */
     void handleAuditableEntityDeleted(Integer auditType, Long auditId);
+
+    // ==================== 包装清单/分包审核业务方法 ====================
+
+    /**
+     * 包装清单创建后处理（创建审核记录并发送通知）
+     *
+     * @param packagingList 包装清单信息
+     */
+    void handlePackagingListCreated(ErpPackagingList packagingList);
+
+    /**
+     * 包装清单审核通过处理
+     *
+     * @param auditRecordId 审核记录ID
+     * @param auditor       审核人
+     * @param auditComment  审核意见
+     */
+    void handlePackagingListApproved(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 包装清单审核拒绝处理
+     *
+     * @param auditRecordId 审核记录ID
+     * @param auditor       审核人
+     * @param auditComment  审核意见
+     */
+    void handlePackagingListRejected(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 包装清单状态变更审核处理
+     *
+     * @param packagingList 包装清单信息
+     * @param newStatus     新状态
+     */
+    void handlePackagingListStatusChange(ErpPackagingList packagingList, Integer newStatus);
+
+    /**
+     * 获取包装清单详情
+     *
+     * @param packagingListId 包装清单ID
+     * @return 包装清单详情
+     */
+    ErpPackagingList getPackagingListDetail(Long packagingListId);
 } 
