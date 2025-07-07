@@ -198,6 +198,17 @@ public class ErpProductionSchedule {
     @ApiModelProperty(value = "布产状态", dataType = "Long")
     private Long status;
 
+    @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")
+    private Integer auditStatus;
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
     public Long getStatus() {
         return status;
     }

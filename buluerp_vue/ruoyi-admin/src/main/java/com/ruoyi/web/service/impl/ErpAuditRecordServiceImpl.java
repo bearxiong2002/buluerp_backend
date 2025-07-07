@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -247,6 +248,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             auditRecord.setToStatus(toStatus);
             auditRecord.setConfirm(0); // 未审核
             auditRecord.setCreateTime(DateUtils.getNowDate());
+
+            // 更新业务表的审核状态为"审核中"
+            updateAuditStatus(auditType, auditId, 1); // 1 = 审核中
             
             erpAuditRecordMapper.insert(auditRecord);
             log.info("创建审核记录成功，审核类型：{}，审核对象ID：{}，记录ID：{}", 
@@ -331,6 +335,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 throw new RuntimeException("订单不存在");
             }
             order.setStatus(auditRecord.getToStatus());
+            order.setAuditStatus(2); // 审核通过
             ordersService.applyApprovedStatus(order);
             
             // 3. 构建通知模板数据
@@ -384,6 +389,8 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (order == null) {
                 throw new RuntimeException("订单不存在");
             }
+            order.setAuditStatus(-1); // 审核被拒绝
+            ordersService.updateErpOrders(order); // 单独更新审核状态
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildOrderNotificationData(order);
@@ -582,6 +589,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 throw new RuntimeException("布产计划不存在");
             }
             schedule.setStatus(Long.valueOf(auditRecord.getToStatus()));
+            schedule.setAuditStatus(2); // 审核通过
             productionScheduleService.applyApprovedStatus(schedule);
             
             // 3. 构建通知模板数据
@@ -630,6 +638,8 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (schedule == null) {
                 throw new RuntimeException("布产计划不存在");
             }
+            schedule.setAuditStatus(-1); // 审核被拒绝
+            productionScheduleService.updateById(schedule); // 单独更新审核状态
             
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
@@ -777,8 +787,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 throw new RuntimeException("采购汇总不存在");
             }
             collection.setStatus(Long.valueOf(auditRecord.getToStatus()));
+            collection.setAuditStatus(2); // 审核通过
             purchaseCollectionService.applyApprovedStatus(collection);
-
+            
             // 3. 构建通知模板数据
             Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
             templateData.put("auditor", auditor);
@@ -825,6 +836,8 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (collection == null) {
                 throw new RuntimeException("采购汇总不存在");
             }
+            collection.setAuditStatus(-1); // 审核被拒绝
+            purchaseCollectionService.updateErpPurchaseCollection(collection); // 单独更新审核状态
             
             // 3. 发送通知给PMC部门
             Map<String, Object> templateData = buildPurchaseCollectionNotificationData(collection);
@@ -1070,6 +1083,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
             // 2. 更新包装清单状态为审核记录中的目标状态
             packagingList.setStatus(auditRecord.getToStatus());
+            packagingList.setAuditStatus(2); // 审核通过
             packagingListService.applyApprovedStatus(packagingList);
 
             // 3. 发送通知给仓库部门
@@ -1112,6 +1126,8 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (packagingList == null) throw new ServiceException("包装清单不存在");
 
             // 2. 发送通知给PMC部门
+            packagingList.setAuditStatus(-1); // 审核被拒绝
+            packagingListService.updateErpPackagingList(packagingList); // 单独更新审核状态
             Map<String, Object> templateData = buildPackagingListNotificationData(packagingList);
             templateData.put("auditor", auditor);
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
@@ -1184,5 +1200,54 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
         data.put("creator", packagingList.getOperator());
         data.put("creationTime", new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(packagingList.getCreationTime()));
         return data;
+    }
+
+    /**
+     * 更新业务表的审核状态
+     *
+     * @param auditType   审核类型
+     * @param businessId  业务ID
+     * @param auditStatus 审核状态
+     */
+    private void updateAuditStatus(Integer auditType, Long businessId, Integer auditStatus) throws IOException {
+        if (auditType == null || businessId == null || auditStatus == null) {
+            log.warn("updateAuditStatus received null parameters, skipping update.");
+            return;
+        }
+        AuditTypeEnum typeEnum = AuditTypeEnum.getByCode(auditType);
+        if (typeEnum == null) {
+            log.error("Unknown audit type code: " + auditType);
+            return;
+        }
+
+        switch (typeEnum) {
+            case ORDER_AUDIT:
+                ErpOrders order = new ErpOrders();
+                order.setId(businessId);
+                order.setAuditStatus(auditStatus);
+                ordersService.updateErpOrders(order);
+                break;
+            case PRODUCTION_AUDIT:
+                ErpProductionSchedule schedule = new ErpProductionSchedule();
+                schedule.setId(businessId);
+                schedule.setAuditStatus(auditStatus);
+                productionScheduleService.updateById(schedule);
+                break;
+            case PURCHASE_AUDIT:
+                ErpPurchaseCollection collection = new ErpPurchaseCollection();
+                collection.setId(businessId);
+                collection.setAuditStatus(auditStatus);
+                purchaseCollectionService.updateErpPurchaseCollection(collection);
+                break;
+            case SUBCONTRACT_AUDIT:
+                ErpPackagingList packagingList = new ErpPackagingList();
+                packagingList.setId(businessId);
+                packagingList.setAuditStatus(auditStatus);
+                packagingListService.updateErpPackagingList(packagingList);
+                break;
+            default:
+                log.error("无法修改对应记录审核状态：" + typeEnum);
+                break;
+        }
     }
 } 
