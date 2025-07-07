@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -182,7 +183,7 @@ public class ErpManufacturerController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:add')")
     @Log(title = "新增厂家", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody AddManufacturerRequest addManufacturerRequest)
+    public AjaxResult add(@Validated @RequestBody AddManufacturerRequest addManufacturerRequest)
     {
         return toAjax(erpManufacturerService.insertErpManufacturer(addManufacturerRequest));
     }
@@ -195,7 +196,7 @@ public class ErpManufacturerController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:manufacturer:edit')")
     @Log(title = "修改厂家", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody UpdateManufacturerRequest updateManufacturerRequest)
+    public AjaxResult edit(@Validated @RequestBody UpdateManufacturerRequest updateManufacturerRequest)
     {
         return toAjax(erpManufacturerService.updateErpManufacturer(updateManufacturerRequest));
     }

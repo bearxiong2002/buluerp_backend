@@ -31,6 +31,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 获取当前用户的通知列表（支持分页）
      */
+    @ApiOperation("获取当前用户所有通知")
     @GetMapping("/my")
     public TableDataInfo getMyNotifications()
     {
@@ -57,6 +58,7 @@ public class ErpNotificationController extends BaseController
      * 标记通知为已读（支持单个或批量）
      * @param ids 通知ID，多个ID用逗号分隔，例如：1,2,3
      */
+    @ApiOperation("标记为已读")
     @PostMapping("/markRead/{ids}")
     public AjaxResult markAsRead(@PathVariable String ids)
     {
@@ -92,6 +94,7 @@ public class ErpNotificationController extends BaseController
     /**
      * 标记所有通知为已读
      */
+    @ApiOperation("标记该用户所有通知为已读")
     @PostMapping("/markAllRead")
     public AjaxResult markAllAsRead()
     {
