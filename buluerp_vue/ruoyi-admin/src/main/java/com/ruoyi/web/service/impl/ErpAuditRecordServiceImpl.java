@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 
 /**
  * 审核记录Service业务层处理
@@ -168,6 +169,18 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     }
 
     /**
+     * 批量删除审核记录
+     * 
+     * @param ids 需要删除的审核记录ID
+     * @return 结果
+     */
+    @Override
+    public int deleteAuditRecordByIds(List<Integer> ids)
+    {
+        return erpAuditRecordMapper.deleteBatchIds(ids);
+    }
+
+    /**
      * 审核处理
      * 支持单个和批量审核
      * 
@@ -244,7 +257,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             ErpAuditRecord auditRecord = new ErpAuditRecord();
             auditRecord.setAuditType(auditType);
             auditRecord.setAuditId(auditId);
-            auditRecord.setPreStatus(preStatus);
+            auditRecord.setPreStatus(preStatus == null ? 0 : preStatus);
             auditRecord.setToStatus(toStatus);
             auditRecord.setConfirm(0); // 未审核
             auditRecord.setCreateTime(DateUtils.getNowDate());

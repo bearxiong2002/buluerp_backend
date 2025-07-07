@@ -41,6 +41,14 @@ public interface IErpAuditRecordService
                                            Map<String, Date> dateParams);
 
     /**
+     * 批量删除审核记录
+     * 
+     * @param ids 需要删除的审核记录ID列表
+     * @return 删除的记录数
+     */
+    int deleteAuditRecordByIds(List<Integer> ids);
+
+    /**
      * 审核处理
      * 支持单个和批量审核
      * 

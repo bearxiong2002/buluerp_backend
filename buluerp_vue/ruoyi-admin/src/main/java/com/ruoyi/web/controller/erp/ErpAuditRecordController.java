@@ -132,6 +132,18 @@ public class ErpAuditRecordController extends BaseController
     }
 
     /**
+     * 删除审核记录
+     */
+    @ApiOperation("删除审核记录")
+    @PreAuthorize("@ss.hasPermi('system:audit:remove')")
+    @Log(title = "审核记录", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable List<Integer> ids)
+    {
+        return toAjax(erpAuditRecordService.deleteAuditRecordByIds(ids));
+    }
+
+    /**
      * 获取审核记录详细信息（管理员权限）
      */
     @ApiOperation("获取审核记录详细信息")
