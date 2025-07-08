@@ -290,7 +290,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     {
         try {
             // 先将该订单之前的通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(order.getId(), "order");
+            notificationService.markNotificationsAsReadByBusiness(order.getId(), "ORDER");
             log.info("开始处理订单创建后流程，订单ID：{}，订单编号：{}", order.getId(), order.getInnerId());
             
             // 1. 创建审核记录
@@ -351,7 +351,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
 
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(order.getId(), "order");
+            notificationService.markNotificationsAsReadByBusiness(order.getId(), "ORDER");
 
             order.setStatus(auditRecord.getToStatus());
             order.setAuditStatus(2); // 审核通过
@@ -410,7 +410,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(order.getId(), "order");
+            notificationService.markNotificationsAsReadByBusiness(order.getId(), "ORDER");
             
             order.setAuditStatus(-1); // 审核被拒绝
             ordersService.updateErpOrders(order); // 单独更新审核状态
@@ -558,7 +558,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handleProductionScheduleCreated(ErpProductionSchedule schedule) {
         try {
             // 先将该生产计划之前的通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "production");
+            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "PRODUCTION_SCHEDULE");
             log.info("开始处理布产计划创建审核流程，布产计划ID：{}", schedule.getId());
             
             // 1. 创建审核记录
@@ -615,7 +615,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "production");
+            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "PRODUCTION_SCHEDULE");
 
             schedule.setStatus(Long.valueOf(auditRecord.getToStatus()));
             schedule.setAuditStatus(2); // 审核通过
@@ -669,7 +669,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "production");
+            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "PRODUCTION_SCHEDULE");
 
             schedule.setAuditStatus(-1); // 审核被拒绝
             productionScheduleService.updateById(schedule); // 单独更新审核状态
@@ -766,7 +766,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handlePurchaseCollectionCreated(ErpPurchaseCollection collection) {
         try {
             // 先将该采购汇总之前的通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "purchase");
+            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "PURCHASE_COLLECTION");
             log.info("开始处理采购汇总创建审核流程，采购汇总ID：{}", collection.getId());
             
             // 1. 创建审核记录（使用采购审核类型）
@@ -823,7 +823,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "purchase");
+            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "PURCHASE_COLLECTION");
 
             collection.setStatus(Long.valueOf(auditRecord.getToStatus()));
             collection.setAuditStatus(2); // 审核通过
@@ -877,7 +877,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "purchase");
+            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "PURCHASE_COLLECTION");
             
             collection.setAuditStatus(-1); // 审核被拒绝
             purchaseCollectionService.updateErpPurchaseCollection(collection); // 单独更新审核状态
@@ -1088,7 +1088,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handlePackagingListCreated(ErpPackagingList packagingList) {
         try {
             // 先将该包装清单之前的通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "packaging");
+            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "PACKAGING");
             log.info("开始处理包装清单创建后流程，ID：{}", packagingList.getId());
             ErpAuditRecord auditRecord = createAuditRecord(
                 AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
@@ -1127,7 +1127,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (packagingList == null) throw new ServiceException("包装清单不存在");
 
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "packaging");
+            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "PACKAGING");
 
             // 2. 更新包装清单状态为审核记录中的目标状态
             packagingList.setStatus(auditRecord.getToStatus());
@@ -1174,7 +1174,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (packagingList == null) throw new ServiceException("包装清单不存在");
 
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "packaging");
+            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "PACKAGING");
 
             // 2. 发送通知给PMC部门
             packagingList.setAuditStatus(-1); // 审核被拒绝

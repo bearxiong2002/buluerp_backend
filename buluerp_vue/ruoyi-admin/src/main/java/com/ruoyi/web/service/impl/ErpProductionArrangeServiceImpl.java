@@ -18,6 +18,7 @@ import com.ruoyi.web.service.IErpProductionScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -51,6 +52,7 @@ public class ErpProductionArrangeServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @MarkNotificationsAsRead(businessType = "PRODUCTION_SCHEDULE", businessIdsExpression = "#request.scheduleIds")
     public int insertFromSchedule(AddProductionArrangeFromScheduleRequest request) throws IOException {
         List<ErpProductionSchedule> schedules = erpProductionScheduleService
                 .listByIds(request.getScheduleIds());
