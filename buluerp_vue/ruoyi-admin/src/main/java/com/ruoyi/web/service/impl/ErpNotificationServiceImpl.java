@@ -72,6 +72,22 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_AUDIT_REJECTED, 
             new NotificationTemplate("订单审核未通过", "订单编号：{orderCode} 审核未通过，客户：{customerName}，数量：{quantity}，交货期限：{deliveryDeadline}，拒绝原因：{rejectReason}，请修改订单后重新提交"));
         
+        // 订单状态变更待审核通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_STATUS_CHANGE,
+            new NotificationTemplate("订单状态变更待审核", "订单 {orderCode} 申请状态变更：从【{currentStatus}】到【{targetStatus}】，请及时审核。"));
+
+        // 生产排期通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_SCHEDULED,
+            new NotificationTemplate("生产排期提醒", "订单 {orderCode} 已完成排期，请关注生产进度。"));
+
+        // 库存不足通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.INVENTORY_LOW,
+            new NotificationTemplate("库存预警", "物料 {materialName}（编码: {materialCode}）当前库存为 {currentStock}，已低于预警值 {warningStock}，请及时补充。"));
+        
+        // 采购审批通过通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_APPROVED,
+            new NotificationTemplate("采购审批通过", "您的采购申请单 {purchaseCode} 已审批通过。"));
+
         // 审核待处理通知模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_PENDING, 
             new NotificationTemplate("待审核通知", "有新的业务需要您审核，请及时处理"));

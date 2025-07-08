@@ -470,6 +470,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handleOrderStatusChange(ErpOrders order, Integer newStatus)
     {
         try {
+            // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
+            notificationService.markNotificationsAsReadByBusiness(order.getId(), "ORDER");
+
             log.info("开始处理订单状态变更审核流程，订单ID：{}，当前状态：{}，目标状态：{}", 
                     order.getId(), order.getStatus(), newStatus);
             
@@ -704,6 +707,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     @Transactional
     public void handleProductionScheduleStatusChange(ErpProductionSchedule schedule, Integer newStatus) {
         try {
+            // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
+            notificationService.markNotificationsAsReadByBusiness(schedule.getId(), "PRODUCTION_SCHEDULE");
+
             log.info("开始处理布产计划状态变更审核流程，布产计划ID：{}，当前状态：{}，目标状态：{}", 
                     schedule.getId(), schedule.getStatus(), newStatus);
             
@@ -910,6 +916,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     @Transactional
     public void handlePurchaseCollectionStatusChange(ErpPurchaseCollection collection, Integer newStatus) {
         try {
+            // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
+            notificationService.markNotificationsAsReadByBusiness(collection.getId(), "PURCHASE_COLLECTION");
+
             log.info("开始处理采购汇总状态变更审核流程，采购汇总ID：{}，当前状态：{}，目标状态：{}", 
                     collection.getId(), collection.getStatus(), newStatus);
             
@@ -1209,6 +1218,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     @Transactional
     public void handlePackagingListStatusChange(ErpPackagingList packagingList, Integer newStatus) {
          try {
+            // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
+            notificationService.markNotificationsAsReadByBusiness(packagingList.getId(), "PACKAGING");
+
             log.info("开始处理包装清单状态变更审核流程，ID：{}，当前状态：{}，目标状态：{}",
                     packagingList.getId(), packagingList.getStatus(), newStatus);
             createAuditRecord(
