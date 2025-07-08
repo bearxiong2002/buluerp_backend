@@ -12,7 +12,7 @@ import java.util.Map;
  * @author ruoyi
  * @date 2025-01-XX
  */
-public interface INotificationService 
+public interface IErpNotificationService
 {
     /**
      * 查询通知
@@ -156,4 +156,12 @@ public interface INotificationService
      * @return 未读通知列表
      */
     List<ErpNotification> getUnreadNotifications(Long userId);
+
+    /**
+     * 根据业务标识将相关通知标记为已读
+     *
+     * @param businessId   业务ID
+     * @param businessType 业务类型
+     */
+    void markNotificationsAsReadByBusiness(Long businessId, String businessType);
 } 

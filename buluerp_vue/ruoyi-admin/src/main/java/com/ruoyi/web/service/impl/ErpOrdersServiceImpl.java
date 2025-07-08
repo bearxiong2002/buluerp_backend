@@ -196,7 +196,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                 ErpOrders completeOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
                 erpAuditRecordService.handleOrderCreated(completeOrder);
             }
-            // 如果审核开关关闭，订单直接保持创建状态，不进入审核流程
+            // 如果审核开关关闭，订单直接进入待设计状态，不进入审核流程
+            else {
+                erpOrders.setStatus(1);
+                erpOrdersMapper.updateErpOrders(erpOrders);
+            }
             
         } catch (Exception e) {
             // 记录日志但不影响订单创建
@@ -404,6 +408,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int deleteErpOrdersById(Long id)
     {
         return erpOrdersMapper.deleteErpOrdersById(id);
+    }
+
+    @Override
+    public void applyApprovedStatus(ErpOrders erpOrders) {
+        // 直接更新数据库，不包含其他业务逻辑
+        erpOrdersMapper.updateErpOrders(erpOrders);
     }
 
     @Override

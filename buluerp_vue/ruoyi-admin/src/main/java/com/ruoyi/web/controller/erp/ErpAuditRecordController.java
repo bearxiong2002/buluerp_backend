@@ -132,6 +132,18 @@ public class ErpAuditRecordController extends BaseController
     }
 
     /**
+     * 删除审核记录
+     */
+    @ApiOperation("删除审核记录")
+    @PreAuthorize("@ss.hasPermi('system:audit:remove')")
+    @Log(title = "审核记录", businessType = BusinessType.DELETE)
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable List<Integer> ids)
+    {
+        return toAjax(erpAuditRecordService.deleteAuditRecordByIds(ids));
+    }
+
+    /**
      * 获取审核记录详细信息（管理员权限）
      */
     @ApiOperation("获取审核记录详细信息")
@@ -317,15 +329,15 @@ public class ErpAuditRecordController extends BaseController
         }
     }
 
-    // ==================== 分包审核接口 ====================
+    // ==================== 包装清单/分包审核接口 ====================
 
     /**
-     * 查询待审核分包列表（分包审核人权限）
+     * 查询待审核的包装清单列表（包装清单审核人权限）
      */
-    @ApiOperation("查询待审核分包列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:subcontract:list')")
-    @GetMapping("/subcontract/pending")
-    public TableDataInfo getSubcontractPendingList()
+    @ApiOperation("查询待审核包装清单列表")
+    @PreAuthorize("@ss.hasPermi('system:audit:packaging:list')")
+    @GetMapping("/packaging/pending")
+    public TableDataInfo getPackagingPendingList()
     {
         startPage();
         List<ErpAuditRecord> list = erpAuditRecordService.selectAuditRecords(null, AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(), null, true, null);
@@ -333,15 +345,15 @@ public class ErpAuditRecordController extends BaseController
     }
 
     /**
-     * 分包审核（分包审核人权限）
+     * 包装清单审核（包装清单审核人权限）
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
-    @ApiOperation("分包审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:subcontract:audit')")
-    @Log(title = "分包审核", businessType = BusinessType.UPDATE)
-    @PostMapping("/subcontract/audit/{id}")
-    public AjaxResult auditSubcontract(@ApiParam("审核记录ID") @PathVariable Long id, 
+    @ApiOperation("包装清单审核")
+    @PreAuthorize("@ss.hasPermi('system:audit:packaging:audit')")
+    @Log(title = "包装清单审核", businessType = BusinessType.UPDATE)
+    @PostMapping("/packaging/audit/{id}")
+    public AjaxResult auditPackaging(@ApiParam("审核记录ID") @PathVariable Long id,
                                       @Validated @RequestBody AuditRequest auditRequest)
     {
         if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
@@ -350,7 +362,7 @@ public class ErpAuditRecordController extends BaseController
 
         String auditor = SecurityUtils.getUsername();
 
-        // 验证是否为分包审核记录
+        // 验证是否为包装清单审核记录
         ErpAuditRecord queryRecord = new ErpAuditRecord();
         queryRecord.setId(id);
         List<ErpAuditRecord> records = erpAuditRecordService.selectAuditRecords(queryRecord, null, null, null, null);
@@ -360,14 +372,20 @@ public class ErpAuditRecordController extends BaseController
 
         ErpAuditRecord auditRecord = records.get(0);
         if (!AuditTypeEnum.SUBCONTRACT_AUDIT.getCode().equals(auditRecord.getAuditType())) {
-            return error("该记录不是分包审核记录");
+            return error("该记录不是包装清单审核记录");
         }
 
         // 处理审核
         int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
-            String action = auditRequest.getAccept().equals(1) ? "通过" : "拒绝";
-            return success("分包审核" + action + "成功");
+            // 根据confirm字段调用相应的业务处理
+            if (auditRequest.getAccept().equals(1)) {
+                erpAuditRecordService.handlePackagingListApproved(id, auditor, auditRequest.getAuditComment());
+                return success("包装清单审核通过成功");
+            } else {
+                erpAuditRecordService.handlePackagingListRejected(id, auditor, auditRequest.getAuditComment());
+                return success("包装清单审核拒绝成功");
+            }
         } else {
             return error("审核处理失败");
         }

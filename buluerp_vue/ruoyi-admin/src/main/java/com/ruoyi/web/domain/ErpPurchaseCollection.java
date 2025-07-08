@@ -8,6 +8,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -99,7 +100,19 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     List<Long> materialIds;
 
+    @ApiModelProperty(value = "状态 0=待审核，1=审核通过")
     private Long status;
+
+    @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")
+    private Integer auditStatus;
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
+    }
 
     public Long getStatus() {
         return status;

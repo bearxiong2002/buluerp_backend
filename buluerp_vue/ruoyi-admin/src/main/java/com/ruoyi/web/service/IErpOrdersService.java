@@ -76,6 +76,12 @@ public interface IErpOrdersService
      */
     public int deleteErpOrdersById(Long id);
 
+    /**
+     * 在审核通过后，直接应用新的状态，不触发额外的审核流程
+     * @param erpOrders 包含新状态的订单对象
+     */
+    void applyApprovedStatus(ErpOrders erpOrders);
+
     OrderStatisticsResult getOrderStatistics(Date startTime, Date endTime);
 
     Integer getStatusValue(String label);

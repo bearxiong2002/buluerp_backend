@@ -95,6 +95,20 @@ public class ErpPackagingList {
     @ApiModelProperty(value = "分包袋列表 [response]")
     private List<ErpPackagingBag> bagList;
 
+    @ApiModelProperty(value = "状态 0=待审核，1=审核通过")
+    private Integer status;
+
+    @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")
+    private Integer auditStatus;
+
+    public Integer getAuditStatus() {
+        return auditStatus;
+    }
+
+    public void setAuditStatus(Integer auditStatus) {
+        this.auditStatus = auditStatus;
+    }
+
     public static ErpPackagingList createExample() {
         try {
             ErpPackagingList e = BaseEntity.createExample(ErpPackagingList.class);
@@ -107,6 +121,14 @@ public class ErpPackagingList {
         } catch (InstantiationException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
     }
 
     public Long getId() {

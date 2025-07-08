@@ -21,4 +21,10 @@ public interface IErpPackagingListService {
     void exportExcel(HttpServletResponse response, ErpPackagingList erpPackagingList) throws IOException;
     ErpPackagingList importExcel(InputStream inputStream) throws Exception;
     void insertCascade(ErpPackagingList erpPackagingList);
+
+    /**
+     * 在审核通过后，直接应用新的状态，不触发额外的审核流程
+     * @param packagingList 包含新状态的包装清单对象
+     */
+    void applyApprovedStatus(ErpPackagingList packagingList);
 }

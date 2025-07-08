@@ -15,6 +15,9 @@ import com.ruoyi.web.service.IErpProductInventoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ruoyi.web.service.IErpNotificationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDateTime;
 import java.util.Date;
@@ -27,11 +30,16 @@ import java.util.ArrayList;
 @Service
 public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInventoryChangeMapper, ErpProductInventoryChange> implements IErpProductInventoryService {
 
+    private static final Logger log = LoggerFactory.getLogger(ErpProductInventoryServiceImpl.class);
+
     @Autowired
     private ErpProductInventoryChangeMapper erpProductInventoryChangeMapper;
 
     @Autowired
     private ErpProductInventoryMapper inventoryMapper;
+
+    @Autowired
+    private IErpNotificationService notificationService;
 
     @Override
     public List<ErpProductInventoryChange> selectList(ListProductInventoryRequest request) {
@@ -72,6 +80,21 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         entity.setChangeDate(request.getChangeDate());
         erpProductInventoryChangeMapper.insert(entity);
         refresh(entity.getId());
+
+        // 如果是出库操作（数量为负），则标记关联的包装清单通知为已读
+        if (request.getInOutQuantity() < 0 && StringUtils.isNotBlank(request.getOrderCode())) {
+            try {
+                Long packagingListId = Long.parseLong(request.getOrderCode());
+                // 这里的 "PACKAGING" 是业务类型，需要与审核和通知模块中定义的一致
+                notificationService.markNotificationsAsReadByBusiness(packagingListId, "PACKAGING");
+                log.info("出库操作：已标记业务类型 'PACKAGING'，业务ID '{}' 的相关通知为已读。", packagingListId);
+            } catch (NumberFormatException e) {
+                log.error("出库操作标记通知已读失败：无法将 orderCode '{}' 转换为Long。", request.getOrderCode(), e);
+            } catch (Exception e) {
+                log.error("出库操作标记通知已读时发生未知错误。", e);
+            }
+        }
+
         return 1;
     }
 

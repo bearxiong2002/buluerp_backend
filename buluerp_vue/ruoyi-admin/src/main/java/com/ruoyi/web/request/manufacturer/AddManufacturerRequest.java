@@ -4,16 +4,14 @@ import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
-import javax.validation.constraints.Size;
+import javax.validation.constraints.*;
 
 @ApiModel(value = "新增厂家请求类")
 public class AddManufacturerRequest {
 
     @Excel(name = "厂家名称")
     @NotBlank(message = "厂家名称不能为空")
+    @NotEmpty(message = "厂家名称不能为空")
     @ApiModelProperty(dataType = "String",value = "厂家名称",required = true)
     private String name;
     @Excel(name = "联系方式")

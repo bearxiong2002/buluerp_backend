@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -11,15 +12,15 @@ import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.web.domain.ErpNotification;
 import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.mapper.ErpNotificationMapper;
-import com.ruoyi.web.service.INotificationService;
+import com.ruoyi.web.service.IErpNotificationService;
 import com.ruoyi.web.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,12 @@ import java.util.stream.Collectors;
  * @date 2025-01-XX
  */
 @Service
-public class NotificationServiceImpl implements INotificationService
+public class ErpNotificationServiceImpl implements IErpNotificationService
 {
     @Autowired
     private ErpNotificationMapper notificationMapper; 
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ErpNotificationServiceImpl.class);
 
     @Autowired
     private ErpNotificationMapper erpNotificationMapper;
@@ -71,6 +72,22 @@ public class NotificationServiceImpl implements INotificationService
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_AUDIT_REJECTED, 
             new NotificationTemplate("订单审核未通过", "订单编号：{orderCode} 审核未通过，客户：{customerName}，数量：{quantity}，交货期限：{deliveryDeadline}，拒绝原因：{rejectReason}，请修改订单后重新提交"));
         
+        // 订单状态变更待审核通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.ORDER_STATUS_CHANGE,
+            new NotificationTemplate("订单状态变更待审核", "订单 {orderCode} 申请状态变更：从【{currentStatus}】到【{targetStatus}】，请及时审核。"));
+
+        // 生产排期通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_SCHEDULED,
+            new NotificationTemplate("生产排期提醒", "订单 {orderCode} 已完成排期，请关注生产进度。"));
+
+        // 库存不足通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.INVENTORY_LOW,
+            new NotificationTemplate("库存预警", "物料 {materialName}（编码: {materialCode}）当前库存为 {currentStock}，已低于预警值 {warningStock}，请及时补充。"));
+        
+        // 采购审批通过通知
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_APPROVED,
+            new NotificationTemplate("采购审批通过", "您的采购申请单 {purchaseCode} 已审批通过。"));
+
         // 审核待处理通知模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.AUDIT_PENDING, 
             new NotificationTemplate("待审核通知", "有新的业务需要您审核，请及时处理"));
@@ -118,6 +135,18 @@ public class NotificationServiceImpl implements INotificationService
         // 采购审核拒绝通知PMC模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC, 
             new NotificationTemplate("采购审核拒绝", "采购汇总编号：{collectionId} 审核未通过，订单编号：{orderCode}，采购编码：{purchaseCode}，模具编号：{mouldNumber}，采购数量：{purchaseQuantity}，供应商：{supplier}，下单时间：{orderTime}，操作员：{operator}，拒绝原因：{rejectReason}，请重新调整计划"));
+
+        // 包装清单/分包创建待审核通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_PENDING,
+            new NotificationTemplate("新包装清单待审核", "包装清单ID：{id}，关联订单号：{orderCode}，创建人：{creator}，创建时间：{creationTime}，请及时审核。"));
+
+        // 包装清单/分包审核通过通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_APPROVED,
+            new NotificationTemplate("包装清单审核通过", "包装清单ID：{id}（订单号：{orderCode}）已审核通过。审核人：{auditor}，审核意见：{auditComment}。"));
+        
+        // 包装清单/分包审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_REJECTED,
+            new NotificationTemplate("包装清单审核未通过", "包装清单ID：{id}（订单号：{orderCode}）审核未通过。审核人：{auditor}，拒绝原因：{rejectReason}。"));
     }
 
     /**
@@ -558,5 +587,22 @@ public class NotificationServiceImpl implements INotificationService
                .eq(ErpNotification::getStatus, 0)  // 0表示未读
                .orderByDesc(ErpNotification::getCreateTime);  // 按创建时间倒序
         return notificationMapper.selectList(wrapper);
+    }
+
+    @Override
+    public void markNotificationsAsReadByBusiness(Long businessId, String businessType) {
+        if (businessId == null || !StringUtils.hasText(businessType)) {
+            return;
+        }
+        ErpNotification notificationUpdate = new ErpNotification();
+        notificationUpdate.setStatus(1); // 1 = 已读
+
+        LambdaUpdateWrapper<ErpNotification> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(ErpNotification::getBusinessId, businessId)
+               .eq(ErpNotification::getBusinessType, businessType)
+               .eq(ErpNotification::getStatus, 0); // 0 = 未读
+
+        notificationMapper.update(notificationUpdate, wrapper);
+        log.info("已将业务(ID: {}, 类型: {}) 的未读通知标记为已读。", businessId, businessType);
     }
 } 
