@@ -23,6 +23,7 @@ import com.ruoyi.web.service.IErpDesignPatternsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 
 
 /**
@@ -100,6 +101,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @MarkNotificationsAsRead(businessType = "order", businessIdsExpression = "T(java.util.Collections).singletonList(#addDesignPatternsRequest.orderId)")
     public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest)
     {
         // 获取当前登录用户信息

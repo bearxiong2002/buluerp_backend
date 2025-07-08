@@ -100,6 +100,7 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     List<Long> materialIds;
 
+    @ApiModelProperty(value = "状态 0=待审核，1=审核通过")
     private Long status;
 
     @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")

@@ -23,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -153,6 +154,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    @MarkNotificationsAsRead(businessType = "purchase_collection", businessIdsExpression = "T(java.util.Collections).singletonList(#addPurchaseOrderRequest.purchaseId)")
     public int insertErpPurchaseOrder(AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
