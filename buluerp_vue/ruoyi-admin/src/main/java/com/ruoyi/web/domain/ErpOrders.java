@@ -11,6 +11,7 @@ import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.annotation.LogIdentifier;
+import com.ruoyi.web.log.AutoLogIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.apache.commons.lang3.builder.ToStringBuilder;
@@ -95,6 +96,7 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "状态", dictType = "erp_order_status")
     @Example("1")
     // @NotNull(groups = {Save.class}, message = "状态值格式有误")
+    @AutoLogIgnore // 订单状态变更单独记录日志
     private Integer status;
 
     /** 客户ID（外键引用客户表） */

@@ -44,6 +44,14 @@ public interface IErpOrdersService
      */
     public int insertErpOrders(ErpOrders erpOrders);
 
+    void updateOrderStatus(Long id, Integer status, String operator);
+
+    void updateOrderStatus(String orderCode, Integer status, String operator);
+
+    void upadteOrderStatusAutomatic(Long id, Integer status);
+
+    void upadteOrderStatusAutomatic(String orderCode, Integer status);
+
     /**
      * 修改订单
      * 

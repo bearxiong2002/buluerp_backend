@@ -284,6 +284,7 @@ public class LogUtil {
         String sql = boundSql.getSql();
         String tableName = extractUpdateTableName(sql);
         String identifierFieldName = getIdentifierFieldName(tableName);
+        Class<?> clazz = getClassByTableName(tableName);
 
         Map<String, List<UpdateLog.PropertyChange>> changes = new HashMap<>();
 
@@ -304,13 +305,19 @@ public class LogUtil {
             for (String setClause : setClauses) {
                 String[] setClauseParts = setClause.split("=");
                 if (setClauseParts.length == 2) {
-                    String fieldName = setClauseParts[0].trim();
+                    String columnName = setClauseParts[0].trim();
+                    if (clazz != null) {
+                        Field field = ReflectUtils.getAccessibleField(clazz, snakeCaseToCamelCase(columnName, false));
+                        if (field != null && field.isAnnotationPresent(AutoLogIgnore.class)) {
+                            continue;
+                        }
+                    }
                     String value = setClauseParts[1].trim();
                     if (value.startsWith("?")) {
                         ParameterMapping parameterMapping = parameterMappings.get(paramIndex++);
-                        newValues.put(fieldName, getValueByPath(parameter, parameterMapping.getProperty()));
+                        newValues.put(columnName, getValueByPath(parameter, parameterMapping.getProperty()));
                     } else {
-                        newValues.put(fieldName, value);
+                        newValues.put(columnName, value);
                     }
                 }
             }

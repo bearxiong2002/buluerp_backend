@@ -3,6 +3,7 @@ package com.ruoyi.web.service.impl;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -11,6 +12,8 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
+import com.ruoyi.web.log.LogUtil;
+import com.ruoyi.web.log.OperationLog;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
@@ -201,6 +204,59 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         }
 
         return 1;
+    }
+
+    public void updateOrderStatus(Long id, Integer status, String operator) {
+        ErpOrders erpOrders = erpOrdersMapper.selectErpOrdersById(id);
+        if (erpOrders == null) {
+            throw new ServiceException("订单ID不存在");
+        }
+        if (Objects.equals(erpOrders.getStatus(), status)) {
+            return;
+        }
+
+        String oldStatus = getStatusLabel(erpOrders.getStatus());
+        String newStatus = getStatusLabel(status);
+
+        if (oldStatus == null || newStatus == null) {
+            throw new ServiceException("订单状态无效");
+        }
+
+        LogUtil.addOperationLog(
+                OperationLog.builder()
+                        .operator(operator != null ? operator : SecurityUtils.getUsername())
+                        .operationTime(DateUtils.getNowDate())
+                        .operationType("订单状态变更")
+                        .recordId("订单" + id)
+                        .details("将订单" + id + "的状态从" + oldStatus + "变更为" + newStatus)
+                        .build()
+        );
+
+        ErpOrders order = new ErpOrders();
+        order.setId(id);
+        order.setStatus(status);
+        if (0 == erpOrdersMapper.updateErpOrders(order)) {
+            throw new ServiceException("更新订单状态失败");
+        }
+    }
+
+    @Override
+    public void updateOrderStatus(String orderCode, Integer status, String operator) {
+        ErpOrders erpOrders = erpOrdersMapper.selectErpOrdersByInnerId(orderCode);
+        if (erpOrders == null) {
+            throw new ServiceException("订单编号不存在");
+        }
+        updateOrderStatus(erpOrders.getId(), status, operator);
+    }
+
+    @Override
+    public void upadteOrderStatusAutomatic(Long id, Integer status) {
+        updateOrderStatus(id, status, LogUtil.OPERATOR_SYSTEM);
+    }
+
+    @Override
+    public void upadteOrderStatusAutomatic(String orderCode, Integer status) {
+        updateOrderStatus(orderCode, status, LogUtil.OPERATOR_SYSTEM);
     }
 
     /**
