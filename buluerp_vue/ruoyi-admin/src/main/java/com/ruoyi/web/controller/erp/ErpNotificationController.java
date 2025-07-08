@@ -5,7 +5,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpNotification;
-import com.ruoyi.web.service.INotificationService;
+import com.ruoyi.web.service.IErpNotificationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import java.util.List;
 public class ErpNotificationController extends BaseController
 {
     @Autowired
-    private INotificationService notificationService;
+    private IErpNotificationService notificationService;
 
     /**
      * 获取当前用户的通知列表（支持分页）

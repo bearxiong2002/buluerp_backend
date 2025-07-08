@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -11,15 +12,15 @@ import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.web.domain.ErpNotification;
 import com.ruoyi.web.enums.NotificationTypeEnum;
 import com.ruoyi.web.mapper.ErpNotificationMapper;
-import com.ruoyi.web.service.INotificationService;
+import com.ruoyi.web.service.IErpNotificationService;
 import com.ruoyi.web.websocket.WebSocketServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,12 +31,12 @@ import java.util.stream.Collectors;
  * @date 2025-01-XX
  */
 @Service
-public class NotificationServiceImpl implements INotificationService
+public class ErpNotificationServiceImpl implements IErpNotificationService
 {
     @Autowired
     private ErpNotificationMapper notificationMapper; 
 
-    private static final Logger log = LoggerFactory.getLogger(NotificationServiceImpl.class);
+    private static final Logger log = LoggerFactory.getLogger(ErpNotificationServiceImpl.class);
 
     @Autowired
     private ErpNotificationMapper erpNotificationMapper;
@@ -570,5 +571,22 @@ public class NotificationServiceImpl implements INotificationService
                .eq(ErpNotification::getStatus, 0)  // 0表示未读
                .orderByDesc(ErpNotification::getCreateTime);  // 按创建时间倒序
         return notificationMapper.selectList(wrapper);
+    }
+
+    @Override
+    public void markNotificationsAsReadByBusiness(Long businessId, String businessType) {
+        if (businessId == null || !StringUtils.hasText(businessType)) {
+            return;
+        }
+        ErpNotification notificationUpdate = new ErpNotification();
+        notificationUpdate.setStatus(1); // 1 = 已读
+
+        LambdaUpdateWrapper<ErpNotification> wrapper = new LambdaUpdateWrapper<>();
+        wrapper.eq(ErpNotification::getBusinessId, businessId)
+               .eq(ErpNotification::getBusinessType, businessType)
+               .eq(ErpNotification::getStatus, 0); // 0 = 未读
+
+        notificationMapper.update(notificationUpdate, wrapper);
+        log.info("已将业务(ID: {}, 类型: {}) 的未读通知标记为已读。", businessId, businessType);
     }
 } 
