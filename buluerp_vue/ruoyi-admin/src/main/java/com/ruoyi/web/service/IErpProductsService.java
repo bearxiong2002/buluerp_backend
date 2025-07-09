@@ -14,6 +14,8 @@ public interface IErpProductsService extends IService<ErpProducts> {
 
     List<ErpProducts> selectErpProductsListByIds(Long[] ids);
 
+    List<ErpProducts> selectListByIds(List<Integer> ids);
+
     int insertErpProducts(AddProductRequest addProductRequest) throws IOException;
 
     int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException;
