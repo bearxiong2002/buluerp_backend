@@ -492,7 +492,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount(null));
         result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount(null));
         if (result.getDeliveredCount() != 0) {
-            result.setPunctualRate(result.getPunctualRate() * 100 / (double) result.getDeliveredCount());
+            result.setPunctualRate(result.getPunctualCount() * 100 / (double) result.getDeliveredCount());
 
             Date today = DateUtils.getNowDate();
             Date yesterday = DateUtils.addDays(today, -1);
