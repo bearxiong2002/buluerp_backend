@@ -4,14 +4,13 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
-import com.ruoyi.web.service.IErpAuditRecordService;
-import com.ruoyi.web.service.IErpAuditSwitchService;
-import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpPurchaseCollectionService;
+import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
+import com.ruoyi.web.result.DesignPatternsResult;
+import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +31,15 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     @Autowired
     private IErpAuditSwitchService auditSwitchService;
+
+    @Autowired
+    private IErpPurchaseInfoService erpPurchaseInfoService;
+
+    @Autowired
+    private IErpMaterialInfoService erpMaterialInfoService;
+
+    @Autowired
+    private IErpDesignPatternsService erpDesignPatternsService;
 
     @Override
     @Transactional
@@ -90,6 +98,53 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
 
         return 1;
+    }
+
+    @Override
+    @Transactional
+    public int insertFromInfo(AddPurchaseCollectionFromInfoRequest request) throws IOException {
+        ErpPurchaseCollection erpPurchaseCollection = new ErpPurchaseCollection();
+
+        List<ErpDesignPatterns> designPatternsList = erpDesignPatternsService
+                .selectErpDesignPatternsListByIds(new Long[]{request.getDesignPatternId()});
+        if (designPatternsList == null || designPatternsList.isEmpty()) {
+            throw new ServiceException("设计总表不存在");
+        }
+
+        ErpDesignPatterns designPatterns = designPatternsList.get(0);
+        ErpOrders erpOrders = erpOrdersService.selectErpOrdersById(designPatterns.getOrderId());
+        if (erpOrders == null) {
+            throw new ServiceException("订单不存在");
+        }
+        erpPurchaseCollection.setOrderCode(erpOrders.getInnerId());
+        erpPurchaseCollection.setProductId(erpOrders.getProductId());
+
+        ErpPurchaseInfo erpPurchaseInfo = erpPurchaseInfoService.getById(request.getPurchaseInfoId());
+        if (erpPurchaseInfo == null) {
+            throw new ServiceException("外购资料不存在");
+        }
+        ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService
+                .selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType());
+        if (erpMaterialInfo.getSingleWeight() == null) {
+            throw new ServiceException("请先完善对应物料资料的单重信息");
+        }
+
+        erpPurchaseCollection.setPictureUrl(erpPurchaseInfo.getPictureUrl());
+        erpPurchaseCollection.setPurchaseCode(erpPurchaseInfo.getPurchaseCode());
+        erpPurchaseCollection.setMouldNumber(erpMaterialInfo.getMouldNumber());
+        erpPurchaseCollection.setSpecification(erpMaterialInfo.getSpecificationName());
+        erpPurchaseCollection.setPurchaseQuantity(request.getPurchaseQuantity());
+        erpPurchaseCollection.setColorCode(request.getColorCode());
+        erpPurchaseCollection.setMaterialType(erpMaterialInfo.getMaterialType());
+        erpPurchaseCollection.setSingleWeight(erpMaterialInfo.getSingleWeight());
+        erpPurchaseCollection.setPurchaseWeight(
+                erpMaterialInfo.getSingleWeight() * request.getPurchaseQuantity()
+        );
+        erpPurchaseCollection.setDeliveryTime(request.getDeliveryTime());
+        erpPurchaseCollection.setSupplier(erpPurchaseInfo.getSupplier());
+        erpPurchaseCollection.setRemarks(request.getRemarks());
+
+        return insertErpPurchaseCollection(erpPurchaseCollection);
     }
 
     @Override

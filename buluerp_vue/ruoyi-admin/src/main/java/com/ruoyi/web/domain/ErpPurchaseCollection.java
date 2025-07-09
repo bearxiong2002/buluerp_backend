@@ -58,7 +58,7 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Excel(name = "采购数量")
     @Range(min = 1, message = "采购数量不能小于1", groups = {Save.class, Update.class})
     @Example("1")
-    private Integer purchaseQuantity;
+    private Long purchaseQuantity;
 
     @Excel(name = "颜色编号")
     @Example("123,456,789")
@@ -210,11 +210,11 @@ public class ErpPurchaseCollection extends BaseEntity {
         this.specification = specification;
     }
 
-    public Integer getPurchaseQuantity() {
+    public Long getPurchaseQuantity() {
         return purchaseQuantity;
     }
 
-    public void setPurchaseQuantity(Integer purchaseQuantity) {
+    public void setPurchaseQuantity(Long purchaseQuantity) {
         this.purchaseQuantity = purchaseQuantity;
     }
 
