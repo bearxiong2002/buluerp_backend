@@ -13,6 +13,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.service.IErpMaterialInfoService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,9 @@ import java.util.List;
 public class ErpMaterialInfoController extends BaseController {
     @Autowired
     private IErpMaterialInfoService erpMaterialInfoService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:list')")
     @Anonymous
@@ -69,9 +73,7 @@ public class ErpMaterialInfoController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载物料导入模板", notes = "下载物料导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpMaterialInfo> list = Collections.singletonList(BaseEntity.createExample(ErpMaterialInfo.class));
-        ExcelUtil<ErpMaterialInfo> util = createTemplateExcelUtil(ErpMaterialInfo.class);
-        util.exportExcel(response, list, "物料数据");
+        IListValidationService.exportExample(response, ErpMaterialInfo.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:import')")
@@ -79,8 +81,8 @@ public class ErpMaterialInfoController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入物料资料列表", notes = "导入物料资料列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpMaterialInfo> list = validateExcel(file, ErpMaterialInfo.class);
-        return toAjax(erpMaterialInfoService.insertErpMaterialInfos(list));
+        listValidationService.importExcel(file, ErpMaterialInfo.class, erpMaterialInfoService::insertErpMaterialInfo);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:add')")

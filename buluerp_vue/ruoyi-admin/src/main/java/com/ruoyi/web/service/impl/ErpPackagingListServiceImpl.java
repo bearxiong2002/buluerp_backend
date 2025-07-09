@@ -1,22 +1,16 @@
 package com.ruoyi.web.service.impl;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelReader;
 import com.alibaba.excel.ExcelWriter;
-import com.alibaba.excel.metadata.data.WriteCellData;
-import com.alibaba.excel.read.metadata.ReadSheet;
-import com.alibaba.excel.support.ExcelTypeEnum;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.exception.ServiceException;
-import com.ruoyi.common.exception.excel.ExcelImportException;
-import com.ruoyi.common.exception.excel.ExcelRowErrorInfo;
+import com.ruoyi.common.exception.excel.ListValidationException;
+import com.ruoyi.common.exception.excel.ListRowErrorInfo;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.common.validation.Save;
 import com.ruoyi.web.domain.ErpPackagingBag;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
@@ -24,7 +18,6 @@ import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.service.*;
-import org.apache.commons.math3.stat.descriptive.summary.Product;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,8 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.servlet.http.HttpServletResponse;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -53,19 +44,13 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     private IErpPackagingBagService erpPackagingBagService;
 
     @Autowired
-    private IErpPackagingDetailService erpPackagingDetailService;
-
-    @Autowired
-    private Validator validator;
+    private IListValidationService listValidationService;
 
     @Autowired
     private IErpAuditRecordService auditRecordService;
 
     @Autowired
     private IErpAuditSwitchService auditSwitchService;
-
-    public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
-    public static final Integer BAG_TEMPLATE_HEADER_ROW = 2;
 
     public static InputStream getListTemplate() {
         return ErpPackagingListServiceImpl.class.getClassLoader().getResourceAsStream(LIST_TEMPLATE);
@@ -338,23 +323,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     @Override
-    public ErpPackagingList importExcel(InputStream inputStream) throws Exception {
+    public ErpPackagingList importExcel(InputStream inputStream, List<String> basSheetNameReceiver) throws Exception {
         // 读取大表
         Workbook workbook = WorkbookFactory.create(inputStream);
         Sheet mainSheet = workbook.getSheet("分包表");
         ErpPackagingList erpPackagingList = ExcelUtil
                 .extractEntityFromSheet(mainSheet, ErpPackagingList.class);
-
-        // 验证大表
-        List<ExcelRowErrorInfo> errorInfos = BaseController.validateList(
-                        Collections.singletonList(erpPackagingList), validator
-                )
-                .stream()
-                .peek(info -> {
-                    info.setSheetName("分包表");
-                    info.setRowNum(1);
-                })
-                .collect(Collectors.toList());
 
         // 读取小包表
         erpPackagingList.setBagList(new ArrayList<>());
@@ -363,6 +337,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             if (!bagSheetName.startsWith("分包袋")) {
                 continue;
             }
+            basSheetNameReceiver.add(bagSheetName);
             // TODO: 读取小包
             Sheet bagSheet = workbook.getSheet(bagSheetName);
             ErpPackagingBag bag = ExcelUtil
@@ -381,47 +356,41 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
                 detail.setPackagingBagId(1L); // 为了通过验证，但不是实际的小包ID
             }
             bag.setDetails(details);
-
-            // 验证小包
-            errorInfos.addAll(
-                    BaseController.validateList(Collections.singletonList(bag), validator)
-                            .stream()
-                            .peek(info -> {
-                                info.setSheetName(bagSheetName);
-                                info.setRowNum(1);
-                            })
-                            .collect(Collectors.toList())
-            );
-
-            // 验证小包详情
-            errorInfos.addAll(
-                    BaseController.validateList(bag.getDetails(), validator)
-                            .stream()
-                            .peek(info -> {
-                                int row = info.getRowNum();
-                                info.setSheetName(bagSheetName);
-                                info.setRowNum(BAG_TEMPLATE_HEADER_ROW + row);
-                            })
-                            .collect(Collectors.toList())
-            );
-        }
-        if (!errorInfos.isEmpty()) {
-            throw new ExcelImportException(errorInfos);
         }
         return erpPackagingList;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertCascade(ErpPackagingList erpPackagingList) {
+    public void insertCascade(ErpPackagingList erpPackagingList, List<String> basSheetNames) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
-        if (erpPackagingListMapper.insertErpPackagingList(erpPackagingList) <= 0) {
-            throw new ServiceException("插入分包表失败");
+        List<ListRowErrorInfo> errorInfos = listValidationService.collectInsertionErrors(
+                Collections.singletonList(erpPackagingList),
+                this::insertErpPackagingList
+        )
+                .stream()
+                .peek((e) -> e.setSheetName("分包表"))
+                .collect(Collectors.toList());
+        if (!errorInfos.isEmpty()) {
+            // 由于分包大表插入失败，无法设置小包表的分包ID，因此不再继续验证，直接抛出异常
+            throw new ListValidationException(errorInfos);
         }
+        int i = 0;
         for (ErpPackagingBag bag : erpPackagingList.getBagList()) {
-            bag.setPackagingListId(erpPackagingList.getId());
-            erpPackagingBagService.insertCascade(bag);
+            try {
+                bag.setPackagingListId(erpPackagingList.getId());
+                erpPackagingBagService.insertCascade(bag);
+            } catch (ListValidationException e) {
+                for (ListRowErrorInfo ei : e.getErrorInfoList()) {
+                    ei.setSheetName(basSheetNames.get(i));
+                    errorInfos.add(ei);
+                }
+            }
+            i++;
+        }
+        if (!errorInfos.isEmpty()) {
+            throw new ListValidationException(errorInfos);
         }
     }
 

@@ -3,6 +3,8 @@ package com.ruoyi.web.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.exception.excel.ListRowErrorInfo;
+import com.ruoyi.common.exception.excel.ListValidationException;
 import com.ruoyi.web.domain.ErpPackagingBag;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
@@ -10,11 +12,14 @@ import com.ruoyi.web.mapper.ErpPackagingBagMapper;
 import com.ruoyi.web.service.IErpPackagingBagService;
 import com.ruoyi.web.service.IErpPackagingDetailService;
 import com.ruoyi.web.service.IErpPackagingListService;
+import com.ruoyi.web.service.IListValidationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,6 +32,9 @@ public class ErpPackagingBagServiceImpl
 
     @Autowired
     IErpPackagingDetailService erpPackagingDetailService;
+
+    @Autowired
+    IListValidationService listValidationService;
 
     public void checkReferences(ErpPackagingBag entity) {
         if (entity.getPackagingListId() != null) {
@@ -65,13 +73,22 @@ public class ErpPackagingBagServiceImpl
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void insertCascade(ErpPackagingBag entity) {
-        saveOrUpdate(entity);
-        for (ErpPackagingDetail detail : entity.getDetails()) {
-            detail.setPackagingBagId(entity.getId());
-            erpPackagingDetailService.checkUnique(detail);
-            erpPackagingDetailService.saveOrUpdate(detail);
+        List<ListRowErrorInfo> listRowErrorInfos = listValidationService
+                .collectErrors(Collections.singletonList(entity), baseMapper::insert);
+        listRowErrorInfos.addAll(
+                listValidationService.collectErrors(entity.getDetails(), (detail) -> {
+                            detail.setPackagingBagId(entity.getId());
+                            erpPackagingDetailService.checkUnique(detail);
+                            erpPackagingDetailService.saveOrUpdate(detail);
+                        })
+                        .stream()
+                        .peek((e) -> e.setRowNum(e.getRowNum() + IErpPackagingListService.BAG_TEMPLATE_HEADER_ROW))
+                        .collect(Collectors.toList())
+        );
+        if (!listRowErrorInfos.isEmpty()) {
+            throw new ListValidationException(listRowErrorInfos);
         }
     }
 

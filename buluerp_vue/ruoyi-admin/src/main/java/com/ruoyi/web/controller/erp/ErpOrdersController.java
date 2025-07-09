@@ -14,6 +14,7 @@ import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpOrdersService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,9 @@ public class ErpOrdersController extends BaseController
 
     @Autowired
     private IErpAuditRecordService erpAuditRecordService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     /**
      * 查询订单列表
@@ -78,9 +82,7 @@ public class ErpOrdersController extends BaseController
     @GetMapping("/export/template")
     @ApiOperation(value = "下载订单导入模板", notes = "下载订单导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpOrders> list = Collections.singletonList(BaseEntity.createExample(ErpOrders.class));
-        ExcelUtil<ErpOrders> util = createTemplateExcelUtil(ErpOrders.class);
-        util.exportExcel(response, list, "订单数据");
+        IListValidationService.exportExample(response, ErpOrders.class);
     }
 
     /**
@@ -92,13 +94,8 @@ public class ErpOrdersController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入订单列表", notes = "导入订单列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpOrders> erpOrders = validateExcel(file, ErpOrders.class);
-        int count = 0;
-        for (ErpOrders erpOrders1 : erpOrders) {
-            erpOrdersService.insertErpOrders(erpOrders1);
-            count++;
-        }
-        return success(count);
+        listValidationService.importExcel(file, ErpOrders.class, erpOrdersService::insertErpOrders);
+        return success();
     }
 
     /**

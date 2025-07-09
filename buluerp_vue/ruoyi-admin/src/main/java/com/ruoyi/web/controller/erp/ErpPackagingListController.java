@@ -20,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -66,8 +67,9 @@ public class ErpPackagingListController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入分包列表", notes = "导入分包列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws Exception {
-        ErpPackagingList erpPackagingList = packagingListService.importExcel(file.getInputStream());
-        packagingListService.insertCascade(erpPackagingList);
+        List<String> bagSheetNames = new ArrayList<>();
+        ErpPackagingList erpPackagingList = packagingListService.importExcel(file.getInputStream(), bagSheetNames);
+        packagingListService.insertCascade(erpPackagingList, bagSheetNames);
         return success();
     }
 

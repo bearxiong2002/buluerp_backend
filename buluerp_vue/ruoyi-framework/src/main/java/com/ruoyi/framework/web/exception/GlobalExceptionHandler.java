@@ -2,7 +2,7 @@ package com.ruoyi.framework.web.exception;
 
 import javax.servlet.http.HttpServletRequest;
 
-import com.ruoyi.common.exception.excel.ExcelImportException;
+import com.ruoyi.common.exception.excel.ListValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.access.AccessDeniedException;
@@ -92,9 +92,9 @@ public class GlobalExceptionHandler
         return AjaxResult.error(String.format("请求参数类型不匹配，参数[%s]要求类型为：'%s'，但输入值为：'%s'", e.getName(), e.getRequiredType().getName(), value));
     }
 
-    @ExceptionHandler(ExcelImportException.class)
-    public AjaxResult handleExcelImportException(ExcelImportException e) {
-        return new AjaxResult(HttpStatus.BAD_REQUEST, e.getMessage(), e.getErrorInfoList());
+    @ExceptionHandler(ListValidationException.class)
+    public AjaxResult handleExcelImportException(ListValidationException e) {
+        return new AjaxResult(HttpStatus.CONFLICT, e.getMessage(), e.getErrorInfoList());
     }
 
     /**

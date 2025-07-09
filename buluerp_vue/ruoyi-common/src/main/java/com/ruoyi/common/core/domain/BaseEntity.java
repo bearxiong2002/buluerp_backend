@@ -170,43 +170,4 @@ public class BaseEntity implements Serializable
     public void setIsAsc(String isAsc) {
         this.isAsc = isAsc;
     }
-
-    public static <T> T createExample(Class<T> clazz) throws InstantiationException, IllegalAccessException {
-        T example = clazz.newInstance();
-        Field[] fields = clazz.getDeclaredFields();
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Example exampleAnnotation = field.getAnnotation(Example.class);
-            if (exampleAnnotation != null) {
-                Class<?> type = field.getType();
-                String value = exampleAnnotation.value();
-                if (value.equals(Example.GEN_UUID)) {
-                    if (String.class == type) {
-                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID().toString());
-                    } else if (UUID.class == type) {
-                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID());
-                    }
-                } else if (String.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), value);
-                } else if (Integer.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toInt(value));
-                } else if (Long.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toLong(value));
-                } else if (Double.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toDouble(value));
-                } else if (Float.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toFloat(value));
-                } else if (BigDecimal.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBigDecimal(value));
-                } else if (Date.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), DateUtils.parseDate(value));
-                } else if (Boolean.class == type) {
-                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBool(value));
-                } else {
-                    throw new UnsupportedExampleTypeException("不支持的示例值类型");
-                }
-            }
-        }
-        return example;
-    }
 }

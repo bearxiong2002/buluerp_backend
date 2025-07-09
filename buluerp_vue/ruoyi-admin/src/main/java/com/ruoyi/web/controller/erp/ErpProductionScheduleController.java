@@ -11,6 +11,7 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.service.IErpProductionScheduleService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +31,9 @@ import java.util.List;
 public class ErpProductionScheduleController extends BaseController {
     @Autowired
     private IErpProductionScheduleService erpProductionScheduleService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:list')")
     @Anonymous
@@ -66,9 +70,7 @@ public class ErpProductionScheduleController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载布产导入模板", notes = "下载布产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpProductionSchedule> list = Collections.singletonList(BaseEntity.createExample(ErpProductionSchedule.class));
-        ExcelUtil<ErpProductionSchedule> util = createTemplateExcelUtil(ErpProductionSchedule.class);
-        util.exportExcel(response, list, "布产数据");
+        IListValidationService.exportExample(response, ErpProductionSchedule.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:import')")
@@ -76,13 +78,8 @@ public class ErpProductionScheduleController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入布产列表", notes = "导入布产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpProductionSchedule> erpProductionSchedule = validateExcel(file, ErpProductionSchedule.class);
-        int c = 0;
-        for (ErpProductionSchedule item : erpProductionSchedule) {
-            c += erpProductionScheduleService
-                   .insertErpProductionSchedule(item);
-        }
-        return toAjax(c);
+        listValidationService.importExcel(file, ErpProductionSchedule.class, erpProductionScheduleService::insertErpProductionSchedule);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:add')")

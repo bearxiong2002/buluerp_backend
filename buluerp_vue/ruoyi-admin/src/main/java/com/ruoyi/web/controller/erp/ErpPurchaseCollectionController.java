@@ -11,6 +11,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +31,9 @@ import java.util.List;
 public class ErpPurchaseCollectionController extends BaseController {
     @Autowired
     private IErpPurchaseCollectionService erpPurchaseCollectionService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:list')")
     @Anonymous
@@ -56,9 +60,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载采购计划导入模板", notes = "下载采购计划导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpPurchaseCollection> list = Collections.singletonList(BaseEntity.createExample(ErpPurchaseCollection.class));
-        ExcelUtil<ErpPurchaseCollection> util = createTemplateExcelUtil(ErpPurchaseCollection.class);
-        util.exportExcel(response, list, "采购计划数据");
+        IListValidationService.exportExample(response, ErpPurchaseCollection.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:import')")
@@ -66,8 +68,8 @@ public class ErpPurchaseCollectionController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入采购计划列表", notes = "导入采购计划列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpPurchaseCollection> list = validateExcel(file, ErpPurchaseCollection.class);
-        return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollections(list));
+        listValidationService.importExcel(file, ErpPurchaseCollection.class, erpPurchaseCollectionService::insertErpPurchaseCollection);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:add')")

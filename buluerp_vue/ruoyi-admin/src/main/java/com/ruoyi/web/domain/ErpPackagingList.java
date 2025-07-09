@@ -11,6 +11,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
@@ -111,7 +112,7 @@ public class ErpPackagingList {
 
     public static ErpPackagingList createExample() {
         try {
-            ErpPackagingList e = BaseEntity.createExample(ErpPackagingList.class);
+            ErpPackagingList e = IListValidationService.createExample(ErpPackagingList.class);
             List<ErpPackagingBag> bagList = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
                 bagList.add(ErpPackagingBag.createExample());
