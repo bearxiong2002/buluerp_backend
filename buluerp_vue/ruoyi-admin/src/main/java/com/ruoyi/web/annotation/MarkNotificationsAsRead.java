@@ -25,4 +25,4 @@ public @interface MarkNotificationsAsRead {
      * @return SpEL表达式字符串
      */
     String businessIdsExpression();
-}
+} 
