@@ -76,7 +76,7 @@ public enum OrderStatus {
         public StatusBlock(OrderStatus from, OrderStatus to, String role) {
             this.from = from;
             this.to = to;
-            this.roles = new String[]{role};
+            this.roles = role != null? new String[]{role} : null;
         }
 
         @Override
@@ -88,7 +88,8 @@ public enum OrderStatus {
             }
             Integer allowFrom = this.from.getValue(mapper);
             Integer allowTo = this.to.getValue(mapper);
-            return allowFrom <= from && allowTo >= to;
+            return allowFrom <= from && allowFrom <= to &&
+                    allowTo >= from && allowTo >= to;
         }
     }
 
@@ -107,7 +108,7 @@ public enum OrderStatus {
         public StatusRoute(OrderStatus from, OrderStatus to, String role) {
             this.from = from;
             this.to = to;
-            this.roles = new String[]{role};
+            this.roles = role != null ? new String[]{role} : null;
         }
 
         @Override
@@ -119,7 +120,7 @@ public enum OrderStatus {
             }
             Integer allowFrom = this.from.getValue(mapper);
             Integer allowTo = this.to.getValue(mapper);
-            return allowFrom <= from && allowTo >= to;
+            return Objects.equals(allowFrom, from) && Objects.equals(allowTo, to);
         }
     }
 

@@ -409,7 +409,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
         // TODO: 将状态修改逻辑移到审核流程中
         if (erpOrders.getStatus() != null) {
-            updateOrderStatus(erpOrders.getInnerId(), erpOrders.getStatus(), SecurityUtils.getUsername());
+            updateOrderStatus(erpOrders.getId(), erpOrders.getStatus(), SecurityUtils.getUsername());
         }
 
                  // 如果涉及状态修改，检查审核开关并处理
