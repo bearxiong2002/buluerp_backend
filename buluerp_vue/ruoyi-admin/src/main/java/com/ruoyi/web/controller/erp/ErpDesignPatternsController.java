@@ -13,6 +13,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
@@ -174,7 +175,7 @@ public class ErpDesignPatternsController extends BaseController
             result.put("failure", errorList.size());
             result.put("errors", errorList);
 
-            return AjaxResult.error("导入完成，但有部分错误", result);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入完成，但有部分错误", result);
         }
         else {
             for(AddDesignPatternsRequest addDesignPatternsRequest:addDesignPatternsRequestList)

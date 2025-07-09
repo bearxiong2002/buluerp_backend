@@ -8,6 +8,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.controller.tool.ExcelImageImportUtil;
 import com.ruoyi.web.exception.ImportException;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
@@ -175,7 +176,7 @@ public class ErpProductsController extends BaseController {
         }
 
         if (!errorList.isEmpty()) {
-            return AjaxResult.error("导入失败", errorList);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入失败", errorList);
         }
         else {
             for (AddProductRequest request:requests){

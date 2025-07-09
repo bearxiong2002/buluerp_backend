@@ -10,6 +10,7 @@ import javax.validation.ValidatorFactory;
 import javax.validation.constraints.NotNull;
 
 import com.ruoyi.common.annotation.Anonymous;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.web.controller.tool.ExcelImageImportUtil;
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignRequest;
@@ -208,7 +209,7 @@ public class ErpDesignStyleController extends BaseController
             result.put("failure", errorList.size());
             result.put("errors", errorList);
 
-            return AjaxResult.error("导入完成，但有部分错误", result);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入完成，但有部分错误", result);
         }
         else  {
             for (AddDesignRequest addDesignRequest:addDesignRequestList)

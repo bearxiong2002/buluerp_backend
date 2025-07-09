@@ -7,6 +7,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.controller.tool.ExcelImageImportUtil;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseOrder;
 import com.ruoyi.web.exception.ImportException;
@@ -236,7 +237,7 @@ public class ErpPurchaseOrderController extends BaseController {
             result.put("errorRows", errorList.size());
             result.put("errors", errorList);
             
-            return AjaxResult.error("导入完成，但存在错误", result);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入完成，但存在错误", result);
         }
         
         Map<String, Object> result = new HashMap<>();

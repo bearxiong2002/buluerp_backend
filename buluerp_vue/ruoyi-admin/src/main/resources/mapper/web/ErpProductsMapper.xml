@@ -8,7 +8,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         values (#{param1},#{param2})
     </insert>
     <update id="updateStatusById">
-        update buluerp.erp_products set design_status=#{design_status} where id=#{id}
+        update erp_products
+        set design_status = #{status,jdbcType=INTEGER}
+        where id = #{id,jdbcType=INTEGER}
     </update>
     <delete id="clearProductMaterial">
         delete from erp_product_material where product_id=#{productId}

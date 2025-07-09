@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPackagingMaterialInventory;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.web.domain.ErpPackagingMaterialInventoryChange;
 import com.ruoyi.web.request.Inventory.AddPackagingMaterialRequest;
 import com.ruoyi.web.request.Inventory.ListPackagingMaterialRequest;
@@ -175,7 +176,7 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             result.put("success", successCount);
             result.put("failure", errorList.size());
             result.put("errors", errorList);
-            return AjaxResult.error("导入完成，但有部分错误", result);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入完成，但有部分错误", result);
         }
         else {
             for(AddPackagingMaterialRequest request:requests){

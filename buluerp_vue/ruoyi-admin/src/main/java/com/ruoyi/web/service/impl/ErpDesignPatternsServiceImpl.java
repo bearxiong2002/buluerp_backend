@@ -2,6 +2,7 @@ package com.ruoyi.web.service.impl;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
@@ -10,6 +11,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
@@ -22,6 +24,8 @@ import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import com.ruoyi.web.service.IErpOrdersService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +41,8 @@ import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 @Service
 public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsMapper,ErpDesignPatterns> implements IErpDesignPatternsService
 {
+    private static final Logger log = LoggerFactory.getLogger(ErpDesignPatternsServiceImpl.class);
+
     @Autowired
     private ErpDesignPatternsMapper erpDesignPatternsMapper;
 
@@ -119,22 +125,15 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
         int result = erpDesignPatternsMapper.insert(erpDesignPatterns);
         
-        // 检查产品的confirm状态
         if (result > 0) {
-            // TODO: 将订单状态修改逻辑移到审核流程中
+            // 首先，将订单状态更新为“设计中”，表示设计工作已开始
             erpOrdersService.updateOrderStatusAutomatic(
                     erpDesignPatterns.getOrderId(),
                     OrderStatus.DESIGNED
             );
 
-            Long productConfirm = erpDesignStyleMapper.selectConfirm(addDesignPatternsRequest.getProductId());
-            if (productConfirm != null && productConfirm.equals(1L)) {
-                // 如果产品confirm为1，更新订单状态为已设计（状态2）
-                ErpOrders erpOrders = new ErpOrders();
-                erpOrders.setId(addDesignPatternsRequest.getOrderId());
-                erpOrders.setStatus(2); // 已设计
-                erpOrdersMapper.updateErpOrders(erpOrders);
-            }
+            // 然后，立刻检查该订单是否已满足所有产品均设计的条件
+            checkAndUpdateRelatedOrders(erpDesignPatterns.getProductId());
         }
 
         return result;
@@ -212,7 +211,43 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
     @Transactional(rollbackFor = Exception.class)
     public int confirmProduct(Long proId){
-        return erpProductsMapper.updateStatusById(proId,1L);
+        int result = erpProductsMapper.updateStatusById(proId,1L);
+        if (result > 0) {
+            checkAndUpdateRelatedOrders(proId);
+        }
+        return result;
+    }
+
+    private void checkAndUpdateRelatedOrders(Long productId) {
+        log.info("产品 {} 设计状态被确认，开始检查关联订单...", productId);
+        
+        // 1. 找出所有包含该产品且处于“设计中”状态的订单
+        Integer designingStatusValue = erpOrdersService.getStatusValue(OrderStatus.DESIGNED.getLabel());
+        List<ErpOrders> relatedOrders = erpDesignPatternsMapper.findOrdersByProductIdAndStatus(productId, designingStatusValue);
+
+        for (ErpOrders order : relatedOrders) {
+            try {
+                // 2. 重新获取订单的完整信息，包括其所有产品
+                ErpOrders fullOrder = erpOrdersService.selectErpOrdersById(order.getId());
+                if (fullOrder == null || fullOrder.getProducts().isEmpty()) {
+                    continue;
+                }
+
+                // 3. 检查该订单的所有产品是否都已设计完成
+                boolean allProductsDesigned = fullOrder.getProducts().stream()
+                        .map(ErpOrdersProduct::getProduct)
+                        .allMatch(p -> p != null && Objects.equals(p.getDesignStatus(), 1));
+
+                if (allProductsDesigned) {
+                    log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。", fullOrder.getInnerId());
+                    // 4. 如果是，则自动更新订单状态
+                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PURCHASE_PRODUCTION_PENDING);
+                }
+            } catch (Exception e) {
+                log.error("自动更新订单 {} 状态失败，产品ID: {}", order.getInnerId(), productId, e);
+                // 单个订单更新失败不影响其他订单
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
