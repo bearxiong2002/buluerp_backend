@@ -34,24 +34,6 @@ public class ErpOrders extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    // 状态标签，通过订单服务可转换成状态值
-    public static final String STATUS_AUDIT_REJECT = "审核未通过";
-    public static final String STATUS_CREATED = "创建(未审核)";
-    public static final String STATUS_DESIGN_PENDING = "待设计";
-    public static final String STATUS_DESIGNED = "设计中";
-    public static final String STATUS_PURCHASE_PRODUCTION_PENDING = "待定制外购与布产计划";
-    public static final String STATUS_PURCHASING = "外购中";
-    public static final String STATUS_IN_PRODUCTION = "布产中";
-    public static final String STATUS_PURCHASING_IN_PRODUCTION = "外购与布产中";
-    public static final String STATUS_MATERIAL_IN_INVENTORY = "已齐料入库(待套料)";
-    public static final String STATUS_MATERIAL_NESTING = "套料中";
-    public static final String STATUS_PACKAGING_PENDING = "套料完成(待拉线)";
-    public static final String STATUS_PACKAGING = "拉线组包中";
-    public static final String STATUS_PACKAGED = "拉线完成(分包已入库)";
-    public static final String STATUS_PACKING = "包装中";
-    public static final String STATUS_DELIVERED = "已发货";
-    public static final String STATUS_COMPLETED = "已完成";
-
     /** 主键ID */
     private Long id;
 

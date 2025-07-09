@@ -9,9 +9,11 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.AuditTypeEnum;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpAuditSwitchService;
+import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductionScheduleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,6 +32,10 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpAuditSwitchService auditSwitchService;
+
+    @Autowired
+    private IErpOrdersService erpOrdersService;
+
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
@@ -47,6 +53,17 @@ public class ErpProductionScheduleServiceImpl
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
+        // TODO: 将订单状态修改逻辑移到审核流程中
+        erpOrdersService.updateOrderStatusAutomatic(
+                erpProductionSchedule.getOrderCode(),
+                (oldStatus) -> {
+                    if (oldStatus == OrderStatus.PURCHASING) {
+                        return OrderStatus.PURCHASING_IN_PRODUCTION;
+                    } else {
+                        return OrderStatus.IN_PRODUCTION;
+                    }
+                }
+        );
         if (erpProductionSchedule.getMaterialIds() != null) {
             getBaseMapper().insertProductionScheduleMaterialIds(
                     erpProductionSchedule.getId(),

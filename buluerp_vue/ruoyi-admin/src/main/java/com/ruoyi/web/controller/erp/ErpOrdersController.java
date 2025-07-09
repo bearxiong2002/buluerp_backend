@@ -152,6 +152,14 @@ public class ErpOrdersController extends BaseController
     }
 
     @Anonymous
+    @GetMapping("/status/map")
+    @ApiOperation(value = "获取订单状态映射", notes = "获取订单状态映射")
+    public AjaxResult getStatusMap() {
+        return success(erpOrdersService.getStatusMap());
+    }
+
+
+    @Anonymous
     @GetMapping("/statistics")
     @ApiOperation(value = "获取订单统计信息", notes = "获取订单统计信息")
     public AjaxResult getStatistics(

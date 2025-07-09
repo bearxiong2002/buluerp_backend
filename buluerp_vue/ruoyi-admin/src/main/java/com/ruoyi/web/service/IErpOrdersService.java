@@ -1,11 +1,14 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.result.OrderStatisticsResult;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
 
 
 /**
@@ -14,7 +17,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2025-04-09
  */
-public interface IErpOrdersService 
+public interface IErpOrdersService extends OrderStatus.StatusMapper
 {
     /**
      * 查询订单
@@ -44,13 +47,35 @@ public interface IErpOrdersService
      */
     public int insertErpOrders(ErpOrders erpOrders);
 
-    void updateOrderStatus(Long id, Integer status, String operator);
+    /**
+     * 检查订单状态是否符合转移条件
+     *
+     * @param fromStatus 原状态
+     * @param toStatus 目标状态
+     * @param operator 操作人。如果设置为 LogUtil.OPERATOR_SYSTEM 则表示系统操作（admin 状态变更权限）
+     * @return true 如果状态转移是允许的，否则返回 false
+     */
+    boolean isOrderStatusTransitionAllowed(Integer fromStatus, Integer toStatus, String operator);
 
+    /**
+     * 无审计地更新订单状态
+     *
+     * @param orderCode 订单内部编号
+     * @param status 新的状态
+     * @param operator 操作人。如果设置为 LogUtil.OPERATOR_SYSTEM 则表示系统操作（admin 状态变更权限）
+     * @throws com.ruoyi.common.exception.ServiceException 如果无权限进行状态变更或部分参数无效
+     */
     void updateOrderStatus(String orderCode, Integer status, String operator);
 
-    void upadteOrderStatusAutomatic(Long id, Integer status);
+    void updateOrderStatus(Long id, Integer status, String operator);
 
-    void upadteOrderStatusAutomatic(String orderCode, Integer status);
+    void updateOrderStatusAutomatic(Long id, OrderStatus status);
+
+    void updateOrderStatusAutomatic(String orderCode, OrderStatus status);
+
+    void updateOrderStatusAutomatic(Long id, Function<OrderStatus, OrderStatus> transformer);
+
+    void updateOrderStatusAutomatic(String orderCode, Function<OrderStatus, OrderStatus> transformer);
 
     /**
      * 修改订单
@@ -84,11 +109,11 @@ public interface IErpOrdersService
 
     OrderStatisticsResult getOrderStatistics(Date startTime, Date endTime);
 
+    @Override
     Integer getStatusValue(String label);
 
+    @Override
     String getStatusLabel(Integer status);
 
-    Integer getMaxStatusValue();
-
-    Integer getMinStatusValue();
+    Map<String, Integer> getStatusMap();
 }

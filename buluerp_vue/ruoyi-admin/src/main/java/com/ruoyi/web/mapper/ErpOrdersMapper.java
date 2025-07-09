@@ -84,14 +84,6 @@ public interface ErpOrdersMapper
 
     List<ErpOrdersProduct> selectOrdersProducts(Long ordersId);
 
-    Integer getStatusValue(String label);
-
-    String getStatusLabel(Integer value);
-
-    Integer getMaxStatusValue();
-
-    Integer getMinStatusValue();
-
     Long getOrderCount(Date day);
 
     Long getDeliveredOrderCount(Date day);

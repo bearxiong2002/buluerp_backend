@@ -10,6 +10,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
 import com.ruoyi.web.mapper.ErpProductsMapper;
@@ -20,6 +21,7 @@ import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.IErpDesignPatternsService;
+import com.ruoyi.web.service.IErpOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,6 +48,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
     @Autowired
     private ErpOrdersMapper erpOrdersMapper;
+
+    @Autowired
+    private IErpOrdersService erpOrdersService;
 
     /**
      * 查询总表详情
@@ -116,6 +121,12 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         
         // 检查产品的confirm状态
         if (result > 0) {
+            // TODO: 将订单状态修改逻辑移到审核流程中
+            erpOrdersService.updateOrderStatusAutomatic(
+                    erpDesignPatterns.getOrderId(),
+                    OrderStatus.DESIGNED
+            );
+
             Long productConfirm = erpDesignStyleMapper.selectConfirm(addDesignPatternsRequest.getProductId());
             if (productConfirm != null && productConfirm.equals(1L)) {
                 // 如果产品confirm为1，更新订单状态为已设计（状态2）

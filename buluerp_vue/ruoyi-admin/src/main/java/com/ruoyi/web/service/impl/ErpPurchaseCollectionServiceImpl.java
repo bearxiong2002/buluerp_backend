@@ -6,9 +6,11 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.enums.AuditTypeEnum;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import com.ruoyi.web.service.IErpAuditSwitchService;
+import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +23,9 @@ import java.util.List;
 public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionService {
     @Autowired
     private ErpPurchaseCollectionMapper erpPurchaseCollectionMapper;
+
+    @Autowired
+    private IErpOrdersService erpOrdersService;
 
     @Autowired
     private IErpAuditRecordService auditRecordService;
@@ -107,6 +112,17 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (0 >= erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("添加失败");
         }
+        // TODO: 将订单状态修改逻辑移到审核流程中
+        erpOrdersService.updateOrderStatusAutomatic(
+                erpPurchaseCollection.getOrderCode(),
+                (oldStatus) -> {
+                    if (oldStatus == OrderStatus.IN_PRODUCTION) {
+                        return OrderStatus.PURCHASING_IN_PRODUCTION;
+                    } else {
+                        return OrderStatus.PURCHASING;
+                    }
+                }
+        );
         if (erpPurchaseCollection.getMaterialIds() != null) {
             erpPurchaseCollectionMapper.insertErpPurchaseCollectionMaterials(
                     erpPurchaseCollection.getId(),
