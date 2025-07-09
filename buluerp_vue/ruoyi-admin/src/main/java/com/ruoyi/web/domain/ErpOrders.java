@@ -5,16 +5,14 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
-import com.ruoyi.web.annotation.LogIdentifier;
+import com.ruoyi.web.annotation.AutoLogIdentifier;
+import com.ruoyi.web.annotation.AutoLogIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import org.hibernate.validator.constraints.Range;
@@ -33,20 +31,12 @@ public class ErpOrders extends BaseEntity
 {
     private static final long serialVersionUID = 1L;
 
-    // 状态标签，通过订单服务可转换成状态值
-    public static final String STATUS_AUDIT_REJECT = "审核未通过";
-    public static final String STATUS_CREATED = "创建(未审核)";
-    public static final String STATUS_DESIGN_PENDING = "待设计";
-    public static final String STATUS_DESIGNED = "已设计";
-    public static final String STATUS_DELIVERED = "已发货";
-    public static final String STATUS_COMPLETED = "已完成";
-
     /** 主键ID */
     private Long id;
 
     @Excel(name = "内部编号")
     @Example("BLK20250528000001")
-    @LogIdentifier
+    @AutoLogIdentifier
     @NotBlank(groups = {Save.class}, message = "内部编号不能为空")
     @NullOrNotBlank(groups = {Update.class}, message = "内部编号不能为空")
     private String innerId;
@@ -85,6 +75,7 @@ public class ErpOrders extends BaseEntity
     @Excel(name = "状态", dictType = "erp_order_status")
     @Example("1")
     // @NotNull(groups = {Save.class}, message = "状态值格式有误")
+    @AutoLogIgnore // 订单状态变更单独记录日志
     private Integer status;
 
     /** 客户ID（外键引用客户表） */

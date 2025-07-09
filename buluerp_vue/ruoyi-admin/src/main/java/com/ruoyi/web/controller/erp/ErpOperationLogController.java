@@ -6,7 +6,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpOperationLog;
-import com.ruoyi.web.log.AutoLogIgnore;
+import com.ruoyi.web.annotation.AutoLogIgnore;
 import com.ruoyi.web.request.log.ListOperationLogRequest;
 import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.Api;

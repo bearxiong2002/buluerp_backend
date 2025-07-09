@@ -229,6 +229,9 @@ public class BaseController
         ExcelUtil<Type> util = new ExcelUtil<>(clazz);
         List<Type> list = util.importExcel(file.getInputStream());
         List<ExcelRowErrorInfo> errorList = validateList(list, validator);
+        if (!errorList.isEmpty()) {
+            throw new ExcelImportException(errorList);
+        }
         return list;
     }
 

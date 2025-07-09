@@ -1,18 +1,24 @@
 package com.ruoyi.web.service.impl;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.ruoyi.common.core.domain.entity.SysRole;
+import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.DictUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
+import com.ruoyi.web.enums.OrderStatus;
+import com.ruoyi.web.util.log.LogUtil;
+import com.ruoyi.web.util.log.OperationLog;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
-import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.result.OrderStatisticsResult;
@@ -51,6 +57,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Autowired
     private IErpAuditSwitchService erpAuditSwitchService;
+
+    @Autowired
+    private ISysUserService sysUserService;
 
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         if (erpOrders == null) {
@@ -207,6 +216,117 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         return 1;
     }
 
+    @Override
+    public boolean isOrderStatusTransitionAllowed(Integer fromStatus, Integer toStatus, String operator) {
+        List<String> roles;
+        if (LogUtil.OPERATOR_SYSTEM.equals(operator)) {
+            roles = Collections.singletonList("admin");
+        } else {
+            SysUser sysUser = sysUserService.selectUserByUserName(operator);
+            if (sysUser == null) {
+                throw new IllegalArgumentException("用户不存在。");
+            }
+            roles = sysUser.getRoles()
+                    .stream()
+                    .map(SysRole::getRoleKey)
+                    .collect(Collectors.toList());
+        }
+        for (OrderStatus.StatusRule rule : OrderStatus.STATUS_RULES) {
+            boolean allows = roles.stream()
+                    .anyMatch(role -> rule.allows(fromStatus, toStatus, role, this));
+            if (allows) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void updateOrderStatus(String orderCode, Integer status, String operator) {
+        ErpOrders oldOrder = erpOrdersMapper.selectErpOrdersByInnerId(orderCode);
+        if (oldOrder == null) {
+            throw new ServiceException("订单ID不存在");
+        }
+        if (Objects.equals(oldOrder.getStatus(), status)) {
+            return;
+        }
+
+        String oldStatus = getStatusLabel(oldOrder.getStatus());
+        String newStatus = getStatusLabel(status);
+
+        if (oldStatus == null || newStatus == null) {
+            throw new ServiceException("订单状态无效");
+        }
+
+        if (!isOrderStatusTransitionAllowed(getStatusValue(oldStatus), getStatusValue(newStatus), operator)) {
+            throw new ServiceException("当前不允许将订单" + orderCode + "的状态从" + oldStatus + "变更为" + newStatus);
+        }
+
+        List<OperationLog> cachedLog = LogUtil.getOperationLog();
+        LogUtil.clearOperationLog();
+
+        try {
+            LogUtil.addOperationLog(
+                    OperationLog.builder()
+                            .operator(operator)
+                            .operationTime(DateUtils.getNowDate())
+                            .operationType("订单状态变更")
+                            .recordId("订单" + orderCode)
+                            .details("将订单" + orderCode + "的状态从" + oldStatus + "变更为" + newStatus)
+                            .build()
+            );
+
+            ErpOrders order = new ErpOrders();
+            order.setId(oldOrder.getId());
+            order.setStatus(status);
+            if (0 == erpOrdersMapper.updateErpOrders(order)) {
+                throw new ServiceException("更新订单状态失败");
+            }
+
+            LogUtil.commitOperationLogs();
+        } finally {
+            LogUtil.setOperationLog(cachedLog);
+        }
+    }
+
+    @Override
+    public void updateOrderStatus(Long id, Integer status, String operator) {
+        ErpOrders erpOrders = erpOrdersMapper.selectErpOrdersById(id);
+        if (erpOrders == null) {
+            throw new ServiceException("订单编号不存在");
+        }
+        updateOrderStatus(erpOrders.getInnerId(), status, operator);
+    }
+
+    @Override
+    public void updateOrderStatusAutomatic(Long id, OrderStatus status) {
+        updateOrderStatus(id, status.getValue(this), LogUtil.OPERATOR_SYSTEM);
+    }
+
+    @Override
+    public void updateOrderStatusAutomatic(String orderCode, OrderStatus status) {
+        updateOrderStatus(orderCode, status.getValue(this), LogUtil.OPERATOR_SYSTEM);
+    }
+
+    @Override
+    public void updateOrderStatusAutomatic(Long id, Function<OrderStatus, OrderStatus> transformer) {
+        ErpOrders erpOrders = erpOrdersMapper.selectErpOrdersById(id);
+        if (erpOrders == null) {
+            throw new ServiceException("订单ID不存在");
+        }
+        OrderStatus targetStatus = transformer.apply(OrderStatus.of(erpOrders.getStatus(), this));
+        updateOrderStatusAutomatic(id, targetStatus);
+    }
+
+    @Override
+    public void updateOrderStatusAutomatic(String orderCode, Function<OrderStatus, OrderStatus> transformer) {
+        ErpOrders erpOrders = erpOrdersMapper.selectErpOrdersByInnerId(orderCode);
+        if (erpOrders == null) {
+            throw new ServiceException("订单编号不存在");
+        }
+        OrderStatus targetStatus = transformer.apply(OrderStatus.of(erpOrders.getStatus(), this));
+        updateOrderStatusAutomatic(orderCode, targetStatus);
+    }
+
     /**
      * 修改订单
      * 
@@ -285,6 +405,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                 }
                 erpOrdersMapper.insertOrdersProducts(erpOrders.getProducts());
             }
+        }
+
+        // TODO: 将状态修改逻辑移到审核流程中
+        if (erpOrders.getStatus() != null) {
+            updateOrderStatus(erpOrders.getId(), erpOrders.getStatus(), SecurityUtils.getUsername());
         }
 
                  // 如果涉及状态修改，检查审核开关并处理
@@ -366,28 +491,28 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         result.setTotalCount(erpOrdersMapper.getOrderCount(null));
         result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount(null));
         result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount(null));
-        if (result.getTotalCount() != 0) {
-            result.setPunctualRate(result.getDeliveredCount() * 100 / (double) result.getTotalCount());
+        if (result.getDeliveredCount() != 0) {
+            result.setPunctualRate(result.getPunctualCount() * 100 / (double) result.getDeliveredCount());
 
             Date today = DateUtils.getNowDate();
             Date yesterday = DateUtils.addDays(today, -1);
             Date lastWeek = DateUtils.addDays(today, -7);
             long punctualToday = erpOrdersMapper.getPunctualOrderCount(today);
-            long totalToday = erpOrdersMapper.getOrderCount(today);
+            long deliveredToday = erpOrdersMapper.getDeliveredOrderCount(today);
             long punctualYesterday = erpOrdersMapper.getPunctualOrderCount(yesterday);
-            long totalYesterday = erpOrdersMapper.getOrderCount(yesterday);
+            long deliveredYesterday = erpOrdersMapper.getDeliveredOrderCount(yesterday);
             long punctualLastWeek = erpOrdersMapper.getPunctualOrderCount(lastWeek);
-            long totalLastWeek = erpOrdersMapper.getOrderCount(lastWeek);
+            long deliveredLastWeek = erpOrdersMapper.getDeliveredOrderCount(lastWeek);
 
-            if (totalToday != 0) {
-                if (totalYesterday != 0) {
+            if (deliveredToday != 0) {
+                if (deliveredYesterday != 0) {
                     result.setPunctualRateDayOnDay(
-                            punctualToday * totalYesterday * 100 / (double) (punctualYesterday * totalToday)
+                            punctualToday * deliveredYesterday * 100 / (double) (punctualYesterday * deliveredToday)
                     );
                 }
                 if (punctualLastWeek != 0) {
                     result.setPunctualRateWeekOnWeek(
-                            punctualToday * totalLastWeek * 100 / (double) (punctualLastWeek * totalToday)
+                            punctualToday * deliveredLastWeek * 100 / (double) (punctualLastWeek * deliveredToday)
                     );
                 }
             }
@@ -406,21 +531,25 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Override
     public Integer getStatusValue(String label) {
-        return erpOrdersMapper.getStatusValue(label);
+        String dictValue = DictUtils.getDictValue(OrderStatus.ORDER_STATUS_DICT_TYPE, label);
+        if (!StringUtils.isNumeric(dictValue.startsWith("-") ? dictValue.substring(1) : dictValue)) {
+            throw new IllegalArgumentException("订单状态无效：" + label);
+        }
+        return Integer.valueOf(dictValue);
     }
 
     @Override
     public String getStatusLabel(Integer status) {
-        return erpOrdersMapper.getStatusLabel(status);
+        return DictUtils.getDictLabel(OrderStatus.ORDER_STATUS_DICT_TYPE, String.valueOf(status));
     }
 
     @Override
-    public Integer getMaxStatusValue() {
-        return erpOrdersMapper.getMaxStatusValue();
-    }
-
-    @Override
-    public Integer getMinStatusValue() {
-        return erpOrdersMapper.getMinStatusValue();
+    public Map<String, Integer> getStatusMap() {
+        String dictLabels = DictUtils.getDictLabels(OrderStatus.ORDER_STATUS_DICT_TYPE);
+        return Arrays.stream(dictLabels.split(DictUtils.SEPARATOR))
+               .collect(Collectors.toMap(
+                       label -> label,
+                       this::getStatusValue
+               ));
     }
 }

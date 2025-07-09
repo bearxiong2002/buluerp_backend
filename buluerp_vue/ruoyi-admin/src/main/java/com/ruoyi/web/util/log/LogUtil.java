@@ -1,4 +1,4 @@
-package com.ruoyi.web.log;
+package com.ruoyi.web.util.log;
 
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.utils.DateUtils;
@@ -6,7 +6,8 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
-import com.ruoyi.web.annotation.LogIdentifier;
+import com.ruoyi.web.annotation.AutoLogIgnore;
+import com.ruoyi.web.annotation.AutoLogIdentifier;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.ApiModel;
@@ -184,7 +185,7 @@ public class LogUtil {
         }
         while (clazz != Object.class) {
             for (Field field : clazz.getDeclaredFields()) {
-                if (field.isAnnotationPresent(LogIdentifier.class)) {
+                if (field.isAnnotationPresent(AutoLogIdentifier.class)) {
                     return field.getName();
                 }
             }
@@ -284,6 +285,7 @@ public class LogUtil {
         String sql = boundSql.getSql();
         String tableName = extractUpdateTableName(sql);
         String identifierFieldName = getIdentifierFieldName(tableName);
+        Class<?> clazz = getClassByTableName(tableName);
 
         Map<String, List<UpdateLog.PropertyChange>> changes = new HashMap<>();
 
@@ -304,13 +306,19 @@ public class LogUtil {
             for (String setClause : setClauses) {
                 String[] setClauseParts = setClause.split("=");
                 if (setClauseParts.length == 2) {
-                    String fieldName = setClauseParts[0].trim();
+                    String columnName = setClauseParts[0].trim();
+                    if (clazz != null) {
+                        Field field = ReflectUtils.getAccessibleField(clazz, snakeCaseToCamelCase(columnName, false));
+                        if (field != null && field.isAnnotationPresent(AutoLogIgnore.class)) {
+                            continue;
+                        }
+                    }
                     String value = setClauseParts[1].trim();
                     if (value.startsWith("?")) {
                         ParameterMapping parameterMapping = parameterMappings.get(paramIndex++);
-                        newValues.put(fieldName, getValueByPath(parameter, parameterMapping.getProperty()));
+                        newValues.put(columnName, getValueByPath(parameter, parameterMapping.getProperty()));
                     } else {
-                        newValues.put(fieldName, value);
+                        newValues.put(columnName, value);
                     }
                 }
             }

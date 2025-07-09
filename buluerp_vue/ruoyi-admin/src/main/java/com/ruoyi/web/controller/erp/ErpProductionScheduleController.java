@@ -77,9 +77,12 @@ public class ErpProductionScheduleController extends BaseController {
     @ApiOperation(value = "导入布产列表", notes = "导入布产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         List<ErpProductionSchedule> erpProductionSchedule = validateExcel(file, ErpProductionSchedule.class);
-        return toAjax(
-                erpProductionScheduleService.saveBatch(erpProductionSchedule)
-        );
+        int c = 0;
+        for (ErpProductionSchedule item : erpProductionSchedule) {
+            c += erpProductionScheduleService
+                   .insertErpProductionSchedule(item);
+        }
+        return toAjax(c);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:add')")

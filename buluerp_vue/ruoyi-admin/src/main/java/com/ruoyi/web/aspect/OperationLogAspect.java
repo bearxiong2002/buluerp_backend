@@ -1,10 +1,7 @@
 package com.ruoyi.web.aspect;
 
-import com.ruoyi.common.utils.DateUtils;
-import com.ruoyi.web.log.AutoLogIgnore;
-import com.ruoyi.web.log.LogUtil;
-import com.ruoyi.web.log.OperationLog;
-import com.ruoyi.web.service.IErpOperationLogService;
+import com.ruoyi.web.annotation.AutoLogIgnore;
+import com.ruoyi.web.util.log.LogUtil;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;
@@ -12,9 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.lang.reflect.Method;
-import java.util.List;
 
 @Aspect
 @Component

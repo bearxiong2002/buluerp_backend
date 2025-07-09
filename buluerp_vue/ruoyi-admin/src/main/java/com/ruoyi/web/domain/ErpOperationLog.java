@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.web.log.OperationLog;
+import com.ruoyi.web.util.log.OperationLog;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;

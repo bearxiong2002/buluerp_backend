@@ -21,6 +21,7 @@ import com.ruoyi.web.domain.ErpPackagingBag;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.enums.AuditTypeEnum;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
 import com.ruoyi.web.service.*;
 import org.apache.commons.math3.stat.descriptive.summary.Product;
@@ -132,11 +133,20 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     @Override
+    @Transactional
     public int insertErpPackagingList(ErpPackagingList erpPackagingList) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
         check(erpPackagingList);
         int result = erpPackagingListMapper.insertErpPackagingList(erpPackagingList);
+        if (result <= 0) {
+            throw new ServiceException("新增分包表失败");
+        }
+        // TODO: 将订单状态修改逻辑移到审核流程中
+        erpOrdersService.updateOrderStatusAutomatic(
+                erpPackagingList.getOrderCode(),
+                OrderStatus.PACKAGING
+        );
 
         // 检查是否启用分包审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {

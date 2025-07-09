@@ -2,7 +2,7 @@ package com.ruoyi.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.web.domain.ErpOperationLog;
-import com.ruoyi.web.log.OperationLog;
+import com.ruoyi.web.util.log.OperationLog;
 import com.ruoyi.web.request.log.ListOperationLogRequest;
 
 import java.util.List;
