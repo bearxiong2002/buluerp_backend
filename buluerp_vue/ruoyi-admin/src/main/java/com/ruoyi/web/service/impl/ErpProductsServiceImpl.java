@@ -24,6 +24,11 @@ import com.ruoyi.web.request.product.AddProductRequest;
 import com.ruoyi.web.request.product.ListProductRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.IErpProductsService;
+import com.ruoyi.web.domain.ErpOrders;
+import com.ruoyi.web.domain.ErpOrdersProduct;
+import com.ruoyi.web.enums.OrderStatus;
+import com.ruoyi.web.request.order.ListOrderRequest;
+import com.ruoyi.web.service.IErpOrdersService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -190,6 +195,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                 }
             }
         }
+        
         return 1;
     }
 

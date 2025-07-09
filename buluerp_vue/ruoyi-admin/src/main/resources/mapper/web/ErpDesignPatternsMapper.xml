@@ -76,6 +76,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
+    <select id="findOrdersByProductIdAndStatus" resultType="com.ruoyi.web.domain.ErpOrders">
+        SELECT o.*
+        FROM erp_orders o
+                 JOIN erp_design_patterns dp ON o.id = dp.order_id
+        WHERE dp.product_id = #{productId}
+          AND o.status = #{status}
+    </select>
+
     <delete id="deleteErpDesignPatternsById" parameterType="Long">
         delete from erp_design_patterns where id = #{id}
     </delete>

@@ -6,6 +6,7 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductInventory;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.web.domain.ErpProductInventoryChange;
 import com.ruoyi.web.request.Inventory.AddProductInventoryRequest;
 import com.ruoyi.web.request.Inventory.ListProductInventoryRequest;
@@ -169,7 +170,7 @@ public class ErpProductInventoryController extends BaseController {
             result.put("success", successCount);
             result.put("failure", errorList.size());
             result.put("errors", errorList);
-            return AjaxResult.error("导入完成，但有部分错误", result);
+            return new AjaxResult(HttpStatus.CONFLICT, "导入完成，但有部分错误", result);
         }
         else {
             for (AddProductInventoryRequest request:requests){

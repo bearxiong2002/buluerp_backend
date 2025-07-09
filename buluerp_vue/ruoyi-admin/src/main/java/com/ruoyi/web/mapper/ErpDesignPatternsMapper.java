@@ -3,8 +3,10 @@ package com.ruoyi.web.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import com.ruoyi.web.domain.ErpOrders;
 
 
 /**
@@ -69,4 +71,6 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
     int confirmErpDesignPatternsById(Long id);
 
     int cancelConfirmById(Long id);
+
+    List<ErpOrders> findOrdersByProductIdAndStatus(@Param("productId") Long productId, @Param("status") Integer status);
 }

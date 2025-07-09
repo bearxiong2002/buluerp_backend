@@ -129,13 +129,16 @@ public enum OrderStatus {
             // 审计负责，订单模块不作限制
             new StatusBlock(AUDIT_REJECT, DESIGN_PENDING, (String) null),
             new StatusBlock(DESIGN_PENDING, PURCHASE_PRODUCTION_PENDING, "design-dept"),
-            new StatusRoute(PURCHASE_PRODUCTION_PENDING, PURCHASING, new String[]{"purchase-dept", "purchase-auditor"}),
-            new StatusRoute(IN_PRODUCTION, PURCHASING_IN_PRODUCTION, new String[]{"purchase-dept", "purchase-auditor"}),
-            new StatusRoute(PURCHASE_PRODUCTION_PENDING, IN_PRODUCTION, new String[]{"injectionmolding-dept", "production-auditor"}),
-            new StatusRoute(PURCHASING, PURCHASING_IN_PRODUCTION, new String[]{"injectionmolding-dept", "production-auditor"}),
+            // ***********************************************************************************
+            // ** 以下状态的变更不再由部门手动触发，而是由关联业务（布产、采购）的审核结果自动触发 **
+            // ***********************************************************************************
+            new StatusRoute(PURCHASE_PRODUCTION_PENDING, PURCHASING, new String[]{ "admin" }),
+            new StatusRoute(IN_PRODUCTION, PURCHASING_IN_PRODUCTION, new String[]{ "admin" }),
+            new StatusRoute(PURCHASE_PRODUCTION_PENDING, IN_PRODUCTION, new String[]{ "admin" }),
+            new StatusRoute(PURCHASING, PURCHASING_IN_PRODUCTION, new String[]{ "admin" }),
             new StatusRoute(PURCHASING_IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{"purchase-dept", "purchase-auditor", "injectionmolding-dept", "production-auditor"}),
             new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGING_PENDING, new String[]{"warehouse"}),
-            new StatusBlock(PACKAGING_PENDING, PACKAGED, new String[]{"wirestaying-dept"}),
+            new StatusBlock(PACKAGING_PENDING, PACKAGED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
             new StatusBlock(PACKAGED, COMPLETED, new String[]{"sell-dept"})
     );
 }
