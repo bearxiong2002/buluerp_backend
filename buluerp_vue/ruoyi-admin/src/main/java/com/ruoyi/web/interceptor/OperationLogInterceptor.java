@@ -1,8 +1,11 @@
 package com.ruoyi.web.interceptor;
 
+import com.ruoyi.web.annotation.AutoLogIgnore;
 import com.ruoyi.web.exception.AutoLogException;
-import com.ruoyi.web.log.*;
 import com.ruoyi.web.mapper.ErpCustomersMapper;
+import com.ruoyi.web.util.log.InsertLog;
+import com.ruoyi.web.util.log.LogUtil;
+import com.ruoyi.web.util.log.OperationLog;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;

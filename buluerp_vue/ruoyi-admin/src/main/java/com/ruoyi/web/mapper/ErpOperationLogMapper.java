@@ -2,7 +2,7 @@ package com.ruoyi.web.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ruoyi.web.domain.ErpOperationLog;
-import com.ruoyi.web.log.AutoLogIgnore;
+import com.ruoyi.web.annotation.AutoLogIgnore;
 import com.ruoyi.web.request.log.ListOperationLogRequest;
 import org.apache.ibatis.annotations.Mapper;
 

@@ -5,17 +5,14 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonUnwrapped;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
-import com.ruoyi.web.annotation.LogIdentifier;
-import com.ruoyi.web.log.AutoLogIgnore;
+import com.ruoyi.web.annotation.AutoLogIdentifier;
+import com.ruoyi.web.annotation.AutoLogIgnore;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import org.hibernate.validator.constraints.Range;
@@ -39,7 +36,7 @@ public class ErpOrders extends BaseEntity
 
     @Excel(name = "内部编号")
     @Example("BLK20250528000001")
-    @LogIdentifier
+    @AutoLogIdentifier
     @NotBlank(groups = {Save.class}, message = "内部编号不能为空")
     @NullOrNotBlank(groups = {Update.class}, message = "内部编号不能为空")
     private String innerId;

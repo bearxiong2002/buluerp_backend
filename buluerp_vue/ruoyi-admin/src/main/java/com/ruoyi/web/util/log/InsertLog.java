@@ -1,7 +1,6 @@
-package com.ruoyi.web.log;
+package com.ruoyi.web.util.log;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 

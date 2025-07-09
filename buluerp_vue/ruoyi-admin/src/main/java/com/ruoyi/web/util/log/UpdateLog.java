@@ -1,4 +1,4 @@
-package com.ruoyi.web.log;
+package com.ruoyi.web.util.log;
 
 import java.util.*;
 import java.util.stream.Collectors;
