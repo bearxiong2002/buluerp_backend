@@ -87,6 +87,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
+    public List<ErpProducts> selectListByIds(List<Integer> ids){
+        return fillMaterialIds(erpProductsMapper.selectBatchIds(ids));
+    }
+
+    @Override
     @Transactional
     public int insertErpProducts(AddProductRequest addProductRequest) throws IOException {
         // 获取当前登录用户信息

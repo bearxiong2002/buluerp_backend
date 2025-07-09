@@ -86,9 +86,9 @@ public class ErpProductsController extends BaseController {
     @ApiOperation(value = "导出产品列表")
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:products:export')")
-    @PostMapping("/export")
-    public void export(HttpServletResponse response, ListProductRequest listProductRequest) {
-        List<ErpProducts> list = erpProductsService.selectErpProductsList(listProductRequest);
+    @PostMapping("/export/{ids}")
+    public void export(HttpServletResponse response,@PathVariable  List<Integer> ids) {
+        List<ErpProducts> list = erpProductsService.selectListByIds(ids);
         ExcelUtil<ErpProducts> util = new ExcelUtil<ErpProducts>(ErpProducts.class);
         String fileName = "产品数据_" + new SimpleDateFormat("yyyyMMdd").format(new Date()) ;
         util.exportExcel(response, list, fileName);
