@@ -12,6 +12,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.config.RuoYiConfig;
 import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.validation.Save;
+import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
@@ -65,25 +66,25 @@ public class ErpPackagingDetail {
     @Excel(name = "用量")
     @Example("0.5")
     @ApiModelProperty("用量，单位为克，表示单个零件的用料量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "用量不能为负数")
+    @Range(min = 0, message = "用量不能为负数", groups = {Save.class, Update.class})
     private Double usage;
 
     @Excel(name = "单重")
     @Example("0.5")
     @ApiModelProperty("单重，单位为克，表示单个零件的重量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "单重不能为负数")
+    @Range(min = 0, message = "单重不能为负数", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "套料数量")
     @Example("10")
     @ApiModelProperty("套料数量，每套包含的零件数量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "套料数量不能为负数")
+    @Range(min = 0, message = "套料数量不能为负数", groups = {Save.class, Update.class})
     private Integer setQuantity;
 
     @Excel(name = "重量")
     @Example("0.5")
     @ApiModelProperty("重量，单位为克，表示总重量 [list|POST|PUT|response]")
-    @Range(min = 0, message = "重量不能为负数")
+    @Range(min = 0, message = "重量不能为负数", groups = {Save.class, Update.class})
     private Double totalWeight;
 
 

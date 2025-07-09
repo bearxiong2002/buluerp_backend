@@ -38,18 +38,23 @@ public class ErpPurchaseInfoServiceImpl
     }
 
     @Override
+    public int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo) throws IOException {
+        if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
+            throw new ServiceException("物料类型不存在，请先添加相应物料信息");
+        }
+        if (erpPurchaseInfo.getPicture() != null) {
+            String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
+            erpPurchaseInfo.setPictureUrl(url);
+        }
+        return baseMapper.insert(erpPurchaseInfo);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
         int count = 0;
         for (ErpPurchaseInfo erpPurchaseInfo : list) {
-            if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
-                throw new ServiceException("物料类型不存在，请先添加相应物料信息");
-            }
-            if (erpPurchaseInfo.getPicture() != null) {
-                String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
-                erpPurchaseInfo.setPictureUrl(url);
-            }
-            count += baseMapper.insert(erpPurchaseInfo);
+            count += insertErpPurchaseInfo(erpPurchaseInfo);
         }
         return count;
     }

@@ -9,6 +9,7 @@ import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import org.hibernate.validator.constraints.Range;
@@ -65,10 +66,10 @@ public class ErpPackagingBag {
 
     public static ErpPackagingBag createExample() {
         try {
-            ErpPackagingBag example = BaseEntity.createExample(ErpPackagingBag.class);
+            ErpPackagingBag example = IListValidationService.createExample(ErpPackagingBag.class);
             List<ErpPackagingDetail> details = new ArrayList<>();
             for (int i = 0; i < 3; i++) {
-                details.add(BaseEntity.createExample(ErpPackagingDetail.class));
+                details.add(IListValidationService.createExample(ErpPackagingDetail.class));
             }
             example.setDetails(details);
             return example;

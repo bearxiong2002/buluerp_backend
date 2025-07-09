@@ -1,6 +1,6 @@
 package com.ruoyi.common.exception.excel;
 
-public class ExcelRowErrorInfo {
+public class ListRowErrorInfo {
     String sheetName;
 
     Integer rowNum;

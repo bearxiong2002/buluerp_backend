@@ -12,6 +12,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.request.arrange.AddProductionArrangeFromScheduleRequest;
 import com.ruoyi.web.service.IErpProductionArrangeService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -31,6 +32,9 @@ import java.util.List;
 public class ErpProductionArrangeController extends BaseController {
     @Autowired
     private IErpProductionArrangeService erpProductionArrangeService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:list')")
     @Anonymous
@@ -61,9 +65,7 @@ public class ErpProductionArrangeController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载排产导入模板", notes = "下载排产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpProductionArrange> list = Collections.singletonList(BaseEntity.createExample(ErpProductionArrange.class));
-        ExcelUtil<ErpProductionArrange> util = createTemplateExcelUtil(ErpProductionArrange.class);
-        util.exportExcel(response, list, "排产数据");
+        IListValidationService.exportExample(response, ErpProductionArrange.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:import')")
@@ -71,10 +73,8 @@ public class ErpProductionArrangeController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入排产列表", notes = "导入排产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpProductionArrange> erpProductionSchedule = validateExcel(file, ErpProductionArrange.class);
-        return toAjax(
-                erpProductionArrangeService.insertErpProductionArrangeList(erpProductionSchedule)
-        );
+        listValidationService.importExcel(file, ErpProductionArrange.class, erpProductionArrangeService::save);
+        return success();
     }
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:add')")

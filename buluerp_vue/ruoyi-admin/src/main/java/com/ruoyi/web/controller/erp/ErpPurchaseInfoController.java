@@ -11,6 +11,7 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
@@ -42,6 +43,9 @@ public class ErpPurchaseInfoController extends BaseController
 {
     @Autowired
     private IErpPurchaseInfoService erpPurchaseInfoService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     /**
      * 查询外购资料，用于存储外购物料的基本信息和相关数据列表
@@ -82,17 +86,15 @@ public class ErpPurchaseInfoController extends BaseController
     @ApiOperation(value = "导入外购资料", notes = "导入外购资料")
     public AjaxResult importData(@RequestPart("file") MultipartFile file) throws Exception
     {
-        List<ErpPurchaseInfo> list = validateExcel(file, ErpPurchaseInfo.class);
-        return toAjax(erpPurchaseInfoService.insertErpPurchaseInfoList(list));
+        listValidationService.importExcel(file, ErpPurchaseInfo.class, erpPurchaseInfoService::insertErpPurchaseInfo);
+        return success();
     }
 
     @Anonymous
     @PostMapping("/export/template")
     @ApiOperation(value = "下载外购资料模板", notes = "下载外购资料模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpPurchaseInfo> list = Collections.singletonList(BaseEntity.createExample(ErpPurchaseInfo.class));
-        ExcelUtil<ErpPurchaseInfo> util = createTemplateExcelUtil(ErpPurchaseInfo.class);
-        util.exportExcel(response, list, "外购资料");
+        IListValidationService.exportExample(response, ErpPurchaseInfo.class);
     }
 
     /**
@@ -116,9 +118,7 @@ public class ErpPurchaseInfoController extends BaseController
     @PostMapping
     @ApiOperation(value = "新增外购资料", notes = "新增外购资料")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseInfo erpPurchaseInfo) throws IOException {
-        return toAjax(erpPurchaseInfoService.insertErpPurchaseInfoList(
-                Collections.singletonList(erpPurchaseInfo)
-        ));
+        return toAjax(erpPurchaseInfoService.insertErpPurchaseInfo(erpPurchaseInfo));
     }
 
     /**

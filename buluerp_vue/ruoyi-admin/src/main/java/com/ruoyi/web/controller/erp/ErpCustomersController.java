@@ -1,7 +1,6 @@
 package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +11,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpCustomersService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -37,6 +37,9 @@ public class ErpCustomersController extends BaseController
 {
     @Autowired
     private IErpCustomersService erpCustomersService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     /**
      * 查询客户列表
@@ -71,9 +74,7 @@ public class ErpCustomersController extends BaseController
     @GetMapping("/export/template")
     @ApiOperation(value = "下载客户导入模板", notes = "下载客户导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        List<ErpCustomers> list = Collections.singletonList(BaseEntity.createExample(ErpCustomers.class));
-        ExcelUtil<ErpCustomers> util = createTemplateExcelUtil(ErpCustomers.class);
-        util.exportExcel(response, list, "客户数据");
+        IListValidationService.exportExample(response, ErpCustomers.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:customers:import')")
@@ -82,13 +83,8 @@ public class ErpCustomersController extends BaseController
     @PostMapping("/import")
     @ApiOperation(value = "导入客户列表", notes = "导入客户列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        List<ErpCustomers> erpCustomers = validateExcel(file, ErpCustomers.class);
-        int count = 0;
-        for (ErpCustomers erpCustomers1 : erpCustomers) {
-            erpCustomersService.insertErpCustomers(erpCustomers1);
-            count++;
-        }
-        return success("成功导入" + count + "条数据");
+        listValidationService.importExcel(file, ErpCustomers.class, erpCustomersService::insertErpCustomers);
+        return success();
     }
 
     /**

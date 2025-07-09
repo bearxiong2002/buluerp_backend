@@ -1,8 +1,10 @@
 package com.ruoyi.web.service;
 
+import com.ruoyi.common.exception.excel.ListRowErrorInfo;
 import com.ruoyi.web.domain.ErpPackagingList;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -10,6 +12,10 @@ import java.util.List;
 import java.util.Map;
 
 public interface IErpPackagingListService {
+
+    public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
+    public static final Integer BAG_TEMPLATE_HEADER_ROW = 3;
+
     ErpPackagingList selectErpPackagingListById(Long id);
     List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList);
     List<ErpPackagingList> selectErpPackagingListListByIds(Long[] ids);
@@ -19,8 +25,8 @@ public interface IErpPackagingListService {
 
     void exportExcel(OutputStream outputStream, ErpPackagingList erpPackagingList) throws IOException;
     void exportExcel(HttpServletResponse response, ErpPackagingList erpPackagingList) throws IOException;
-    ErpPackagingList importExcel(InputStream inputStream) throws Exception;
-    void insertCascade(ErpPackagingList erpPackagingList);
+    ErpPackagingList importExcel(InputStream inputStream, List<String> basSheetNameReceiver) throws Exception;
+    void insertCascade(ErpPackagingList erpPackagingList, List<String> basSheetNames);
 
     /**
      * 在审核通过后，直接应用新的状态，不触发额外的审核流程

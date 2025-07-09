@@ -1,18 +1,9 @@
 package com.ruoyi.common.core.controller;
 
 import java.beans.PropertyEditorSupport;
-import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import com.ruoyi.common.annotation.Example;
-import com.ruoyi.common.exception.excel.ExcelRowErrorInfo;
-import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.exception.ServiceException;
-import com.ruoyi.common.exception.excel.ExcelImportException;
-import com.ruoyi.common.utils.poi.ExcelUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +22,7 @@ import com.ruoyi.common.utils.PageUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.sql.SqlUtil;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 
 /**
@@ -223,45 +212,5 @@ public class BaseController
             throw new ServiceException("结果不存在", 400);
         }
         return value;
-    }
-
-    public <Type> List<Type> validateExcel(MultipartFile file, Class<Type> clazz) throws IOException {
-        ExcelUtil<Type> util = new ExcelUtil<>(clazz);
-        List<Type> list = util.importExcel(file.getInputStream());
-        List<ExcelRowErrorInfo> errorList = validateList(list, validator);
-        if (!errorList.isEmpty()) {
-            throw new ExcelImportException(errorList);
-        }
-        return list;
-    }
-
-    public static <Type> List<ExcelRowErrorInfo> validateList(List<Type> list, Validator validator) {
-        List<ExcelRowErrorInfo> errorList = new ArrayList<>();
-        int rowIndex = 1;
-        for (Type row : list) {
-            Set<ConstraintViolation<Type>> constraints = validator.validate(row, Save.class);
-            if (!constraints.isEmpty()) {
-                ExcelRowErrorInfo errorInfo = new ExcelRowErrorInfo();
-                errorInfo.setRowNum(rowIndex);
-                errorInfo.setErrorMsg(
-                        constraints.stream().map(ConstraintViolation::getMessage).collect(Collectors.joining("\n"))
-                );
-                errorList.add(errorInfo);
-            }
-            rowIndex++;
-        }
-        return errorList;
-    }
-
-    public static <Type> ExcelUtil<Type> createTemplateExcelUtil(Class<Type> clazz) {
-        ExcelUtil<Type> util = new ExcelUtil<>(clazz);
-        util.showColumn(
-                Stream.concat(Arrays.stream(clazz.getDeclaredFields()),
-                                Arrays.stream(clazz.getSuperclass().getDeclaredFields()))
-                        .filter(field -> field.isAnnotationPresent(Example.class))
-                        .map(Field::getName)
-                        .toArray(String[]::new)
-        );
-        return util;
     }
 }
