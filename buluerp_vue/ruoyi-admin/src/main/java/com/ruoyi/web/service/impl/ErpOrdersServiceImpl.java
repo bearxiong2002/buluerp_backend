@@ -491,28 +491,28 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         result.setTotalCount(erpOrdersMapper.getOrderCount(null));
         result.setDeliveredCount(erpOrdersMapper.getDeliveredOrderCount(null));
         result.setPunctualCount(erpOrdersMapper.getPunctualOrderCount(null));
-        if (result.getTotalCount() != 0) {
-            result.setPunctualRate(result.getDeliveredCount() * 100 / (double) result.getTotalCount());
+        if (result.getDeliveredCount() != 0) {
+            result.setPunctualRate(result.getPunctualRate() * 100 / (double) result.getDeliveredCount());
 
             Date today = DateUtils.getNowDate();
             Date yesterday = DateUtils.addDays(today, -1);
             Date lastWeek = DateUtils.addDays(today, -7);
             long punctualToday = erpOrdersMapper.getPunctualOrderCount(today);
-            long totalToday = erpOrdersMapper.getOrderCount(today);
+            long deliveredToday = erpOrdersMapper.getDeliveredOrderCount(today);
             long punctualYesterday = erpOrdersMapper.getPunctualOrderCount(yesterday);
-            long totalYesterday = erpOrdersMapper.getOrderCount(yesterday);
+            long deliveredYesterday = erpOrdersMapper.getDeliveredOrderCount(yesterday);
             long punctualLastWeek = erpOrdersMapper.getPunctualOrderCount(lastWeek);
-            long totalLastWeek = erpOrdersMapper.getOrderCount(lastWeek);
+            long deliveredLastWeek = erpOrdersMapper.getDeliveredOrderCount(lastWeek);
 
-            if (totalToday != 0) {
-                if (totalYesterday != 0) {
+            if (deliveredToday != 0) {
+                if (deliveredYesterday != 0) {
                     result.setPunctualRateDayOnDay(
-                            punctualToday * totalYesterday * 100 / (double) (punctualYesterday * totalToday)
+                            punctualToday * deliveredYesterday * 100 / (double) (punctualYesterday * deliveredToday)
                     );
                 }
                 if (punctualLastWeek != 0) {
                     result.setPunctualRateWeekOnWeek(
-                            punctualToday * totalLastWeek * 100 / (double) (punctualLastWeek * totalToday)
+                            punctualToday * deliveredLastWeek * 100 / (double) (punctualLastWeek * deliveredToday)
                     );
                 }
             }
