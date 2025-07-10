@@ -85,22 +85,22 @@ public class ErpOrders extends BaseEntity
 
     /** 产品ID（外键引用产品表） */
     @Excel(name = "产品ID")
-    @Example("1")
+    // @Example("1")
     private Long productId;
 
     /** 布产ID（外键引用布产表） */
     @Excel(name = "布产ID")
-    @Example("1")
+    // @Example("1")
     private Long productionId;
 
     /** 外购ID（外键引用采购表） */
     @Excel(name = "外购ID")
-    @Example("1")
+    // @Example("1")
     private Long purchaseId;
 
     /** 分包ID（外键引用分包商表） */
     @Excel(name = "分包ID")
-    @Example("1")
+    // @Example("1")
     private Long subcontractId;
 
     @Excel(name = "其它基本信息")
