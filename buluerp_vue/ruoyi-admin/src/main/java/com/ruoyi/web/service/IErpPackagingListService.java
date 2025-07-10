@@ -14,7 +14,7 @@ import java.util.Map;
 public interface IErpPackagingListService {
 
     public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
-    public static final Integer BAG_TEMPLATE_HEADER_ROW = 3;
+    public static final Integer BAG_TEMPLATE_HEADER_ROW = 2;
 
     ErpPackagingList selectErpPackagingListById(Long id);
     List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList);
