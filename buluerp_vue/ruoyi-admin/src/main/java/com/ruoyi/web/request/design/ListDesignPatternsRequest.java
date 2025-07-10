@@ -18,6 +18,16 @@ public class ListDesignPatternsRequest {
     @ApiModelProperty(dataType = "Long",value = "pmc是否已确认",required = false)
     private Long confirm;
 
+    private Long id;
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
     public Long getCreateUserId() {
         return createUserId;
     }
