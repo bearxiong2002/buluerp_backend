@@ -348,7 +348,23 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
         Integer newStatus = erpOrders.getStatus();
         boolean hasStatusChange = newStatus != null && !newStatus.equals(originalOrder.getStatus());
-        
+        Integer oldStatus = originalOrder.getStatus(); // 保存旧状态
+
+        // 融合新旧数据，确保传递给审核的是完整信息
+        if (erpOrders.getInnerId() != null) originalOrder.setInnerId(erpOrders.getInnerId());
+        if (erpOrders.getOuterId() != null) originalOrder.setOuterId(erpOrders.getOuterId());
+        if (erpOrders.getQuantity() != null) originalOrder.setQuantity(erpOrders.getQuantity());
+        if (erpOrders.getDeliveryDeadline() != null) originalOrder.setDeliveryDeadline(erpOrders.getDeliveryDeadline());
+        if (erpOrders.getDeliveryTime() != null) originalOrder.setDeliveryTime(erpOrders.getDeliveryTime());
+        if (erpOrders.getCustomerId() != null) originalOrder.setCustomerId(erpOrders.getCustomerId());
+        if (erpOrders.getCustomerName() != null) originalOrder.setCustomerName(erpOrders.getCustomerName());
+        if (erpOrders.getProductId() != null) originalOrder.setProductId(erpOrders.getProductId());
+        if (erpOrders.getProductionId() != null) originalOrder.setProductionId(erpOrders.getProductionId());
+        if (erpOrders.getPurchaseId() != null) originalOrder.setPurchaseId(erpOrders.getPurchaseId());
+        if (erpOrders.getSubcontractId() != null) originalOrder.setSubcontractId(erpOrders.getSubcontractId());
+        if (erpOrders.getRemark() != null) originalOrder.setRemark(erpOrders.getRemark());
+        if (erpOrders.getProducts() != null) originalOrder.setProducts(erpOrders.getProducts());
+
 
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         LoginUser loginUser = SecurityUtils.getLoginUser();
@@ -412,11 +428,6 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             }
         }
 
-        // TODO: 将状态修改逻辑移到审核流程中
-        if (erpOrders.getStatus() != null) {
-            updateOrderStatus(erpOrders.getId(), erpOrders.getStatus(), SecurityUtils.getUsername());
-        }
-
         // 如果涉及状态修改，检查审核开关并处理
          if (hasStatusChange) {
              try {
@@ -424,8 +435,8 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                  boolean auditEnabled = erpAuditSwitchService.isAuditEnabled(1); // 1 = 订单审核类型
                  
                  if (auditEnabled) {
-                     // 审核开关已启用，使用原始订单状态创建审核记录
-                     erpAuditRecordService.handleOrderStatusChange(originalOrder, newStatus);
+                     // 审核开关已启用，使用原始订单状态和更新后的订单数据创建审核记录
+                     erpAuditRecordService.handleOrderStatusChange(originalOrder, oldStatus, newStatus);
                  } else {
                      // 审核开关已关闭，直接更新状态
                      ErpOrders statusUpdate = new ErpOrders();

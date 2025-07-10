@@ -71,6 +71,13 @@ public interface IErpAuditRecordService
      */
     ErpAuditRecord createAuditRecord(Integer auditType, Long auditId, Integer preStatus, Integer toStatus);
 
+    /**
+     * 关闭指定业务对象的过时审核记录
+     *
+     * @param processedRecord 已处理的审核记录，用于获取业务ID和类型
+     */
+    void closeObsoleteAuditRecords(ErpAuditRecord processedRecord);
+
     // ==================== 订单审核业务方法 ====================
 
     /**
@@ -109,10 +116,11 @@ public interface IErpAuditRecordService
     /**
      * 订单状态变更审核处理（创建审核记录并发送通知）
      * 
-     * @param order 订单信息
-     * @param newStatus 新状态
+     * @param updatedOrder 包含最新修改数据的订单信息
+     * @param oldStatus 变更前的状态
+     * @param newStatus 目标新状态
      */
-    void handleOrderStatusChange(ErpOrders order, Integer newStatus);
+    void handleOrderStatusChange(ErpOrders updatedOrder, Integer oldStatus, Integer newStatus);
 
     // ==================== 布产审核业务方法 ====================
 
