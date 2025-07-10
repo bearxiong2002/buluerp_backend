@@ -114,7 +114,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         ErpDesignPatterns designPatterns = designPatternsList.get(0);
         ErpOrders erpOrders = erpOrdersService.selectErpOrdersById(designPatterns.getOrderId());
         if (erpOrders == null) {
-            throw new ServiceException("订单不存在");
+            throw new ServiceException("设计总表对应订单不存在");
         }
         erpPurchaseCollection.setOrderCode(erpOrders.getInnerId());
         erpPurchaseCollection.setProductId(erpOrders.getProductId());
