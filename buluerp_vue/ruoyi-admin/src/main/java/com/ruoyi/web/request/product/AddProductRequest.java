@@ -6,7 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Base64;
@@ -16,10 +15,6 @@ import java.util.List;
 @ApiModel(value = "新增产品请求类")
 public class AddProductRequest {
 
-    @Excel(name = "订单id")
-    @ApiModelProperty(dataType = "int",value = "订单id",required = false)
-    @NotNull
-    private Integer orderId;
     @Excel(name = "内部编号")
     @ApiModelProperty(dataType = "String",value = "内部编号",required = true)
     private String innerId;
@@ -72,14 +67,6 @@ public class AddProductRequest {
 
     public void setMaterialString(String materialString) {
         this.materialString = materialString;
-    }
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
     }
 
     public String getName() {

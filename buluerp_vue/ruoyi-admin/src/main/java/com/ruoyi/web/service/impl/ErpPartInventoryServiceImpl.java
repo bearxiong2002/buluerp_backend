@@ -42,6 +42,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
                 .eq(StringUtils.isNotBlank(request.getOrderCode()), ErpPartInventoryChange::getOrderCode, request.getOrderCode())
                 .eq(StringUtils.isNotBlank(request.getMouldNumber()), ErpPartInventoryChange::getMouldNumber, request.getMouldNumber())
                 .eq(StringUtils.isNotBlank(request.getColorCode()), ErpPartInventoryChange::getColorCode, request.getColorCode())
+                .orderByDesc(ErpPartInventoryChange::getCreationTime)
                 .like(StringUtils.isNotBlank(request.getOperator()), ErpPartInventoryChange::getOperator, request.getOperator())
                 .eq(request.getInOutQuantity() != null, ErpPartInventoryChange::getInOutQuantity, request.getInOutQuantity())
                 .like(StringUtils.isNotBlank(request.getRemarks()), ErpPartInventoryChange::getRemarks, request.getRemarks())
@@ -159,6 +160,7 @@ public class ErpPartInventoryServiceImpl extends ServiceImpl<ErpPartInventoryCha
     public List<ErpPartInventory> ListStore(ErpPartInventory erpPartInventory,Date updateTimeFrom,Date updateTimeTo){
         LambdaQueryWrapper<ErpPartInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpPartInventory.getMouldNumber()), ErpPartInventory::getMouldNumber,erpPartInventory.getMouldNumber())
+                .orderByDesc(ErpPartInventory::getUpdateTime)
                 .lt(updateTimeTo!=null,ErpPartInventory::getUpdateTime,updateTimeTo)
                 .gt(updateTimeFrom!=null,ErpPartInventory::getUpdateTime,updateTimeFrom);
         return inventoryMapper.selectList(wrapper);

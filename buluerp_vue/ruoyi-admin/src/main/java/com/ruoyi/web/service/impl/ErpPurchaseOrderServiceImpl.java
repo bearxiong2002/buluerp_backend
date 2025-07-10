@@ -68,6 +68,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
     public List<PurchaseOrderResult> selectErpPurchaseOrderList(ListPurchaseOrderRequest listPurchaseOrderRequest) {
         LambdaQueryWrapper<ErpPurchaseOrder> queryWrapper = Wrappers.lambdaQuery();
         queryWrapper.eq(listPurchaseOrderRequest.getId()!=null,ErpPurchaseOrder::getId,listPurchaseOrderRequest.getId())
+                .orderByDesc(ErpPurchaseOrder::getCreateTime)
                 .eq(listPurchaseOrderRequest.getPurchaseId()!=null,ErpPurchaseOrder::getPurchaseId,listPurchaseOrderRequest.getPurchaseId())
                 .like(StringUtils.isNotBlank(listPurchaseOrderRequest.getCreateUser()),ErpPurchaseOrder::getCreateUser,listPurchaseOrderRequest.getCreateUser())
                 .eq(listPurchaseOrderRequest.getAmount()!=null,ErpPurchaseOrder::getAmount,listPurchaseOrderRequest.getAmount())

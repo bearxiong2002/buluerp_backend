@@ -189,6 +189,9 @@ public class ErpDesignStyle implements Serializable {
         return material;
     }
 
+    public ErpDesignStyle() {
+    }
+
     public ErpDesignStyle(Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
         this.productId = productId;
         this.groupId= groupId;

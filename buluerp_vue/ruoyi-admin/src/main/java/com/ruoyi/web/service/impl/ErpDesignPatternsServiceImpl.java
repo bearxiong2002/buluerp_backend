@@ -94,6 +94,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         LambdaQueryWrapper<ErpDesignPatterns> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listDesignPatternsRequest.getConfirm()!=null,ErpDesignPatterns::getConfirm,listDesignPatternsRequest.getConfirm())
                 .like(listDesignPatternsRequest.getProductId()!=null,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
+                .orderByDesc(ErpDesignPatterns::getCreateTime)
                 .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
                 .eq(listDesignPatternsRequest.getOrderId()!=null,ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId())
                 .like(listDesignPatternsRequest.getId()!=null,ErpDesignPatterns::getId,listDesignPatternsRequest.getId());

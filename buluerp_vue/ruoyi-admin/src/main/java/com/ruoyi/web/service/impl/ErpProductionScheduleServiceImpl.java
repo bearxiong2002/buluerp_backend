@@ -109,12 +109,12 @@ public class ErpProductionScheduleServiceImpl
         }
 
         // 检查状态变更
-        if (erpProductionSchedule.getStatus() != null && 
-            oldSchedule != null && 
+        if (erpProductionSchedule.getStatus() != null &&
+            oldSchedule != null &&
             !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus()) &&
             auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
             
-            auditRecordService.handleProductionScheduleStatusChange(erpProductionSchedule, erpProductionSchedule.getStatus().intValue());
+            auditRecordService.handleProductionScheduleStatusChange(oldSchedule, erpProductionSchedule.getStatus().intValue());
         }
 
         return 1;

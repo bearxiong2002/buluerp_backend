@@ -20,9 +20,6 @@ public class ErpProducts {
     @TableId(type = IdType.AUTO)
     private Long id;
 
-    @Excel(name = "订单id")
-    private Integer orderId;
-
     @Excel(name= "内部编码")
     private String innerId;
 
@@ -68,14 +65,6 @@ public class ErpProducts {
 
     public void setOuterId(String outerId) {
         this.outerId = outerId;
-    }
-
-    public Integer getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(Integer orderId) {
-        this.orderId = orderId;
     }
 
     public String getCreateUsername() {

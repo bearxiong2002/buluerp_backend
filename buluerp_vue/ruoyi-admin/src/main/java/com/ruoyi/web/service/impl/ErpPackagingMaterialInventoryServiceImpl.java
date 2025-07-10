@@ -40,6 +40,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     public List<ErpPackagingMaterialInventoryChange> selectList(ListPackagingMaterialRequest request) {
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> query = new LambdaQueryWrapper<>();
         query.eq(request.getId()!=null, ErpPackagingMaterialInventoryChange::getId,request.getId())
+                .orderByDesc(ErpPackagingMaterialInventoryChange::getCreationTime)
                 .eq(StringUtils.isNotBlank(request.getOrderCode()), ErpPackagingMaterialInventoryChange::getOrderCode, request.getOrderCode())
                 .like(StringUtils.isNotBlank(request.getOperator()), ErpPackagingMaterialInventoryChange::getOperator, request.getOperator())
                 .eq(StringUtils.isNotBlank(request.getProductPartNumber()), ErpPackagingMaterialInventoryChange::getProductPartNumber, request.getProductPartNumber())
@@ -195,6 +196,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     public List<ErpPackagingMaterialInventory> ListStore(ErpPackagingMaterialInventory erpPackagingMaterialInventory, Date updateTimeFrom, Date updateTimeTo){
         LambdaQueryWrapper<ErpPackagingMaterialInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getProductPartNumber()),ErpPackagingMaterialInventory::getProductPartNumber,erpPackagingMaterialInventory.getProductPartNumber())
+                .orderByDesc(ErpPackagingMaterialInventory::getUpdateTime)
                 .like(StringUtils.isNotBlank(erpPackagingMaterialInventory.getPackingNumber()),ErpPackagingMaterialInventory::getPackingNumber,erpPackagingMaterialInventory.getPackingNumber())
                 .lt(updateTimeTo!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeTo)
                 .gt(updateTimeFrom!=null,ErpPackagingMaterialInventory::getUpdateTime,updateTimeFrom);
