@@ -4,6 +4,7 @@ import java.beans.PropertyEditorSupport;
 import java.util.*;
 
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,6 +61,10 @@ public class BaseController
     protected void startPage()
     {
         PageUtils.startPage();
+    }
+
+    protected void startPage(PageDefaultOptions options) {
+        PageUtils.startPage(options);
     }
 
     /**

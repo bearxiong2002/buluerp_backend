@@ -5,6 +5,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -41,7 +42,7 @@ public class ErpPackagingListController extends BaseController {
             @ApiImplicitParam(name = "isAsc", value = "排序方式", dataType = "String", paramType = "query", defaultValue = "asc")
     })
     public TableDataInfo list(ErpPackagingList erpPackagingList) {
-        startPage();
+        startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         return getDataTable(packagingListService.selectErpPackagingListList(erpPackagingList));
     }
 

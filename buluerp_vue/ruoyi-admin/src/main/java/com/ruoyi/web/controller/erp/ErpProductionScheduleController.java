@@ -6,6 +6,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -44,7 +45,7 @@ public class ErpProductionScheduleController extends BaseController {
             @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1")
     })
     public TableDataInfo list(ErpProductionSchedule erpProductionSchedule) {
-        startPage();
+        startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         QueryWrapper<ErpProductionSchedule> wrapper = new QueryWrapper<>(erpProductionSchedule);
         List<ErpProductionSchedule> list = erpProductionScheduleService.list(wrapper);
         for (ErpProductionSchedule item : list) {
