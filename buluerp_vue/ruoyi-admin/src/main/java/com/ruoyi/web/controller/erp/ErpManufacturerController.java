@@ -3,6 +3,7 @@ package com.ruoyi.web.controller.erp;
 import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
+import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
@@ -117,8 +118,17 @@ public class ErpManufacturerController extends BaseController {
         try {
             requests = util.importExcel(file.getInputStream());
         } catch (Exception e) {
-            return AjaxResult.error("Excel解析失败: " + e.getMessage());
+            return new AjaxResult(HttpStatus.CONFLICT,"Excel解析失败: " + e.getMessage());
         }
+
+        if (requests == null) {
+            return new AjaxResult(HttpStatus.CONFLICT,"导入数据为空，请填写数据后上传");
+        }
+        requests.removeAll(Collections.singleton(null));
+        if (requests.isEmpty()) {
+            return AjaxResult.error("导入数据为空，请填写数据后上传");
+        }
+
 
         int rowNumber = 1; // 数据行号（从标题行下一行开始）
         for (AddManufacturerRequest request : requests) {
@@ -154,7 +164,7 @@ public class ErpManufacturerController extends BaseController {
         }
 
         if (!errorList.isEmpty()) {
-            return AjaxResult.error("导入失败", errorList);
+            return new AjaxResult(HttpStatus.CONFLICT,"导入失败", errorList);
         }
         else{
             for (AddManufacturerRequest request : requests)
