@@ -5,6 +5,7 @@ import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -41,7 +42,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @GetMapping("/list")
     @ApiOperation(value = "获取采购计划列表", notes = "获取采购计划列表")
     public TableDataInfo list(ErpPurchaseCollection erpPurchaseCollection) {
-        startPage();
+        startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         List<ErpPurchaseCollection> tableDataInfos = erpPurchaseCollectionService
                 .selectErpPurchaseCollectionList(erpPurchaseCollection);
         return getDataTable(tableDataInfos);

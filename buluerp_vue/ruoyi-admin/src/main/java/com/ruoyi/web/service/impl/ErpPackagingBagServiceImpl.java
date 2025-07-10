@@ -84,7 +84,7 @@ public class ErpPackagingBagServiceImpl
                             erpPackagingDetailService.saveOrUpdate(detail);
                         })
                         .stream()
-                        .peek((e) -> e.setRowNum(e.getRowNum() + IErpPackagingListService.BAG_TEMPLATE_HEADER_ROW))
+                        .peek((e) -> e.setRowNum(e.getRowNum() + IErpPackagingListService.BAG_TEMPLATE_HEADER_ROW + 1))
                         .collect(Collectors.toList())
         );
         if (!listRowErrorInfos.isEmpty()) {

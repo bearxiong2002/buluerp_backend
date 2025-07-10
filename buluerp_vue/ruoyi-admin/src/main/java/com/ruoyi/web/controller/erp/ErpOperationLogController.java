@@ -4,6 +4,7 @@ import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpOperationLog;
 import com.ruoyi.web.annotation.AutoLogIgnore;
@@ -38,7 +39,7 @@ public class ErpOperationLogController extends BaseController {
             @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
     })
     public TableDataInfo list(ListOperationLogRequest request) {
-        startPage();
+        startPage(PageDefaultOptions.create().orderByColumn("operationTime").isAsc("desc"));
         List<ErpOperationLog> erpOperationLogs = erpOperationLogService.listOperationLogs(request);
         return getDataTable(erpOperationLogs);
     }

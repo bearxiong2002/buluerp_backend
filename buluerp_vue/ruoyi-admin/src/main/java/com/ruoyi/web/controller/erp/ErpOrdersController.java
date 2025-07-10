@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.web.domain.ErpOrders;
@@ -58,7 +59,7 @@ public class ErpOrdersController extends BaseController
     public TableDataInfo list(
             ListOrderRequest request
     ) {
-        startPage();
+        startPage(PageDefaultOptions.create().orderByColumn("createTime"));
         List<ErpOrders> list = erpOrdersService.selectErpOrdersList(request);
         return getDataTable(list);
     }

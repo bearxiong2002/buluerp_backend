@@ -35,15 +35,23 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             o.delivery_time as delivery_time,
             o.status as status,
             o.customer_id as customer_id,
-            o.product_id as product_id,
-            o.production_id as production_id,
-            o.purchase_id as purchase_id,
-            o.subcontract_id as subcontract_id,
+#             o.product_id as product_id,
+#             o.production_id as production_id,
+#             o.purchase_id as purchase_id,
+#             o.subcontract_id as subcontract_id,
+            erp_design_patterns.product_id as product_id,
+            erp_production_schedule.id as production_id,
+            erp_purchase_collection.id as purchase_id,
+            erp_packaging_list.id as subcontract_id,
             o.remark as remark,
             o.update_time as update_time,
             c.name as customer_name
         from erp_orders o
                  left join erp_customers c on o.customer_id = c.id
+                 left join erp_design_patterns on o.id = erp_design_patterns.order_id
+                 left join erp_production_schedule on o.inner_id = erp_production_schedule.order_code
+                 left join erp_purchase_collection on o.outer_id = erp_purchase_collection.order_code
+                 left join erp_packaging_list on o.inner_id = erp_packaging_list.order_code
     </sql>
 
     <select id="selectErpOrdersList" parameterType="ErpOrders" resultMap="ErpOrdersResult">

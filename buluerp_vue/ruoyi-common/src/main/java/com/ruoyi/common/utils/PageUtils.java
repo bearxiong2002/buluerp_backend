@@ -3,6 +3,7 @@ package com.ruoyi.common.utils;
 import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableSupport;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.utils.sql.SqlUtil;
 
 /**
@@ -21,6 +22,25 @@ public class PageUtils extends PageHelper
         Integer pageNum = pageDomain.getPageNum();
         Integer pageSize = pageDomain.getPageSize();
         String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
+        Boolean reasonable = pageDomain.getReasonable();
+        PageHelper.startPage(pageNum, pageSize, orderBy).setReasonable(reasonable);
+    }
+
+    public static void startPage(PageDefaultOptions options) {
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        Integer pageNum = pageDomain.getPageNum();
+        Integer pageSize = pageDomain.getPageSize();
+        String orderByColumn = pageDomain.getOrderByColumn();
+        String isAsc = pageDomain.getIsAsc();
+
+        if (orderByColumn == null || orderByColumn.isEmpty()) {
+            orderByColumn = options.getOrderByColumn();
+        }
+        if (isAsc == null || isAsc.isEmpty()) {
+            isAsc = options.getIsAsc();
+        }
+        String orderBy = SqlUtil.escapeOrderBySql(StringUtils.toUnderScoreCase(orderByColumn) + " " + isAsc);
+
         Boolean reasonable = pageDomain.getReasonable();
         PageHelper.startPage(pageNum, pageSize, orderBy).setReasonable(reasonable);
     }
