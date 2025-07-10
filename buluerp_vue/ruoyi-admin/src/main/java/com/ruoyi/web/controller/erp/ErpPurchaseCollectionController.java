@@ -10,6 +10,7 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
@@ -78,6 +79,13 @@ public class ErpPurchaseCollectionController extends BaseController {
     @ApiOperation(value = "新增采购计划", notes = "新增采购计划")
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollection(erpPurchaseCollection));
+    }
+
+    @Anonymous
+    @PostMapping("/from-info")
+    @ApiOperation(value = "从外购资料和设计总表新增采购计划", notes = "从外购资料和设计总表新增采购计划")
+    public AjaxResult addFromInfo(@RequestBody @Validated({Save.class}) AddPurchaseCollectionFromInfoRequest request) throws IOException {
+        return toAjax(erpPurchaseCollectionService.insertFromInfo(request));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:edit')")
