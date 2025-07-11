@@ -1,5 +1,6 @@
 package com.ruoyi.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
@@ -25,8 +26,10 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     private IErpPurchaseInfoService erpPurchaseInfoService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpPurchaseInfo::getMaterialId, erpMaterialInfo.getId());
         List<ErpPurchaseInfo> erpPurchaseInfos =
-                erpPurchaseInfoService.selectErpPurchaseInfoByMaterialType(erpMaterialInfo.getMaterialType());
+                erpPurchaseInfoService.list(queryWrapper);
         erpMaterialInfo.setPurchaseInfos(erpPurchaseInfos);
         return erpMaterialInfo;
     }
@@ -49,11 +52,6 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
-    public ErpMaterialInfo selectErpMaterialInfoByMaterialType(String type) {
-        return erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(type);
-    }
-
-    @Override
     public ErpMaterialInfo selectErpMaterialInfoById(Long id) {
         return erpMaterialInfoMapper.selectErpMaterialInfoById(id);
     }
@@ -62,9 +60,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     public Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setCreatTime(DateUtils.getNowDate());
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
-        if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
-            throw new ServiceException("物料类型已存在");
-        }
+        // if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
+        //     throw new ServiceException("物料类型已存在");
+        // }
         if (erpMaterialInfo.getDrawingReferenceFile() != null) {
             String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
             erpMaterialInfo.setDrawingReference(url);

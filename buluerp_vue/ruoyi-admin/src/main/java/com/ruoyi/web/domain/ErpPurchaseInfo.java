@@ -59,12 +59,11 @@ public class ErpPurchaseInfo
 
     /** 材料，用于描述外购物料的材料类型 */
     @TableField(condition = SqlCondition.LIKE)
-    @Excel(name = "材料")
-    @Example("ABS")
-    @NotBlank(groups = {Save.class}, message = "材料不能为空白")
-    @NullOrNotBlank(groups = {Update.class}, message = "材料不能为空白")
-    @ApiModelProperty(value = "材料类型，用于描述外购物料的材料类型 [list|POST|PUT|response]", required = true)
-    private String materialType;
+    @Excel(name = "物料ID")
+    @Example("1")
+    @NotNull(groups = {Save.class}, message = "请填写对应物料")
+    @ApiModelProperty(value = "物料ID，关联的物料资料ID [list|POST|PUT|response]", required = true)
+    private Long materialId;
 
     /** 供应商，提供外购物料的供应商名称 */
     @TableField(condition = SqlCondition.LIKE)
@@ -110,14 +109,12 @@ public class ErpPurchaseInfo
         return unitPrice;
     }
 
-    public void setMaterialType(String materialType)
-    {
-        this.materialType = materialType;
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 
-    public String getMaterialType()
-    {
-        return materialType;
+    public Long getMaterialId() {
+        return materialId;
     }
 
     public void setSupplier(String supplier) 

@@ -57,7 +57,7 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "料别")
     @Example("123,456,789")
     @NotBlank(message = "物料类型不能为空", groups = {Save.class})
-    @Null(message = "不允许修改物料类型", groups = {Update.class}) // 被其他表引用，不允许修改
+    // @Null(message = "不允许修改物料类型", groups = {Update.class}) // 被其他表引用，不允许修改
     private String materialType;
 
     @Excel(name = "常规编码")
