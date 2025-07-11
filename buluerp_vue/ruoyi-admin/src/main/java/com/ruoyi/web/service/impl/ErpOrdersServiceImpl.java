@@ -467,6 +467,22 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Transactional
     public int deleteErpOrdersByIds(Long[] ids)
     {
+        List<ErpOrders> erpOrdersList = erpOrdersMapper.selectErpOrdersListByIds(ids);
+        for (ErpOrders erpOrders : erpOrdersList) {
+            if (erpOrders.getProductId() != null) {
+                throw new ServiceException("请先删除订单" + erpOrders.getInnerId() + "的相关设计");
+            }
+            if (erpOrders.getProductionId() != null) {
+                throw new ServiceException("请先删除订单" + erpOrders.getInnerId() + "的相关布产计划");
+            }
+            if (erpOrders.getPurchaseId()!= null) {
+                throw new ServiceException("请先删除订单" + erpOrders.getInnerId() + "的相关采购计划");
+            }
+            if (erpOrders.getSubcontractId() != null) {
+                throw new ServiceException("请先删除订单" + erpOrders.getInnerId() + "的相关分包");
+            }
+        }
+
         for (Long id : ids) {
             // 在删除订单之前，处理相关的待审核记录
             try {
