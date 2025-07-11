@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.mapper.ErpPackagingDetailMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
@@ -29,8 +30,12 @@ public class ErpPackagingDetailServiceImpl
     @Override
     public void checkReferences(ErpPackagingDetail entity) {
         if (entity.getMaterialId() != null) {
-            if (erpMaterialInfoService.selectErpMaterialInfoById(entity.getMaterialId()) == null) {
+            ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService.selectErpMaterialInfoById(entity.getMaterialId());
+            if (erpMaterialInfo == null) {
                 throw new ServiceException("物料不存在");
+            } else {
+                entity.setMouldNumber(erpMaterialInfo.getMouldNumber());
+                entity.setMaterialType(erpMaterialInfo.getMaterialType());
             }
         }
         if (entity.getPackagingBagId() != null) {

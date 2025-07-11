@@ -181,11 +181,12 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     }
                 }
         );
-        if (erpPurchaseCollection.getMaterialIds() != null) {
-            erpPurchaseCollectionMapper.insertErpPurchaseCollectionMaterials(
-                    erpPurchaseCollection.getId(),
-                    erpPurchaseCollection.getMaterialIds()
+        if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                    erpPurchaseCollection.getMaterialIds().get(0)
             );
+            erpPurchaseCollection.setMouldNumber(materialInfo.getMouldNumber());
+            erpPurchaseCollection.setMaterialType(materialInfo.getMaterialType());
         }
 
         // 检查是否启用采购审核
