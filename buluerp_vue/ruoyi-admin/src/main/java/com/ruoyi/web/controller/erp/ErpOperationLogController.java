@@ -39,7 +39,7 @@ public class ErpOperationLogController extends BaseController {
             @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
     })
     public TableDataInfo list(ListOperationLogRequest request) {
-        startPage(PageDefaultOptions.create().orderByColumn("operationTime").isAsc("desc"));
+        startPage(PageDefaultOptions.create().orderByColumn("operationTime"));
         List<ErpOperationLog> erpOperationLogs = erpOperationLogService.listOperationLogs(request);
         return getDataTable(erpOperationLogs);
     }
