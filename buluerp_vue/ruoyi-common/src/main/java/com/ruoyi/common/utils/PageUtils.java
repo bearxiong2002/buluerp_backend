@@ -27,20 +27,10 @@ public class PageUtils extends PageHelper
     }
 
     public static void startPage(PageDefaultOptions options) {
-        PageDomain pageDomain = TableSupport.buildPageRequest();
+        PageDomain pageDomain = TableSupport.buildPageRequest(options);
         Integer pageNum = pageDomain.getPageNum();
         Integer pageSize = pageDomain.getPageSize();
-        String orderByColumn = pageDomain.getOrderByColumn();
-        String isAsc = pageDomain.getIsAsc();
-
-        if (orderByColumn == null || orderByColumn.isEmpty()) {
-            orderByColumn = options.getOrderByColumn();
-        }
-        if (isAsc == null || isAsc.isEmpty()) {
-            isAsc = options.getIsAsc();
-        }
-        String orderBy = SqlUtil.escapeOrderBySql(StringUtils.toUnderScoreCase(orderByColumn) + " " + isAsc);
-
+        String orderBy = SqlUtil.escapeOrderBySql(pageDomain.getOrderBy());
         Boolean reasonable = pageDomain.getReasonable();
         PageHelper.startPage(pageNum, pageSize, orderBy).setReasonable(reasonable);
     }
