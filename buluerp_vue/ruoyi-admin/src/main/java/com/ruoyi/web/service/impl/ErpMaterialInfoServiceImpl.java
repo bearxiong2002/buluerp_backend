@@ -62,9 +62,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     public Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setCreatTime(DateUtils.getNowDate());
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
-        if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
-            throw new ServiceException("物料类型已存在");
-        }
+        // if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
+        //     throw new ServiceException("物料类型已存在");
+        // }
         if (erpMaterialInfo.getDrawingReferenceFile() != null) {
             String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
             erpMaterialInfo.setDrawingReference(url);
