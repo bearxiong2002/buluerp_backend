@@ -124,6 +124,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
             url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
         ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getProductId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
+        erpDesignStyle.setMaterialId(updateDesignRequest.getMaterialId());
         return erpDesignStyleMapper.updateById(erpDesignStyle);
     }
 

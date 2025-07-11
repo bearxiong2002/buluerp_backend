@@ -64,6 +64,10 @@ public class AddDesignRequest {
     @ApiModelProperty(dataType = "String", value = "模具的材料", required = true)
     private String material;
 
+    @Excel(name = "物料id")
+    @ApiModelProperty(dataType = "Long", value = "物料id", required = true)
+    private Long materialId;
+
     // 非必填字段
     @Excel(name = "模具的颜色描述")
     @ApiModelProperty(dataType = "String", value = "模具颜色描述")
@@ -280,5 +284,13 @@ public class AddDesignRequest {
 
     public void setMaterial(String material) {
         this.material = material;
+    }
+
+    public Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 }

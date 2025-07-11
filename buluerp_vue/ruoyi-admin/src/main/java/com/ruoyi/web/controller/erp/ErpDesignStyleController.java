@@ -133,7 +133,7 @@ public class ErpDesignStyleController extends BaseController
             // 使用工具类直接获取图片
             Map<Integer, List<String>> invoiceImages = 
                 ExcelImageImportUtil.importInvoiceImages(
-                    file.getInputStream(), 9); // 图片在第10列（索引9）
+                    file.getInputStream(), 11); // 图片在第12列（索引11）
             
             // 将图片数据映射到对应的行（转换为从0开始的索引）
             invoiceImages.forEach((rowIndex, images) -> {
@@ -248,33 +248,30 @@ public class ErpDesignStyleController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:style:import')")
     @Anonymous
     public void downloadTemplate(HttpServletResponse response) throws IOException {
-        // 创建示例数据行（使用合理默认值）
-        List<AddDesignRequest> templateData = new ArrayList<>();
+        ExcelUtil<AddDesignRequest> util = new ExcelUtil<>(AddDesignRequest.class);
+        // 创建一个包含示例数据的列表
+        List<AddDesignRequest> exampleList = new ArrayList<>();
         AddDesignRequest example = new AddDesignRequest();
-
-        // 设置必填字段示例值（符合验证规则）
-        example.setGroupId(1001L);       // 示例分组编号
-        example.setProductId(2001L);// 示例产品编号
-        example.setMouldNumber("MD-2023-001"); // 模具编号示例
-        example.setLddNumber("LDD-00123");    // LDD编号示例
-        example.setMouldCategory("注塑模具");  // 模具类别示例
-        example.setMouldId("MID-001");      // 模具ID示例
-        example.setProductName("智能手机外壳"); // 产品名称示例
+        // 设置所有必需字段的示例值
+        example.setGroupId(1L);
+        example.setProductId(101L);
+        example.setMouldNumber("M001");
+        example.setLddNumber("LDD001");
+        example.setMouldCategory("注塑模具");
+        example.setMouldId("MID001");
+        example.setProductName("示例产品");
         example.setQuantity(2L);           // 数量示例
         example.setMaterial("PMMA塑料");     // 材料示例
-
+ 
+        // 设置新加的 materialId 字段
+        example.setMaterialId(123L);       // 物料ID示例
+ 
         // 设置非必填字段示例值
         example.setColor("透明");            // 颜色描述示例
-
-        // 图片字段设置 - 添加清晰的说明文本
-        example.setPictureStr("请在此单元格插入图片");
-
-        templateData.add(example);
-
-        // 创建ExcelUtil实例
-        ExcelUtil<AddDesignRequest> util = new ExcelUtil<>(AddDesignRequest.class);
-
-        // 导出模板（添加水印效果）
-        util.exportExcel(response, templateData, "造型表导入模板");
+ 
+        // pictureStr通常用于接收导入的Base64数据，模板中可以留空或提示格式
+        example.setPictureStr("（此处填入图片或留空）");
+        exampleList.add(example);
+        util.exportExcel(response, exampleList, "造型表导入模板");
     }
 }

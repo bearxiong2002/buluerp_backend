@@ -69,7 +69,18 @@ public class ErpDesignStyle implements Serializable {
     @Excel(name = "模具用料")
     private String material;
 
-    public void setId(Long id) 
+    @Excel(name = "物料id")
+    private Long materialId;
+
+    public Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
+    }
+
+    public void setId(Long id)
     {
         this.id = id;
     }
