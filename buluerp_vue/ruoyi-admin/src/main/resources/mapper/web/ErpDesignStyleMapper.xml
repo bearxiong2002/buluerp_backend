@@ -17,10 +17,11 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="productName"    column="product_name"    />
         <result property="quantity"    column="quantity"    />
         <result property="material"    column="material"    />
+        <result property="materialId"    column="material_id"    />
     </resultMap>
 
     <sql id="selectErpDesignStyleVo">
-        select id, design_pattern_id, group_id, mould_number, ldd_number, mould_category, mould_id, picture_url, color, product_name, quantity, material from erp_design_style
+        select id, design_pattern_id, group_id, mould_number, ldd_number, mould_category, mould_id, picture_url, color, product_name, quantity, material, material_id from erp_design_style
     </sql>
 
     <select id="selectErpDesignStyleList" parameterType="ErpDesignStyle" resultMap="ErpDesignStyleResult">
@@ -37,6 +38,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productName != null  and productName != ''"> and product_name like concat('%', #{productName}, '%')</if>
             <if test="quantity != null "> and quantity = #{quantity}</if>
             <if test="material != null  and material != ''"> and material = #{material}</if>
+            <if test="materialId != null "> and material_id = #{materialId}</if>
         </where>
     </select>
     
@@ -126,6 +128,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productName != null and productName != ''">product_name,</if>
             <if test="quantity != null">quantity,</if>
             <if test="material != null and material != ''">material,</if>
+            <if test="materialId != null">material_id,</if>
          </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="designPatternId != null">#{designPatternId},</if>
@@ -139,6 +142,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productName != null and productName != ''">#{productName},</if>
             <if test="quantity != null">#{quantity},</if>
             <if test="material != null and material != ''">#{material},</if>
+            <if test="materialId != null">#{materialId},</if>
          </trim>
     </insert>
 
@@ -156,6 +160,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="productName != null and productName != ''">product_name = #{productName},</if>
             <if test="quantity != null">quantity = #{quantity},</if>
             <if test="material != null and material != ''">material = #{material},</if>
+            <if test="materialId != null">material_id = #{materialId},</if>
         </trim>
         where id = #{id}
     </update>

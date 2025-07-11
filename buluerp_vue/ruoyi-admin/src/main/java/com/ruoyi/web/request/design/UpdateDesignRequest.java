@@ -57,6 +57,10 @@ public class UpdateDesignRequest {
     @ApiModelProperty(dataType = "String",value = "模具的材料",required = false)
     private String material;
 
+    /** 物料ID */
+    @ApiModelProperty(dataType = "Long",value = "物料ID",required = false)
+    private Long materialId;
+
     public Long getGroupId() {
         return GroupId;
     }
@@ -143,6 +147,14 @@ public class UpdateDesignRequest {
 
     public void setMaterial(String material) {
         this.material = material;
+    }
+
+    public Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 
     public Long getId() {
