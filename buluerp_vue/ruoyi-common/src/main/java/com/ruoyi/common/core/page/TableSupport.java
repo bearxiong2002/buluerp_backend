@@ -2,6 +2,8 @@ package com.ruoyi.common.core.page;
 
 import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.utils.ServletUtils;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.page.PageDefaultOptions;
 
 /**
  * 表格数据处理
@@ -49,8 +51,36 @@ public class TableSupport
         return pageDomain;
     }
 
+    public static PageDomain getPageDomain(PageDefaultOptions options)
+    {
+        PageDomain pageDomain = new PageDomain();
+        pageDomain.setPageNum(Convert.toInt(ServletUtils.getParameter(PAGE_NUM), options.getPageNum()));
+        pageDomain.setPageSize(Convert.toInt(ServletUtils.getParameter(PAGE_SIZE), options.getPageSize()));
+
+        String orderByColumn = ServletUtils.getParameter(ORDER_BY_COLUMN);
+        if (StringUtils.isEmpty(orderByColumn)) {
+            pageDomain.setOrderByColumn(options.getOrderByColumn());
+        } else {
+            pageDomain.setOrderByColumn(orderByColumn);
+        }
+
+        String isAsc = ServletUtils.getParameter(IS_ASC);
+        if (StringUtils.isEmpty(isAsc)) {
+            pageDomain.setIsAsc(options.getIsAsc());
+        } else {
+            pageDomain.setIsAsc(isAsc);
+        }
+
+        pageDomain.setReasonable(ServletUtils.getParameterToBool(REASONABLE));
+        return pageDomain;
+    }
+
     public static PageDomain buildPageRequest()
     {
         return getPageDomain();
+    }
+
+    public static PageDomain buildPageRequest(PageDefaultOptions options) {
+        return getPageDomain(options);
     }
 }

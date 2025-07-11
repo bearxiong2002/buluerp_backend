@@ -19,7 +19,7 @@ public class PageDomain
     private String orderByColumn;
 
     /** 排序的方向desc或者asc */
-    private String isAsc;
+    private String isAsc = "asc";
 
     /** 分页参数合理化 */
     private Boolean reasonable = true;
