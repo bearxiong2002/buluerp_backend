@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -124,7 +125,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             throw new ServiceException("外购资料不存在");
         }
         ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService
-                .selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType());
+                .selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
         if (erpMaterialInfo.getSingleWeight() == null) {
             throw new ServiceException("请先完善对应物料资料的单重信息");
         }
@@ -143,6 +144,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         erpPurchaseCollection.setDeliveryTime(request.getDeliveryTime());
         erpPurchaseCollection.setSupplier(erpPurchaseInfo.getSupplier());
         erpPurchaseCollection.setRemarks(request.getRemarks());
+
+        erpPurchaseCollection.setMaterialIds(Collections.singletonList(erpMaterialInfo.getId()));
 
         return insertErpPurchaseCollection(erpPurchaseCollection);
     }

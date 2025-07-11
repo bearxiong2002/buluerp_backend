@@ -87,7 +87,6 @@ public class ErpPackagingDetail {
     @Range(min = 0, message = "重量不能为负数", groups = {Save.class, Update.class})
     private Double totalWeight;
 
-
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "备注")
     @Example("无")
@@ -103,6 +102,11 @@ public class ErpPackagingDetail {
     @JsonIgnore
     @ApiModelProperty("胶件图片文件 [POST|PUT]")
     private MultipartFile partImageFile;
+
+    @Excel(name = "物料ID")
+    @ApiModelProperty("物料ID，与物料信息主键关联 [list|POST|PUT|response]")
+    @NotNull(message = "物料ID不能为空", groups = {Save.class})
+    private Long materialId;
 
     @TableField(exist = false)
     @JsonIgnore
@@ -268,5 +272,13 @@ public class ErpPackagingDetail {
 
     public void setTotalWeight(Double totalWeight) {
         this.totalWeight = totalWeight;
+    }
+
+    public @NotNull(message = "物料ID不能为空", groups = {Save.class}) Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(@NotNull(message = "物料ID不能为空", groups = {Save.class}) Long materialId) {
+        this.materialId = materialId;
     }
 }

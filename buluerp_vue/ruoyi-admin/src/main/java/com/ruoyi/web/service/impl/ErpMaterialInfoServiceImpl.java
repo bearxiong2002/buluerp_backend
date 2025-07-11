@@ -1,5 +1,6 @@
 package com.ruoyi.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
@@ -25,8 +26,10 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     private IErpPurchaseInfoService erpPurchaseInfoService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpPurchaseInfo::getMaterialId, erpMaterialInfo.getId());
         List<ErpPurchaseInfo> erpPurchaseInfos =
-                erpPurchaseInfoService.selectErpPurchaseInfoByMaterialType(erpMaterialInfo.getMaterialType());
+                erpPurchaseInfoService.list(queryWrapper);
         erpMaterialInfo.setPurchaseInfos(erpPurchaseInfos);
         return erpMaterialInfo;
     }
@@ -46,11 +49,6 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     public List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids) {
         return fill(erpMaterialInfoMapper.selectErpMaterialInfoListByIds(ids));
-    }
-
-    @Override
-    public ErpMaterialInfo selectErpMaterialInfoByMaterialType(String type) {
-        return erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(type);
     }
 
     @Override

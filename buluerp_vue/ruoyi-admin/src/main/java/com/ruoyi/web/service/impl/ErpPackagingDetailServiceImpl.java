@@ -6,6 +6,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.mapper.ErpPackagingDetailMapper;
+import com.ruoyi.web.service.IErpMaterialInfoService;
 import com.ruoyi.web.service.IErpPackagingBagService;
 import com.ruoyi.web.service.IErpPackagingDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +23,16 @@ public class ErpPackagingDetailServiceImpl
     @Autowired
     private IErpPackagingBagService erpPackagingBagService;
 
+    @Autowired
+    private IErpMaterialInfoService erpMaterialInfoService;
+
     @Override
     public void checkReferences(ErpPackagingDetail entity) {
+        if (entity.getMaterialId() != null) {
+            if (erpMaterialInfoService.selectErpMaterialInfoById(entity.getMaterialId()) == null) {
+                throw new ServiceException("物料不存在");
+            }
+        }
         if (entity.getPackagingBagId() != null) {
             if (erpPackagingBagService.getById(entity.getPackagingBagId()) == null) {
                 throw new ServiceException("分包袋不存在");

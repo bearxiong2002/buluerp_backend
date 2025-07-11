@@ -31,16 +31,9 @@ public class ErpPurchaseInfoServiceImpl
     private IErpMaterialInfoService erpMaterialInfoService;
 
     @Override
-    public List<ErpPurchaseInfo> selectErpPurchaseInfoByMaterialType(String materialType) {
-        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ErpPurchaseInfo::getMaterialType, materialType);
-        return this.list(queryWrapper);
-    }
-
-    @Override
     public int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo) throws IOException {
-        if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
-            throw new ServiceException("物料类型不存在，请先添加相应物料信息");
+        if (erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId()) == null) {
+            throw new ServiceException("物料ID不存在，请先添加相应物料信息");
         }
         if (erpPurchaseInfo.getPicture() != null) {
             String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
@@ -64,8 +57,8 @@ public class ErpPurchaseInfoServiceImpl
     public int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
         int count = 0;
         for (ErpPurchaseInfo erpPurchaseInfo : list) {
-            if (erpMaterialInfoService.selectErpMaterialInfoByMaterialType(erpPurchaseInfo.getMaterialType()) == null) {
-                throw new ServiceException("物料类型不存在，请先添加相应物料信息");
+            if (erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId()) == null) {
+                throw new ServiceException("物料ID不存在，请先添加相应物料信息");
             }
             if (erpPurchaseInfo.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
