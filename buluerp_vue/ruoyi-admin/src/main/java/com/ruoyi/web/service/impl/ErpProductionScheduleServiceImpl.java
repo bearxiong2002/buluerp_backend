@@ -7,14 +7,12 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
-import com.ruoyi.web.service.IErpAuditRecordService;
-import com.ruoyi.web.service.IErpAuditSwitchService;
-import com.ruoyi.web.service.IErpOrdersService;
-import com.ruoyi.web.service.IErpProductionScheduleService;
+import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +33,9 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpOrdersService erpOrdersService;
+
+    @Autowired
+    private IErpMaterialInfoService erpMaterialInfoService;
 
     @Override
     @Transactional
@@ -106,6 +107,14 @@ public class ErpProductionScheduleServiceImpl
                     erpProductionSchedule.getId(),
                     erpProductionSchedule.getMaterialIds()
             );
+
+            if (!erpProductionSchedule.getMaterialIds().isEmpty()) {
+                ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                        erpProductionSchedule.getMaterialIds().get(0)
+                );
+                erpProductionSchedule.setMouldNumber(materialInfo.getMouldNumber());
+                erpProductionSchedule.setMaterialType(materialInfo.getMaterialType());
+            }
         }
 
         // 检查状态变更
