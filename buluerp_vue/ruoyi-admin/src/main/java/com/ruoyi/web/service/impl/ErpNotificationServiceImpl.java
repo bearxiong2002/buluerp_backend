@@ -395,6 +395,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     {
         LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ErpNotification::getUserId, userId)
+                .orderByDesc(ErpNotification::getCreateTime)
                .ne(ErpNotification::getStatus, 2) // 排除已删除的通知
                .orderByDesc(ErpNotification::getCreateTime);
         return erpNotificationMapper.selectList(wrapper);
@@ -411,7 +412,8 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     {
         LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ErpNotification::getUserId, userId)
-               .eq(ErpNotification::getStatus, 0); // 未读状态
+                .orderByDesc(ErpNotification::getCreateTime)
+                .eq(ErpNotification::getStatus, 0); // 未读状态
         return Math.toIntExact(erpNotificationMapper.selectCount(wrapper));
     }
 

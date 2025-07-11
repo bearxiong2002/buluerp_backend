@@ -64,6 +64,7 @@ public class ErpManufacturerServiceImpl implements IErpManufacturerService {
     public List<ErpManufacturer> selectErpManufacturerList(ListManufacturerRequest listManufacturerRequest){
         LambdaQueryWrapper<ErpManufacturer> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listManufacturerRequest.getId()!=null,ErpManufacturer::getId,listManufacturerRequest.getId())
+                .orderByDesc(ErpManufacturer::getCreateTime)
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getTel()),ErpManufacturer::getTel,listManufacturerRequest.getTel())
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getEmail()),ErpManufacturer::getEmail,listManufacturerRequest.getEmail())
                 .like(StringUtils.isNotBlank(listManufacturerRequest.getName()),ErpManufacturer::getName,listManufacturerRequest.getName())

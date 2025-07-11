@@ -74,6 +74,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     @Override
     public List<ErpProducts> selectErpProductsList(ListProductRequest listProductRequest) {
         LambdaQueryWrapper<ErpProducts> wrapper= Wrappers.lambdaQuery();
+        wrapper.orderByDesc(ErpProducts::getUpdateTime);
         if(listProductRequest.getId()!=null) wrapper.like(ErpProducts::getId,listProductRequest.getId().toString());
         if(StringUtils.isNotBlank(listProductRequest.getInnerId())) wrapper.like(ErpProducts::getInnerId,listProductRequest.getInnerId());
         if(StringUtils.isNotBlank(listProductRequest.getOuterId())) wrapper.like(ErpProducts::getOuterId,listProductRequest.getOuterId());
@@ -82,7 +83,6 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if(listProductRequest.getCreateTimeTo()!=null) wrapper.lt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeTo());
         if(listProductRequest.getCreateTimeFrom()!=null) wrapper.gt(ErpProducts::getCreateTime,listProductRequest.getCreateTimeFrom());
         if(listProductRequest.getDesignStatus()!=null) wrapper.eq(ErpProducts::getDesignStatus,listProductRequest.getDesignStatus());
-        if(listProductRequest.getOrderId()!=null) wrapper.eq(ErpProducts::getOrderId,listProductRequest.getOrderId());
         return fillMaterialIds(erpProductsMapper.selectList(wrapper));
     }
 
@@ -122,7 +122,6 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         erpProducts.setInnerId(addProductRequest.getInnerId());
         erpProducts.setOuterId(addProductRequest.getOuterId());
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
-        erpProducts.setOrderId(addProductRequest.getOrderId());
         erpProducts.setName(addProductRequest.getName());
         erpProducts.setCreateTime(LocalDateTime.now());
         erpProducts.setUpdateTime(LocalDateTime.now());
@@ -169,7 +168,6 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             erpProductsMapper.update(null,lambdaWrapper);
         }
         if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
-        if(updateProductRequest.getOrderId()!=null) erpProducts.setOrderId(updateProductRequest.getOrderId());
         if(updateProductRequest.getDesignStatus()!=null){
             LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
             wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());

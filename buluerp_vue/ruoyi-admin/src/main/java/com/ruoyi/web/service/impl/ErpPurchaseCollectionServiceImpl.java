@@ -89,12 +89,12 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
 
         // 检查状态变更
-        if (erpPurchaseCollection.getStatus() != null && 
-            oldCollection != null && 
+        if (erpPurchaseCollection.getStatus() != null &&
+            oldCollection != null &&
             !erpPurchaseCollection.getStatus().equals(oldCollection.getStatus()) &&
             auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {
             
-            auditRecordService.handlePurchaseCollectionStatusChange(erpPurchaseCollection, erpPurchaseCollection.getStatus().intValue());
+            auditRecordService.handlePurchaseCollectionStatusChange(oldCollection, erpPurchaseCollection.getStatus().intValue());
         }
 
         return 1;

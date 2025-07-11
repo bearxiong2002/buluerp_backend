@@ -45,6 +45,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     public List<ErpProductInventoryChange> selectList(ListProductInventoryRequest request) {
         LambdaQueryWrapper<ErpProductInventoryChange> query = new LambdaQueryWrapper<>();
         query.eq(request.getId() != null, ErpProductInventoryChange::getId, request.getId())
+                .orderByDesc(ErpProductInventoryChange::getCreationTime)
                 .eq(StringUtils.isNotBlank(request.getOrderCode()), ErpProductInventoryChange::getOrderCode, request.getOrderCode())
                 .like(StringUtils.isNotBlank(request.getOperator()), ErpProductInventoryChange::getOperator, request.getOperator())
                 .eq(StringUtils.isNotBlank(request.getProductPartNumber()), ErpProductInventoryChange::getProductPartNumber, request.getProductPartNumber())
@@ -179,6 +180,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     public List<ErpProductInventory> ListStore(ErpProductInventory erpProductInventory, Date updateTimeFrom, Date updateTimeTo){
         LambdaQueryWrapper<ErpProductInventory> wrapper= Wrappers.lambdaQuery();
         wrapper.like(StringUtils.isNotBlank(erpProductInventory.getProductPartNumber()), ErpProductInventory::getProductPartNumber,erpProductInventory.getProductPartNumber())
+                .orderByDesc(ErpProductInventory::getUpdateTime)
                 .le(updateTimeTo!=null,ErpProductInventory::getUpdateTime,updateTimeTo)
                 .ge(updateTimeFrom!=null,ErpProductInventory::getUpdateTime,updateTimeFrom);
         return inventoryMapper.selectList(wrapper);

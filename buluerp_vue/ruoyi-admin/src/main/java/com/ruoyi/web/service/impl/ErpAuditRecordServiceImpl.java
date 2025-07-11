@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -407,6 +408,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 log.info("订单审核通过流程处理完成，订单ID：{}，审核记录ID：{}，已通知角色：{}",
                         order.getId(), auditRecordId, notifyRole);
             }
+
+            // 关闭该订单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
             
         } catch (Exception e) {
             log.error("处理订单审核通过流程失败，审核记录ID：{}", auditRecordId, e);
@@ -482,6 +486,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             
             log.info("订单审核拒绝流程处理完成，订单ID：{}，审核记录ID：{}，订单状态保持不变，已通知角色：{}",
                     order.getId(), auditRecordId, notifyRole);
+
+            // 关闭该订单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
             
         } catch (Exception e) {
             log.error("处理订单审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
@@ -518,42 +525,42 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
      */
     @Override
     @Transactional
-    public void handleOrderStatusChange(ErpOrders order, Integer newStatus)
+    public void handleOrderStatusChange(ErpOrders updatedOrder, Integer oldStatus, Integer newStatus)
     {
         try {
             // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(order.getId(), "ORDER");
+            notificationService.markNotificationsAsReadByBusiness(updatedOrder.getId(), "ORDER");
 
             log.info("开始处理订单状态变更审核流程，订单ID：{}，当前状态：{}，目标状态：{}", 
-                    order.getId(), order.getStatus(), newStatus);
+                    updatedOrder.getId(), oldStatus, newStatus);
             
             // 1. 创建审核记录
             ErpAuditRecord auditRecord = createAuditRecord(
                 AuditTypeEnum.ORDER_AUDIT.getCode(),
-                order.getId(),
-                order.getStatus(), // 当前状态作为前状态
+                updatedOrder.getId(),
+                oldStatus, // 当前状态作为前状态
                 newStatus // 目标状态
             );
             
-            // 2. 构建通知模板数据
-            Map<String, Object> templateData = buildOrderNotificationData(order);
-            templateData.put("currentStatus", getStatusDescription(order.getStatus()));
+            // 2. 构建通知模板数据 - 使用包含最新数据的 updatedOrder
+            Map<String, Object> templateData = buildOrderNotificationData(updatedOrder);
+            templateData.put("currentStatus", getStatusDescription(oldStatus));
             templateData.put("targetStatus", getStatusDescription(newStatus));
             
             // 3. 发送通知给订单审核人
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.ORDER_STATUS_CHANGE,
                 "order_auditor", // 状态变更统一由订单审核人处理
-                order.getId(),
+                updatedOrder.getId(),
                 "ORDER",
                 templateData
             );
             
-            log.info("订单状态变更审核流程处理完成，订单ID：{}，审核记录ID：{}", 
-                    order.getId(), auditRecord.getId());
+            log.info("订单状态变更审核流程处理完成，订单ID：{}，审核记录ID：{}",
+                    updatedOrder.getId(), auditRecord.getId());
             
         } catch (Exception e) {
-            log.error("处理订单状态变更审核流程失败，订单ID：{}", order.getId(), e);
+            log.error("处理订单状态变更审核流程失败，订单ID：{}", updatedOrder.getId(), e);
             throw new RuntimeException("处理订单状态变更审核流程失败", e);
         }
     }
@@ -715,6 +722,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             
             log.info("布产计划审核通过流程处理完成，布产计划ID：{}，审核记录ID：{}", 
                     schedule.getId(), auditRecordId);
+
+            // 关闭该生产计划其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
             
         } catch (Exception e) {
             log.error("处理布产计划审核通过流程失败，审核记录ID：{}", auditRecordId, e);
@@ -950,6 +960,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             
             log.info("采购汇总审核通过流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
                     collection.getId(), auditRecordId);
+
+            // 关闭该采购单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
             
         } catch (Exception e) {
             log.error("处理采购汇总审核通过流程失败，审核记录ID：{}", auditRecordId, e);
@@ -1001,6 +1014,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
             log.info("采购汇总审核拒绝流程处理完成，采购汇总ID：{}，审核记录ID：{}", 
                     collection.getId(), auditRecordId);
+
+            // 关闭该采购单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
             
         } catch (Exception e) {
             log.error("处理采购汇总审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
@@ -1189,6 +1205,38 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
         }
     }
 
+    @Override
+    @Transactional
+    public void closeObsoleteAuditRecords(ErpAuditRecord processedRecord) {
+        if (processedRecord == null || processedRecord.getAuditId() == null || processedRecord.getAuditType() == null) {
+            return;
+        }
+
+        try {
+            // 找到除了当前已处理记录之外，所有与该业务对象相关的“待处理”审核
+            LambdaUpdateWrapper<ErpAuditRecord> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(ErpAuditRecord::getAuditType, processedRecord.getAuditType())
+                   .eq(ErpAuditRecord::getAuditId, processedRecord.getAuditId())
+                   .eq(ErpAuditRecord::getConfirm, 0) // 状态为“待处理”
+                   .ne(ErpAuditRecord::getId, processedRecord.getId()); // 排除当前记录
+
+            wrapper.set(ErpAuditRecord::getConfirm, 1); // 标记为“已处理”
+            wrapper.set(ErpAuditRecord::getAuditor, "system");
+            wrapper.set(ErpAuditRecord::getCheckTime, new Date());
+            wrapper.set(ErpAuditRecord::getAuditComment, "过时的审核请求");
+
+            int updatedCount = erpAuditRecordMapper.update(null, wrapper);
+            if (updatedCount > 0) {
+                log.info("成功关闭了 {} 个关于业务 [类型: {}, ID: {}] 的过时审核记录。", 
+                        updatedCount, processedRecord.getAuditType(), processedRecord.getAuditId());
+            }
+        } catch (Exception e) {
+            log.error("关闭过时审核记录时发生错误，业务 [类型: {}, ID: {}]", 
+                    processedRecord.getAuditType(), processedRecord.getAuditId(), e);
+            // 此处不向上抛出异常，以免影响主审核流程
+        }
+    }
+
     // ==================== 包装清单/分包审核业务方法 ====================
 
     @Override
@@ -1277,6 +1325,10 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             );
 
             log.info("包装清单审核通过流程处理完成，ID：{}", packagingList.getId());
+
+            // 关闭该包装清单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
+
         } catch (Exception e) {
             log.error("处理包装清单审核通过流程失败，审核记录ID：{}", auditRecordId, e);
             throw new RuntimeException("处理包装清单审核通过流程失败", e);
@@ -1321,6 +1373,10 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             );
 
             log.info("包装清单审核拒绝流程处理完成，ID：{}", packagingList.getId());
+
+            // 关闭该包装清单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
+            
         } catch (Exception e) {
             log.error("处理包装清单审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
             throw new RuntimeException("处理包装清单审核拒绝流程失败", e);
