@@ -27,6 +27,7 @@ public class OperationLogInterceptor implements Interceptor {
         String methodName = mappedStatement.getId();
 
         OperationLog operationLog = null;
+        Exception exception = null;
         try {
             boolean autoLog = LogUtil.isAutoLog() &&
                     methodName.startsWith(ErpCustomersMapper.class.getPackage().getName());
@@ -52,10 +53,15 @@ public class OperationLogInterceptor implements Interceptor {
                 }
             }
         } catch (Exception e) {
-            throw new AutoLogException("自动提取日志失败：" + e.getMessage(), e);
+            exception = e;
         }
 
         Object result = invocation.proceed();
+
+        if (exception != null) {
+            throw new AutoLogException("自动提取日志失败：" + exception.getMessage(), exception);
+        }
+
         try {
             if (operationLog != null) {
                 if (operationLog instanceof InsertLog) {
