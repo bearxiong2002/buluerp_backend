@@ -34,8 +34,8 @@ public class UpdateDesignRequest {
     private String mouldCategory;
 
     /** 模具ID，用于内部标识模具 */
-    @ApiModelProperty(dataType = "String",value = "模具id",required = false)
-    private String mouldId;
+    @ApiModelProperty(dataType = "String",value = "物料ID",required = false)
+    private Long materialId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
     @ApiModelProperty(dataType = "file",value = "模具图片 ")
@@ -56,10 +56,6 @@ public class UpdateDesignRequest {
     /** 模具的用料，如钢材、铝合金等 */
     @ApiModelProperty(dataType = "String",value = "模具的材料",required = false)
     private String material;
-
-    /** 物料ID */
-    @ApiModelProperty(dataType = "Long",value = "物料ID",required = false)
-    private Long materialId;
 
     public Long getGroupId() {
         return GroupId;
@@ -101,12 +97,12 @@ public class UpdateDesignRequest {
         this.mouldCategory = mouldCategory;
     }
 
-    public String getMouldId() {
-        return mouldId;
+    public Long getMaterialId() {
+        return materialId;
     }
 
-    public void setMouldId(String mouldId) {
-        this.mouldId = mouldId;
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 
     public MultipartFile getPicture() {
@@ -147,14 +143,6 @@ public class UpdateDesignRequest {
 
     public void setMaterial(String material) {
         this.material = material;
-    }
-
-    public Long getMaterialId() {
-        return materialId;
-    }
-
-    public void setMaterialId(Long materialId) {
-        this.materialId = materialId;
     }
 
     public Long getId() {

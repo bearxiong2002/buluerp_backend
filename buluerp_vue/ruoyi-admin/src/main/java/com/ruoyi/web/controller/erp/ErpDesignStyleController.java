@@ -133,7 +133,7 @@ public class ErpDesignStyleController extends BaseController
             // 使用工具类直接获取图片
             Map<Integer, List<String>> invoiceImages = 
                 ExcelImageImportUtil.importInvoiceImages(
-                    file.getInputStream(), 11); // 图片在第12列（索引11）
+                    file.getInputStream(), 10); // 图片在第11列（索引10）
             
             // 将图片数据映射到对应的行（转换为从0开始的索引）
             invoiceImages.forEach((rowIndex, images) -> {
@@ -258,13 +258,10 @@ public class ErpDesignStyleController extends BaseController
         example.setMouldNumber("M001");
         example.setLddNumber("LDD001");
         example.setMouldCategory("注塑模具");
-        example.setMouldId("MID001");
+        example.setMaterialId(123L);
         example.setProductName("示例产品");
         example.setQuantity(2L);           // 数量示例
         example.setMaterial("PMMA塑料");     // 材料示例
- 
-        // 设置新加的 materialId 字段
-        example.setMaterialId(123L);       // 物料ID示例
  
         // 设置非必填字段示例值
         example.setColor("透明");            // 颜色描述示例

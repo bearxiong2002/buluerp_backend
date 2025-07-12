@@ -73,7 +73,7 @@ public interface ErpDesignStyleMapper  extends BaseMapper<ErpDesignStyle>
 
     Set<String> selectMouldCategorySet(Long id);
 
-    Set<String> selectMouldIdSet(Long id);
+    Set<Long> selectMouldIdSet(Long id);
 
     Set<String> selectPictureUrlSet(Long id);
 

@@ -60,7 +60,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
 
     <select id="selectMouldIdSet" resultType="java.lang.String" parameterType="java.lang.Long">
-        SELECT DISTINCT mould_id
+        SELECT DISTINCT material_id
         from buluerp.erp_design_style
         where product_id = #{id}
     </select>
