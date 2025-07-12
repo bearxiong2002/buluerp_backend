@@ -27,7 +27,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     <!--) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_bin-->
 
     <sql id="selectErpProducts">
-        select id,name,picture_url,design_status,create_time,update_time from erp_products
+        select id,name,picture_url,design_status,create_time,update_time,create_username from erp_products
     </sql>
     <select id="selectErpProductsListByIds" resultType="com.ruoyi.web.domain.ErpProducts">
         <include refid="selectErpProducts"/>
