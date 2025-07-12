@@ -12,7 +12,6 @@ import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.FileUtils;
 import com.ruoyi.web.domain.ErpDesignStyle;
-import com.ruoyi.web.domain.ErpProducts;
 import com.ruoyi.web.mapper.ErpDesignPatternsMapper;
 import com.ruoyi.web.mapper.ErpDesignStyleMapper;
 import com.ruoyi.web.request.design.AddDesignRequest;
@@ -86,7 +85,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         String url=null;
         if(addDesignRequest.getPicture()!=null) url= FileUploadUtils.upload(addDesignRequest.getPicture());
 
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getProductId(), addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMouldId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(addDesignRequest.getProductId(), addDesignRequest.getGroupId(), addDesignRequest.getMouldNumber(), addDesignRequest.getLddNumber(), addDesignRequest.getMouldCategory(), addDesignRequest.getMaterialId(), url, addDesignRequest.getColor(), addDesignRequest.getProductName(), addDesignRequest.getQuantity(), addDesignRequest.getMaterial());
 
         return erpDesignStyleMapper.insert(erpDesignStyle);
     }
@@ -123,8 +122,7 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
             }
             url= FileUploadUtils.upload(updateDesignRequest.getPicture());
         }
-        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getProductId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMouldId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
-        erpDesignStyle.setMaterialId(updateDesignRequest.getMaterialId());
+        ErpDesignStyle erpDesignStyle=new ErpDesignStyle(updateDesignRequest.getId(), updateDesignRequest.getProductId(), updateDesignRequest.getGroupId(), updateDesignRequest.getMouldNumber(), updateDesignRequest.getLddNumber(), updateDesignRequest.getMouldCategory(), updateDesignRequest.getMaterialId(), url, updateDesignRequest.getColor(), updateDesignRequest.getProductName(), updateDesignRequest.getQuantity(), updateDesignRequest.getMaterial());
         return erpDesignStyleMapper.updateById(erpDesignStyle);
     }
 

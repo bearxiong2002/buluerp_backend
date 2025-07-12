@@ -17,9 +17,6 @@ public class DesignPatternsExportDTO {
     @Excel(name = "模具类别")
     private String mouldCategory;
 
-    @Excel(name = "模具ID")
-    private String mouldId;
-
     @Excel(name = "模具图片",cellType = Excel.ColumnType.IMAGE, height = 80)
     private String pictureUrl;
 
@@ -44,7 +41,6 @@ public class DesignPatternsExportDTO {
         this.mouldNumbers = String.join(",", result.getMouldNumber());
         this.lddNumbers = String.join(",", result.getLddNumber());
         this.mouldCategory = String.join(",", result.getMouldCategory());
-        this.mouldId = String.join(",", result.getMouldId());
         this.pictureUrl = String.join(",", result.getPictureUrl());
         this.color = String.join(",", result.getColor());
         this.productName = String.join(",", result.getProductName());
@@ -82,14 +78,6 @@ public class DesignPatternsExportDTO {
 
     public void setMouldCategory(String mouldCategory) {
         this.mouldCategory = mouldCategory;
-    }
-
-    public String getMouldId() {
-        return mouldId;
-    }
-
-    public void setMouldId(String mouldId) {
-        this.mouldId = mouldId;
     }
 
     public String getPictureUrl() {

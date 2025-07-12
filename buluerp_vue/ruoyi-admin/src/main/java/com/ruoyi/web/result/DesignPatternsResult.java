@@ -26,7 +26,7 @@ public class DesignPatternsResult {
 
     /** 模具ID，用于内部标识模具 */
     @Excel(name = "模具ID")
-    private Set<String> mouldId;
+    private Set<Long> materialId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
     @Excel(name = "模具图片",cellType = Excel.ColumnType.IMAGE, height = 80)
@@ -101,12 +101,12 @@ public class DesignPatternsResult {
         this.mouldCategory = mouldCategory;
     }
 
-    public Set<String> getMouldId() {
-        return mouldId;
+    public Set<Long> getMaterialId() {
+        return materialId;
     }
 
-    public void setMouldId(Set<String> mouldId) {
-        this.mouldId = mouldId;
+    public void setMaterialId(Set<Long> materialId) {
+        this.materialId = materialId;
     }
 
     public Set<String> getPictureUrl() {
@@ -141,12 +141,12 @@ public class DesignPatternsResult {
         this.material = material;
     }
 
-    public DesignPatternsResult(Long id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<String> mouldId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material,Long confirm) {
+    public DesignPatternsResult(Long id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<Long> materialId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material, Long confirm) {
         this.id = id;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
         this.mouldCategory = mouldCategory;
-        this.mouldId = mouldId;
+        this.materialId = materialId;
         this.pictureUrl = pictureUrl;
         this.color = color;
         this.productName = productName;
@@ -162,7 +162,7 @@ public class DesignPatternsResult {
                 .append("mouldNumber", getMouldNumber())
                 .append("lddNumber", getLddNumber())
                 .append("mouldCategory", getMouldCategory())
-                .append("mouldId", getMouldId())
+                .append("mouldId", getMaterialId())
                 .append("pictureUrl", getPictureUrl())
                 .append("color", getColor())
                 .append("productName", getProductName())

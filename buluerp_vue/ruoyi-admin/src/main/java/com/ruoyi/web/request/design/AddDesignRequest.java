@@ -44,10 +44,10 @@ public class AddDesignRequest {
     @ApiModelProperty(dataType = "String", value = "模具类别", required = true)
     private String mouldCategory;
 
-    @NotBlank(message = "模具ID不能为空")
-    @Excel(name = "模具ID")
-    @ApiModelProperty(dataType = "String", value = "模具id", required = true)
-    private String mouldId;
+    @NotBlank(message = "物料ID不能为空")
+    @Excel(name = "物料(模具)id")
+    @ApiModelProperty(dataType = "String", value = "物料(模具)id", required = true)
+    private Long materialId;
 
     @NotBlank(message = "产品名称不能为空")
     @Excel(name = "模具生产的产品名称")
@@ -63,10 +63,6 @@ public class AddDesignRequest {
     @Excel(name = "模具用料")
     @ApiModelProperty(dataType = "String", value = "模具的材料", required = true)
     private String material;
-
-    @Excel(name = "物料id")
-    @ApiModelProperty(dataType = "Long", value = "物料id", required = true)
-    private Long materialId;
 
     // 非必填字段
     @Excel(name = "模具的颜色描述")
@@ -238,12 +234,12 @@ public class AddDesignRequest {
         this.mouldCategory = mouldCategory;
     }
 
-    public String getMouldId() {
-        return mouldId;
+    public Long getMaterialId() {
+        return materialId;
     }
 
-    public void setMouldId(String mouldId) {
-        this.mouldId = mouldId;
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 
     public MultipartFile getPicture() {
@@ -286,11 +282,4 @@ public class AddDesignRequest {
         this.material = material;
     }
 
-    public Long getMaterialId() {
-        return materialId;
-    }
-
-    public void setMaterialId(Long materialId) {
-        this.materialId = materialId;
-    }
 }

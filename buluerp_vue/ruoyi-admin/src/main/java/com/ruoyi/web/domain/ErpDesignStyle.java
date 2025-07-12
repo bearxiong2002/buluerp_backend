@@ -47,7 +47,7 @@ public class ErpDesignStyle implements Serializable {
 
     /** 模具ID，用于内部标识模具 */
     @Excel(name = "模具ID")
-    private String mouldId;
+    private Long materialId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
     @Excel(name = "模具图片的URL", cellType = Excel.ColumnType.IMAGE, height = 80)
@@ -68,17 +68,6 @@ public class ErpDesignStyle implements Serializable {
     /** 模具的用料，如钢材、铝合金等 */
     @Excel(name = "模具用料")
     private String material;
-
-    @Excel(name = "物料id")
-    private Long materialId;
-
-    public Long getMaterialId() {
-        return materialId;
-    }
-
-    public void setMaterialId(Long materialId) {
-        this.materialId = materialId;
-    }
 
     public void setId(Long id)
     {
@@ -140,14 +129,14 @@ public class ErpDesignStyle implements Serializable {
         return mouldCategory;
     }
 
-    public void setMouldId(String mouldId) 
+    public void setMaterialId(Long materialId)
     {
-        this.mouldId = mouldId;
+        this.materialId = materialId;
     }
 
-    public String getMouldId() 
+    public Long getMaterialId()
     {
-        return mouldId;
+        return materialId;
     }
 
     public void setPictureUrl(String pictureUrl) 
@@ -203,13 +192,13 @@ public class ErpDesignStyle implements Serializable {
     public ErpDesignStyle() {
     }
 
-    public ErpDesignStyle(Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
+    public ErpDesignStyle(Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, Long materialId, String pictureUrl, String color, String productName, Long quantity, String material) {
         this.productId = productId;
         this.groupId= groupId;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
         this.mouldCategory = mouldCategory;
-        this.mouldId = mouldId;
+        this.materialId = materialId;
         this.pictureUrl = pictureUrl;
         this.color = color;
         this.productName = productName;
@@ -217,14 +206,14 @@ public class ErpDesignStyle implements Serializable {
         this.material = material;
     }
 
-    public ErpDesignStyle(Long id, Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, String mouldId, String pictureUrl, String color, String productName, Long quantity, String material) {
+    public ErpDesignStyle(Long id, Long productId, Long groupId, String mouldNumber, String lddNumber, String mouldCategory, Long materialId, String pictureUrl, String color, String productName, Long quantity, String material) {
         this.id = id;
         this.productId = productId;
         this.groupId = groupId;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;
         this.mouldCategory = mouldCategory;
-        this.mouldId = mouldId;
+        this.materialId = materialId;
         this.pictureUrl = pictureUrl;
         this.color = color;
         this.productName = productName;
@@ -247,7 +236,7 @@ public class ErpDesignStyle implements Serializable {
             .append("mouldNumber", getMouldNumber())
             .append("lddNumber", getLddNumber())
             .append("mouldCategory", getMouldCategory())
-            .append("mouldId", getMouldId())
+            .append("mouldId", getMaterialId())
             .append("pictureUrl", getPictureUrl())
             .append("color", getColor())
             .append("productName", getProductName())

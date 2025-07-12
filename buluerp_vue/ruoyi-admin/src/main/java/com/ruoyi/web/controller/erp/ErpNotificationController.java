@@ -11,6 +11,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -46,12 +47,21 @@ public class ErpNotificationController extends BaseController
      */
     @ApiOperation("获取当前用户未读通知列表")
     @GetMapping("/unread")
-    public TableDataInfo getUnread()
+    public AjaxResult getUnread(HttpServletResponse response)
     {
-        startPage();
-        Long userId = SecurityUtils.getUserId();
-        List<ErpNotification> list = notificationService.getUnreadNotifications(userId);
-        return getDataTable(list);
+        try {
+            startPage();
+            Long userId = SecurityUtils.getUserId();
+            List<ErpNotification> list = notificationService.getUnreadNotifications(userId);
+            return AjaxResult.success(getDataTable(list));
+        } catch (Exception e) {
+            // Log the exception details for debugging purposes
+            // logger.error("获取未读通知失败", e);
+            // 设置HTTP状态码为506
+            response.setStatus(506);
+            // 返回一个特定的错误响应，而不是抛出异常
+            return AjaxResult.error("获取未读通知失败，请稍后再试");
+        }
     }
 
     /**
