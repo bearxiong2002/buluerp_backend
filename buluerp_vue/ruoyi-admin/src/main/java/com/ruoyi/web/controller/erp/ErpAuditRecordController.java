@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.erp;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.annotation.Log;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -74,7 +75,8 @@ public class ErpAuditRecordController extends BaseController
         @ApiResponse(code = 403, message = "访问受限"),
         @ApiResponse(code = 500, message = "系统内部错误")
     })
-    @PreAuthorize("@ss.hasPermi('system:audit:list')")
+    @Anonymous
+    //@PreAuthorize("@ss.hasPermi('system:audit:list')")
     @GetMapping("/list")
     public TableDataInfo list(
             @ApiParam("审核记录ID") @RequestParam(required = false) Long id,
@@ -120,8 +122,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 导出审核记录列表（管理员权限）
      */
+    @Anonymous
     @ApiOperation("导出审核记录列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:export')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:export')")
     @Log(title = "审核记录", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
     public void export(HttpServletResponse response, ErpAuditRecord erpAuditRecord)
@@ -134,8 +137,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 删除审核记录
      */
+    @Anonymous
     @ApiOperation("删除审核记录")
-    @PreAuthorize("@ss.hasPermi('system:audit:remove')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:remove')")
     @Log(title = "审核记录", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable List<Integer> ids)
@@ -146,8 +150,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 获取审核记录详细信息（管理员权限）
      */
+    @Anonymous
     @ApiOperation("获取审核记录详细信息")
-    @PreAuthorize("@ss.hasPermi('system:audit:query')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@ApiParam("审核记录ID") @PathVariable("id") Long id)
     {
@@ -160,8 +165,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 根据审核ID获取审核记录的具体内容
      */
+    @Anonymous
     @ApiOperation("根据审核ID获取审核记录的具体内容")
-    @PreAuthorize("@ss.hasPermi('system:audit:query')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:query')")
     @GetMapping("/detail/{auditId}")
     public AjaxResult getAuditDetail(@ApiParam("审核对象ID") @PathVariable("auditId") Long auditId,
                                     @ApiParam("审核类型") @RequestParam Integer auditType)
@@ -211,8 +217,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 查询待审核订单列表（订单审核人权限）
      */
+    @Anonymous
     @ApiOperation("查询待审核订单列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:order:list')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:order:list')")
     @GetMapping("/order/pending")
     public TableDataInfo getOrderPendingList()
     {
@@ -226,8 +233,9 @@ public class ErpAuditRecordController extends BaseController
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
+    @Anonymous
     @ApiOperation("订单审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:order:audit')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:order:audit')")
     @Log(title = "订单审核", businessType = BusinessType.UPDATE)
     @PostMapping("/order/audit/{id}")
     public AjaxResult auditOrder(@ApiParam("审核记录ID") @PathVariable Long id, @Validated @RequestBody AuditRequest auditRequest)
@@ -272,8 +280,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 查询待审核布产列表（布产审核人权限）
      */
+    @Anonymous
     @ApiOperation("查询待审核布产列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:production:list')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:production:list')")
     @GetMapping("/production/pending")
     public TableDataInfo getProductionPendingList()
     {
@@ -287,8 +296,9 @@ public class ErpAuditRecordController extends BaseController
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
+    @Anonymous
     @ApiOperation("布产审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:production:audit')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:production:audit')")
     @Log(title = "布产审核", businessType = BusinessType.UPDATE)
     @PostMapping("/production/audit/{id}")
     public AjaxResult auditProduction(@ApiParam("审核记录ID") @PathVariable Long id, 
@@ -334,8 +344,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 查询待审核的包装清单列表（包装清单审核人权限）
      */
+    @Anonymous
     @ApiOperation("查询待审核包装清单列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:packaging:list')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:packaging:list')")
     @GetMapping("/packaging/pending")
     public TableDataInfo getPackagingPendingList()
     {
@@ -349,8 +360,9 @@ public class ErpAuditRecordController extends BaseController
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
+    @Anonymous
     @ApiOperation("包装清单审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:packaging:audit')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:packaging:audit')")
     @Log(title = "包装清单审核", businessType = BusinessType.UPDATE)
     @PostMapping("/packaging/audit/{id}")
     public AjaxResult auditPackaging(@ApiParam("审核记录ID") @PathVariable Long id,
@@ -396,8 +408,9 @@ public class ErpAuditRecordController extends BaseController
     /**
      * 查询待审核采购/委外加工列表（采购审核人权限）
      */
+    @Anonymous
     @ApiOperation("查询待审核采购/委外加工列表")
-    @PreAuthorize("@ss.hasPermi('system:audit:purchase:list')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:purchase:list')")
     @GetMapping("/purchase/pending")
     public TableDataInfo getPurchasePendingList()
     {
@@ -411,8 +424,9 @@ public class ErpAuditRecordController extends BaseController
      * @param id 审核记录ID
      * @param auditRequest 审核请求，包含confirm字段（1=通过，-1=拒绝）和审核意见
      */
+    @Anonymous
     @ApiOperation("采购/委外加工审核")
-    @PreAuthorize("@ss.hasPermi('system:audit:purchase:audit')")
+    //@PreAuthorize("@ss.hasPermi('system:audit:purchase:audit')")
     @Log(title = "采购/委外加工审核", businessType = BusinessType.UPDATE)
     @PostMapping("/purchase/audit/{id}")
     public AjaxResult auditPurchase(@ApiParam("审核记录ID") @PathVariable Long id,
