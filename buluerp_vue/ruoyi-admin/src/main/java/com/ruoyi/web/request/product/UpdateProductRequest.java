@@ -20,6 +20,16 @@ public class UpdateProductRequest {
     @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
     private List<Integer> materialIds;
 
+    @ApiModelProperty(dataType = "Integer",value = "是否删除图片,1=删除",required = false)
+    private Integer deletePicture;
+
+    public Integer getDeletePicture() {
+        return deletePicture;
+    }
+
+    public void setDeletePicture(Integer deletePicture) {
+        this.deletePicture = deletePicture;
+    }
 
     public List<Integer> getMaterialIds() {
         return materialIds;

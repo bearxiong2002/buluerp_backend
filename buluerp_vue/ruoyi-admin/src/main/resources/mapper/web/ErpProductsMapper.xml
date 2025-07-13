@@ -9,7 +9,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </insert>
     <update id="updateStatusById">
         update erp_products
-        set design_status = #{design_status,jdbcType=INTEGER}
+        set design_status = #{design_status}
         where id = #{id,jdbcType=INTEGER}
     </update>
     <delete id="clearProductMaterial">

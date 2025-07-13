@@ -57,7 +57,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where product_id = #{id}
     </select>
 
-    <select id="selectMouldIdSet" resultType="java.lang.String" parameterType="java.lang.Long">
+    <select id="selectMouldIdSet" resultType="java.lang.Long" parameterType="java.lang.Long">
         SELECT DISTINCT material_id
         from buluerp.erp_design_style
         where product_id = #{id}
