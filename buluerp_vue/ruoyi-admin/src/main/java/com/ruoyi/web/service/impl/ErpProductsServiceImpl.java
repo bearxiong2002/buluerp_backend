@@ -145,18 +145,8 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     public int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException {
         ErpProducts erpProducts = new ErpProducts();
         erpProducts.setId(updateProductRequest.getId());
-        if(updateProductRequest.getPicture()!=null){
+        if(updateProductRequest.getDeletePicture()==1&&updateProductRequest.getPicture()==null){
             //删除原先的图片
-            String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
-            if(url1!=null){
-                url1=parseActualPath(url1);
-                FileUtils.deleteFile(url1);
-            }
-            //保存后来的图片
-            String url=FileUploadUtils.upload(updateProductRequest.getPicture());
-            erpProducts.setPictureUrl(url);
-        }
-        else{
             String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
             if(url1!=null){
                 url1=parseActualPath(url1);
@@ -167,18 +157,30 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                     .eq(ErpProducts::getId, updateProductRequest.getId());
             erpProductsMapper.update(null,lambdaWrapper);
         }
-        if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
-        if(updateProductRequest.getDesignStatus()!=null){
-            LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
-            wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());
-            Long designStatus=updateProductRequest.getDesignStatus();
-            erpProductsMapper.updateStatusById(updateProductRequest.getId(),designStatus);
-            if(erpDesignPatternsMapper.selectOne(wrapper)!=null){
-                if(designStatus==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
-                if(designStatus==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+        if (updateProductRequest.getPicture()!=null){
+            //删除原先的图片
+            String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
+            if(url1!=null){
+                url1=parseActualPath(url1);
+                FileUtils.deleteFile(url1);
             }
+            //保存后来的图片
+            String url=FileUploadUtils.upload(updateProductRequest.getPicture());
+            erpProducts.setPictureUrl(url);
         }
+        if(!StringUtils.isBlank(updateProductRequest.getName()))erpProducts.setName(updateProductRequest.getName());
 
+        //design_status无法通过这种渠道修改
+//        if(updateProductRequest.getDesignStatus()!=null){
+//            LambdaQueryWrapper<ErpDesignPatterns> wrapper=Wrappers.lambdaQuery();
+//            wrapper.eq(ErpDesignPatterns::getProductId,updateProductRequest.getId());
+//            Long designStatus=updateProductRequest.getDesignStatus();
+//            erpProductsMapper.updateStatusById(updateProductRequest.getId(),designStatus);
+//            if(erpDesignPatternsMapper.selectOne(wrapper)!=null){
+//                if(designStatus==1)erpDesignPatternsMapper.confirmErpDesignPatternsById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+//                if(designStatus==0)erpDesignPatternsMapper.cancelConfirmById(erpDesignPatternsMapper.selectOne(wrapper).getId());
+//            }
+//        }
 
         erpProducts.setUpdateTime(LocalDateTime.now());
         if (0 >= erpProductsMapper.updateById(erpProducts)) {
