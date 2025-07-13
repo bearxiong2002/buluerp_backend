@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModel;
 
@@ -49,6 +50,7 @@ public class ErpProducts {
     private String createUsername;
 
     @TableField(exist = false)
+    @JsonIgnore // 不再使用
     private List<Integer> materialIds;
 
     public String getInnerId() {

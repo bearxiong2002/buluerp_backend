@@ -80,7 +80,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     @Override
     @Transactional
-    public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {\
+    public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         check(erpPurchaseCollection);
         // 获取原始记录以检查状态变更
         ErpPurchaseCollection oldCollection = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());

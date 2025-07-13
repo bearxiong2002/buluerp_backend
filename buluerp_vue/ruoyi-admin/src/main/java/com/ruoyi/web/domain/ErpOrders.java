@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import com.ruoyi.common.validation.Save;
@@ -112,6 +113,7 @@ public class ErpOrders extends BaseEntity
     @ApiModelProperty(value = "通过设计总表关联的产品，仅用于响应")
     private ErpProducts product;
 
+    @JsonIgnore // 不再使用
     private List<ErpOrdersProduct> products;
 
     @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")
