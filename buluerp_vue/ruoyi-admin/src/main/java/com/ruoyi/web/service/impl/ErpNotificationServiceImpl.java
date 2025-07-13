@@ -21,6 +21,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.ruoyi.system.mapper.SysRoleMapper;
+import com.ruoyi.system.mapper.SysUserMapper;
+
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -46,6 +49,13 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
 
     @Autowired
     private ISysUserService userService;
+
+    // 添加Mapper注入，用于绕过数据权限过滤
+    @Autowired
+    private SysRoleMapper sysRoleMapper;
+
+    @Autowired
+    private SysUserMapper sysUserMapper;
 
     /** 通知模板配置 */
     private static final Map<NotificationTypeEnum, NotificationTemplate> NOTIFICATION_TEMPLATES = new HashMap<>();
@@ -480,10 +490,10 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
      */
     private List<SysUser> getUsersByRoleKey(String roleKey) {
         try {
-            // 1. 根据角色标识查找角色
+            // 1. 直接使用Mapper查询角色，绕过Service层的数据权限过滤
             SysRole queryRole = new SysRole();
             queryRole.setRoleKey(roleKey);
-            List<SysRole> roles = roleService.selectRoleList(queryRole);
+            List<SysRole> roles = sysRoleMapper.selectRoleList(queryRole);
             
             if (roles.isEmpty()) {
                 log.warn("未找到角色，角色标识：{}", roleKey);
@@ -492,10 +502,10 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
             
             SysRole role = roles.get(0);
             
-            // 2. 查找该角色下的用户
+            // 2. 直接使用Mapper查询用户，绕过Service层的数据权限过滤
             SysUser queryUser = new SysUser();
             queryUser.setRoleId(role.getRoleId());
-            return userService.selectAllocatedList(queryUser);
+            return sysUserMapper.selectAllocatedList(queryUser);
             
         } catch (Exception e) {
             log.error("根据角色标识获取用户列表失败，角色标识：{}", roleKey, e);
