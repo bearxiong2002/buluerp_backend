@@ -51,6 +51,13 @@ public class ErpProductionScheduleServiceImpl
         }
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         erpProductionSchedule.setCreationTime(DateUtils.getNowDate());
+        if (!erpProductionSchedule.getMaterialIds().isEmpty()) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                    erpProductionSchedule.getMaterialIds().get(0)
+            );
+            erpProductionSchedule.setMouldNumber(materialInfo.getMouldNumber());
+            erpProductionSchedule.setMaterialType(materialInfo.getMaterialType());
+        }
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
@@ -107,14 +114,6 @@ public class ErpProductionScheduleServiceImpl
                     erpProductionSchedule.getId(),
                     erpProductionSchedule.getMaterialIds()
             );
-
-            if (!erpProductionSchedule.getMaterialIds().isEmpty()) {
-                ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                        erpProductionSchedule.getMaterialIds().get(0)
-                );
-                erpProductionSchedule.setMouldNumber(materialInfo.getMouldNumber());
-                erpProductionSchedule.setMaterialType(materialInfo.getMaterialType());
-            }
         }
 
         // 检查状态变更

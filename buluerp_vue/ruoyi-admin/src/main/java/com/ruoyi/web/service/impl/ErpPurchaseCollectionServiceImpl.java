@@ -167,6 +167,13 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     FileUploadUtils.upload(erpPurchaseCollection.getPicture())
             );
         }
+        if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                    erpPurchaseCollection.getMaterialIds().get(0)
+            );
+            erpPurchaseCollection.setMouldNumber(materialInfo.getMouldNumber());
+            erpPurchaseCollection.setMaterialType(materialInfo.getMaterialType());
+        }
         if (0 >= erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("添加失败");
         }
@@ -181,13 +188,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     }
                 }
         );
-        if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
-            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                    erpPurchaseCollection.getMaterialIds().get(0)
-            );
-            erpPurchaseCollection.setMouldNumber(materialInfo.getMouldNumber());
-            erpPurchaseCollection.setMaterialType(materialInfo.getMaterialType());
-        }
 
         // 检查是否启用采购审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {

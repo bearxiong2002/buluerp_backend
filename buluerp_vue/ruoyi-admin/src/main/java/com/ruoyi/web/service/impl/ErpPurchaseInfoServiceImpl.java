@@ -35,6 +35,11 @@ public class ErpPurchaseInfoServiceImpl
         if (erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId()) == null) {
             throw new ServiceException("物料ID不存在，请先添加相应物料信息");
         }
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpPurchaseInfo::getPurchaseCode, erpPurchaseInfo.getPurchaseCode());
+        if (baseMapper.selectCount(queryWrapper) > 0) {
+            throw new ServiceException("外购编码已存在，请更换外购编码");
+        }
         if (erpPurchaseInfo.getPicture() != null) {
             String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
             erpPurchaseInfo.setPictureUrl(url);
