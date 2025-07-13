@@ -46,7 +46,7 @@ public class AddDesignRequest {
 
     @NotBlank(message = "物料ID不能为空")
     @Excel(name = "物料(模具)id")
-    @ApiModelProperty(dataType = "String", value = "物料(模具)id", required = true)
+    @ApiModelProperty(dataType = "int", value = "物料(模具)id", required = true)
     private Long materialId;
 
     @NotBlank(message = "产品名称不能为空")

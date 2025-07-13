@@ -32,7 +32,7 @@ public class AddProductRequest {
     private String materialString;
     @Excel(name = "产品图片",cellType = Excel.ColumnType.IMAGE)
     private String pictureStr;
-    @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = true)
+    @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
     private List<Integer> materialIds;
 
     private Integer rowNumber;
@@ -211,4 +211,5 @@ public class AddProductRequest {
     public void setMaterialIds(List<Integer> materialIds) {
         this.materialIds = materialIds;
     }
+
 }

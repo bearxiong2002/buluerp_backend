@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.core.domain.model.LoginUser;
+import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.web.domain.ErpOrders;
@@ -126,7 +127,14 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         erpDesignPatterns.setCreateTime(LocalDateTime.now());
 
         int result = erpDesignPatternsMapper.insert(erpDesignPatterns);
-        
+
+        LambdaQueryWrapper<ErpDesignPatterns> countWrapper =Wrappers.lambdaQuery();
+        countWrapper.eq(ErpDesignPatterns::getOrderId,addDesignPatternsRequest.getOrderId());
+
+        if(erpDesignPatternsMapper.selectCount(countWrapper)>0){
+            throw new ServiceException("订单"+addDesignPatternsRequest.getOrderId()+"已有设计");
+        }
+
         if (result > 0) {
             // 首先，将订单状态更新为“设计中”，表示设计工作已开始
             erpOrdersService.updateOrderStatusAutomatic(
@@ -151,6 +159,11 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest)
     {
+        LambdaQueryWrapper<ErpDesignPatterns> countWrapper =Wrappers.lambdaQuery();
+        countWrapper.eq(ErpDesignPatterns::getOrderId,updateDesignPatternsRequest.getOrderId());
+        if(erpDesignPatternsMapper.selectCount(countWrapper)>0){
+            throw new ServiceException("订单"+updateDesignPatternsRequest.getOrderId()+"已有设计");
+        }
         ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns();
         erpDesignPatterns.setId(updateDesignPatternsRequest.getId());
         erpDesignPatterns.setOrderId(updateDesignPatternsRequest.getOrderId());
