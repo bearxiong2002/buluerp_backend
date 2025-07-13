@@ -189,6 +189,43 @@ public class ErpDesignStyleServiceImpl implements IErpDesignStyleService
         return erpDesignStyleMapper.deleteErpDesignStyleById(id);
     }
 
+    /**
+     * 根据物料ID更新设计造型的图片
+     * 
+     * @param materialId 物料ID
+     * @param newPictureUrl 新的图片URL
+     * @return 更新的记录数
+     */
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int updateDesignStylePictureByMaterialId(Long materialId, String newPictureUrl) {
+        // 查询使用该物料的所有设计造型
+        LambdaQueryWrapper<ErpDesignStyle> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpDesignStyle::getMaterialId, materialId);
+        List<ErpDesignStyle> designStyles = erpDesignStyleMapper.selectList(queryWrapper);
+        
+        int updateCount = 0;
+        for (ErpDesignStyle designStyle : designStyles) {
+            // 删除原有的图片文件
+            if (designStyle.getPictureUrl() != null) {
+                try {
+                    String preUrl = parseActualPath(designStyle.getPictureUrl());
+                    FileUtils.deleteFile(preUrl);
+                } catch (Exception e) {
+                    // 删除文件失败，继续执行
+                }
+            }
+            
+            // 更新数据库中的图片URL
+            LambdaUpdateWrapper<ErpDesignStyle> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper.set(ErpDesignStyle::getPictureUrl, newPictureUrl)
+                    .eq(ErpDesignStyle::getId, designStyle.getId());
+            updateCount += erpDesignStyleMapper.update(null, updateWrapper);
+        }
+        
+        return updateCount;
+    }
+
     public static String parseActualPath(String url) {
         // 1. 验证URL是否以资源前缀开头
         if (!url.startsWith(Constants.RESOURCE_PREFIX)) {

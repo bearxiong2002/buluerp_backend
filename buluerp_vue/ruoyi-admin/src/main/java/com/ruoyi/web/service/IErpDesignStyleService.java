@@ -66,4 +66,13 @@ public interface IErpDesignStyleService
      * @return 结果
      */
     int deleteErpDesignStyleById(Long id);
+
+    /**
+     * 根据物料ID更新设计造型的图片
+     * 
+     * @param materialId 物料ID
+     * @param newPictureUrl 新的图片URL
+     * @return 更新的记录数
+     */
+    int updateDesignStylePictureByMaterialId(Long materialId, String newPictureUrl);
 }

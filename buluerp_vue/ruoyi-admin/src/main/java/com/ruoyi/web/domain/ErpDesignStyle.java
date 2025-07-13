@@ -50,7 +50,7 @@ public class ErpDesignStyle implements Serializable {
     private Long materialId;
 
     /** 模具图片的URL链接，用于存储模具外观图片 */
-    @Excel(name = "模具图片的URL", cellType = Excel.ColumnType.IMAGE, height = 80)
+    @Excel(name = "模具图片", cellType = Excel.ColumnType.IMAGE, height = 80)
     private String pictureUrl;
 
     /** 模具的颜色描述 */

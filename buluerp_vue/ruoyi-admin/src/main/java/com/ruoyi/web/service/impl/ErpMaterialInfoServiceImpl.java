@@ -9,6 +9,7 @@ import com.ruoyi.web.domain.ErpPurchaseInfo;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import com.ruoyi.web.service.IErpPurchaseInfoService;
+import com.ruoyi.web.service.IErpDesignStyleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private IErpPurchaseInfoService erpPurchaseInfoService;
+
+    @Autowired
+    private IErpDesignStyleService erpDesignStyleService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -89,9 +93,13 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
         if (erpMaterialInfo.getDeleteDrawingReference()) {
             erpMaterialInfoMapper.deleteErpMaterialInfoDrawingReferenceById(erpMaterialInfo.getId());
+            // 联动删除使用该物料的设计造型图片
+            erpDesignStyleService.updateDesignStylePictureByMaterialId(erpMaterialInfo.getId(), null);
         } else if (erpMaterialInfo.getDrawingReferenceFile() != null) {
             String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
             erpMaterialInfo.setDrawingReference(url);
+            // 联动更新使用该物料的设计造型图片
+            erpDesignStyleService.updateDesignStylePictureByMaterialId(erpMaterialInfo.getId(), url);
         }
         return erpMaterialInfoMapper.updateErpMaterialInfo(erpMaterialInfo);
     }
