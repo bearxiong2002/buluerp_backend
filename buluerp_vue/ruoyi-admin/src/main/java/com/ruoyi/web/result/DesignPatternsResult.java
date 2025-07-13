@@ -162,7 +162,7 @@ public class DesignPatternsResult {
                 .append("mouldNumber", getMouldNumber())
                 .append("lddNumber", getLddNumber())
                 .append("mouldCategory", getMouldCategory())
-                .append("mouldId", getMaterialId())
+                .append("materialId", getMaterialId())
                 .append("pictureUrl", getPictureUrl())
                 .append("color", getColor())
                 .append("productName", getProductName())
