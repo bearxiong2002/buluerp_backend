@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ErpProductionScheduleServiceImpl
@@ -37,9 +38,26 @@ public class ErpProductionScheduleServiceImpl
     @Autowired
     private IErpMaterialInfoService erpMaterialInfoService;
 
+    private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
+        if (erpProductionSchedule.getOrderCode() != null) {
+            LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpProductionSchedule::getOrderCode, erpProductionSchedule.getOrderCode());
+            ErpProductionSchedule original = this.getOne(queryWrapper);
+            if (original != null && !Objects.equals(original.getId(), erpProductionSchedule.getId())) {
+                throw new ServiceException("此订单已存在布产" + erpProductionSchedule.getId());
+            }
+        }
+    }
+
+    private void check(ErpProductionSchedule erpProductionSchedule) {
+        checkUnique(erpProductionSchedule);
+    }
+
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
+        check(erpProductionSchedule);
+
         // 设置初始状态为待审核
         erpProductionSchedule.setStatus(0L);
         
@@ -95,6 +113,8 @@ public class ErpProductionScheduleServiceImpl
     @Override
     @Transactional
     public int updateErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
+        check(erpProductionSchedule);
+
         // 获取原始记录以检查状态变更
         ErpProductionSchedule oldSchedule = getById(erpProductionSchedule.getId());
         

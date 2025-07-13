@@ -296,4 +296,9 @@
     <select id="getErpPurchaseCollectionMaterialIds" resultType="java.lang.Long">
         select material_id from erp_purchase_collection_material where purchase_collection_id = #{id}
     </select>
+    <select id="selectErpPurchaseCollectionByOrderCode"
+            resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        where order_code = #{orderCode}
+    </select>
 </mapper>

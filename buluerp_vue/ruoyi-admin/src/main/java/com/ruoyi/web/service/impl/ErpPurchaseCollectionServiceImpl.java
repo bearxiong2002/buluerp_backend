@@ -1,5 +1,6 @@
 package com.ruoyi.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionService {
@@ -42,6 +44,19 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Autowired
     private IErpDesignPatternsService erpDesignPatternsService;
 
+    private void checkUnique(ErpPurchaseCollection erpPurchaseCollection) {
+        if (erpPurchaseCollection.getOrderCode()!= null) {
+            ErpPurchaseCollection original = erpPurchaseCollectionMapper.selectErpPurchaseCollectionByOrderCode(erpPurchaseCollection.getOrderCode());
+            if (original != null &&!Objects.equals(original.getId(), erpPurchaseCollection.getId())) {
+                throw new ServiceException("此订单已存在采购计划" + erpPurchaseCollection.getId());
+            }
+        }
+    }
+
+    private void check(ErpPurchaseCollection erpPurchaseCollection) {
+        checkUnique(erpPurchaseCollection);
+    }
+
     @Override
     @Transactional
     public int deleteErpPurchaseCollectionById(Long id) {
@@ -65,7 +80,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     @Override
     @Transactional
-    public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+    public int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {\
+        check(erpPurchaseCollection);
         // 获取原始记录以检查状态变更
         ErpPurchaseCollection oldCollection = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());
         
@@ -153,6 +169,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Override
     @Transactional
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
+        check(erpPurchaseCollection);
         // 设置初始状态为待审核
         erpPurchaseCollection.setStatus(0L);
 
