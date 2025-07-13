@@ -16,6 +16,7 @@ public interface ErpPurchaseCollectionMapper {
     int insertErpPurchaseCollectionMaterials(@Param("id") Long id, @Param("materialIds") List<Long> materialIds);
     List<Long> getErpPurchaseCollectionMaterialIds(Long id);
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
+    ErpPurchaseCollection selectErpPurchaseCollectionByOrderCode(String orderCode);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
 }

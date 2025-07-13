@@ -11,6 +11,7 @@ import com.ruoyi.common.exception.excel.ListRowErrorInfo;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpPackagingBag;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.domain.ErpPackagingList;
@@ -127,6 +128,11 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         if (result <= 0) {
             throw new ServiceException("新增分包表失败");
         }
+        ErpOrders order = erpOrdersService.selectByOrderCode(erpPackagingList.getOrderCode());
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        erpPackagingList.setProductId(order.getProductId());
         // TODO: 将订单状态修改逻辑移到审核流程中
         erpOrdersService.updateOrderStatusAutomatic(
                 erpPackagingList.getOrderCode(),
