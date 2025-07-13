@@ -194,6 +194,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (0 >= erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("添加失败");
         }
+        ErpOrders order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        erpPurchaseCollection.setProductId(order.getProductId());
         // TODO: 将订单状态修改逻辑移到审核流程中
         erpOrdersService.updateOrderStatusAutomatic(
                 erpPurchaseCollection.getOrderCode(),

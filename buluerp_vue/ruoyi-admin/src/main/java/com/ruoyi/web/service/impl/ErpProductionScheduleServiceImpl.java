@@ -8,6 +8,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
@@ -79,6 +80,11 @@ public class ErpProductionScheduleServiceImpl
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
+        ErpOrders order = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        erpProductionSchedule.setProductId(order.getProductId());
         // TODO: 将订单状态修改逻辑移到审核流程中
         erpOrdersService.updateOrderStatusAutomatic(
                 erpProductionSchedule.getOrderCode(),
