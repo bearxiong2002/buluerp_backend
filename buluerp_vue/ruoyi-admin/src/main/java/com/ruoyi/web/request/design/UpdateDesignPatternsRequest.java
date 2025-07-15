@@ -9,8 +9,8 @@ public class UpdateDesignPatternsRequest {
     private Long id;
     @ApiModelProperty(dataType = "Long",value = "订单号",required = false)
     private Long orderId;
-    @ApiModelProperty(dataType = "Long",value = "产品号",required = false)
-    private Long productId;
+    @ApiModelProperty(dataType = "String",value = "产品内部编号",required = false)
+    private String productId;
 
     public Long getOrderId() {
         return orderId;
@@ -20,11 +20,11 @@ public class UpdateDesignPatternsRequest {
         this.orderId = orderId;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

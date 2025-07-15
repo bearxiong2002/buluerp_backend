@@ -46,6 +46,9 @@ public class ErpProductionScheduleServiceImpl
     private IErpDesignPatternsService erpDesignPatternsService;
 
     @Autowired
+    private IErpProductsService erpProductsService;
+
+    @Autowired
     private IErpOrdersService erpOrderService;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
@@ -98,10 +101,10 @@ public class ErpProductionScheduleServiceImpl
         erpOrdersService.updateOrderStatusAutomatic(
                 erpProductionSchedule.getOrderCode(),
                 (oldStatus) -> {
-                    if (oldStatus == OrderStatus.PURCHASING || oldStatus == OrderStatus.PURCHASING_IN_PRODUCTION) {
-                        return OrderStatus.PURCHASING_IN_PRODUCTION;
+                    if (oldStatus == OrderStatus.PRODUCTION_SCHEDULING) {
+                        return OrderStatus.PRODUCTION_DONE_PURCHASING;
                     } else {
-                        return OrderStatus.IN_PRODUCTION;
+                        return OrderStatus.PRODUCTION_SCHEDULING;
                     }
                 }
         );
@@ -136,7 +139,7 @@ public class ErpProductionScheduleServiceImpl
             throw new ServiceException("设计总表不存在");
         }
         ErpDesignPatterns designPattern = designPatterns.get(0);
-        schedule.setProductId(designPattern.getProductId());
+        schedule.setProductId(erpProductsService.getIdByInnerId(designPattern.getProductId()) );
 
         ErpOrders order = erpOrdersService.selectErpOrdersById(designPattern.getOrderId());
         if (order == null) {

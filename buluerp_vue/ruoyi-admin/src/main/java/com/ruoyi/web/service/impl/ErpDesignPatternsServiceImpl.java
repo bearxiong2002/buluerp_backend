@@ -11,6 +11,7 @@ import com.ruoyi.common.core.domain.model.LoginUser;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.enums.OrderStatus;
@@ -25,6 +26,7 @@ import com.ruoyi.web.request.design.UpdateDesignPatternsRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.IErpDesignPatternsService;
 import com.ruoyi.web.service.IErpOrdersService;
+import com.ruoyi.web.service.IErpProductsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +61,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Autowired
     private IErpOrdersService erpOrdersService;
 
+    @Autowired
+    private IErpProductsService erpProductsService;
+
     /**
      * 查询总表详情
      * 
@@ -69,7 +74,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     public DesignPatternsResult selectErpDesignPatternsById(Long productId)
     {
         return new DesignPatternsResult(
-                productId,
+                erpProductsMapper.selectById(productId).getInnerId(),
                 erpDesignStyleMapper.selectMouldNumberSet(productId),
                 erpDesignStyleMapper.selectLddNumberSet(productId),
                 erpDesignStyleMapper.selectMouldCategorySet(productId),
@@ -94,7 +99,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     {
         LambdaQueryWrapper<ErpDesignPatterns> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listDesignPatternsRequest.getConfirm()!=null,ErpDesignPatterns::getConfirm,listDesignPatternsRequest.getConfirm())
-                .like(listDesignPatternsRequest.getProductId()!=null,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
+                .like(StringUtils.isNotBlank(listDesignPatternsRequest.getProductId()) ,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
                 .orderByDesc(ErpDesignPatterns::getCreateTime)
                 .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
                 .eq(listDesignPatternsRequest.getOrderId()!=null,ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId())
@@ -115,7 +120,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @MarkNotificationsAsRead(businessType = "ORDER", businessIdsExpression = "T(java.util.Collections).singletonList(#addDesignPatternsRequest.orderId)")
+    @MarkNotificationsAsRead(businessType = "ORDER", businessIdsExpression = "#addDesignPatternsRequest.orderId")
     public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest)
     {
         // 获取当前登录用户信息
@@ -137,7 +142,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
 
         int result = erpDesignPatternsMapper.insert(erpDesignPatterns);
 
-
+        Long productId=erpProductsService.getIdByInnerId(addDesignPatternsRequest.getProductId());
 
         if (result > 0) {
             // 首先，将订单状态更新为“设计中”，表示设计工作已开始
@@ -147,7 +152,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
             );
 
             // 然后，立刻检查该订单是否已满足所有产品均设计的条件
-            checkAndUpdateRelatedOrders(erpDesignPatterns.getProductId());
+            checkAndUpdateRelatedOrders(productId);
         }
 
         return result;
@@ -201,33 +206,6 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         return erpDesignPatternsMapper.deleteErpDesignPatternsById(id);
     }
 
-    //弃用方法
-    @Transactional(rollbackFor = Exception.class)
-    public int confirmErpDesignPatternsById(Long id){
-        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
-        Long proId= erpDesignPatterns.getProductId();
-        erpProductsMapper.updateStatusById(proId,1L);
-        ErpOrders erpOrders=new ErpOrders();
-        erpOrders.setStatus(2);
-        erpOrders.setId(erpDesignPatterns.getOrderId());
-        erpOrdersMapper.updateErpOrders(erpOrders);
-        return erpDesignPatternsMapper.confirmErpDesignPatternsById(id);
-    }
-
-
-    //弃用方法
-    @Transactional(rollbackFor = Exception.class)
-    public int cancelConfirmById(Long id){
-        ErpDesignPatterns erpDesignPatterns=erpDesignPatternsMapper.selectById(id);
-        Long proId= erpDesignPatterns.getProductId();
-        ErpOrders erpOrders=new ErpOrders();
-        erpOrders.setStatus(1);
-        erpOrders.setId(erpDesignPatterns.getOrderId());
-        erpOrdersMapper.updateErpOrders(erpOrders);
-        erpProductsMapper.updateStatusById(proId,0L);
-        return erpDesignPatternsMapper.cancelConfirmById(id);
-    }
-
     @Transactional(rollbackFor = Exception.class)
     public int confirmProduct(Long proId){
         int result = erpProductsMapper.updateStatusById(proId,1L);
@@ -260,7 +238,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 if (allProductsDesigned) {
                     log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。", fullOrder.getInnerId());
                     // 4. 如果是，则自动更新订单状态
-                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PURCHASE_PRODUCTION_PENDING);
+                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PRODUCTION_SCHEDULE_PENDING);
                 }
             } catch (Exception e) {
                 log.error("自动更新订单 {} 状态失败，产品ID: {}", order.getInnerId(), productId, e);

@@ -15,8 +15,8 @@ public class AddDesignPatternsRequest {
     
     @NotNull(message = "产品号不能为空")
     @Excel(name = "产品号")
-    @ApiModelProperty(dataType = "Long",value = "产品号",required = true)
-    private Long productId;
+    @ApiModelProperty(dataType = "String",value = "产品内部编码",required = true)
+    private String productId;
 
     public Long getOrderId() {
         return orderId;
@@ -26,11 +26,11 @@ public class AddDesignPatternsRequest {
         this.orderId = orderId;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 }

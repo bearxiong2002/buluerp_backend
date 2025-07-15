@@ -206,9 +206,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                 erpPurchaseCollection.getOrderCode(),
                 (oldStatus) -> {
                     if (oldStatus == OrderStatus.IN_PRODUCTION) {
-                        return OrderStatus.PURCHASING_IN_PRODUCTION;
+                        return OrderStatus.PRODUCTION_DONE_PURCHASING;
                     } else {
-                        return OrderStatus.PURCHASING;
+                        return OrderStatus.PRODUCTION_SCHEDULING;
                     }
                 }
         );

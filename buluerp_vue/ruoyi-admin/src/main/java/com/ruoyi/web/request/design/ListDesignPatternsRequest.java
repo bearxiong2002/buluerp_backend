@@ -7,7 +7,7 @@ import io.swagger.annotations.ApiModelProperty;
 public class ListDesignPatternsRequest {
 
     @ApiModelProperty(dataType = "Long",value = "产品号",required = false)
-    private Long productId;
+    private String productId;
 
     @ApiModelProperty(dataType = "Long",value = "创建用户id",required = false)
     private Long createUserId;
@@ -52,11 +52,11 @@ public class ListDesignPatternsRequest {
         this.confirm = confirm;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 }

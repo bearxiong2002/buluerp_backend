@@ -23,4 +23,6 @@ public interface IErpProductsService extends IService<ErpProducts> {
     int deleteErpProductsByIds(List<Integer> ids);
 
     void processMaterialIds(AddProductRequest item);
+
+    Long getIdByInnerId(String innerId);
 }

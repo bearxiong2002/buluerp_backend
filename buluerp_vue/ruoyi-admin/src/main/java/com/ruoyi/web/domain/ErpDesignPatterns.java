@@ -30,7 +30,7 @@ public class ErpDesignPatterns implements Serializable {
 
     /** $column.columnComment */
     @Excel(name = "产品编号")
-    private Long productId;
+    private String productId;
 
     /** $column.columnComment */
     @Excel(name = "创建用户id")
@@ -66,13 +66,13 @@ public class ErpDesignPatterns implements Serializable {
     public ErpDesignPatterns() {
     }
 
-    public ErpDesignPatterns(Long productId, Long createUserId, Long orderId) {
+    public ErpDesignPatterns(String productId, Long createUserId, Long orderId) {
         this.productId = productId;
         this.createUserId = createUserId;
         this.orderId = orderId;
     }
 
-    public ErpDesignPatterns(Long productId, Long createUserId, Long orderId, Long confirm) {
+    public ErpDesignPatterns(String productId, Long createUserId, Long orderId, Long confirm) {
         this.productId = productId;
         this.createUserId = createUserId;
         this.orderId = orderId;
@@ -89,12 +89,12 @@ public class ErpDesignPatterns implements Serializable {
         return id;
     }
 
-    public void setProductId(Long productId)
+    public void setProductId(String productId)
     {
         this.productId = productId;
     }
 
-    public Long getProductId()
+    public String getProductId()
     {
         return productId;
     }

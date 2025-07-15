@@ -16,6 +16,7 @@ import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
+import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.util.log.LogUtil;
 import com.ruoyi.web.util.log.OperationLog;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
@@ -81,7 +82,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         List<ErpDesignPatterns> erpDesignPatterns = erpDesignPatternsService.selectErpDesignPatternsList(request);
         if (!erpDesignPatterns.isEmpty()) {
             ErpDesignPatterns designPatterns = erpDesignPatterns.get(0);
-            Long productId = designPatterns.getProductId();
+            Long productId = erpProductsService.getIdByInnerId(designPatterns.getProductId());
             List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(new Long[]{productId});
             if (!erpProducts.isEmpty()) {
                 erpOrders.setProduct(erpProducts.get(0));
