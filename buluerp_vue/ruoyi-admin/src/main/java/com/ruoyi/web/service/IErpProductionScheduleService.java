@@ -8,6 +8,21 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IErpProductionScheduleService extends IService<ErpProductionSchedule> {
+    // 订单布产计划是否制定完成
+    boolean isAllScheduled(String orderCode);
+
+    // 标记布产计划已经制定完成
+    void markAllScheduled(String orderCode);
+
+    // 布产对应排产是否完成
+    boolean isProduced(Long scheduleId);
+
+    // 订单当前所有布产是否完成排产
+    boolean isCurrentlyProduced(String orderCode);
+
+    // 订单整个生产流程是否已经完成
+    boolean isAllProduced(String orderCode);
+
     int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException;
 
     int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;

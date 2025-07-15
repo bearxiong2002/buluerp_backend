@@ -260,7 +260,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 if (allProductsDesigned) {
                     log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。", fullOrder.getInnerId());
                     // 4. 如果是，则自动更新订单状态
-                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PURCHASE_PRODUCTION_PENDING);
+                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PRODUCTION_SCHEDULE_PENDING);
                 }
             } catch (Exception e) {
                 log.error("自动更新订单 {} 状态失败，产品ID: {}", order.getInnerId(), productId, e);

@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IErpPurchaseCollectionService {
+    boolean isAllPurchased(String orderCode);
+    void markAllPurchased(String orderCode);
+
     int deleteErpPurchaseCollectionById(Long id);
     int deleteErpPurchaseCollectionByIds(Long[] ids);
     int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException;

@@ -58,6 +58,43 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
+    public boolean isAllPurchased(String orderCode) {
+        ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        return order.getAllPurchased();
+    }
+
+    @Override
+    @Transactional
+    public void markAllPurchased(String orderCode) {
+        ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
+        if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)) {
+            throw new ServiceException("订单不在采购阶段");
+        }
+        ErpPurchaseCollection collection = new ErpPurchaseCollection();
+        collection.setOrderCode(orderCode);
+        List<ErpPurchaseCollection> collections = selectErpPurchaseCollectionList(collection);
+        for (ErpPurchaseCollection erpPurchaseCollection : collections) {
+            if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
+                continue;
+            }
+            if (erpPurchaseCollection.getDeliveryDate() == null
+                || erpPurchaseCollection.getDeliveryDate().getTime() > DateUtils.getNowDate().getTime()) {
+                throw new ServiceException("采购计划" + erpPurchaseCollection.getId() + "未到交货日期");
+            }
+        }
+        ErpOrders updateOrder = new ErpOrders();
+        updateOrder.setId(order.getId());
+        updateOrder.setAllPurchased(true);
+        erpOrdersService.updateErpOrders(updateOrder);
+        if (Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_DONE_PURCHASING.getValue(erpOrdersService))) {
+            erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
+        }
+    }
+
+    @Override
     @Transactional
     public int deleteErpPurchaseCollectionById(Long id) {
         erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(id);
@@ -172,6 +209,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Transactional
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         check(erpPurchaseCollection);
+        if (isAllPurchased(erpPurchaseCollection.getOrderCode())) {
+            throw new ServiceException("订单已标记全部采购");
+        }
         // 设置初始状态为待审核
         erpPurchaseCollection.setStatus(0L);
 
@@ -201,17 +241,17 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             throw new ServiceException("订单不存在");
         }
         erpPurchaseCollection.setProductId(order.getProductId());
-        // TODO: 将订单状态修改逻辑移到审核流程中
-        erpOrdersService.updateOrderStatusAutomatic(
-                erpPurchaseCollection.getOrderCode(),
-                (oldStatus) -> {
-                    if (oldStatus == OrderStatus.IN_PRODUCTION) {
-                        return OrderStatus.PURCHASING_IN_PRODUCTION;
-                    } else {
-                        return OrderStatus.PURCHASING;
-                    }
-                }
-        );
+        // // TODO: 将订单状态修改逻辑移到审核流程中
+        // erpOrdersService.updateOrderStatusAutomatic(
+        //         erpPurchaseCollection.getOrderCode(),
+        //         (oldStatus) -> {
+        //             if (oldStatus == OrderStatus.IN_PRODUCTION) {
+        //                 return OrderStatus.PURCHASING_IN_PRODUCTION;
+        //             } else {
+        //                 return OrderStatus.PURCHASING;
+        //             }
+        //         }
+        // );
 
         // 检查是否启用采购审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {

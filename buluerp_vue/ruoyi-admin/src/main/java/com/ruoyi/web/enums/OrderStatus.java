@@ -11,10 +11,10 @@ public enum OrderStatus {
     CREATED("创建(未审核)"),
     DESIGN_PENDING("待设计"),
     DESIGNED("设计中"),
-    PURCHASE_PRODUCTION_PENDING("待定制外购与布产计划"),
-    PURCHASING("外购中"),
-    IN_PRODUCTION("布产中"),
-    PURCHASING_IN_PRODUCTION("外购与布产中"),
+    PRODUCTION_SCHEDULE_PENDING("待布产"),
+    PRODUCTION_SCHEDULING("布产中"),
+    IN_PRODUCTION("排产中"),
+    PRODUCTION_DONE_PURCHASING("生产完成(待采购完成)"),
     MATERIAL_IN_INVENTORY("已齐料入库(待套料)"),
     MATERIAL_NESTING("套料中"),
     PACKAGING_PENDING("套料完成(待拉线)"),
@@ -128,15 +128,14 @@ public enum OrderStatus {
     public static final List<StatusRule> STATUS_RULES = Arrays.asList(
             // 审计负责，订单模块不作限制
             new StatusBlock(AUDIT_REJECT, DESIGN_PENDING, (String) null),
-            new StatusBlock(DESIGN_PENDING, PURCHASE_PRODUCTION_PENDING, "design-dept"),
+            new StatusBlock(DESIGN_PENDING, PRODUCTION_SCHEDULE_PENDING, "design-dept"),
             // ***********************************************************************************
             // ** 以下状态的变更不再由部门手动触发，而是由关联业务（布产、采购）的审核结果自动触发 **
             // ***********************************************************************************
-            new StatusRoute(PURCHASE_PRODUCTION_PENDING, PURCHASING, new String[]{ "admin" }),
-            new StatusRoute(IN_PRODUCTION, PURCHASING_IN_PRODUCTION, new String[]{ "admin" }),
-            new StatusRoute(PURCHASE_PRODUCTION_PENDING, IN_PRODUCTION, new String[]{ "admin" }),
-            new StatusRoute(PURCHASING, PURCHASING_IN_PRODUCTION, new String[]{ "admin" }),
-            new StatusRoute(PURCHASING_IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{"purchase-dept", "purchase-auditor", "injectionmolding-dept", "production-auditor"}),
+            new StatusRoute(PRODUCTION_SCHEDULING, IN_PRODUCTION, new String[]{ "admin" }),
+            new StatusRoute(IN_PRODUCTION, PRODUCTION_DONE_PURCHASING, new String[]{ "admin" }),
+            new StatusRoute(IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
+            new StatusRoute(PRODUCTION_DONE_PURCHASING, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
             new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGING_PENDING, new String[]{"warehouse"}),
             new StatusBlock(PACKAGING_PENDING, PACKAGED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
             new StatusBlock(PACKAGED, COMPLETED, new String[]{"sell-dept"})

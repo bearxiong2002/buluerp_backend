@@ -1,5 +1,6 @@
 package com.ruoyi.web.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.exception.ServiceException;
@@ -9,12 +10,15 @@ import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.exception.AutoLogException;
 import com.ruoyi.web.mapper.ErpProductionArrangeMapper;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.arrange.AddProductionArrangeFromScheduleRequest;
+import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductionArrangeService;
 import com.ruoyi.web.service.IErpProductionScheduleService;
+import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,9 +26,7 @@ import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 
 @Service
@@ -34,6 +36,12 @@ public class ErpProductionArrangeServiceImpl
     @Autowired
     private IErpProductionScheduleService erpProductionScheduleService;
 
+    @Autowired
+    private IErpOrdersService erpOrdersService;
+
+    @Autowired
+    private IErpPurchaseCollectionService erpPurchaseCollectionService;
+
     @Override
     @Transactional
     public int insertErpProductionArrangeList(List<ErpProductionArrange> erpProductionArranges) throws IOException {
@@ -41,11 +49,18 @@ public class ErpProductionArrangeServiceImpl
         for (ErpProductionArrange erpProductionArrange : erpProductionArranges) {
             erpProductionArrange.setCreationTime(DateUtils.getNowDate());
             erpProductionArrange.setOperator(SecurityUtils.getUsername());
+            Date completionTime = erpProductionArrange.getCompletionTime();
+            if (completionTime != null) {
+                erpProductionArrange.setCompletionTime(null);
+            }
             if (erpProductionArrange.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpProductionArrange.getPicture());
                 erpProductionArrange.setPictureUrl(url);
             }
             count += baseMapper.insert(erpProductionArrange);
+            if (completionTime != null) {
+                markArrangeComplete(erpProductionArrange.getId(), completionTime);
+            }
         }
         return count;
     }
@@ -131,12 +146,57 @@ public class ErpProductionArrangeServiceImpl
     }
 
     @Override
+    @Transactional
     public int updateErpProductionArrange(ErpProductionArrange erpProductionArrange) throws IOException {
         erpProductionArrange.setOperator(SecurityUtils.getUsername());
+        Date completionTime = erpProductionArrange.getCompletionTime();
+        if (completionTime != null) {
+            erpProductionArrange.setCompletionTime(null);
+        }
         if (erpProductionArrange.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionArrange.getPicture());
             erpProductionArrange.setPictureUrl(url);
         }
-        return baseMapper.updateById(erpProductionArrange);
+        int result = baseMapper.updateById(erpProductionArrange);
+        if (completionTime != null) {
+            markArrangeComplete(erpProductionArrange.getId(), completionTime);
+        }
+        return result;
+    }
+
+    @Override
+    @Transactional
+    public void markArrangeComplete(Long id, Date completeDate) {
+        if (completeDate.after(DateUtils.getNowDate())) {
+            throw new ServiceException("完成时间不能大于当前时间");
+        }
+        ErpProductionArrange erpProductionArrange = getById(id);
+        if (erpProductionArrange == null) {
+            throw new ServiceException("排产不存在");
+        }
+        if (erpProductionArrange.getCompletionTime() != null) {
+            throw new ServiceException("排产已完成");
+        }
+        erpProductionArrange.setCompletionTime(completeDate);
+        updateById(erpProductionArrange);
+
+        // 找到所有相关布产
+        LambdaQueryWrapper<ErpProductionSchedule> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpProductionSchedule::getArrangeId, id);
+        List<ErpProductionSchedule> schedules = erpProductionScheduleService.list(wrapper);
+        // 检查所有相关订单是否已完成
+        Set<String> orderCodes = new HashSet<>();
+        for (ErpProductionSchedule schedule : schedules) {
+            orderCodes.add(schedule.getOrderCode());
+        }
+        for (String orderCode : orderCodes) {
+            if (erpProductionScheduleService.isAllProduced(orderCode)) {
+                if (erpPurchaseCollectionService.isAllPurchased(orderCode)) {
+                    erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
+                } else {
+                    erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_DONE_PURCHASING);
+                }
+            }
+        }
     }
 }

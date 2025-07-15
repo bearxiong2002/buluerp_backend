@@ -143,6 +143,8 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int insertErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setCreateTime(DateUtils.getNowDate());
+        erpOrders.setAllPurchased(null);
+        erpOrders.setAllScheduled(null);
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());
@@ -367,6 +369,8 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
 
         erpOrders.setUpdateTime(DateUtils.getNowDate());
+        erpOrders.setAllPurchased(null);
+        erpOrders.setAllScheduled(null);
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());

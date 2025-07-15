@@ -108,6 +108,12 @@ public class ErpOrders extends BaseEntity
     @Example("无")
     private String remark;
 
+    @ApiModelProperty("是否所有采购已完成(只读)")
+    private Boolean allPurchased;
+
+    @ApiModelProperty("是否所有布产已完成(只读)")
+    private Boolean allScheduled;
+
     private String customerName;
 
     @ApiModelProperty(value = "通过设计总表关联的产品，仅用于响应")
@@ -288,10 +294,12 @@ public class ErpOrders extends BaseEntity
         this.customerName = customerName;
     }
 
+    @Deprecated // 使用设计总表进行关联
     public List<ErpOrdersProduct> getProducts() {
         return products;
     }
 
+    @Deprecated // 使用设计总表进行关联
     public void setProducts(List<ErpOrdersProduct> products) {
         this.products = products;
     }
@@ -302,5 +310,21 @@ public class ErpOrders extends BaseEntity
 
     public void setProduct(ErpProducts product) {
         this.product = product;
+    }
+
+    public Boolean getAllPurchased() {
+        return allPurchased;
+    }
+
+    public void setAllPurchased(Boolean allPurchased) {
+        this.allPurchased = allPurchased;
+    }
+
+    public Boolean getAllScheduled() {
+        return allScheduled;
+    }
+
+    public void setAllScheduled(Boolean allScheduled) {
+        this.allScheduled = allScheduled;
     }
 }

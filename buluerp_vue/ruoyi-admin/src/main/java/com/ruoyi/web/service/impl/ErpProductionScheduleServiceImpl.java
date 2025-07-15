@@ -7,10 +7,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.web.domain.ErpDesignPatterns;
-import com.ruoyi.web.domain.ErpMaterialInfo;
-import com.ruoyi.web.domain.ErpOrders;
-import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
@@ -48,6 +45,12 @@ public class ErpProductionScheduleServiceImpl
     @Autowired
     private IErpOrdersService erpOrderService;
 
+    @Autowired
+    private IErpPurchaseCollectionService erpPurchaseCollectionService;
+
+    @Autowired
+    private IErpProductionArrangeService erpProductionArrangeService;
+
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
         //     LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
@@ -67,6 +70,9 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
         check(erpProductionSchedule);
+        if (isAllScheduled(erpProductionSchedule.getOrderCode())) {
+            throw new ServiceException("订单已标记完成布产");
+        }
 
         // 设置初始状态为待审核
         erpProductionSchedule.setStatus(0L);
@@ -97,13 +103,7 @@ public class ErpProductionScheduleServiceImpl
         // TODO: 将订单状态修改逻辑移到审核流程中
         erpOrdersService.updateOrderStatusAutomatic(
                 erpProductionSchedule.getOrderCode(),
-                (oldStatus) -> {
-                    if (oldStatus == OrderStatus.PURCHASING || oldStatus == OrderStatus.PURCHASING_IN_PRODUCTION) {
-                        return OrderStatus.PURCHASING_IN_PRODUCTION;
-                    } else {
-                        return OrderStatus.IN_PRODUCTION;
-                    }
-                }
+                OrderStatus.PRODUCTION_SCHEDULING
         );
         if (erpProductionSchedule.getMaterialIds() != null) {
             getBaseMapper().insertProductionScheduleMaterialIds(
@@ -123,6 +123,68 @@ public class ErpProductionScheduleServiceImpl
         }
 
         return 1;
+    }
+
+    @Override
+    public boolean isAllScheduled(String orderCode) {
+        ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        return order.getAllScheduled();
+    }
+
+    @Override
+    @Transactional
+    public void markAllScheduled(String orderCode) {
+        ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
+        if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULING.getValue(erpOrderService))) {
+            throw new ServiceException("订单不在布产阶段");
+        }
+        ErpOrders updateOrder = new ErpOrders();
+        updateOrder.setId(order.getId());
+        updateOrder.setAllScheduled(true);
+        erpOrdersService.updateErpOrders(updateOrder);
+        if (isAllProduced(orderCode)) {
+            if (erpPurchaseCollectionService.isAllPurchased(orderCode)) {
+                erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
+            } else {
+                erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_DONE_PURCHASING);
+            }
+        } else {
+            erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.IN_PRODUCTION);
+        }
+    }
+
+    @Override
+    public boolean isProduced(Long scheduleId) {
+        ErpProductionSchedule schedule = getBaseMapper().selectById(scheduleId);
+        if (schedule == null) {
+            throw new ServiceException("布产计划不存在");
+        }
+        ErpProductionArrange arrange = erpProductionArrangeService.getById(schedule.getArrangeId());
+        if (arrange == null) {
+            return false;
+        }
+        return arrange.getCompletionTime() != null && !arrange.getCompletionTime().after(DateUtils.getNowDate());
+    }
+
+    @Override
+    public boolean isCurrentlyProduced(String orderCode) {
+        LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
+        List<ErpProductionSchedule> list = getBaseMapper().selectList(queryWrapper);
+        for (ErpProductionSchedule erpProductionSchedule : list) {
+            if (!isProduced(erpProductionSchedule.getId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public boolean isAllProduced(String orderCode) {
+        return isAllScheduled(orderCode) && isCurrentlyProduced(orderCode);
     }
 
     @Override
