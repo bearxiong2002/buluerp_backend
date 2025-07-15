@@ -9,8 +9,8 @@ import java.util.Set;
 public class DesignPatternsResult {
 
     /** 主设记编号 */
-    @Excel(name = "产品id")
-    private Long id;
+    @Excel(name = "产品内部id")
+    private String id;
 
     /** 模具编号，用于唯一标识模具 */
     @Excel(name = "模具编号")
@@ -59,12 +59,12 @@ public class DesignPatternsResult {
         this.confirm = confirm;
     }
 
-    public void setId(Long id)
+    public void setId(String id)
     {
         this.id = id;
     }
 
-    public Long getId()
+    public String  getId()
     {
         return id;
     }
@@ -141,7 +141,7 @@ public class DesignPatternsResult {
         this.material = material;
     }
 
-    public DesignPatternsResult(Long id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<Long> materialId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material, Long confirm) {
+    public DesignPatternsResult(String id, Set<String> mouldNumber, Set<String> lddNumber, Set<String> mouldCategory, Set<Long> materialId, Set<String> pictureUrl, Set<String> color, Set<String> productName, Integer quantity, Set<String> material, Long confirm) {
         this.id = id;
         this.mouldNumber = mouldNumber;
         this.lddNumber = lddNumber;

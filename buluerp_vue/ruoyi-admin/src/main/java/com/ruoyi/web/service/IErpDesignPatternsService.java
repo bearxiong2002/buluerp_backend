@@ -70,10 +70,6 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      */
     int deleteErpDesignPatternsById(Long id);
 
-    int confirmErpDesignPatternsById(Long id);
-
-    int cancelConfirmById(Long id);
-
     int confirmProduct(Long id);
 
     int cancelConfirmProductById(Long id);

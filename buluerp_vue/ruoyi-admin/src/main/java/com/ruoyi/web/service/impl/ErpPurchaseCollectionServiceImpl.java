@@ -252,6 +252,17 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         //             }
         //         }
         // );
+        // TODO: 将订单状态修改逻辑移到审核流程中
+        erpOrdersService.updateOrderStatusAutomatic(
+                erpPurchaseCollection.getOrderCode(),
+                (oldStatus) -> {
+                    if (oldStatus == OrderStatus.IN_PRODUCTION) {
+                        return OrderStatus.PRODUCTION_DONE_PURCHASING;
+                    } else {
+                        return OrderStatus.PRODUCTION_SCHEDULING;
+                    }
+                }
+        );
 
         // 检查是否启用采购审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {

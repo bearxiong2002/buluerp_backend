@@ -6,7 +6,7 @@ import com.ruoyi.web.result.DesignPatternsResult;
 public class DesignPatternsExportDTO {
 
     @Excel(name = "产品编号")
-    private Long id;
+    private String id;
 
     @Excel(name = "模具编号")
     private String mouldNumbers;  // Set<String> -> String
@@ -48,11 +48,11 @@ public class DesignPatternsExportDTO {
         this.material = String.join(",", result.getMaterial());
     }
 
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 

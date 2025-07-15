@@ -686,18 +686,17 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             try {
                 ErpOrders order = ordersService.selectByOrderCode(schedule.getOrderCode());
                 if (order != null) {
-                    // TODO: 这里需求变化较大，先注释掉
-                    // Integer currentStatus = order.getStatus();
-                    // Integer statusValuePending = ordersService.getStatusValue(OrderStatus.PURCHASE_PRODUCTION_PENDING.getLabel());
-                    // Integer statusValueInProduction = ordersService.getStatusValue(OrderStatus.IN_PRODUCTION.getLabel());
-                    //
-                    // if (Objects.equals(currentStatus, statusValuePending)) {
-                    //     // 如果订单当前是“待计划”状态，则直接进入“布产中”
-                    //     ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.IN_PRODUCTION);
-                    // } else if (Objects.equals(currentStatus, statusValueInProduction)) {
-                    //     // 如果订单当前已在“外购中”，则进入“外购与布产中”
-                    //     ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PURCHASING_IN_PRODUCTION);
-                    // }
+                    Integer currentStatus = order.getStatus();
+                    Integer statusValuePending = ordersService.getStatusValue(OrderStatus.PRODUCTION_SCHEDULE_PENDING.getLabel());
+                    Integer statusValueInProduction = ordersService.getStatusValue(OrderStatus.IN_PRODUCTION.getLabel());
+
+                    if (Objects.equals(currentStatus, statusValuePending)) {
+                        // 如果订单当前是“待计划”状态，则直接进入“布产中”
+                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.IN_PRODUCTION);
+                    } else if (Objects.equals(currentStatus, statusValueInProduction)) {
+                        // 如果订单当前已在“排产中”，则进入“生产完成(待采购完成)”
+                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_DONE_PURCHASING);
+                    }
                 } else {
                     log.warn("布产计划审核通过后，未找到对应的父订单，订单号: {}", schedule.getOrderCode());
                 }
@@ -925,18 +924,17 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             try {
                 ErpOrders order = ordersService.selectByOrderCode(collection.getOrderCode());
                 if (order != null) {
-                    // TODO: 这里需求变化较大，先注释掉
-                    // Integer currentStatus = order.getStatus();
-                    // Integer statusValuePending = ordersService.getStatusValue(OrderStatus.PURCHASE_PRODUCTION_PENDING.getLabel());
-                    // Integer statusValueInProduction = ordersService.getStatusValue(OrderStatus.IN_PRODUCTION.getLabel());
-                    //
-                    // if (Objects.equals(currentStatus, statusValuePending)) {
-                    //     // 如果订单当前是“待计划”状态，则直接进入“外购中”
-                    //     ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PURCHASING);
-                    // } else if (Objects.equals(currentStatus, statusValueInProduction)) {
-                    //     // 如果订单当前已在“布产中”，则进入“外购与布产中”
-                    //     ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PURCHASING_IN_PRODUCTION);
-                    // }
+                    Integer currentStatus = order.getStatus();
+                    Integer statusValuePending = ordersService.getStatusValue(OrderStatus.PRODUCTION_SCHEDULE_PENDING.getLabel());
+                    Integer statusValueInProduction = ordersService.getStatusValue(OrderStatus.IN_PRODUCTION.getLabel());
+
+                    if (Objects.equals(currentStatus, statusValuePending)) {
+                        // 如果订单当前是“待计划”状态，则直接进入“外购中”
+                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_SCHEDULING);
+                    } else if (Objects.equals(currentStatus, statusValueInProduction)) {
+                        // 如果订单当前已在“布产中”，则进入“外购与布产中”
+                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_DONE_PURCHASING);
+                    }
                 } else {
                     log.warn("采购计划审核通过后，未找到对应的父订单，订单号: {}", collection.getOrderCode());
                 }

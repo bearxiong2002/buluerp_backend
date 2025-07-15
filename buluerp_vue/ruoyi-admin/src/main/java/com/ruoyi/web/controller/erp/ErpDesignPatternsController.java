@@ -57,7 +57,7 @@ public class ErpDesignPatternsController extends BaseController
     //@PreAuthorize("@ss.hasPermi('system:patterns:list')")
     @ApiOperation(value = "获得设计总表列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productId", value = "产品编码", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "productId", value = "产品内部编码", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "createUserId", value = "创建用户ID", dataType = "integer", paramType = "query"),
             @ApiImplicitParam(name = "orderId", value = "订单ID", dataType = "integer", paramType = "query"),
             @ApiImplicitParam(name = "confirm", value = "PMC确认状态(0未确认/1已确认)", dataType = "integer", paramType = "query"),
@@ -65,7 +65,7 @@ public class ErpDesignPatternsController extends BaseController
     })
     @GetMapping("/list")
     public TableDataInfo list(
-            @RequestParam(required = false) Long productId,
+            @RequestParam(required = false) String productId,
             @RequestParam(required = false) Long createUserId,
             @RequestParam(required = false) Long orderId,
             @RequestParam(required = false) Long confirm,
@@ -198,7 +198,7 @@ public class ErpDesignPatternsController extends BaseController
 
         // 设置必填字段示例值（符合验证规则）
         example.setOrderId(2024001L);       // 示例订单号
-        example.setProductId(1001L);        // 示例产品号
+        example.setProductId("INNER123");        // 示例产品号
 
         templateData.add(example);
 
