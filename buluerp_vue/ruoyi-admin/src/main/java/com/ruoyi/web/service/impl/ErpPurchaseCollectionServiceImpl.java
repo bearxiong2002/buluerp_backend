@@ -45,12 +45,12 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     private IErpDesignPatternsService erpDesignPatternsService;
 
     private void checkUnique(ErpPurchaseCollection erpPurchaseCollection) {
-        if (erpPurchaseCollection.getOrderCode()!= null) {
-            ErpPurchaseCollection original = erpPurchaseCollectionMapper.selectErpPurchaseCollectionByOrderCode(erpPurchaseCollection.getOrderCode());
-            if (original != null &&!Objects.equals(original.getId(), erpPurchaseCollection.getId())) {
-                throw new ServiceException("此订单已存在采购计划" + erpPurchaseCollection.getId());
-            }
-        }
+        // if (erpPurchaseCollection.getOrderCode()!= null) {
+        //     ErpPurchaseCollection original = erpPurchaseCollectionMapper.selectErpPurchaseCollectionByOrderCode(erpPurchaseCollection.getOrderCode());
+        //     if (original != null &&!Objects.equals(original.getId(), erpPurchaseCollection.getId())) {
+        //         throw new ServiceException("此订单已存在采购计划" + erpPurchaseCollection.getId());
+        //     }
+        // }
     }
 
     private void check(ErpPurchaseCollection erpPurchaseCollection) {
@@ -146,6 +146,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             throw new ServiceException("请先完善对应物料资料的单重信息");
         }
 
+        erpPurchaseCollection.setOrderTime(request.getOrderTime());
+        erpPurchaseCollection.setPurchaseId(erpPurchaseInfo.getId());
         erpPurchaseCollection.setPictureUrl(erpPurchaseInfo.getPictureUrl());
         erpPurchaseCollection.setPurchaseCode(erpPurchaseInfo.getPurchaseCode());
         erpPurchaseCollection.setMouldNumber(erpMaterialInfo.getMouldNumber());

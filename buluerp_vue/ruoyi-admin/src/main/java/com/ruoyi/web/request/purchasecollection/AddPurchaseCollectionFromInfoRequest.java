@@ -16,6 +16,9 @@ public class AddPurchaseCollectionFromInfoRequest {
     @ApiModelProperty(value = "设计总表ID")
     Long designPatternId;
 
+    @ApiModelProperty(value = "下单时间")
+    Date orderTime;
+
     @ApiModelProperty(value = "采购数量")
     @NotNull(groups = {Save.class}, message = "采购数量不能为空")
     @Range(min = 1, groups = {Save.class, Update.class}, message = "采购数量必须大于0")
@@ -76,5 +79,13 @@ public class AddPurchaseCollectionFromInfoRequest {
 
     public void setRemarks(String remarks) {
         this.remarks = remarks;
+    }
+
+    public Date getOrderTime() {
+        return orderTime;
+    }
+
+    public void setOrderTime(Date orderTime) {
+        this.orderTime = orderTime;
     }
 }

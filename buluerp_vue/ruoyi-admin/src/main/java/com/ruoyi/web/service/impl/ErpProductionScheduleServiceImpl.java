@@ -7,16 +7,19 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
+import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.List;
@@ -39,15 +42,21 @@ public class ErpProductionScheduleServiceImpl
     @Autowired
     private IErpMaterialInfoService erpMaterialInfoService;
 
+    @Autowired
+    private IErpDesignPatternsService erpDesignPatternsService;
+
+    @Autowired
+    private IErpOrdersService erpOrderService;
+
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
-        if (erpProductionSchedule.getOrderCode() != null) {
-            LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ErpProductionSchedule::getOrderCode, erpProductionSchedule.getOrderCode());
-            ErpProductionSchedule original = this.getOne(queryWrapper);
-            if (original != null && !Objects.equals(original.getId(), erpProductionSchedule.getId())) {
-                throw new ServiceException("此订单已存在布产" + erpProductionSchedule.getId());
-            }
-        }
+        // if (erpProductionSchedule.getOrderCode() != null) {
+        //     LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
+        //     queryWrapper.eq(ErpProductionSchedule::getOrderCode, erpProductionSchedule.getOrderCode());
+        //     ErpProductionSchedule original = this.getOne(queryWrapper);
+        //     if (original != null && !Objects.equals(original.getId(), erpProductionSchedule.getId())) {
+        //         throw new ServiceException("此订单已存在布产" + erpProductionSchedule.getId());
+        //     }
+        // }
     }
 
     private void check(ErpProductionSchedule erpProductionSchedule) {
@@ -70,7 +79,7 @@ public class ErpProductionScheduleServiceImpl
         }
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         erpProductionSchedule.setCreationTime(DateUtils.getNowDate());
-        if (!erpProductionSchedule.getMaterialIds().isEmpty()) {
+        if (!CollectionUtils.isEmpty(erpProductionSchedule.getMaterialIds())) {
             ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
                     erpProductionSchedule.getMaterialIds().get(0)
             );
@@ -89,7 +98,7 @@ public class ErpProductionScheduleServiceImpl
         erpOrdersService.updateOrderStatusAutomatic(
                 erpProductionSchedule.getOrderCode(),
                 (oldStatus) -> {
-                    if (oldStatus == OrderStatus.PURCHASING) {
+                    if (oldStatus == OrderStatus.PURCHASING || oldStatus == OrderStatus.PURCHASING_IN_PRODUCTION) {
                         return OrderStatus.PURCHASING_IN_PRODUCTION;
                     } else {
                         return OrderStatus.IN_PRODUCTION;
@@ -114,6 +123,60 @@ public class ErpProductionScheduleServiceImpl
         }
 
         return 1;
+    }
+
+    @Override
+    @Transactional
+    public int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException {
+        ErpProductionSchedule schedule = new ErpProductionSchedule();
+        Long designPatternId = request.getDesignPatternId();
+        List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
+                .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
+        if (designPatterns.isEmpty()) {
+            throw new ServiceException("设计总表不存在");
+        }
+        ErpDesignPatterns designPattern = designPatterns.get(0);
+        schedule.setProductId(designPattern.getProductId());
+
+        ErpOrders order = erpOrdersService.selectErpOrdersById(designPattern.getOrderId());
+        if (order == null) {
+            throw new ServiceException("设计总表项对应订单不存在或已被删除");
+        }
+        schedule.setOrderCode(order.getInnerId());
+
+        schedule.setProductionTime(request.getProductionTime());
+
+        ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                request.getMaterialId()
+        );
+        if (materialInfo == null) {
+            throw new ServiceException("物料信息不存在");
+        }
+        schedule.setMouldNumber(materialInfo.getMouldNumber());
+        schedule.setMouldCondition(materialInfo.getMouldStatus());
+        schedule.setPictureUrl(materialInfo.getDrawingReference());
+
+        schedule.setColorCode(request.getColorCode());
+        schedule.setUsage(request.getUsage());
+
+        schedule.setMaterialType(materialInfo.getMaterialType());
+        schedule.setCavityCount(materialInfo.getCavityCount());
+        schedule.setSingleWeight(materialInfo.getSingleWeight());
+
+        schedule.setProductionQuantity(request.getProductionQuantity().intValue());
+        schedule.setProductionMouldCount(request.getProductionMouldCount().intValue());
+        schedule.setProductionWeight(request.getProductionWeight());
+        schedule.setColorPowderNeeded(request.getColorPowderNeeded().intValue());
+        schedule.setCycleTime(request.getCycleTime());
+        schedule.setTimeHours(request.getTimeHours());
+        schedule.setShipmentTime(request.getShipmentTime());
+        schedule.setSupplier(request.getSupplier());
+        schedule.setMouldManufacturer(request.getMouldManufacturer());
+
+        schedule.setCustomerId(order.getCustomerId());
+        schedule.setMaterialId(materialInfo.getId());
+
+        return insertErpProductionSchedule(schedule);
     }
 
     @Override

@@ -175,17 +175,22 @@ public class ErpProductionSchedule {
     @Example("布鲁科")
     private String mouldManufacturer;
 
-    @Excel(name = "客户")
-    @ApiModelProperty(value = "客户 [list|POST|PUT|response]", dataType = "String")
-    @TableField(condition = SqlCondition.LIKE)
-    @Example("张三")
-    private String customer;
+    @Excel(name = "客户ID")
+    @ApiModelProperty(value = "客户ID [list|POST|PUT|response]", dataType = "String")
+    @Example("1")
+    private Long customerId;
 
     @Excel(name = "库存")
     @ApiModelProperty(value = "库存 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 0, message = "库存必须大于0", groups = {Save.class, Update.class})
     @Example("12")
     private Integer inventory;
+
+    @Excel(name = "物料ID")
+    @ApiModelProperty(value = "物料ID [list|POST|PUT|response]", dataType = "Long")
+    @Example("1")
+    @Range(min = 0, message = "物料ID必须大于0", groups = {Save.class, Update.class})
+    private Long materialId;
 
     @TableField(exist = false)
     @JsonIgnore
@@ -410,14 +415,6 @@ public class ErpProductionSchedule {
         this.mouldManufacturer = mouldManufacturer;
     }
 
-    public String getCustomer() {
-        return customer;
-    }
-
-    public void setCustomer(String customer) {
-        this.customer = customer;
-    }
-
     public Integer getInventory() {
         return inventory;
     }
@@ -448,5 +445,21 @@ public class ErpProductionSchedule {
 
     public void setArrangeId(@Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long arrangeId) {
         this.arrangeId = arrangeId;
+    }
+
+    public Long getCustomerId() {
+        return customerId;
+    }
+
+    public void setCustomerId(Long customerId) {
+        this.customerId = customerId;
+    }
+
+    public @Range(min = 0, message = "物料ID必须大于0", groups = {Save.class, Update.class}) Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(@Range(min = 0, message = "物料ID必须大于0", groups = {Save.class, Update.class}) Long materialId) {
+        this.materialId = materialId;
     }
 }

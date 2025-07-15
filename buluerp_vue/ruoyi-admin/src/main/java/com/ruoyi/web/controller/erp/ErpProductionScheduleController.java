@@ -11,6 +11,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
+import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
 import com.ruoyi.web.service.IErpProductionScheduleService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -42,7 +43,9 @@ public class ErpProductionScheduleController extends BaseController {
     @ApiOperation(value = "查询布产列表", notes = "查询布产列表")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1")
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
+            @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
     })
     public TableDataInfo list(ErpProductionSchedule erpProductionSchedule) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
@@ -91,6 +94,16 @@ public class ErpProductionScheduleController extends BaseController {
         return toAjax(
                 erpProductionScheduleService
                         .insertErpProductionSchedule(erpProductionSchedule)
+        );
+    }
+
+    @Anonymous
+    @PostMapping("/from-material")
+    @ApiOperation(value = "根据物料ID创建布产", notes = "根据物料ID创建布产")
+    public AjaxResult fromMaterial(@RequestBody @Validated({Save.class})AddProductionScheduleFromMaterialRequest request) throws IOException {
+        return toAjax(
+                erpProductionScheduleService
+                        .insertFromMaterial(request)
         );
     }
 

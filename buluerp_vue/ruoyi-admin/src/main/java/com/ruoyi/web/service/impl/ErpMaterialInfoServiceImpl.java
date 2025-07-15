@@ -112,7 +112,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
+    @Transactional
     public int deleteErpMaterialInfoById(Long id) {
+        erpPurchaseInfoService.deleteErpPurchaseInfoByMaterialIds(new Long[]{id});
         return erpMaterialInfoMapper.deleteErpMaterialInfoById(id);
     }
 }

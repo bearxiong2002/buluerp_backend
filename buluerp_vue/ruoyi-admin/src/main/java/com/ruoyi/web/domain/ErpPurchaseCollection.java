@@ -95,6 +95,10 @@ public class ErpPurchaseCollection extends BaseEntity {
     @Example("无")
     private String remarks;
 
+    @Excel(name = "外购资料ID")
+    @Example("1")
+    private Long purchaseId;
+
     @JsonIgnore
     private MultipartFile picture;
 
@@ -288,5 +292,13 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     public void setPicture(MultipartFile picture) {
         this.picture = picture;
+    }
+
+    public Long getPurchaseId() {
+        return purchaseId;
+    }
+
+    public void setPurchaseId(Long purchaseId) {
+        this.purchaseId = purchaseId;
     }
 }
