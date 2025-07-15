@@ -34,6 +34,9 @@ public class ErpProductionScheduleServiceImpl
     private IErpAuditSwitchService auditSwitchService;
 
     @Autowired
+    private IErpProductsService erpProductsService;
+
+    @Autowired
     private IErpOrdersService erpOrdersService;
 
     @Autowired
@@ -141,10 +144,7 @@ public class ErpProductionScheduleServiceImpl
         if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULING.getValue(erpOrderService))) {
             throw new ServiceException("订单不在布产阶段");
         }
-        ErpOrders updateOrder = new ErpOrders();
-        updateOrder.setId(order.getId());
-        updateOrder.setAllScheduled(true);
-        erpOrdersService.updateErpOrders(updateOrder);
+        erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (isAllProduced(orderCode)) {
             if (erpPurchaseCollectionService.isAllPurchased(orderCode)) {
                 erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
@@ -198,7 +198,7 @@ public class ErpProductionScheduleServiceImpl
             throw new ServiceException("设计总表不存在");
         }
         ErpDesignPatterns designPattern = designPatterns.get(0);
-        schedule.setProductId(designPattern.getProductId());
+        schedule.setProductId(erpProductsService.getIdByInnerId(designPattern.getProductId()) );
 
         ErpOrders order = erpOrdersService.selectErpOrdersById(designPattern.getOrderId());
         if (order == null) {

@@ -85,6 +85,9 @@ public interface IErpOrdersService extends OrderStatus.StatusMapper
      */
     public int updateErpOrders(ErpOrders erpOrders);
 
+    void updateOrderAllScheduled(Long orderId, boolean allScheduled);
+    void updateOrderAllPurchased(Long orderId, boolean allPurchased);
+
     /**
      * 批量删除订单
      * 

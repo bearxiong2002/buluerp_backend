@@ -15,6 +15,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <result property="deliveryTime"    column="delivery_time"    />
         <result property="status"    column="status"    />
         <result property="customerId"    column="customer_id"    />
+        <result property="allScheduled"    column="all_scheduled"    />
+        <result property="allPurchased"    column="all_purchased"    />
         <result property="productId"    column="product_id"    />
         <result property="productionId"    column="production_id"    />
         <result property="purchaseId"    column="purchase_id"    />
@@ -35,6 +37,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             o.delivery_time as delivery_time,
             o.status as status,
             o.customer_id as customer_id,
+            o.all_scheduled as all_scheduled,
+            o.all_purchased as all_purchased,
 #             o.product_id as product_id,
 #             o.production_id as production_id,
 #             o.purchase_id as purchase_id,
@@ -66,6 +70,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryTime != null "> and o.delivery_time = #{deliveryTime}</if>
             <if test="status != null "> and o.status = #{status}</if>
             <if test="customerId != null "> and o.customer_id = #{customerId}</if>
+            <if test="allScheduled != null "> and o.all_scheduled = #{allScheduled}</if>
+            <if test="allPurchased != null "> and o.all_purchased = #{allPurchased}</if>
             <if test="productId != null "> and o.product_id = #{productId}</if>
             <!--<if test="productionId != null "> and o.production_id = #{productionId}</if>-->
             <!--<if test="purchaseId != null "> and o.purchase_id = #{purchaseId}</if>-->
@@ -174,6 +180,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryTime != null">delivery_time,</if>
             <if test="status != null">status,</if>
             <if test="customerId != null">customer_id,</if>
+            <if test="allScheduled != null">all_scheduled,</if>
+            <if test="allPurchased != null">all_purchased</if>
             <if test="productId != null">product_id,</if>
             <if test="productionId != null">production_id,</if>
             <if test="purchaseId != null">purchase_id,</if>
@@ -191,6 +199,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryTime != null">#{deliveryTime},</if>
             <if test="status != null">#{status},</if>
             <if test="customerId != null">#{customerId},</if>
+            <if test="allScheduled != null">#{allScheduled},</if>
+            <if test="allPurchased != null">#{allPurchased},</if>
             <if test="productId != null">#{productId},</if>
             <if test="productionId != null">#{productionId},</if>
             <if test="purchaseId != null">#{purchaseId},</if>
@@ -218,6 +228,8 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="deliveryTime != null">delivery_time = #{deliveryTime},</if>
             <if test="status != null">status = #{status},</if>
             <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="allScheduled != null">all_scheduled = #{allScheduled},</if>
+            <if test="allPurchased != null">all_purchased = #{allPurchased},</if>
             <if test="productId != null">product_id = #{productId},</if>
             <if test="productionId != null">production_id = #{productionId},</if>
             <if test="purchaseId != null">purchase_id = #{purchaseId},</if>

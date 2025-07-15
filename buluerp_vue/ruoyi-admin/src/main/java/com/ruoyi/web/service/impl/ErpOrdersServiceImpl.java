@@ -77,13 +77,21 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             erpOrdersProduct.setProduct(erpProducts.get(0));
         }
 
-        ListDesignPatternsRequest request = new ListDesignPatternsRequest();
-        request.setOrderId(erpOrders.getId());
-        List<ErpDesignPatterns> erpDesignPatterns = erpDesignPatternsService.selectErpDesignPatternsList(request);
-        if (!erpDesignPatterns.isEmpty()) {
-            ErpDesignPatterns designPatterns = erpDesignPatterns.get(0);
-            Long productId = erpProductsService.getIdByInnerId(designPatterns.getProductId());
-            List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(new Long[]{productId});
+        // ListDesignPatternsRequest request = new ListDesignPatternsRequest();
+        // request.setOrderId(erpOrders.getId());
+        // List<ErpDesignPatterns> erpDesignPatterns = erpDesignPatternsService.selectErpDesignPatternsList(request);
+        // if (!erpDesignPatterns.isEmpty()) {
+        //     ErpDesignPatterns designPatterns = erpDesignPatterns.get(0);
+        //     Long productId = erpProductsService.getIdByInnerId(designPatterns.getProductId());
+        //     List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(new Long[]{productId});
+        //     if (!erpProducts.isEmpty()) {
+        //         erpOrders.setProduct(erpProducts.get(0));
+        //     }
+        // }
+        if (erpOrders.getProductId() != null) {
+            List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(
+                    new Long[]{erpOrders.getProductId()}
+            );
             if (!erpProducts.isEmpty()) {
                 erpOrders.setProduct(erpProducts.get(0));
             }
@@ -460,6 +468,28 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
          }
 
        return 1;
+    }
+
+    @Override
+    public void updateOrderAllScheduled(Long orderId, boolean allScheduled) {
+        ErpOrders orders = new ErpOrders();
+        orders.setId(orderId);
+        orders.setAllScheduled(allScheduled);
+        orders.setUpdateTime(DateUtils.getNowDate());
+        if (0 == erpOrdersMapper.updateErpOrders(orders)) {
+            throw new ServiceException("更新订单状态失败");
+        }
+    }
+
+    @Override
+    public void updateOrderAllPurchased(Long orderId, boolean allPurchased) {
+        ErpOrders orders = new ErpOrders();
+        orders.setId(orderId);
+        orders.setAllPurchased(allPurchased);
+        orders.setUpdateTime(DateUtils.getNowDate());
+        if (0 == erpOrdersMapper.updateErpOrders(orders)) {
+            throw new ServiceException("更新订单状态失败");
+        }
     }
 
     /**

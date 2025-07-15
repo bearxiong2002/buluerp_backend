@@ -15,6 +15,7 @@ import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Collections;
@@ -85,10 +86,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                 throw new ServiceException("采购计划" + erpPurchaseCollection.getId() + "未到交货日期");
             }
         }
-        ErpOrders updateOrder = new ErpOrders();
-        updateOrder.setId(order.getId());
-        updateOrder.setAllPurchased(true);
-        erpOrdersService.updateErpOrders(updateOrder);
+        erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_DONE_PURCHASING.getValue(erpOrdersService))) {
             erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
         }
@@ -226,7 +224,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     FileUploadUtils.upload(erpPurchaseCollection.getPicture())
             );
         }
-        if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
+        if (!CollectionUtils.isEmpty(erpPurchaseCollection.getMaterialIds())) {
             ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
                     erpPurchaseCollection.getMaterialIds().get(0)
             );
@@ -252,17 +250,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         //             }
         //         }
         // );
-        // TODO: 将订单状态修改逻辑移到审核流程中
-        erpOrdersService.updateOrderStatusAutomatic(
-                erpPurchaseCollection.getOrderCode(),
-                (oldStatus) -> {
-                    if (oldStatus == OrderStatus.IN_PRODUCTION) {
-                        return OrderStatus.PRODUCTION_DONE_PURCHASING;
-                    } else {
-                        return OrderStatus.PRODUCTION_SCHEDULING;
-                    }
-                }
-        );
 
         // 检查是否启用采购审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PURCHASE_AUDIT.getCode())) {

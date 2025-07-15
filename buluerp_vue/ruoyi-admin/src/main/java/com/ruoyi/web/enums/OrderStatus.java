@@ -132,6 +132,7 @@ public enum OrderStatus {
             // ***********************************************************************************
             // ** 以下状态的变更不再由部门手动触发，而是由关联业务（布产、采购）的审核结果自动触发 **
             // ***********************************************************************************
+            new StatusRoute(PRODUCTION_SCHEDULE_PENDING, PRODUCTION_SCHEDULING, new String[]{ "admin" }),
             new StatusRoute(PRODUCTION_SCHEDULING, IN_PRODUCTION, new String[]{ "admin" }),
             new StatusRoute(IN_PRODUCTION, PRODUCTION_DONE_PURCHASING, new String[]{ "admin" }),
             new StatusRoute(IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),

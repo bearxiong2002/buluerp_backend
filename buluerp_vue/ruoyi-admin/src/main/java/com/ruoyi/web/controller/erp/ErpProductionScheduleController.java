@@ -12,6 +12,7 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
 import com.ruoyi.web.service.IErpProductionScheduleService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -127,5 +128,13 @@ public class ErpProductionScheduleController extends BaseController {
                 erpProductionScheduleService
                         .removeErpProductionScheduleList(ids)
         );
+    }
+
+    @Anonymous
+    @PostMapping("/mark-all-done")
+    @ApiOperation(value = "标记订单布产计划制定完成", notes = "标记订单布产计划制定完成")
+    public AjaxResult markAllDone(@RequestBody MarkOrderPurchaseDoneRequest request) {
+        erpProductionScheduleService.markAllScheduled(request.getOrderCode());
+        return success();
     }
 }

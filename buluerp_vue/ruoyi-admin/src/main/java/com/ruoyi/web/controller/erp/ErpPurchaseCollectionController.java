@@ -12,6 +12,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
+import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
@@ -77,14 +78,14 @@ public class ErpPurchaseCollectionController extends BaseController {
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:add')")
     @Anonymous
     @PostMapping
-    @ApiOperation(value = "新增采购计划", notes = "新增采购计划")
+    @ApiOperation(value = "新增采购计划", notes = "新增采购计划", hidden = true)
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertErpPurchaseCollection(erpPurchaseCollection));
     }
 
     @Anonymous
     @PostMapping("/from-info")
-    @ApiOperation(value = "从外购资料和设计总表新增采购计划", notes = "从外购资料和设计总表新增采购计划", hidden = true)
+    @ApiOperation(value = "从外购资料和设计总表新增采购计划", notes = "从外购资料和设计总表新增采购计划")
     public AjaxResult addFromInfo(@RequestBody @Validated({Save.class}) AddPurchaseCollectionFromInfoRequest request) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertFromInfo(request));
     }
@@ -103,5 +104,13 @@ public class ErpPurchaseCollectionController extends BaseController {
     @ApiOperation(value = "删除采购计划", notes = "删除采购计划")
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(erpPurchaseCollectionService.deleteErpPurchaseCollectionByIds(ids));
+    }
+
+    @Anonymous
+    @PostMapping("/mark-all-done")
+    @ApiOperation(value = "标记订单采购完成", notes = "标记订单采购完成")
+    public AjaxResult markAllDone(@RequestBody MarkOrderPurchaseDoneRequest request) {
+        erpPurchaseCollectionService.markAllPurchased(request.getOrderCode());
+        return success();
     }
 }
