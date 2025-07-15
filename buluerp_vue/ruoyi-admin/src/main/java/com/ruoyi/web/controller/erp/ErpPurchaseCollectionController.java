@@ -84,7 +84,7 @@ public class ErpPurchaseCollectionController extends BaseController {
 
     @Anonymous
     @PostMapping("/from-info")
-    @ApiOperation(value = "从外购资料和设计总表新增采购计划", notes = "从外购资料和设计总表新增采购计划")
+    @ApiOperation(value = "从外购资料和设计总表新增采购计划", notes = "从外购资料和设计总表新增采购计划", hidden = true)
     public AjaxResult addFromInfo(@RequestBody @Validated({Save.class}) AddPurchaseCollectionFromInfoRequest request) throws IOException {
         return toAjax(erpPurchaseCollectionService.insertFromInfo(request));
     }

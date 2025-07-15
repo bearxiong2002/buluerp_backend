@@ -89,7 +89,7 @@ public class ErpProductionScheduleController extends BaseController {
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:add')")
     @Anonymous
     @PostMapping
-    @ApiOperation(value = "新增布产", notes = "新增布产")
+    @ApiOperation(value = "新增布产", notes = "新增布产", hidden = true)
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionSchedule erpProductionSchedule) throws IOException {
         return toAjax(
                 erpProductionScheduleService
