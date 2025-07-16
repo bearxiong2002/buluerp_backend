@@ -87,7 +87,7 @@ public class ErpOrders extends BaseEntity
     /** 产品ID（外键引用产品表） */
     @Excel(name = "产品ID")
     // @Example("1")
-    private Long productId;
+    private String productId;
 
     /** 布产ID（外键引用布产表） */
     @Excel(name = "布产ID")
@@ -193,12 +193,12 @@ public class ErpOrders extends BaseEntity
         return customerId;
     }
 
-    public void setProductId(Long productId) 
+    public void setProductId(String productId)
     {
         this.productId = productId;
     }
 
-    public Long getProductId() 
+    public String getProductId()
     {
         return productId;
     }

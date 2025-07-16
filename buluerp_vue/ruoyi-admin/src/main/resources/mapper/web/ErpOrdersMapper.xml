@@ -43,7 +43,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 #             o.production_id as production_id,
 #             o.purchase_id as purchase_id,
 #             o.subcontract_id as subcontract_id,
-            (SELECT p.id FROM erp_products p WHERE p.inner_id = erp_design_patterns.product_id) as product_id,
+            erp_design_patterns.product_id as product_id,
 #             erp_production_schedule.id as production_id,
 #             erp_purchase_collection.id as purchase_id,
             erp_packaging_list.id as subcontract_id,
@@ -52,7 +52,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             c.name as customer_name
         from erp_orders o
                  left join erp_customers c on o.customer_id = c.id
-                 left join erp_design_patterns on o.id = erp_design_patterns.order_id
+                 left join erp_design_patterns on o.inner_id = erp_design_patterns.order_id
 #                  left join erp_production_schedule on o.inner_id = erp_production_schedule.order_code
 #                  left join erp_purchase_collection on o.inner_id = erp_purchase_collection.order_code
                  left join erp_packaging_list on o.inner_id = erp_packaging_list.order_code
@@ -72,10 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="customerId != null "> and o.customer_id = #{customerId}</if>
             <if test="allScheduled != null "> and o.all_scheduled = #{allScheduled}</if>
             <if test="allPurchased != null "> and o.all_purchased = #{allPurchased}</if>
-            <if test="productId != null "> and o.product_id = #{productId}</if>
-            <!--<if test="productionId != null "> and o.production_id = #{productionId}</if>-->
-            <!--<if test="purchaseId != null "> and o.purchase_id = #{purchaseId}</if>-->
-            <if test="subcontractId != null "> and o.subcontract_id = #{subcontractId}</if>
+            <if test="productId != null "> and product_id like concat('%',#{productId},'%')</if>
+            <!--<if test="productionId != null "> and production_id = #{productionId}</if>-->
+            <!--<if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>-->
+            <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
             <if test="remark != null "> and o.remark like CONCAT('%',#{remark},'%')</if>
             <if test="customerName != null "> and c.name like CONCAT('%',#{customerName},'%')</if>
             <if test="createTimeFrom != null">

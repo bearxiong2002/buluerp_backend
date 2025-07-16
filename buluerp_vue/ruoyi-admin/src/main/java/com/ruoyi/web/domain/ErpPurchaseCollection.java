@@ -33,7 +33,7 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     @Excel(name = "产品编号")
     @Example("1")
-    private Long productId;
+    private String productId;
 
     @Excel(name = "下单时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
     @Example("2022-05-28 10:00:00")
@@ -166,11 +166,11 @@ public class ErpPurchaseCollection extends BaseEntity {
         this.operator = operator;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

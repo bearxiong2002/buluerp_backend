@@ -237,7 +237,7 @@ public class ErpProductionScheduleServiceImpl
             throw new ServiceException("设计总表不存在");
         }
         ErpDesignPatterns designPattern = designPatterns.get(0);
-        schedule.setProductId(erpProductsService.getIdByInnerId(designPattern.getProductId()) );
+        schedule.setProductId(designPattern.getProductId());
 
 
         ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
