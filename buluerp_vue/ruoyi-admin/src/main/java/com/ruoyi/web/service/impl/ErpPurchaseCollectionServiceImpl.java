@@ -10,6 +10,7 @@ import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
+import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -81,7 +82,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (!isAllPurchased(orderCode)) {
             return false;
         }
-        ErpPurchaseCollection collection = new ErpPurchaseCollection();
+        ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
         collection.setOrderCode(orderCode);
         List<ErpPurchaseCollection> collections = selectErpPurchaseCollectionList(collection);
         for (ErpPurchaseCollection erpPurchaseCollection : collections) {
@@ -325,13 +326,18 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
-    public List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(erpPurchaseCollection));
+    public List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request) {
+        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(request));
     }
 
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids) {
         return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids));
+    }
+
+    @Override
+    public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode) {
+        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByOrderCode(orderCode));
     }
 
     @Override

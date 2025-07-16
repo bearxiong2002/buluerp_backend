@@ -3,6 +3,7 @@ package com.ruoyi.web.service;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
+import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,8 +21,9 @@ public interface IErpPurchaseCollectionService {
     int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException;
     int insertErpPurchaseCollections(List<ErpPurchaseCollection> erpPurchaseCollectionList) throws IOException;
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
-    List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode);
 
     /**
      * 在审核通过后，直接应用新的状态，不触发额外的审核流程
