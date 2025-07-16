@@ -17,11 +17,20 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
     // 布产对应排产是否完成
     boolean isProduced(Long scheduleId);
 
+    // 布产是否已经开始排产
+    boolean isProducing(Long scheduleId);
+
     // 订单当前所有布产是否完成排产
     boolean isCurrentlyProduced(String orderCode);
 
+    // 订单当前所有布产是否开始排产
+    boolean isCurrentlyProducing(String orderCode);
+
     // 订单整个生产流程是否已经完成
     boolean isAllProduced(String orderCode);
+
+    // 是否处于等待已开始的排产完成状态
+    boolean isAllProducing(String orderCode);
 
     int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException;
 

@@ -78,17 +78,8 @@ public class ErpProductionArrangeServiceImpl
             throw new ServiceException("部分布产已排产");
         }
         ErpProductionArrange erpProductionArrange = new ErpProductionArrange();
-        erpProductionArrange.setCreationTime(DateUtils.getNowDate());
-        erpProductionArrange.setOperator(SecurityUtils.getUsername());
-        if (request.getPictureFile() != null) {
-            erpProductionArrange.setPictureUrl(
-                    FileUploadUtils.upload(
-                            request.getPictureFile()
-                    )
-            );
-        } else {
-            erpProductionArrange.setPictureUrl(request.getPictureUrl());
-        }
+        erpProductionArrange.setPicture(request.getPictureFile());
+        erpProductionArrange.setPictureUrl(request.getPictureUrl());
         erpProductionArrange.setMouldOutput(request.getMouldOutput());
         erpProductionArrange.setScheduledTime(request.getScheduledTime());
         erpProductionArrange.setRemarks(request.getRemarks());
@@ -138,7 +129,7 @@ public class ErpProductionArrangeServiceImpl
         erpProductionArrange.setProductionMouldCount(productionMouldCount);
         erpProductionArrange.setProductionQuantity(productionQuantity);
 
-        if (0 >= baseMapper.insert(erpProductionArrange)) {
+        if (0 >= insertErpProductionArrangeList(Collections.singletonList(erpProductionArrange))) {
             throw new ServiceException("添加排产失败");
         }
         return erpProductionScheduleService

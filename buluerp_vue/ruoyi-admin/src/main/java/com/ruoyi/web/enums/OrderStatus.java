@@ -11,8 +11,8 @@ public enum OrderStatus {
     CREATED("创建(未审核)"),
     DESIGN_PENDING("待设计"),
     DESIGNED("设计中"),
-    PRODUCTION_SCHEDULE_PENDING("待布产"),
-    PRODUCTION_SCHEDULING("布产中"),
+    PRODUCTION_SCHEDULE_PENDING("待定制布产计划"),
+    PRODUCTION_PENDING("布产计划已定制(待排产)"),
     IN_PRODUCTION("排产中"),
     PRODUCTION_DONE_PURCHASING("生产完成(待采购完成)"),
     MATERIAL_IN_INVENTORY("已齐料入库(待套料)"),
@@ -132,11 +132,12 @@ public enum OrderStatus {
             // ***********************************************************************************
             // ** 以下状态的变更不再由部门手动触发，而是由关联业务（布产、采购）的审核结果自动触发 **
             // ***********************************************************************************
-            new StatusRoute(PRODUCTION_SCHEDULE_PENDING, PRODUCTION_SCHEDULING, new String[]{ "admin" }),
-            new StatusRoute(PRODUCTION_SCHEDULING, IN_PRODUCTION, new String[]{ "admin" }),
-            new StatusRoute(IN_PRODUCTION, PRODUCTION_DONE_PURCHASING, new String[]{ "admin" }),
-            new StatusRoute(IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
-            new StatusRoute(PRODUCTION_DONE_PURCHASING, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
+            // new StatusRoute(PRODUCTION_SCHEDULE_PENDING, PRODUCTION_PENDING, new String[]{ "admin" }),
+            // new StatusRoute(PRODUCTION_PENDING, IN_PRODUCTION, new String[]{ "admin" }),
+            // new StatusRoute(IN_PRODUCTION, PRODUCTION_DONE_PURCHASING, new String[]{ "admin" }),
+            // new StatusRoute(IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
+            // new StatusRoute(PRODUCTION_DONE_PURCHASING, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
+            new StatusBlock(DESIGN_PENDING, MATERIAL_IN_INVENTORY, "admin"),
             new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGING_PENDING, new String[]{"warehouse"}),
             new StatusBlock(PACKAGING_PENDING, PACKAGED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
             new StatusBlock(PACKAGED, COMPLETED, new String[]{"sell-dept"})

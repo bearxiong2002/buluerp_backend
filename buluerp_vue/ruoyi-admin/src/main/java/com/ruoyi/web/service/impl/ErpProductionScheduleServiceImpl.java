@@ -19,8 +19,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Service
 public class ErpProductionScheduleServiceImpl
@@ -65,16 +67,27 @@ public class ErpProductionScheduleServiceImpl
         // }
     }
 
+    private void checkReferences(ErpProductionSchedule erpProductionSchedule) {
+        if (erpProductionSchedule.getOrderCode()!= null) {
+            ErpOrders order = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
+            if (order == null) {
+                throw new ServiceException("订单不存在");
+            }
+        }
+    }
+
     private void check(ErpProductionSchedule erpProductionSchedule) {
         checkUnique(erpProductionSchedule);
+        checkReferences(erpProductionSchedule);
     }
 
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
         check(erpProductionSchedule);
-        if (isAllScheduled(erpProductionSchedule.getOrderCode())) {
-            throw new ServiceException("订单已标记完成布产");
+        ErpOrders erpOrders = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
+        if (!Objects.equals(erpOrders.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
+            throw new ServiceException("订单不在布产计划定制阶段");
         }
 
         // 设置初始状态为待审核
@@ -104,10 +117,10 @@ public class ErpProductionScheduleServiceImpl
         }
         erpProductionSchedule.setProductId(order.getProductId());
         // TODO: 将订单状态修改逻辑移到审核流程中
-        erpOrdersService.updateOrderStatusAutomatic(
-                erpProductionSchedule.getOrderCode(),
-                OrderStatus.PRODUCTION_SCHEDULING
-        );
+        // erpOrdersService.updateOrderStatusAutomatic(
+        //         erpProductionSchedule.getOrderCode(),
+        //         OrderStatus.PRODUCTION_SCHEDULING
+        // );
         if (erpProductionSchedule.getMaterialIds() != null) {
             getBaseMapper().insertProductionScheduleMaterialIds(
                     erpProductionSchedule.getId(),
@@ -141,8 +154,8 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public void markAllScheduled(String orderCode) {
         ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
-        if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULING.getValue(erpOrderService))) {
-            throw new ServiceException("订单不在布产阶段");
+        if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
+            throw new ServiceException("订单不在布产计划定制阶段");
         }
         erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (isAllProduced(orderCode)) {
@@ -151,8 +164,10 @@ public class ErpProductionScheduleServiceImpl
             } else {
                 erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_DONE_PURCHASING);
             }
-        } else {
+        } else if (isAllProducing(orderCode))  {
             erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.IN_PRODUCTION);
+        } else {
+            erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_PENDING);
         }
     }
 
@@ -170,6 +185,12 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
+    public boolean isProducing(Long scheduleId) {
+        ErpProductionSchedule schedule = getBaseMapper().selectById(scheduleId);
+        return schedule.getArrangeId() != null;
+    }
+
+    @Override
     public boolean isCurrentlyProduced(String orderCode) {
         LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
@@ -183,8 +204,26 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
+    public boolean isCurrentlyProducing(String orderCode) {
+        LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
+        List<ErpProductionSchedule> list = getBaseMapper().selectList(queryWrapper);
+        for (ErpProductionSchedule erpProductionSchedule : list) {
+            if (!isProducing(erpProductionSchedule.getId())) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
     public boolean isAllProduced(String orderCode) {
         return isAllScheduled(orderCode) && isCurrentlyProduced(orderCode);
+    }
+
+    @Override
+    public boolean isAllProducing(String orderCode) {
+        return isAllScheduled(orderCode) && isCurrentlyProducing(orderCode);
     }
 
     @Override
@@ -281,7 +320,25 @@ public class ErpProductionScheduleServiceImpl
 
     @Override
     public int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
-        return baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
+        int result = baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
+
+        Set<String> orderCodes = new HashSet<>();
+        for  (Long productionScheduleId : productionScheduleIds) {
+            ErpProductionSchedule schedule = getById(productionScheduleId);
+            if (schedule != null) {
+                orderCodes.add(schedule.getOrderCode());
+            }
+        }
+
+        for (String orderCode : orderCodes) {
+            if (isAllProduced(orderCode)) {
+                erpOrderService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
+            } else if (isAllProducing(orderCode)) {
+                erpOrderService.updateOrderStatusAutomatic(orderCode, OrderStatus.IN_PRODUCTION);
+            }
+        }
+
+        return result;
     }
 
     @Override

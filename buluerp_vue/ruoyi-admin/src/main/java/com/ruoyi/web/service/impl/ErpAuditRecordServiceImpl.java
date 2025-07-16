@@ -930,7 +930,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
                     if (Objects.equals(currentStatus, statusValuePending)) {
                         // 如果订单当前是“待计划”状态，则直接进入“外购中”
-                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_SCHEDULING);
+                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_PENDING);
                     } else if (Objects.equals(currentStatus, statusValueInProduction)) {
                         // 如果订单当前已在“布产中”，则进入“外购与布产中”
                         ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_DONE_PURCHASING);
