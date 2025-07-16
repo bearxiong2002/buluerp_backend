@@ -246,6 +246,148 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     }
 
     /**
+     * 通用审核接口
+     * 通过审核记录ID自动判断审核类型并进行相应的处理
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param accept 审核结果（1=通过，-1=拒绝）
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     * @return 处理结果
+     */
+    @Override
+    @Transactional
+    public boolean processAuditByRecordId(Long auditRecordId, Integer accept, String auditor, String auditComment)
+    {
+        try {
+            // 1. 根据审核记录ID查询审核记录
+            ErpAuditRecord queryRecord = new ErpAuditRecord();
+            queryRecord.setId(auditRecordId);
+            List<ErpAuditRecord> records = selectAuditRecords(queryRecord, null, null, null, null);
+            
+            if (records.isEmpty()) {
+                log.error("审核记录不存在，审核记录ID：{}", auditRecordId);
+                return false;
+            }
+            
+            ErpAuditRecord auditRecord = records.get(0);
+            
+            // 2. 验证审核记录状态
+            if (auditRecord.getConfirm() != null && auditRecord.getConfirm() == 1) {
+                log.error("审核记录已处理，审核记录ID：{}", auditRecordId);
+                return false;
+            }
+            
+            // 3. 根据审核类型进行相应的处理
+            AuditTypeEnum auditTypeEnum = AuditTypeEnum.getByCode(auditRecord.getAuditType());
+            if (auditTypeEnum == null) {
+                log.error("不支持的审核类型，审核记录ID：{}，审核类型：{}", auditRecordId, auditRecord.getAuditType());
+                return false;
+            }
+            
+            // 4. 先处理审核记录状态
+            int result = processAudit(Arrays.asList(auditRecordId), accept, auditor, auditComment);
+            if (result <= 0) {
+                log.error("更新审核记录状态失败，审核记录ID：{}", auditRecordId);
+                return false;
+            }
+            
+            // 5. 根据审核类型调用相应的业务处理方法
+            switch (auditTypeEnum) {
+                case ORDER_AUDIT:
+                    if (accept.equals(1)) {
+                        handleOrderApproved(auditRecordId, auditor, auditComment);
+                    } else {
+                        handleOrderRejected(auditRecordId, auditor, auditComment);
+                    }
+                    break;
+                    
+                case PRODUCTION_AUDIT:
+                    if (accept.equals(1)) {
+                        handleProductionScheduleApproved(auditRecordId, auditor, auditComment);
+                    } else {
+                        handleProductionScheduleRejected(auditRecordId, auditor, auditComment);
+                    }
+                    break;
+                    
+                case PURCHASE_AUDIT:
+                    if (accept.equals(1)) {
+                        handlePurchaseCollectionApproved(auditRecordId, auditor, auditComment);
+                    } else {
+                        handlePurchaseCollectionRejected(auditRecordId, auditor, auditComment);
+                    }
+                    break;
+                    
+                case SUBCONTRACT_AUDIT:
+                    if (accept.equals(1)) {
+                        handlePackagingListApproved(auditRecordId, auditor, auditComment);
+                    } else {
+                        handlePackagingListRejected(auditRecordId, auditor, auditComment);
+                    }
+                    break;
+                    
+                default:
+                    log.error("不支持的审核类型：{}", auditTypeEnum);
+                    return false;
+            }
+            
+            log.info("通用审核处理成功，审核记录ID：{}，审核类型：{}，审核结果：{}", 
+                    auditRecordId, auditTypeEnum.getDescription(), accept);
+            return true;
+            
+        } catch (Exception e) {
+            log.error("通用审核处理失败，审核记录ID：{}", auditRecordId, e);
+            return false;
+        }
+    }
+
+    /**
+     * 批量通用审核接口
+     * 批量处理多个审核记录，自动判断每个记录的审核类型并进行相应的处理
+     * 
+     * @param auditRecordIds 审核记录ID列表
+     * @param accept 审核结果（1=通过，-1=拒绝）
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     * @return 成功处理的记录数
+     */
+    @Override
+    @Transactional
+    public int processBatchAuditByRecordIds(List<Long> auditRecordIds, Integer accept, String auditor, String auditComment)
+    {
+        if (auditRecordIds == null || auditRecordIds.isEmpty()) {
+            log.warn("批量审核记录ID列表为空");
+            return 0;
+        }
+        
+        int successCount = 0;
+        List<String> failedIds = new ArrayList<>();
+        
+        for (Long auditRecordId : auditRecordIds) {
+            try {
+                boolean result = processAuditByRecordId(auditRecordId, accept, auditor, auditComment);
+                if (result) {
+                    successCount++;
+                } else {
+                    failedIds.add(auditRecordId.toString());
+                }
+            } catch (Exception e) {
+                log.error("批量审核处理失败，审核记录ID：{}", auditRecordId, e);
+                failedIds.add(auditRecordId.toString());
+            }
+        }
+        
+        if (!failedIds.isEmpty()) {
+            log.warn("批量审核部分失败，失败的审核记录ID：{}", String.join(", ", failedIds));
+        }
+        
+        log.info("批量审核完成，总数：{}，成功：{}，失败：{}", 
+                auditRecordIds.size(), successCount, auditRecordIds.size() - successCount);
+        
+        return successCount;
+    }
+
+    /**
      * 审核处理
      * 支持单个和批量审核
      * 

@@ -49,6 +49,30 @@ public interface IErpAuditRecordService
     List<ErpAuditRecord> getPendingAuditsByUserRole();
 
     /**
+     * 通用审核接口
+     * 通过审核记录ID自动判断审核类型并进行相应的处理
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param accept 审核结果（1=通过，-1=拒绝）
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     * @return 处理结果
+     */
+    boolean processAuditByRecordId(Long auditRecordId, Integer accept, String auditor, String auditComment);
+
+    /**
+     * 批量通用审核接口
+     * 批量处理多个审核记录，自动判断每个记录的审核类型并进行相应的处理
+     * 
+     * @param auditRecordIds 审核记录ID列表
+     * @param accept 审核结果（1=通过，-1=拒绝）
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     * @return 成功处理的记录数
+     */
+    int processBatchAuditByRecordIds(List<Long> auditRecordIds, Integer accept, String auditor, String auditComment);
+
+    /**
      * 批量删除审核记录
      * 
      * @param ids 需要删除的审核记录ID列表

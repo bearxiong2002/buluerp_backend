@@ -12,6 +12,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpAuditRecord;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.request.audit.AuditRequest;
+import com.ruoyi.web.request.audit.BatchAuditRequest;
 import com.ruoyi.web.service.IErpAuditRecordService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -61,6 +62,74 @@ public class ErpAuditRecordController extends BaseController
         List<ErpAuditRecord> list = erpAuditRecordService.getPendingAuditsByUserRole();
         return getDataTable(list);
     }
+
+    /**
+     * 通用审核接口
+     * 通过审核记录ID自动判断审核类型并进行相应的处理
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditRequest 审核请求，包含accept字段（1=通过，-1=拒绝）和审核意见
+     * @return 审核结果
+     */
+    @Anonymous
+    @ApiOperation(value = "通用审核接口", notes = "通过审核记录ID自动判断审核类型并进行相应的处理")
+    @Log(title = "通用审核", businessType = BusinessType.UPDATE)
+    @PostMapping("/{auditRecordId}")
+    public AjaxResult processAudit(@ApiParam("审核记录ID") @PathVariable Long auditRecordId,
+                                  @Validated @RequestBody AuditRequest auditRequest)
+    {
+        if (!auditRequest.getAccept().equals(1) && !auditRequest.getAccept().equals(-1)) {
+            return error("审核状态参数错误，1=通过，-1=拒绝");
+        }
+        
+        String auditor = SecurityUtils.getUsername();
+        
+        boolean result = erpAuditRecordService.processAuditByRecordId(
+            auditRecordId, 
+            auditRequest.getAccept(), 
+            auditor, 
+            auditRequest.getAuditComment()
+        );
+        
+        if (result) {
+            return success("审核处理成功");
+        } else {
+            return error("审核处理失败");
+        }
+    }
+
+    /**
+     * 批量通用审核接口
+     * 批量处理多个审核记录，自动判断每个记录的审核类型并进行相应的处理
+     * 
+     * @param batchAuditRequest 批量审核请求，包含审核记录ID列表、审核结果和审核意见
+     * @return 审核结果
+     */
+//    @Anonymous
+//    @ApiOperation(value = "批量通用审核接口", notes = "批量处理多个审核记录，自动判断每个记录的审核类型并进行相应的处理")
+//    @Log(title = "批量通用审核", businessType = BusinessType.UPDATE)
+//    @PostMapping("/batch-audit")
+//    public AjaxResult processBatchAudit(@Validated @RequestBody BatchAuditRequest batchAuditRequest)
+//    {
+//        if (!batchAuditRequest.getAccept().equals(1) && !batchAuditRequest.getAccept().equals(-1)) {
+//            return error("审核状态参数错误，1=通过，-1=拒绝");
+//        }
+//
+//        String auditor = SecurityUtils.getUsername();
+//
+//        int successCount = erpAuditRecordService.processBatchAuditByRecordIds(
+//            batchAuditRequest.getAuditRecordIds(),
+//            batchAuditRequest.getAccept(),
+//            auditor,
+//            batchAuditRequest.getAuditComment()
+//        );
+//
+//        if (successCount > 0) {
+//            return success("批量审核处理成功，成功处理 " + successCount + " 条记录");
+//        } else {
+//            return error("批量审核处理失败");
+//        }
+//    }
 
     /**
      * 查询审核记录列表（管理员权限）
@@ -276,7 +345,7 @@ public class ErpAuditRecordController extends BaseController
         // 处理审核
         int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
         if (result > 0) {
-            // 根据confirm字段调用相应的业务处理
+            // 根据accept字段调用相应的业务处理
             if (auditRequest.getAccept().equals(1)) {
                 erpAuditRecordService.handleOrderApproved(id, auditor, auditRequest.getAuditComment());
                 return success("订单审核通过成功");
