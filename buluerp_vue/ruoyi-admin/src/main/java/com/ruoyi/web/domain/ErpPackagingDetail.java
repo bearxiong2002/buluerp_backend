@@ -35,7 +35,7 @@ public class ErpPackagingDetail {
     @Excel(name = "模具编号")
     @Example(Example.GEN_UUID)
     @ApiModelProperty("模具编号，用于标识模具 [list|POST|PUT|response]")
-    @NotNull(groups = {Save.class}, message = "模具编号不能为空")
+    // @NotNull(groups = {Save.class}, message = "模具编号不能为空")
     private String mouldNumber;
 
     @TableField(condition = SqlCondition.LIKE)
@@ -53,7 +53,8 @@ public class ErpPackagingDetail {
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "颜色")
     @Example("RGB")
-    @ApiModelProperty("颜色编号，模具零件的颜色编码 [list|POST|PUT|response]")
+    @ApiModelProperty(value = "颜色编号，模具零件的颜色编码 [list|POST|PUT|response]", required = true)
+    @NotNull(groups = Save.class, message = "颜色编号不能为空")
     private String colorCode;
 
     @TableField(condition = SqlCondition.LIKE)
@@ -65,26 +66,29 @@ public class ErpPackagingDetail {
     @TableField("`usage`")
     @Excel(name = "用量")
     @Example("0.5")
-    @ApiModelProperty("用量，单位为克，表示单个零件的用料量 [list|POST|PUT|response]")
+    @ApiModelProperty(value = "用量，单位为克，表示单个零件的用料量 [list|POST|PUT|response]", required = true)
     @Range(min = 0, message = "用量不能为负数", groups = {Save.class, Update.class})
+    @NotNull(groups = {Save.class}, message = "用量不能为空")
     private Double usage;
 
     @Excel(name = "单重")
     @Example("0.5")
-    @ApiModelProperty("单重，单位为克，表示单个零件的重量 [list|POST|PUT|response]")
+    @ApiModelProperty("单重，单位为克，表示单个胶件的重量 [list|POST|PUT|response]")
     @Range(min = 0, message = "单重不能为负数", groups = {Save.class, Update.class})
     private Double singleWeight;
 
     @Excel(name = "套料数量")
     @Example("10")
-    @ApiModelProperty("套料数量，每套包含的零件数量 [list|POST|PUT|response]")
+    @ApiModelProperty(value = "套料数量，每套包含的零件数量 [list|POST|PUT|response]", required = true)
     @Range(min = 0, message = "套料数量不能为负数", groups = {Save.class, Update.class})
+    @NotNull(groups = {Save.class}, message = "套料数量不能为空")
     private Integer setQuantity;
 
     @Excel(name = "重量")
     @Example("0.5")
-    @ApiModelProperty("重量，单位为克，表示总重量 [list|POST|PUT|response]")
+    @ApiModelProperty(value = "重量，单位为克，表示总重量 [list|POST|PUT|response]", required = true)
     @Range(min = 0, message = "重量不能为负数", groups = {Save.class, Update.class})
+    @NotNull(groups = {Save.class}, message = "总重量不能为空")
     private Double totalWeight;
 
     @TableField(condition = SqlCondition.LIKE)
@@ -104,7 +108,7 @@ public class ErpPackagingDetail {
     private MultipartFile partImageFile;
 
     @Excel(name = "物料ID")
-    @ApiModelProperty("物料ID，与物料信息主键关联 [list|POST|PUT|response]")
+    @ApiModelProperty(value = "物料ID，与物料信息主键关联 [list|POST|PUT|response]", required = true)
     @NotNull(message = "物料ID不能为空", groups = {Save.class})
     private Long materialId;
 
@@ -160,70 +164,20 @@ public class ErpPackagingDetail {
         }
     }
 
-
-
-    public MultipartFile getPartImageFile() {
-        return partImageFile;
+    public Integer getId() {
+        return id;
     }
 
-    public void setPartImageFile(MultipartFile partImageFile) {
-        this.partImageFile = partImageFile;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
-    public String getRemarks() {
-        return remarks;
+    public String getMouldNumber() {
+        return mouldNumber;
     }
 
-    public void setRemarks(String remarks) {
-        this.remarks = remarks;
-    }
-
-    public @Range(min = 0, message = "套料数量不能为负数") Integer getSetQuantity() {
-        return setQuantity;
-    }
-
-    public void setSetQuantity(@Range(min = 0, message = "套料数量不能为负数") Integer setQuantity) {
-        this.setQuantity = setQuantity;
-    }
-
-    public @Range(min = 0, message = "单重不能为负数") Double getSingleWeight() {
-        return singleWeight;
-    }
-
-    public void setSingleWeight(@Range(min = 0, message = "单重不能为负数") Double singleWeight) {
-        this.singleWeight = singleWeight;
-    }
-
-    public @Range(min = 0, message = "用量不能为负数") Double getUsage() {
-        return usage;
-    }
-
-    public void setUsage(@Range(min = 0, message = "用量不能为负数") Double usage) {
-        this.usage = usage;
-    }
-
-    public String getSpecificationName() {
-        return specificationName;
-    }
-
-    public void setSpecificationName(String specificationName) {
-        this.specificationName = specificationName;
-    }
-
-    public String getColorCode() {
-        return colorCode;
-    }
-
-    public void setColorCode(String colorCode) {
-        this.colorCode = colorCode;
-    }
-
-    public String getMaterialType() {
-        return materialType;
-    }
-
-    public void setMaterialType(String materialType) {
-        this.materialType = materialType;
+    public void setMouldNumber(String mouldNumber) {
+        this.mouldNumber = mouldNumber;
     }
 
     public String getPartImageUrl() {
@@ -234,36 +188,52 @@ public class ErpPackagingDetail {
         this.partImageUrl = partImageUrl;
     }
 
-    public @NotNull(groups = {Save.class}, message = "模具编号不能为空") String getMouldNumber() {
-        return mouldNumber;
+    public String getMaterialType() {
+        return materialType;
     }
 
-    public void setMouldNumber(@NotNull(groups = {Save.class}, message = "模具编号不能为空") String mouldNumber) {
-        this.mouldNumber = mouldNumber;
+    public void setMaterialType(String materialType) {
+        this.materialType = materialType;
     }
 
-    public Integer getId() {
-        return id;
+    public String getColorCode() {
+        return colorCode;
     }
 
-    public void setId(Integer id) {
-        this.id = id;
+    public void setColorCode(String colorCode) {
+        this.colorCode = colorCode;
     }
 
-    public @NotNull(message = "分包袋编号不能为空", groups = {Save.class}) Long getPackagingBagId() {
-        return packagingBagId;
+    public String getSpecificationName() {
+        return specificationName;
     }
 
-    public void setPackagingBagId(@NotNull(message = "分包袋编号不能为空", groups = {Save.class}) Long packagingBagId) {
-        this.packagingBagId = packagingBagId;
+    public void setSpecificationName(String specificationName) {
+        this.specificationName = specificationName;
     }
 
-    public WriteCellData<Void> getImageData() {
-        return imageData;
+    public Double getUsage() {
+        return usage;
     }
 
-    public void setImageData(WriteCellData<Void> imageData) {
-        this.imageData = imageData;
+    public void setUsage(Double usage) {
+        this.usage = usage;
+    }
+
+    public Double getSingleWeight() {
+        return singleWeight;
+    }
+
+    public void setSingleWeight(Double singleWeight) {
+        this.singleWeight = singleWeight;
+    }
+
+    public Integer getSetQuantity() {
+        return setQuantity;
+    }
+
+    public void setSetQuantity(Integer setQuantity) {
+        this.setQuantity = setQuantity;
     }
 
     public Double getTotalWeight() {
@@ -274,11 +244,43 @@ public class ErpPackagingDetail {
         this.totalWeight = totalWeight;
     }
 
-    public @NotNull(message = "物料ID不能为空", groups = {Save.class}) Long getMaterialId() {
+    public String getRemarks() {
+        return remarks;
+    }
+
+    public void setRemarks(String remarks) {
+        this.remarks = remarks;
+    }
+
+    public Long getPackagingBagId() {
+        return packagingBagId;
+    }
+
+    public void setPackagingBagId(Long packagingBagId) {
+        this.packagingBagId = packagingBagId;
+    }
+
+    public MultipartFile getPartImageFile() {
+        return partImageFile;
+    }
+
+    public void setPartImageFile(MultipartFile partImageFile) {
+        this.partImageFile = partImageFile;
+    }
+
+    public Long getMaterialId() {
         return materialId;
     }
 
-    public void setMaterialId(@NotNull(message = "物料ID不能为空", groups = {Save.class}) Long materialId) {
+    public void setMaterialId(Long materialId) {
         this.materialId = materialId;
+    }
+
+    public WriteCellData<Void> getImageData() {
+        return imageData;
+    }
+
+    public void setImageData(WriteCellData<Void> imageData) {
+        this.imageData = imageData;
     }
 }
