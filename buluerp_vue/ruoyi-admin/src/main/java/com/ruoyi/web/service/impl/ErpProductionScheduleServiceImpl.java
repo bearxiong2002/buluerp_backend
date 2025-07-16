@@ -239,7 +239,8 @@ public class ErpProductionScheduleServiceImpl
         ErpDesignPatterns designPattern = designPatterns.get(0);
         schedule.setProductId(erpProductsService.getIdByInnerId(designPattern.getProductId()) );
 
-        ErpOrders order = erpOrdersService.selectErpOrdersById(designPattern.getOrderId());
+
+        ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
         if (order == null) {
             throw new ServiceException("设计总表项对应订单不存在或已被删除");
         }

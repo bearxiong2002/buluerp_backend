@@ -7,16 +7,16 @@ import io.swagger.annotations.ApiModelProperty;
 public class UpdateDesignPatternsRequest {
     @ApiModelProperty(dataType = "Long",value = "需要修改的设计表id",required = true)
     private Long id;
-    @ApiModelProperty(dataType = "Long",value = "订单号",required = false)
-    private Long orderId;
+    @ApiModelProperty(dataType = "String",value = "订单内部编号",required = false)
+    private String orderId;
     @ApiModelProperty(dataType = "String",value = "产品内部编号",required = false)
     private String productId;
 
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

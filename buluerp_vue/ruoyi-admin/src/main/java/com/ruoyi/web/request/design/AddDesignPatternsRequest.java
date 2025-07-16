@@ -10,19 +10,19 @@ import javax.validation.constraints.NotNull;
 public class AddDesignPatternsRequest {
     @NotNull(message = "订单号不能为空")
     @Excel(name = "订单号")
-    @ApiModelProperty(dataType = "Long",value = "订单号",required = true)
-    private Long orderId;
+    @ApiModelProperty(dataType = "String",value = "订单号",required = true)
+    private String orderId;
     
     @NotNull(message = "产品号不能为空")
     @Excel(name = "产品号")
     @ApiModelProperty(dataType = "String",value = "产品内部编码",required = true)
     private String productId;
 
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 

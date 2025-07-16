@@ -59,7 +59,7 @@ public class ErpDesignPatternsController extends BaseController
     @ApiImplicitParams({
             @ApiImplicitParam(name = "productId", value = "产品内部编码", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "createUserId", value = "创建用户ID", dataType = "integer", paramType = "query"),
-            @ApiImplicitParam(name = "orderId", value = "订单ID", dataType = "integer", paramType = "query"),
+            @ApiImplicitParam(name = "orderId", value = "订单内部ID", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "confirm", value = "PMC确认状态(0未确认/1已确认)", dataType = "integer", paramType = "query"),
             @ApiImplicitParam(name = "idd", value = "设计总表ID", dataType = "integer", paramType = "query")
     })
@@ -67,7 +67,7 @@ public class ErpDesignPatternsController extends BaseController
     public TableDataInfo list(
             @RequestParam(required = false) String productId,
             @RequestParam(required = false) Long createUserId,
-            @RequestParam(required = false) Long orderId,
+            @RequestParam(required = false) String orderId,
             @RequestParam(required = false) Long confirm,
             @RequestParam(required = false) Long id) {
 
@@ -197,7 +197,7 @@ public class ErpDesignPatternsController extends BaseController
         AddDesignPatternsRequest example = new AddDesignPatternsRequest();
 
         // 设置必填字段示例值（符合验证规则）
-        example.setOrderId(2024001L);       // 示例订单号
+        example.setOrderId("INNER123");       // 示例订单号
         example.setProductId("INNER123");        // 示例产品号
 
         templateData.add(example);

@@ -12,6 +12,7 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.common.utils.spring.SpringUtils;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.enums.OrderStatus;
@@ -102,7 +103,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 .like(StringUtils.isNotBlank(listDesignPatternsRequest.getProductId()) ,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
                 .orderByDesc(ErpDesignPatterns::getCreateTime)
                 .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
-                .eq(listDesignPatternsRequest.getOrderId()!=null,ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId())
+                .like(StringUtils.isNotBlank(listDesignPatternsRequest.getOrderId()),ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId())
                 .like(listDesignPatternsRequest.getId()!=null,ErpDesignPatterns::getId,listDesignPatternsRequest.getId());
         return erpDesignPatternsMapper.selectList(wrapper);
     }
@@ -120,7 +121,7 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
      */
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @MarkNotificationsAsRead(businessType = "ORDER", businessIdsExpression = "#addDesignPatternsRequest.orderId")
+    @MarkNotificationsAsRead(businessType = "ORDER", businessIdsExpression = "T(java.util.Collections).singletonList(T(com.ruoyi.web.service.impl.ErpDesignPatternsServiceImpl).getOrderIdByInnerId(#addDesignPatternsRequest.orderId))")
     public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest)
     {
         // 获取当前登录用户信息
@@ -250,5 +251,29 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Transactional(rollbackFor = Exception.class)
     public int cancelConfirmProductById(Long proId){
         return erpProductsMapper.updateStatusById(proId,0L);
+    }
+
+    /**
+     * 根据订单内部编号获取订单ID
+     * 用于SpEL表达式中的静态方法调用
+     * 
+     * @param innerId 订单内部编号
+     * @return 订单ID，如果不存在则返回null
+     */
+    public static Long getOrderIdByInnerId(String innerId) {
+        if (innerId == null || innerId.trim().isEmpty()) {
+            return null;
+        }
+        
+        try {
+            // 使用Spring上下文获取ErpOrdersMapper实例
+            ErpOrdersMapper ordersMapper = SpringUtils.getBean(ErpOrdersMapper.class);
+            ErpOrders order = ordersMapper.selectErpOrdersByInnerId(innerId);
+            return order != null ? order.getId() : null;
+        } catch (Exception e) {
+            // 记录错误但不抛出异常，避免影响主业务流程
+            log.error("根据订单内部编号获取订单ID失败，innerId: {}", innerId, e);
+            return null;
+        }
     }
 }

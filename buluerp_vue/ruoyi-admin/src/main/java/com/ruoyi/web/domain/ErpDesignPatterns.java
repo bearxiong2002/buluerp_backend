@@ -38,7 +38,7 @@ public class ErpDesignPatterns implements Serializable {
 
     /** $column.columnComment */
     @Excel(name = "订单id")
-    private Long orderId;
+    private String orderId;
 
     @Excel(name = "创建时间")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
@@ -66,13 +66,13 @@ public class ErpDesignPatterns implements Serializable {
     public ErpDesignPatterns() {
     }
 
-    public ErpDesignPatterns(String productId, Long createUserId, Long orderId) {
+    public ErpDesignPatterns(String productId, Long createUserId, String  orderId) {
         this.productId = productId;
         this.createUserId = createUserId;
         this.orderId = orderId;
     }
 
-    public ErpDesignPatterns(String productId, Long createUserId, Long orderId, Long confirm) {
+    public ErpDesignPatterns(String productId, Long createUserId, String orderId, Long confirm) {
         this.productId = productId;
         this.createUserId = createUserId;
         this.orderId = orderId;
@@ -109,12 +109,12 @@ public class ErpDesignPatterns implements Serializable {
         return createUserId;
     }
 
-    public void setOrderId(Long orderId) 
+    public void setOrderId(String orderId)
     {
         this.orderId = orderId;
     }
 
-    public Long getOrderId() 
+    public String getOrderId()
     {
         return orderId;
     }

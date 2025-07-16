@@ -12,8 +12,8 @@ public class ListDesignPatternsRequest {
     @ApiModelProperty(dataType = "Long",value = "创建用户id",required = false)
     private Long createUserId;
 
-    @ApiModelProperty(dataType = "Long",value = "订单id",required = false)
-    private Long orderId;
+    @ApiModelProperty(dataType = "String",value = "订单id",required = false)
+    private String orderId;
 
     @ApiModelProperty(dataType = "Long",value = "pmc是否已确认",required = false)
     private Long confirm;
@@ -36,11 +36,11 @@ public class ListDesignPatternsRequest {
         this.createUserId = createUserId;
     }
 
-    public Long getOrderId() {
+    public String getOrderId() {
         return orderId;
     }
 
-    public void setOrderId(Long orderId) {
+    public void setOrderId(String orderId) {
         this.orderId = orderId;
     }
 
