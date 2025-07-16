@@ -1,6 +1,7 @@
 package com.ruoyi.web.mapper;
 
 import com.ruoyi.web.domain.ErpPurchaseCollection;
+import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -16,7 +17,7 @@ public interface ErpPurchaseCollectionMapper {
     int insertErpPurchaseCollectionMaterials(@Param("id") Long id, @Param("materialIds") List<Long> materialIds);
     List<Long> getErpPurchaseCollectionMaterialIds(Long id);
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
-    ErpPurchaseCollection selectErpPurchaseCollectionByOrderCode(String orderCode);
-    List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ErpPurchaseCollection erpPurchaseCollection);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
+    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode);
 }

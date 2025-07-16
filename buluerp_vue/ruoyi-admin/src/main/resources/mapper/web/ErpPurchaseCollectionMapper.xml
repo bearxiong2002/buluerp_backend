@@ -224,7 +224,7 @@
         <include refid="selectErpPurchaseCollection"/>
         where id = #{id}
     </select>
-    <select id="selectErpPurchaseCollectionList" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+    <select id="selectErpPurchaseCollectionList" resultType="com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest">
         <include refid="selectErpPurchaseCollection"/>
         <where>
             <if test="id != null">
@@ -284,6 +284,9 @@
             <if test="remarks != null and remarks != ''">
                 and remarks like concat('%', #{remarks}, '%')
             </if>
+            <if test="orderCodeExact != null">
+                and order_code = #{orderCodeExact}
+            </if>
         </where>
     </select>
     <select id="selectErpPurchaseCollectionListByIds" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
@@ -296,7 +299,7 @@
     <select id="getErpPurchaseCollectionMaterialIds" resultType="java.lang.Long">
         select material_id from erp_purchase_collection_material where purchase_collection_id = #{id}
     </select>
-    <select id="selectErpPurchaseCollectionByOrderCode"
+    <select id="selectErpPurchaseCollectionListByOrderCode"
             resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
         <include refid="selectErpPurchaseCollection"/>
         where order_code = #{orderCode}
