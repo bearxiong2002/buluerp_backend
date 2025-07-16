@@ -109,7 +109,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @Anonymous
     @PostMapping("/mark-all-done")
     @ApiOperation(value = "标记订单采购计划定制完成", notes = "标记订单采购计划定制完成")
-    public AjaxResult markAllDone(@RequestBody MarkOrderPurchaseDoneRequest request) {
+    public AjaxResult markAllDone(@RequestBody @Validated MarkOrderPurchaseDoneRequest request) {
         erpPurchaseCollectionService.markAllPurchased(request.getOrderCode());
         return success();
     }

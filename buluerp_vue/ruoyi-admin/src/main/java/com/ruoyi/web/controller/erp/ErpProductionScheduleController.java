@@ -133,7 +133,7 @@ public class ErpProductionScheduleController extends BaseController {
     @Anonymous
     @PostMapping("/mark-all-done")
     @ApiOperation(value = "标记订单布产计划制定完成", notes = "标记订单布产计划制定完成")
-    public AjaxResult markAllDone(@RequestBody MarkOrderPurchaseDoneRequest request) {
+    public AjaxResult markAllDone(@RequestBody @Validated MarkOrderPurchaseDoneRequest request) {
         erpProductionScheduleService.markAllScheduled(request.getOrderCode());
         return success();
     }
