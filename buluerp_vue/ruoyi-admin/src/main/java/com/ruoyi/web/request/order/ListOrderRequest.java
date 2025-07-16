@@ -4,6 +4,7 @@ import com.ruoyi.web.domain.ErpOrders;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
+import java.util.List;
 
 public class ListOrderRequest extends ErpOrders {
     @ApiModelProperty(value = "创建时间起始")
@@ -13,6 +14,9 @@ public class ListOrderRequest extends ErpOrders {
 
     @ApiModelProperty(value = "是否通过审核，true - 已通过，false - 未通过，null - 忽略是否通过")
     private Boolean approved;
+
+    @ApiModelProperty(value = "状态集合")
+    private List<Integer> statusList;
 
     public Date getCreateTimeFrom() {
         return createTimeFrom;
@@ -36,5 +40,13 @@ public class ListOrderRequest extends ErpOrders {
 
     public void setApproved(Boolean approved) {
         this.approved = approved;
+    }
+
+    public List<Integer> getStatusList() {
+        return statusList;
+    }
+
+    public void setStatusList(List<Integer> statusList) {
+        this.statusList = statusList;
     }
 }

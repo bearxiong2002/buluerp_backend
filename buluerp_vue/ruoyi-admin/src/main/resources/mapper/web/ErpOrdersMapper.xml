@@ -92,6 +92,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
                     and o.status &lt;= 0
                 </if>
             </if>
+            <if test="statusList != null">
+                and o.status in
+                <foreach item="item" collection="statusList" separator="," open="(" close=")" index="">
+                    #{item}
+                </foreach>
+            </if>
         </where>
     </select>
     
