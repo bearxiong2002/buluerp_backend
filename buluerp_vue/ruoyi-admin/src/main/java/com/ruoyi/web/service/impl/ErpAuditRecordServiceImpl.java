@@ -2,6 +2,7 @@ package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
@@ -35,6 +36,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Set;
+import java.util.ArrayList;
+import java.util.stream.Collectors;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 
@@ -186,6 +190,59 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public int deleteAuditRecordByIds(List<Integer> ids)
     {
         return erpAuditRecordMapper.deleteBatchIds(ids);
+    }
+
+    /**
+     * 根据用户角色查询对应的待审核请求
+     * 自动识别用户角色并返回相应的待审核列表
+     * 
+     * @return 用户角色对应的待审核记录列表
+     */
+    @Override
+    public List<ErpAuditRecord> getPendingAuditsByUserRole()
+    {
+        try {
+            // 获取当前用户的角色信息
+            Set<String> userRoles = SecurityUtils.getLoginUser().getUser().getRoles()
+                .stream()
+                .map(SysRole::getRoleKey)
+                .collect(Collectors.toSet());
+            
+            // 检查用户是否为管理员
+            if (SecurityUtils.isAdmin(SecurityUtils.getUserId()) || userRoles.contains("admin")) {
+                // 管理员可以看到所有类型的待审核记录
+                return selectAuditRecords(null, null, null, true, null);
+            }
+            
+            // 根据用户角色查找对应的审核类型
+            List<Integer> auditTypes = new ArrayList<>();
+            for (String roleKey : userRoles) {
+                AuditTypeEnum auditType = AuditTypeEnum.getByRoleKey(roleKey);
+                if (auditType != null) {
+                    auditTypes.add(auditType.getCode());
+                }
+            }
+            
+            if (auditTypes.isEmpty()) {
+                // 用户没有审核角色，返回空列表
+                return new ArrayList<>();
+            }
+            
+            // 查询用户角色对应的待审核记录
+            List<ErpAuditRecord> allPendingRecords = new ArrayList<>();
+            
+            for (Integer auditType : auditTypes) {
+                List<ErpAuditRecord> records = selectAuditRecords(
+                    null, auditType, null, true, null);
+                allPendingRecords.addAll(records);
+            }
+            
+            return allPendingRecords;
+            
+        } catch (Exception e) {
+            log.error("获取待审核记录失败", e);
+            return new ArrayList<>();
+        }
     }
 
     /**
@@ -520,7 +577,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     /**
      * 订单状态变更审核处理（创建审核记录并发送通知）
      * 
-     * @param order 订单信息
+     * @param updatedOrder 订单信息
      * @param newStatus 新状态
      */
     @Override

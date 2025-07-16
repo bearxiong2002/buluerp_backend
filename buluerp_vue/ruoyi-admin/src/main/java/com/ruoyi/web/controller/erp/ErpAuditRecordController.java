@@ -49,6 +49,20 @@ public class ErpAuditRecordController extends BaseController
     // ==================== 通用审核记录管理接口 ====================
 
     /**
+     * 根据用户角色查询对应的待审核请求
+     * 自动识别用户角色并返回相应的待审核列表
+     */
+    @Anonymous
+    @ApiOperation(value = "根据用户角色查询待审核请求", notes = "自动识别用户角色并返回相应的待审核列表")
+    @GetMapping("/pending")
+    public TableDataInfo getPendingAuditsByRole()
+    {
+        startPage();
+        List<ErpAuditRecord> list = erpAuditRecordService.getPendingAuditsByUserRole();
+        return getDataTable(list);
+    }
+
+    /**
      * 查询审核记录列表（管理员权限）
      * 支持通过审核类型和审核对象ID进行精确查询
      */

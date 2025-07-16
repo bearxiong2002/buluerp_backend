@@ -41,6 +41,14 @@ public interface IErpAuditRecordService
                                            Map<String, Date> dateParams);
 
     /**
+     * 根据用户角色查询对应的待审核请求
+     * 自动识别用户角色并返回相应的待审核列表
+     * 
+     * @return 用户角色对应的待审核记录列表
+     */
+    List<ErpAuditRecord> getPendingAuditsByUserRole();
+
+    /**
      * 批量删除审核记录
      * 
      * @param ids 需要删除的审核记录ID列表
