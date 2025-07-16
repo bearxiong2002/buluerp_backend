@@ -1,5 +1,6 @@
 package com.ruoyi.web.controller.erp;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
@@ -48,10 +49,14 @@ public class ErpProductionScheduleController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
             @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
     })
-    public TableDataInfo list(ErpProductionSchedule erpProductionSchedule) {
+    public TableDataInfo list(ErpProductionSchedule erpProductionSchedule, @RequestParam(required = false) String orderCodeExact) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
-        QueryWrapper<ErpProductionSchedule> wrapper = new QueryWrapper<>(erpProductionSchedule);
+        LambdaQueryWrapper<ErpProductionSchedule> wrapper = new LambdaQueryWrapper<>(erpProductionSchedule);
+        if (orderCodeExact != null) {
+            wrapper.eq(ErpProductionSchedule::getOrderCode, orderCodeExact);
+        }
         List<ErpProductionSchedule> list = erpProductionScheduleService.list(wrapper);
+
         for (ErpProductionSchedule item : list) {
             item.setMaterialIds(
                 erpProductionScheduleService

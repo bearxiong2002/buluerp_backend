@@ -12,6 +12,7 @@ import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
+import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.IListValidationService;
@@ -42,10 +43,10 @@ public class ErpPurchaseCollectionController extends BaseController {
     @Anonymous
     @GetMapping("/list")
     @ApiOperation(value = "获取采购计划列表", notes = "获取采购计划列表")
-    public TableDataInfo list(ErpPurchaseCollection erpPurchaseCollection) {
+    public TableDataInfo list(ListPurchaseCollectionRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         List<ErpPurchaseCollection> tableDataInfos = erpPurchaseCollectionService
-                .selectErpPurchaseCollectionList(erpPurchaseCollection);
+                .selectErpPurchaseCollectionList(request);
         return getDataTable(tableDataInfos);
     }
 
