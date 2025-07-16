@@ -35,7 +35,11 @@ public class ErpPackagingDetailServiceImpl
                 throw new ServiceException("物料不存在");
             } else {
                 entity.setMouldNumber(erpMaterialInfo.getMouldNumber());
+                entity.setPartImageUrl(erpMaterialInfo.getDrawingReference());
+                entity.setPartImageFile(null);
                 entity.setMaterialType(erpMaterialInfo.getMaterialType());
+                entity.setSpecificationName(erpMaterialInfo.getSpecificationName());
+                entity.setSingleWeight(erpMaterialInfo.getSingleWeight());
             }
         }
         if (entity.getPackagingBagId() != null) {
