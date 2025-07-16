@@ -54,7 +54,16 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         // }
     }
 
+    private void checkValid(ErpPurchaseCollection erpPurchaseCollection) {
+        if (erpPurchaseCollection.getDeliveryDate() != null) {
+            if (erpPurchaseCollection.getDeliveryDate().after(DateUtils.getNowDate())) {
+                throw new ServiceException("交货日期不能大于当前日期");
+            }
+        }
+    }
+
     private void check(ErpPurchaseCollection erpPurchaseCollection) {
+        checkValid(erpPurchaseCollection);
         checkUnique(erpPurchaseCollection);
     }
 
@@ -68,11 +77,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
-    @Transactional
-    public void markAllPurchased(String orderCode) {
-        ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
-        if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)) {
-            throw new ServiceException("订单不在采购阶段");
+    public boolean isAllPurchaseCompleted(String orderCode) {
+        if (!isAllPurchased(orderCode)) {
+            return false;
         }
         ErpPurchaseCollection collection = new ErpPurchaseCollection();
         collection.setOrderCode(orderCode);
@@ -82,13 +89,28 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                 continue;
             }
             if (erpPurchaseCollection.getDeliveryDate() == null
-                || erpPurchaseCollection.getDeliveryDate().getTime() > DateUtils.getNowDate().getTime()) {
-                throw new ServiceException("采购计划" + erpPurchaseCollection.getId() + "未到交货日期");
+                    || erpPurchaseCollection.getDeliveryDate().after(DateUtils.getNowDate())) {
+                return false;
             }
         }
-        erpOrdersService.updateOrderAllScheduled(order.getId(), true);
-        if (Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_DONE_PURCHASING.getValue(erpOrdersService))) {
-            erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
+        return true;
+    }
+
+    @Override
+    @Transactional
+    public void markAllPurchased(String orderCode) {
+        ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
+        if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)) {
+            throw new ServiceException("订单不在采购阶段");
+        }
+        erpOrdersService.updateOrderAllPurchased(order.getId(), true);
+        tryContinueOrder(order);
+    }
+
+    @Override
+    public void tryContinueOrder(ErpOrders order) {
+        if (isAllPurchaseCompleted(order.getInnerId()) && Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_DONE_PURCHASING.getValue(erpOrdersService))) {
+            erpOrdersService.updateOrderStatusAutomatic(order.getInnerId(), OrderStatus.MATERIAL_IN_INVENTORY);
         }
     }
 
@@ -138,6 +160,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                     erpPurchaseCollection.getId(),
                     erpPurchaseCollection.getMaterialIds()
             );
+        }
+        if (erpPurchaseCollection.getDeliveryDate() != null) {
+            ErpPurchaseCollection updated = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());
+            ErpOrders order = erpOrdersService.selectByOrderCode(updated.getOrderCode());
+            tryContinueOrder(order);
         }
 
         // 检查状态变更
@@ -275,6 +302,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     private ErpPurchaseCollection fillMaterialIds(ErpPurchaseCollection erpPurchaseCollection) {
+        if (erpPurchaseCollection == null) {
+            return null;
+        }
         erpPurchaseCollection.setMaterialIds(
                 erpPurchaseCollectionMapper
                         .getErpPurchaseCollectionMaterialIds(erpPurchaseCollection.getId())

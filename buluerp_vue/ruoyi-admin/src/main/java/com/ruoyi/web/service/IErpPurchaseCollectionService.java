@@ -1,5 +1,6 @@
 package com.ruoyi.web.service;
 
+import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
 
@@ -8,7 +9,9 @@ import java.util.List;
 
 public interface IErpPurchaseCollectionService {
     boolean isAllPurchased(String orderCode);
+    boolean isAllPurchaseCompleted(String orderCode);
     void markAllPurchased(String orderCode);
+    void tryContinueOrder(ErpOrders order);
 
     int deleteErpPurchaseCollectionById(Long id);
     int deleteErpPurchaseCollectionByIds(Long[] ids);

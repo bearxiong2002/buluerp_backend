@@ -146,7 +146,7 @@ public class ErpProductionScheduleServiceImpl
         }
         erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (isAllProduced(orderCode)) {
-            if (erpPurchaseCollectionService.isAllPurchased(orderCode)) {
+            if (erpPurchaseCollectionService.isAllPurchaseCompleted(orderCode)) {
                 erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.MATERIAL_IN_INVENTORY);
             } else {
                 erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_DONE_PURCHASING);
