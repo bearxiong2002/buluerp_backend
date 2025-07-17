@@ -1,6 +1,5 @@
 package com.ruoyi.web.service;
 
-import com.ruoyi.common.exception.excel.ListRowErrorInfo;
 import com.ruoyi.web.domain.ErpPackagingList;
 
 import javax.servlet.http.HttpServletResponse;
@@ -9,12 +8,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
-import java.util.Map;
 
 public interface IErpPackagingListService {
 
     public static final String LIST_TEMPLATE = "excel" + File.separator + "packaging_list.xlsx";
     public static final Integer BAG_TEMPLATE_HEADER_ROW = 2;
+
+    void markPackagingDone(Long id);
 
     ErpPackagingList selectErpPackagingListById(Long id);
     List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList);

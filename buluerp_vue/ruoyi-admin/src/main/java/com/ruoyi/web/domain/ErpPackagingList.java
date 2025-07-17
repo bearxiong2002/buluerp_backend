@@ -45,8 +45,8 @@ public class ErpPackagingList {
 
     @Excel(name = "产品货号")
     @Example("1")
-    @ApiModelProperty(value = "产品编号 [list|POST|PUT|response]")
-    @NotNull(message = "产品编号不能为空", groups = {Save.class})
+    @ApiModelProperty(value = "产品编号 [list|response]")
+    // @NotNull(message = "产品编号不能为空", groups = {Save.class})
     private String productId;
 
     @Excel(name = "中文名称")
@@ -95,6 +95,10 @@ public class ErpPackagingList {
     @TableField(exist = false)
     @ApiModelProperty(value = "分包袋列表 [response]")
     private List<ErpPackagingBag> bagList;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否已完成 [PUT|response]")
+    private Boolean isDone;
 
     @ApiModelProperty(value = "状态 0=待审核，1=审核通过")
     private Integer status;
@@ -266,6 +270,14 @@ public class ErpPackagingList {
 
     public void setBagList(List<ErpPackagingBag> bagList) {
         this.bagList = bagList;
+    }
+
+    public Boolean getDone() {
+        return isDone;
+    }
+
+    public void setDone(Boolean done) {
+        isDone = done;
     }
 
     public static class ExcelData extends ErpPackagingList {

@@ -59,8 +59,11 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
 
     public void checkReferences(ErpPackagingList erpPackagingList) {
         if (erpPackagingList.getOrderCode() != null) {
-            if (erpOrdersService.selectByOrderCode(erpPackagingList.getOrderCode()) == null) {
+            ErpOrders erpOrders = erpOrdersService.selectByOrderCode(erpPackagingList.getOrderCode());
+            if (erpOrders == null) {
                 throw new ServiceException("订单不存在");
+            } else {
+                erpPackagingList.setProductId(erpOrders.getProductId());
             }
         }
         if (erpPackagingList.getProductId() != null) {
@@ -92,6 +95,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         }
         List<ErpPackagingBag> erpPackagingBags = erpPackagingBagService.listByPackagingList(entity.getId());
         entity.setBagList(erpPackagingBags);
+        ErpOrders order = erpOrdersService.selectByOrderCode(entity.getOrderCode());
+        if (order != null) {
+            entity.setDone(order.getStatus() >= OrderStatus.PACKAGED.getValue(erpOrdersService));
+        } else {
+            entity.setDone(false);
+        }
         return entity;
     }
 
@@ -100,6 +109,18 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             fill(entity);
         }
         return entities;
+    }
+
+    @Override
+    public void markPackagingDone(Long id) {
+        ErpPackagingList erpPackagingList = erpPackagingListMapper.selectErpPackagingListById(id);
+        if (erpPackagingList == null) {
+            throw new ServiceException("分包不存在");
+        }
+        erpOrdersService.updateOrderStatusAutomatic(
+                erpPackagingList.getOrderCode(),
+                OrderStatus.PACKAGED
+        );
     }
 
     @Override
@@ -147,6 +168,11 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             erpPackagingList.setStatus(1); // 1为已审核
             erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
         }
+
+        if (erpPackagingList.getDone() != null &&  erpPackagingList.getDone()) {
+            markPackagingDone(erpPackagingList.getId());
+        }
+
         return result;
     }
 
@@ -166,7 +192,11 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             erpPackagingList.setStatus(oldPackagingList.getStatus());
         }
 
-        return erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
+        int result = erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
+        if (erpPackagingList.getDone() != null &&  erpPackagingList.getDone()) {
+            markPackagingDone(erpPackagingList.getId());
+        }
+        return result;
     }
 
     @Override
