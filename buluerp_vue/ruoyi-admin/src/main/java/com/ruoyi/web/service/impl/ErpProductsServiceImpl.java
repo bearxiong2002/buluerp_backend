@@ -130,13 +130,13 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                 throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
             else throw new ServiceException("添加失败");
         }
-        for (Integer materialId : addProductRequest.getMaterialIds()) {
-            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
-                if(addProductRequest.getRowNumber()!=null)
-                    throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
-                else throw new ServiceException("添加失败");
-            }
-        }
+//        for (Integer materialId : addProductRequest.getMaterialIds()) {
+//            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
+//                if(addProductRequest.getRowNumber()!=null)
+//                    throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
+//                else throw new ServiceException("添加失败");
+//            }
+//        }
         return 1;
     }
 
