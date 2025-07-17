@@ -52,7 +52,7 @@ public class AddProductionScheduleFromMaterialRequest {
     private Double timeHours;
 
     @ApiModelProperty("出货时间")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date shipmentTime;
 
     @ApiModelProperty("原材料供应商")

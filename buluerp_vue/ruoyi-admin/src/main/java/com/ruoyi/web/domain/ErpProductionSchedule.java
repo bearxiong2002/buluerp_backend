@@ -157,8 +157,8 @@ public class ErpProductionSchedule {
     @Example("123.456")
     private Double timeHours;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    @Excel(name = "出货时间", dateFormat = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Excel(name = "出货时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "出货时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @Example("2022-05-28 10:00:00")
