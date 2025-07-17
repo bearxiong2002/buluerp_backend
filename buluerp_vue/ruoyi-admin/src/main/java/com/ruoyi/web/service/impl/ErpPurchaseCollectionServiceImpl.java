@@ -57,7 +57,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     private void checkValid(ErpPurchaseCollection erpPurchaseCollection) {
         if (erpPurchaseCollection.getDeliveryDate() != null) {
-            if (erpPurchaseCollection.getDeliveryDate().after(DateUtils.getNowDate())) {
+            if (erpPurchaseCollection.getDeliveryDate().after(DateUtils.getLastSecondOfToday())) {
                 throw new ServiceException("交货日期不能大于当前日期");
             }
         }
@@ -90,7 +90,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                 continue;
             }
             if (erpPurchaseCollection.getDeliveryDate() == null
-                    || erpPurchaseCollection.getDeliveryDate().after(DateUtils.getNowDate())) {
+                    || erpPurchaseCollection.getDeliveryDate().after(DateUtils.getLastSecondOfToday())) {
                 return false;
             }
         }

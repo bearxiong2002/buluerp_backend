@@ -158,7 +158,7 @@ public class ErpProductionArrangeServiceImpl
     @Override
     @Transactional
     public void markArrangeComplete(Long id, Date completeDate) {
-        if (completeDate.after(DateUtils.getNowDate())) {
+        if (completeDate.after(DateUtils.getLastSecondOfToday())) {
             throw new ServiceException("完成时间不能大于当前时间");
         }
         ErpProductionArrange erpProductionArrange = getById(id);

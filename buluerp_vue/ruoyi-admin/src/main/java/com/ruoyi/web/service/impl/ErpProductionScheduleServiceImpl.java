@@ -181,7 +181,7 @@ public class ErpProductionScheduleServiceImpl
         if (arrange == null) {
             return false;
         }
-        return arrange.getCompletionTime() != null && !arrange.getCompletionTime().after(DateUtils.getNowDate());
+        return arrange.getCompletionTime() != null && !arrange.getCompletionTime().after(DateUtils.getLastSecondOfToday());
     }
 
     @Override

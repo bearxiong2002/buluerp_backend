@@ -18,7 +18,7 @@ public class AddProductionScheduleFromMaterialRequest {
 
     @ApiModelProperty(value = "布产时间，计划开始时间", required = true)
     @NotNull(message = "布产时间未填写或无效", groups = Save.class)
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private Date productionTime;
 
     @ApiModelProperty(value = "颜色编码", required = true)
