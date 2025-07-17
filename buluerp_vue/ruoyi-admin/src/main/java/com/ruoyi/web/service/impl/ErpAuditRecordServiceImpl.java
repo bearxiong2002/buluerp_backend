@@ -1082,13 +1082,13 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handlePurchaseCollectionCreated(ErpPurchaseCollection collection) {
         try {
             // 先将该采购汇总之前的通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getPurchaseCode(), "PURCHASE_COLLECTION");
+            notificationService.markNotificationsAsReadByBusiness(String.valueOf(collection.getId()), "PURCHASE_COLLECTION");
             log.info("开始处理采购汇总创建审核流程，采购汇总ID：{}", collection.getId());
             
             // 1. 创建审核记录（使用采购审核类型）
             ErpAuditRecord auditRecord = createAuditRecord(
                 AuditTypeEnum.PURCHASE_AUDIT.getCode(),
-                collection.getPurchaseCode(), // 使用purchaseCode而不是ID
+                String.valueOf(collection.getId()), // 使用id转成string而不是purchaseCode
                 0, // 创建状态
                 1  // 目标状态：审核通过
             );
@@ -1133,14 +1133,15 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             ErpAuditRecord auditRecord = records.get(0);
             
             // 2. 更新采购汇总状态
-            // 采购审核记录使用purchaseCode，需要根据purchaseCode查找采购汇总
-            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionByPurchaseCode(auditRecord.getAuditId());
+            // 采购审核记录使用id转string，需要根据id查找采购汇总
+            Long collectionId = Long.valueOf(auditRecord.getAuditId());
+            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(collectionId);
             if (collection == null) {
-                throw new RuntimeException("采购汇总不存在，purchaseCode: " + auditRecord.getAuditId());
+                throw new RuntimeException("采购汇总不存在，ID: " + auditRecord.getAuditId());
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getPurchaseCode(), "PURCHASE_COLLECTION");
+            notificationService.markNotificationsAsReadByBusiness(String.valueOf(collection.getId()), "PURCHASE_COLLECTION");
 
             collection.setStatus(Long.valueOf(auditRecord.getToStatus()));
             collection.setAuditStatus(2); // 审核通过
@@ -1179,7 +1180,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_APPROVED_TO_DEPT,
                 "purchase-dept", // 采购部角色标识
-                collection.getPurchaseCode(),
+                String.valueOf(collection.getId()),
                 "PURCHASE_COLLECTION",
                 templateData
             );
@@ -1215,14 +1216,15 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             ErpAuditRecord auditRecord = records.get(0);
             
             // 2. 获取采购汇总信息（不修改状态，保持原状态）
-            // 采购审核记录使用purchaseCode，需要根据purchaseCode查找采购汇总
-            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionByPurchaseCode(auditRecord.getAuditId());
+            // 采购审核记录使用id转string，需要根据id查找采购汇总
+            Long collectionId = Long.valueOf(auditRecord.getAuditId());
+            ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(collectionId);
             if (collection == null) {
-                throw new RuntimeException("采购汇总不存在，purchaseCode: " + auditRecord.getAuditId());
+                throw new RuntimeException("采购汇总不存在，ID: " + auditRecord.getAuditId());
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getPurchaseCode(), "PURCHASE_COLLECTION");
+            notificationService.markNotificationsAsReadByBusiness(String.valueOf(collection.getId()), "PURCHASE_COLLECTION");
             
             collection.setAuditStatus(-1); // 审核被拒绝
             purchaseCollectionService.updateErpPurchaseCollection(collection); // 单独更新审核状态
@@ -1234,7 +1236,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC,
                 "pmc-dept", // 发送给PMC部门
-                collection.getPurchaseCode(),
+                String.valueOf(collection.getId()),
                 "PURCHASE_COLLECTION",
                 templateData
             );
@@ -1259,7 +1261,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handlePurchaseCollectionStatusChange(ErpPurchaseCollection collection, Integer newStatus) {
         try {
             // 在创建新的审核记录前，先将该业务之前的所有通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(collection.getPurchaseCode(), "PURCHASE_COLLECTION");
+            notificationService.markNotificationsAsReadByBusiness(String.valueOf(collection.getId()), "PURCHASE_COLLECTION");
 
             log.info("开始处理采购汇总状态变更审核流程，采购汇总ID：{}，当前状态：{}，目标状态：{}", 
                     collection.getId(), collection.getStatus(), newStatus);
@@ -1267,7 +1269,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 1. 创建审核记录（使用采购审核类型）
             ErpAuditRecord auditRecord = createAuditRecord(
                 AuditTypeEnum.PURCHASE_AUDIT.getCode(),
-                collection.getPurchaseCode(), // 使用purchaseCode而不是ID
+                String.valueOf(collection.getId()), // 使用id转成string而不是purchaseCode
                 collection.getStatus() != null ? collection.getStatus().intValue() : 0,
                 newStatus
             );
@@ -1281,7 +1283,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_AUDIT_PENDING,
                 "purchase-auditor", // 采购审核人角色标识
-                collection.getPurchaseCode(),
+                String.valueOf(collection.getId()),
                 "PURCHASE_COLLECTION",
                 templateData
             );
@@ -1301,22 +1303,25 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     @Override
     public ErpPurchaseCollection getPurchaseCollectionDetail(String collectionId) {
         try {
-            log.info("获取采购汇总详情，采购汇总ID：{}", collectionId);
             // 尝试解析为Long类型，如果失败则按purchaseCode处理
             ErpPurchaseCollection collection = null;
             try {
-                Long id = Long.parseLong(collectionId);
+                Long id = Long.valueOf(collectionId);
                 collection = purchaseCollectionService.selectErpPurchaseCollectionById(id);
             } catch (NumberFormatException e) {
                 // 如果不是数字，按purchaseCode查询
                 collection = purchaseCollectionService.selectErpPurchaseCollectionByPurchaseCode(collectionId);
             }
+            
             if (collection == null) {
-                log.warn("采购汇总不存在，采购汇总ID：{}", collectionId);
+                log.warn("未找到采购汇总记录，ID或purchaseCode: {}", collectionId);
+                return null;
             }
+            
             return collection;
+            
         } catch (Exception e) {
-            log.error("获取采购汇总详情失败，采购汇总ID：{}", collectionId, e);
+            log.error("获取采购汇总详情失败，ID或purchaseCode: {}", collectionId, e);
             throw new RuntimeException("获取采购汇总详情失败", e);
         }
     }
@@ -1726,17 +1731,18 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 }
                 break;
             case PURCHASE_AUDIT:
-                // 采购审核记录使用purchaseCode，需要根据purchaseCode查找采购汇总并更新审核状态
+                // 采购审核记录使用id转string，需要根据id查找采购汇总并更新审核状态
                 try {
-                    ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionByPurchaseCode(businessId);
+                    Long collectionId = Long.valueOf(businessId);
+                    ErpPurchaseCollection collection = purchaseCollectionService.selectErpPurchaseCollectionById(collectionId);
                     if (collection != null) {
                         collection.setAuditStatus(auditStatus);
                         purchaseCollectionService.updateErpPurchaseCollection(collection);
                     } else {
-                        log.error("采购汇总不存在，purchaseCode: " + businessId);
+                        log.error("采购汇总不存在，ID: " + businessId);
                     }
                 } catch (Exception e) {
-                    log.error("更新采购汇总审核状态失败，purchaseCode: " + businessId, e);
+                    log.error("更新采购汇总审核状态失败，ID: " + businessId, e);
                 }
                 break;
             case SUBCONTRACT_AUDIT:
