@@ -68,12 +68,8 @@ public class NotificationAspect {
                         log.info("AOP - Marking notifications as read for businessType: {}, businessIds: {}", businessType, businessIds);
                         for (Object idObj : businessIds) {
                             if (idObj != null) {
-                                try {
-                                    Long businessId = Long.valueOf(idObj.toString());
-                                    notificationService.markNotificationsAsReadByBusiness(businessId,businessType);
-                                } catch (NumberFormatException e) {
-                                    log.warn("AOP - Could not convert business ID to Long: {}", idObj, e);
-                                }
+                                String businessId = idObj.toString();
+                                notificationService.markNotificationsAsReadByBusiness(businessId, businessType);
                             }
                         }
                     } else {
@@ -82,12 +78,8 @@ public class NotificationAspect {
                 } else if (rawValue != null) {
                     // 处理单个值的情况
                     log.info("AOP - Marking notifications as read for businessType: {}, businessId: {}", businessType, rawValue);
-                    try {
-                        Long businessId = Long.valueOf(rawValue.toString());
-                        notificationService.markNotificationsAsReadByBusiness(businessId, businessType);
-                    } catch (NumberFormatException e) {
-                        log.warn("AOP - Could not convert business ID to Long: {}", rawValue, e);
-                    }
+                    String businessId = rawValue.toString();
+                    notificationService.markNotificationsAsReadByBusiness(businessId, businessType);
                 } else {
                     log.warn("AOP - Could not determine businessIds for businessType: {}. Expression returned null. Expression: {}", businessType, businessIdsExpression);
                 }

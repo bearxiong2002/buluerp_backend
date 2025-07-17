@@ -33,4 +33,10 @@ public interface IErpPackagingListService {
      * @param packagingList 包含新状态的包装清单对象
      */
     void applyApprovedStatus(ErpPackagingList packagingList);
+    
+    /**
+     * 执行标记分包完成的具体逻辑
+     * @param orderCode 订单号
+     */
+    void executeMarkPackagingDone(String orderCode);
 }

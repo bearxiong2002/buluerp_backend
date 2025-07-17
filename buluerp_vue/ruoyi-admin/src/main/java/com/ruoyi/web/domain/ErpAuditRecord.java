@@ -37,7 +37,7 @@ public class ErpAuditRecord implements Serializable
     /** 审核对象id */
     @Excel(name = "审核对象ID")
     @TableField("audit_id")
-    private Long auditId;
+    private String auditId;
 
     /** 审核前状态 */
     @Excel(name = "审核前状态")
@@ -96,12 +96,12 @@ public class ErpAuditRecord implements Serializable
         return auditType;
     }
 
-    public void setAuditId(Long auditId) 
+    public void setAuditId(String auditId)
     {
         this.auditId = auditId;
     }
 
-    public Long getAuditId() 
+    public String getAuditId()
     {
         return auditId;
     }

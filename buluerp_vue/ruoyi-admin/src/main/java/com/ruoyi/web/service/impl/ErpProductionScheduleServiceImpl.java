@@ -128,15 +128,7 @@ public class ErpProductionScheduleServiceImpl
             );
         }
 
-        // 检查是否启用布产审核
-        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
-            // 创建审核记录并发送通知
-            auditRecordService.handleProductionScheduleCreated(erpProductionSchedule);
-        } else {
-            // 如果未启用审核，直接设置为已审核状态
-            erpProductionSchedule.setStatus(1L);
-            updateById(erpProductionSchedule);
-        }
+        // 移除创建时的审核触发，布产审核只保留布产完成审核
 
         return 1;
     }
@@ -150,6 +142,10 @@ public class ErpProductionScheduleServiceImpl
         return order.getAllScheduled();
     }
 
+    /**
+     * 标记完成方法与具体逻辑解耦，方便审核
+     * @param orderCode
+     */
     @Override
     @Transactional
     public void markAllScheduled(String orderCode) {
@@ -157,6 +153,23 @@ public class ErpProductionScheduleServiceImpl
         if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
             throw new ServiceException("订单不在布产计划定制阶段");
         }
+        
+        // 检查是否启用布产审核
+        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
+            // 发起布产完成审核
+            auditRecordService.handleProductionScheduleCompleteAudit(orderCode);
+        } else {
+            // 如果未启用审核，直接完成
+            executeMarkAllScheduled(orderCode);
+        }
+    }
+    
+    /**
+     * 执行标记全部布产完成的具体逻辑
+     */
+    @Override
+    public void executeMarkAllScheduled(String orderCode) {
+        ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
         erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (isAllProduced(orderCode)) {
             if (erpPurchaseCollectionService.isAllPurchaseCompleted(orderCode)) {
@@ -164,7 +177,7 @@ public class ErpProductionScheduleServiceImpl
             } else {
                 erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_DONE_PURCHASING);
             }
-        } else if (isAllProducing(orderCode))  {
+        } else if (isAllProducing(orderCode)) {
             erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.IN_PRODUCTION);
         } else {
             erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PRODUCTION_PENDING);
@@ -309,11 +322,8 @@ public class ErpProductionScheduleServiceImpl
 
         // 检查状态变更
         if (erpProductionSchedule.getStatus() != null &&
-            oldSchedule != null &&
-            !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus()) &&
-            auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
-            
-            auditRecordService.handleProductionScheduleStatusChange(oldSchedule, erpProductionSchedule.getStatus().intValue());
+            !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus()) ) {
+            throw new ServiceException("不允许直接修改布产状态");
         }
 
         return 1;

@@ -104,6 +104,19 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)) {
             throw new ServiceException("订单不在采购阶段");
         }
+        // 新增：校验所有采购都已审核通过
+        ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
+        collection.setOrderCode(orderCode);
+        List<ErpPurchaseCollection> collections = selectErpPurchaseCollectionList(collection);
+        for (ErpPurchaseCollection erpPurchaseCollection : collections) {
+            if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
+                continue;
+            }
+            // 只要有一条未审核通过（status!=1），就不允许完成
+            if (erpPurchaseCollection.getStatus() == null || erpPurchaseCollection.getStatus() != 1L) {
+                throw new ServiceException("存在未审核通过的采购计划，无法完成全部采购");
+            }
+        }
         erpOrdersService.updateOrderAllPurchased(order.getId(), true);
         tryContinueOrder(order);
     }
@@ -338,6 +351,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode) {
         return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByOrderCode(orderCode));
+    }
+    
+    @Override
+    public ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode) {
+        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionByPurchaseCode(purchaseCode));
     }
 
     @Override

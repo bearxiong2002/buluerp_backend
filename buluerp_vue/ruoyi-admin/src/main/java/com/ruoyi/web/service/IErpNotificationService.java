@@ -73,7 +73,7 @@ public interface IErpNotificationService
      */
     void sendNotificationToRole(NotificationTypeEnum notificationType, 
                                String roleKey, 
-                               Long businessId, 
+                               String businessId, 
                                String businessType, 
                                Map<String, Object> templateData);
 
@@ -88,7 +88,7 @@ public interface IErpNotificationService
      */
     void sendNotificationToUser(NotificationTypeEnum notificationType,
                                Long userId,
-                               Long businessId,
+                               String businessId,
                                String businessType,
                                Map<String, Object> templateData);
 
@@ -103,7 +103,7 @@ public interface IErpNotificationService
      */
     void sendNotificationToUsers(NotificationTypeEnum notificationType,
                                 List<Long> userIds,
-                                Long businessId,
+                                String businessId,
                                 String businessType,
                                 Map<String, Object> templateData);
 
@@ -147,7 +147,7 @@ public interface IErpNotificationService
      * @param businessType 业务类型
      * @return 通知列表
      */
-    List<ErpNotification> selectNotificationsByBusiness(Long businessId, String businessType);
+    List<ErpNotification> selectNotificationsByBusiness(String businessId, String businessType);
 
     /**
      * 获取用户未读通知列表
@@ -163,5 +163,5 @@ public interface IErpNotificationService
      * @param businessId   业务ID
      * @param businessType 业务类型
      */
-    void markNotificationsAsReadByBusiness(Long businessId, String businessType);
+    void markNotificationsAsReadByBusiness(String businessId, String businessType);
 } 

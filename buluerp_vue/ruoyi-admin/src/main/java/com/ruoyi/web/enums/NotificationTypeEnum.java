@@ -78,7 +78,25 @@ public enum NotificationTypeEnum {
     SUBCONTRACT_AUDIT_APPROVED("SUBCONTRACT_AUDIT_APPROVED", "包装清单审核通过", "creator"), // 'creator' can be a placeholder for the actual user role
 
     /** 包装清单/分包审核拒绝通知 */
-    SUBCONTRACT_AUDIT_REJECTED("SUBCONTRACT_AUDIT_REJECTED", "包装清单审核未通过", "creator");
+    SUBCONTRACT_AUDIT_REJECTED("SUBCONTRACT_AUDIT_REJECTED", "包装清单审核未通过", "creator"),
+    
+    /** 布产完成审核待审核通知 */
+    PRODUCTION_COMPLETE_AUDIT_PENDING("PRODUCTION_COMPLETE_AUDIT_PENDING", "布产完成待审核", "production_auditor"),
+    
+    /** 布产完成审核通过通知 */
+    PRODUCTION_COMPLETE_AUDIT_APPROVED("PRODUCTION_COMPLETE_AUDIT_APPROVED", "布产完成审核通过", "injectionmolding_dept"),
+    
+    /** 布产完成审核拒绝通知 */
+    PRODUCTION_COMPLETE_AUDIT_REJECTED("PRODUCTION_COMPLETE_AUDIT_REJECTED", "布产完成审核拒绝", "pmc_dept"),
+    
+    /** 分包完成审核待审核通知 */
+    SUBCONTRACT_COMPLETE_AUDIT_PENDING("SUBCONTRACT_COMPLETE_AUDIT_PENDING", "分包完成待审核", "subcontract_auditor"),
+    
+    /** 分包完成审核通过通知 */
+    SUBCONTRACT_COMPLETE_AUDIT_APPROVED("SUBCONTRACT_COMPLETE_AUDIT_APPROVED", "分包完成审核通过", "warehouse"),
+    
+    /** 分包完成审核拒绝通知 */
+    SUBCONTRACT_COMPLETE_AUDIT_REJECTED("SUBCONTRACT_COMPLETE_AUDIT_REJECTED", "分包完成审核拒绝", "pmc_dept");
     
     private final String code;
     private final String description;

@@ -304,4 +304,10 @@
         <include refid="selectErpPurchaseCollection"/>
         where order_code = #{orderCode}
     </select>
+    
+    <select id="selectErpPurchaseCollectionByPurchaseCode"
+            resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        where purchase_code = #{purchaseCode}
+    </select>
 </mapper>

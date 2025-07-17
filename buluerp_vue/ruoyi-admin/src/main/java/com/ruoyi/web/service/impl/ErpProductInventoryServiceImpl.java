@@ -85,10 +85,9 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         // 如果是出库操作（数量为负），则标记关联的包装清单通知为已读
         if (request.getInOutQuantity() < 0 && StringUtils.isNotBlank(request.getOrderCode())) {
             try {
-                Long packagingListId = Long.parseLong(request.getOrderCode());
                 // 这里的 "PACKAGING" 是业务类型，需要与审核和通知模块中定义的一致
-                notificationService.markNotificationsAsReadByBusiness(packagingListId, "PACKAGING");
-                log.info("出库操作：已标记业务类型 'PACKAGING'，业务ID '{}' 的相关通知为已读。", packagingListId);
+                notificationService.markNotificationsAsReadByBusiness(request.getOrderCode(), "PACKAGING");
+                log.info("出库操作：已标记业务类型 'PACKAGING'，业务ID '{}' 的相关通知为已读。", request.getOrderCode());
             } catch (NumberFormatException e) {
                 log.error("出库操作标记通知已读失败：无法将 orderCode '{}' 转换为Long。", request.getOrderCode(), e);
             } catch (Exception e) {

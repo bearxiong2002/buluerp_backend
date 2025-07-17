@@ -157,6 +157,18 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
         // 包装清单/分包审核拒绝通知模板
         NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.SUBCONTRACT_AUDIT_REJECTED,
             new NotificationTemplate("包装清单审核未通过", "包装清单ID：{id}（订单号：{orderCode}）审核未通过。审核人：{auditor}，拒绝原因：{rejectReason}。"));
+        
+        // 布产完成审核待审核通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_COMPLETE_AUDIT_PENDING,
+            new NotificationTemplate("布产完成待审核", "订单号：{orderCode} 的布产已完成，请及时审核。"));
+        
+        // 布产完成审核通过通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_COMPLETE_AUDIT_APPROVED,
+            new NotificationTemplate("布产完成审核通过", "订单号：{orderCode} 的布产完成审核已通过。审核人：{auditor}，审核意见：{auditComment}，请安排注塑生产。"));
+        
+        // 布产完成审核拒绝通知模板
+        NOTIFICATION_TEMPLATES.put(NotificationTypeEnum.PRODUCTION_COMPLETE_AUDIT_REJECTED,
+            new NotificationTemplate("布产完成审核拒绝", "订单号：{orderCode} 的布产完成审核未通过。审核人：{auditor}，拒绝原因：{rejectReason}，请重新检查布产情况。"));
     }
 
     /**
@@ -275,7 +287,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     @Transactional
     public void sendNotificationToRole(NotificationTypeEnum notificationType, 
                                      String roleKey, 
-                                     Long businessId, //订单id等
+                                     String businessId, //订单id等
                                      String businessType, //通知的业务类型
                                      Map<String, Object> templateData)
     {
@@ -308,7 +320,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     @Override
     public void sendNotificationToUser(NotificationTypeEnum notificationType,
                                      Long userId,
-                                     Long businessId,
+                                     String businessId,
                                      String businessType,
                                      Map<String, Object> templateData)
     {
@@ -328,7 +340,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     @Transactional
     public void sendNotificationToUsers(NotificationTypeEnum notificationType,
                                        List<Long> userIds,
-                                       Long businessId,
+                                       String businessId,
                                        String businessType,
                                        Map<String, Object> templateData)
     {
@@ -473,7 +485,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
      * @return 通知列表
      */
     @Override
-    public List<ErpNotification> selectNotificationsByBusiness(Long businessId, String businessType)
+    public List<ErpNotification> selectNotificationsByBusiness(String businessId, String businessType)
     {
         LambdaQueryWrapper<ErpNotification> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ErpNotification::getBusinessId, businessId)
@@ -602,7 +614,7 @@ public class ErpNotificationServiceImpl implements IErpNotificationService
     }
 
     @Override
-    public void markNotificationsAsReadByBusiness(Long businessId, String businessType) {
+    public void markNotificationsAsReadByBusiness(String businessId, String businessType) {
         if (businessId == null || !StringUtils.hasText(businessType)) {
             return;
         }

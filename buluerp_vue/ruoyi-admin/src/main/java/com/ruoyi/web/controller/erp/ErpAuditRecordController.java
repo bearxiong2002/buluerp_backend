@@ -164,7 +164,7 @@ public class ErpAuditRecordController extends BaseController
     public TableDataInfo list(
             @ApiParam("审核记录ID") @RequestParam(required = false) Long id,
             @ApiParam("审核类型（可选）") @RequestParam(required = false) Integer auditType,
-            @ApiParam("审核对象ID（可选）") @RequestParam(required = false) Long auditId,
+            @ApiParam("审核对象ID（可选，订单审核使用InnerID，其他使用数字ID）") @RequestParam(required = false) String auditId,
             @ApiParam("审核前状态") @RequestParam(required = false) Integer preStatus,
             @ApiParam("目标状态") @RequestParam(required = false) Integer toStatus,
             @ApiParam("审核状态(0=未处理，1=已处理)") @RequestParam(required = false) Integer confirm,
@@ -252,7 +252,7 @@ public class ErpAuditRecordController extends BaseController
     @ApiOperation("根据审核ID获取审核记录的具体内容")
     //@PreAuthorize("@ss.hasPermi('system:audit:query')")
     @GetMapping("/detail/{auditId}")
-    public AjaxResult getAuditDetail(@ApiParam("审核对象ID") @PathVariable("auditId") Long auditId,
+    public AjaxResult getAuditDetail(@ApiParam("审核对象ID") @PathVariable("auditId") String auditId,
                                     @ApiParam("审核类型") @RequestParam Integer auditType)
     {
         try {

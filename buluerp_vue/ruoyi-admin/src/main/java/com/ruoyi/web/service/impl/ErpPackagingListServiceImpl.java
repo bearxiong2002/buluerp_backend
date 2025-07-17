@@ -111,14 +111,36 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         if (erpPackagingList == null) {
             throw new ServiceException("分包不存在");
         }
-        if (!erpPackagingList.getDone()) {
-            erpPackagingList.setDone(true);
-            erpPackagingListMapper.updateById(erpPackagingList);
-            erpOrdersService.updateOrderStatusAutomatic(
-                    erpPackagingList.getOrderCode(),
-                    OrderStatus.PACKAGED
-            );
+        
+        // 检查是否启用分包审核
+        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
+            // 发起分包完成审核（使用订单号）
+            auditRecordService.handlePackagingListCompleteAudit(erpPackagingList.getOrderCode());
+        } else {
+            // 如果未启用审核，直接完成
+            executeMarkPackagingDone(erpPackagingList.getOrderCode());
         }
+    }
+    
+    /**
+     * 执行标记分包完成的具体逻辑
+     */
+    @Override
+    public void executeMarkPackagingDone(String orderCode) {
+        // 查找该订单的所有分包记录
+        LambdaQueryWrapper<ErpPackagingList> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpPackagingList::getOrderCode, orderCode);
+        List<ErpPackagingList> packagingLists = erpPackagingListMapper.selectList(wrapper);
+        
+        for (ErpPackagingList packagingList : packagingLists) {
+            if (!packagingList.getDone()) {
+                packagingList.setDone(true);
+                erpPackagingListMapper.updateById(packagingList);
+            }
+        }
+        
+        // 更新订单状态
+        erpOrdersService.updateOrderStatusAutomatic(orderCode, OrderStatus.PACKAGED);
     }
 
     @Override
@@ -159,15 +181,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         boolean done = erpPackagingList.getDone() != null && erpPackagingList.getDone();
         erpPackagingList.setDone(null);
 
-        // 检查是否启用分包审核
-        if (auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
-            // 创建审核记录
-            auditRecordService.handlePackagingListCreated(erpPackagingList);
-        } else {
-            // 如果审核关闭，可设置默认状态，例如直接"已审核"
-            erpPackagingList.setStatus(1); // 1为已审核
-            erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
-        }
+        // 移除创建时的审核触发，改为在markPackagingDone时触发
 
         if (done) {
             markPackagingDone(erpPackagingList.getId());

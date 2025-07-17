@@ -67,7 +67,7 @@ public class ErpNotification implements Serializable
     /** 关联业务ID */
     @Excel(name = "关联业务ID")
     @TableField("business_id")
-    private Long businessId;
+    private String businessId;
 
     /** 关联业务类型 */
     @Excel(name = "关联业务类型")
@@ -192,12 +192,12 @@ public class ErpNotification implements Serializable
         return senderName;
     }
 
-    public void setBusinessId(Long businessId) 
+    public void setBusinessId(String businessId) 
     {
         this.businessId = businessId;
     }
 
-    public Long getBusinessId() 
+    public String getBusinessId() 
     {
         return businessId;
     }

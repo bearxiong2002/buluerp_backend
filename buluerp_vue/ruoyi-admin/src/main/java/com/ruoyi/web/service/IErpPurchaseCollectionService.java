@@ -24,6 +24,14 @@ public interface IErpPurchaseCollectionService {
     List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode);
+    
+    /**
+     * 根据purchaseCode查询采购汇总
+     * 
+     * @param purchaseCode 外购编码
+     * @return 采购汇总信息
+     */
+    ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode);
 
     /**
      * 在审核通过后，直接应用新的状态，不触发额外的审核流程

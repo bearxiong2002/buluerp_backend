@@ -29,14 +29,14 @@ public interface IErpAuditRecordService
      * 
      * @param erpAuditRecord 审核记录查询条件
      * @param auditType 审核类型（可选）
-     * @param auditId 审核对象ID（可选）
+     * @param auditId 审核对象ID（可选，订单审核使用InnerID，其他使用数字ID）
      * @param pendingOnly 是否只查询待审核记录（可选）
      * @param dateParams 时间范围参数，支持 createTimeStart, createTimeEnd, checkTimeStart, checkTimeEnd
      * @return 审核记录列表
      */
     List<ErpAuditRecord> selectAuditRecords(ErpAuditRecord erpAuditRecord, 
                                            Integer auditType, 
-                                           Long auditId, 
+                                           String auditId, 
                                            Boolean pendingOnly, 
                                            Map<String, Date> dateParams);
 
@@ -101,7 +101,7 @@ public interface IErpAuditRecordService
      * @param toStatus 目标状态
      * @return 审核记录
      */
-    ErpAuditRecord createAuditRecord(Integer auditType, Long auditId, Integer preStatus, Integer toStatus);
+    ErpAuditRecord createAuditRecord(Integer auditType, String auditId, Integer preStatus, Integer toStatus);
 
     /**
      * 关闭指定业务对象的过时审核记录
@@ -140,10 +140,10 @@ public interface IErpAuditRecordService
     /**
      * 获取订单详情
      * 
-     * @param orderId 订单ID
+     * @param orderInnerId 订单InnerID
      * @return 订单详情
      */
-    ErpOrders getOrderDetail(Long orderId);
+    ErpOrders getOrderDetail(String orderInnerId);
 
     /**
      * 订单状态变更审核处理（创建审核记录并发送通知）
@@ -182,20 +182,46 @@ public interface IErpAuditRecordService
     void handleProductionScheduleRejected(Long auditRecordId, String auditor, String auditComment);
 
     /**
+     * 已弃用
      * 布产计划状态变更审核处理
-     * 
+     *
      * @param schedule 布产计划信息
      * @param newStatus 新状态
      */
-    void handleProductionScheduleStatusChange(ErpProductionSchedule schedule, Integer newStatus);
+    //void handleProductionScheduleStatusChange(ErpProductionSchedule schedule, Integer newStatus);
 
     /**
      * 获取布产计划详情
      * 
-     * @param scheduleId 布产计划ID
+     * @param scheduleId 布产计划ID（String类型，支持InnerID）
      * @return 布产计划详情
      */
-    ErpProductionSchedule getProductionScheduleDetail(Long scheduleId);
+    ErpProductionSchedule getProductionScheduleDetail(String scheduleId);
+
+    /**
+     * 布产完成审核处理（创建审核记录并发送通知）
+     * 
+     * @param orderCode 订单号
+     */
+    void handleProductionScheduleCompleteAudit(String orderCode);
+
+    /**
+     * 布产完成审核通过处理（标记所有布产为审核通过并执行完成逻辑）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handleProductionScheduleCompleteApproved(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 布产完成审核拒绝处理（发送拒绝通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handleProductionScheduleCompleteRejected(Long auditRecordId, String auditor, String auditComment);
 
     // ==================== 采购审核业务方法 ====================
 
@@ -235,10 +261,10 @@ public interface IErpAuditRecordService
     /**
      * 获取采购汇总详情
      * 
-     * @param collectionId 采购汇总ID
+     * @param collectionId 采购汇总ID（String类型，支持InnerID）
      * @return 采购汇总详情
      */
-    ErpPurchaseCollection getPurchaseCollectionDetail(Long collectionId);
+    ErpPurchaseCollection getPurchaseCollectionDetail(String collectionId);
 
     /**
      * 处理待审核对象被删除的逻辑
@@ -284,11 +310,36 @@ public interface IErpAuditRecordService
      */
     void handlePackagingListStatusChange(ErpPackagingList packagingList, Integer newStatus);
 
-    /**
+        /**
      * 获取包装清单详情
-     *
-     * @param packagingListId 包装清单ID
+     * 
+     * @param packagingListId 包装清单ID（String类型）
      * @return 包装清单详情
      */
-    ErpPackagingList getPackagingListDetail(Long packagingListId);
+    ErpPackagingList getPackagingListDetail(String packagingListId);
+    
+    /**
+     * 分包完成审核处理（创建审核记录并发送通知）
+     * 
+     * @param orderCode 订单号
+     */
+    void handlePackagingListCompleteAudit(String orderCode);
+
+    /**
+     * 分包完成审核通过处理（标记所有分包为审核通过并执行完成逻辑）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handlePackagingListCompleteApproved(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 分包完成审核拒绝处理（发送拒绝通知）
+     * 
+     * @param auditRecordId 审核记录ID
+     * @param auditor 审核人
+     * @param auditComment 审核意见
+     */
+    void handlePackagingListCompleteRejected(Long auditRecordId, String auditor, String auditComment);
 } 

@@ -49,4 +49,10 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
      * @param erpProductionSchedule 包含新状态的布产计划对象
      */
     void applyApprovedStatus(ErpProductionSchedule erpProductionSchedule);
+
+    /**
+     * 执行标记全部布产完成的具体逻辑
+     * @param orderCode 订单号
+     */
+    void executeMarkAllScheduled(String orderCode);
 }
