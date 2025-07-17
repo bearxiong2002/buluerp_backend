@@ -43,11 +43,12 @@ public class ErpProductionSchedule {
     @TableField(condition = SqlCondition.LIKE)
     private String operator;
 
+    @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "产品ID")
     @ApiModelProperty(value = "产品ID [list|POST|PUT|response]", dataType = "Long", required = true)
     @Example("1")
     @NotNull(groups = {Save.class}, message = "产品ID不能为空")
-    private Long productId;
+    private String productId;
 
     @Excel(name = "排产ID")
     @Example("1")
@@ -255,11 +256,11 @@ public class ErpProductionSchedule {
         this.operator = operator;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

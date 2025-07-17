@@ -61,7 +61,7 @@ public class ErpDesignPatternsController extends BaseController
             @ApiImplicitParam(name = "createUserId", value = "创建用户ID", dataType = "integer", paramType = "query"),
             @ApiImplicitParam(name = "orderId", value = "订单内部ID", dataType = "string", paramType = "query"),
             @ApiImplicitParam(name = "confirm", value = "PMC确认状态(0未确认/1已确认)", dataType = "integer", paramType = "query"),
-            @ApiImplicitParam(name = "idd", value = "设计总表ID", dataType = "integer", paramType = "query")
+            @ApiImplicitParam(name = "id", value = "设计总表ID", dataType = "integer", paramType = "query")
     })
     @GetMapping("/list")
     public TableDataInfo list(

@@ -47,7 +47,7 @@ public class ErpPackagingList {
     @Example("1")
     @ApiModelProperty(value = "产品编号 [list|POST|PUT|response]")
     @NotNull(message = "产品编号不能为空", groups = {Save.class})
-    private Long productId;
+    private String productId;
 
     @Excel(name = "中文名称")
     @Example("厨房八件套")
@@ -164,11 +164,11 @@ public class ErpPackagingList {
         this.operator = operator;
     }
 
-    public Long getProductId() {
+    public String getProductId() {
         return productId;
     }
 
-    public void setProductId(Long productId) {
+    public void setProductId(String productId) {
         this.productId = productId;
     }
 

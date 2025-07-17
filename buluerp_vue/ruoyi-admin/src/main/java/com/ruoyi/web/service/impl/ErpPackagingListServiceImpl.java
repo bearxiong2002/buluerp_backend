@@ -64,8 +64,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             }
         }
         if (erpPackagingList.getProductId() != null) {
-            if (erpProductsService.selectErpProductsListByIds(
-                    new Long[]{erpPackagingList.getProductId()}).isEmpty()) {
+            if (erpProductsService.getById(erpPackagingList.getProductId()) == null) {
                 throw new ServiceException("产品不存在");
             }
         }

@@ -89,11 +89,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         //     }
         // }
         if (erpOrders.getProductId() != null) {
-            List<ErpProducts> erpProducts = erpProductsService.selectErpProductsListByIds(
-                    new Long[]{erpOrders.getProductId()}
-            );
-            if (!erpProducts.isEmpty()) {
-                erpOrders.setProduct(erpProducts.get(0));
+            ErpProducts erpProducts = erpProductsService.getById(erpOrders.getProductId());
+            if (erpProducts != null) {
+                erpOrders.setProduct(erpProducts);
             }
         }
 
