@@ -97,7 +97,7 @@ public class ErpPackagingList {
     private List<ErpPackagingBag> bagList;
 
     @TableField(exist = false)
-    @ApiModelProperty(value = "是否已完成 [PUT|response]")
+    @ApiModelProperty(value = "是否已完成 [list|POST|PUT|response]")
     private Boolean isDone;
 
     @ApiModelProperty(value = "状态 0=待审核，1=审核通过")

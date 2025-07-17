@@ -95,12 +95,6 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         }
         List<ErpPackagingBag> erpPackagingBags = erpPackagingBagService.listByPackagingList(entity.getId());
         entity.setBagList(erpPackagingBags);
-        ErpOrders order = erpOrdersService.selectByOrderCode(entity.getOrderCode());
-        if (order != null) {
-            entity.setDone(order.getStatus() >= OrderStatus.PACKAGED.getValue(erpOrdersService));
-        } else {
-            entity.setDone(false);
-        }
         return entity;
     }
 
@@ -117,10 +111,14 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         if (erpPackagingList == null) {
             throw new ServiceException("分包不存在");
         }
-        erpOrdersService.updateOrderStatusAutomatic(
-                erpPackagingList.getOrderCode(),
-                OrderStatus.PACKAGED
-        );
+        if (!erpPackagingList.getDone()) {
+            erpPackagingList.setDone(true);
+            erpPackagingListMapper.updateById(erpPackagingList);
+            erpOrdersService.updateOrderStatusAutomatic(
+                    erpPackagingList.getOrderCode(),
+                    OrderStatus.PACKAGED
+            );
+        }
     }
 
     @Override
@@ -158,6 +156,8 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
                 erpPackagingList.getOrderCode(),
                 OrderStatus.PACKAGING
         );
+        boolean done = erpPackagingList.getDone() != null && erpPackagingList.getDone();
+        erpPackagingList.setDone(null);
 
         // 检查是否启用分包审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
@@ -169,7 +169,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
         }
 
-        if (erpPackagingList.getDone() != null &&  erpPackagingList.getDone()) {
+        if (done) {
             markPackagingDone(erpPackagingList.getId());
         }
 
@@ -192,8 +192,10 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             erpPackagingList.setStatus(oldPackagingList.getStatus());
         }
 
+        boolean done = erpPackagingList.getDone() != null && erpPackagingList.getDone();
+        erpPackagingList.setDone(null);
         int result = erpPackagingListMapper.updateErpPackagingList(erpPackagingList);
-        if (erpPackagingList.getDone() != null &&  erpPackagingList.getDone()) {
+        if (done) {
             markPackagingDone(erpPackagingList.getId());
         }
         return result;
