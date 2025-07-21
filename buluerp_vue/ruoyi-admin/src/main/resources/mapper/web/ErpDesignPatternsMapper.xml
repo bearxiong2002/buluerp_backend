@@ -76,10 +76,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         where id = #{id}
     </update>
 
-    <select id="findOrdersByProductIdAndStatus" resultType="com.ruoyi.web.domain.ErpOrders">
-        SELECT o.*
+    <select id="findOrdersByProductIdAndStatus" resultType="java.lang.Integer">
+        SELECT o.id
         FROM erp_orders o
-                 JOIN erp_design_patterns dp ON o.id = dp.order_id
+                 JOIN erp_design_patterns dp ON o.inner_id = dp.order_id
         WHERE dp.product_id = #{productId}
           AND o.status = #{status}
     </select>
