@@ -735,46 +735,37 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     public void handleOrderStatusChange(ErpOrders updatedOrder, Integer oldStatus, Integer newStatus)
     {
         try {
-            // 检查订单当前审核状态
+            // 获取订单当前信息
             ErpOrders currentOrder = ordersService.selectErpOrdersById(updatedOrder.getId());
             
-            // 如果订单审核状态为-1（被拒绝）或0（待审核），重新触发审核
-            if (currentOrder.getAuditStatus() != null && 
-                (currentOrder.getAuditStatus() == -1 && currentOrder.getStatus() == 0)) {
-                log.info("订单需要重新审核（审核状态：{}），重新触发审核流程，订单ID：{}，当前状态：{}，目标状态：{}", 
-                        currentOrder.getAuditStatus(), updatedOrder.getId(), oldStatus, newStatus);
-                
-                // 重新创建审核记录
-                ErpAuditRecord auditRecord = createAuditRecord(
-                    AuditTypeEnum.ORDER_AUDIT.getCode(),
-                    currentOrder.getInnerId(),
-                    oldStatus,
-                    newStatus
-                );
-                
-                // 构建通知模板数据
-                Map<String, Object> templateData = buildOrderNotificationData(currentOrder);
-                templateData.put("currentStatus", getStatusDescription(oldStatus));
-                templateData.put("targetStatus", getStatusDescription(newStatus));
-                
-                // 发送通知给订单审核人
-                notificationService.sendNotificationToRole(
-                    NotificationTypeEnum.ORDER_STATUS_CHANGE,
-                    "order_auditor", // 订单审核人角色标识
-                    currentOrder.getInnerId(),
-                    "ORDER",
-                    templateData
-                );
-                // 标记通知为已读
-                notificationService.markNotificationsAsReadByBusiness(currentOrder.getInnerId(), "ORDER");
-                log.info("订单重新提交审核流程处理完成，订单ID：{}，审核记录ID：{}，审核状态：{}", 
-                        currentOrder.getId(), auditRecord.getId(), currentOrder.getAuditStatus());
-            } else {
-                // 只标记通知为已读
-                notificationService.markNotificationsAsReadByBusiness(currentOrder.getInnerId(), "ORDER");
-                log.info("订单状态变更处理，订单ID：{}，当前状态：{}，目标状态：{}", 
-                        updatedOrder.getId(), oldStatus, newStatus);
-            }
+            log.info("订单需要重新审核，重新触发审核流程，订单ID：{}，当前状态：{}，目标状态：{}", 
+                    updatedOrder.getId(), oldStatus, newStatus);
+            
+            // 重新创建审核记录
+            ErpAuditRecord auditRecord = createAuditRecord(
+                AuditTypeEnum.ORDER_AUDIT.getCode(),
+                currentOrder.getInnerId(),
+                oldStatus,
+                newStatus
+            );
+            
+            // 构建通知模板数据
+            Map<String, Object> templateData = buildOrderNotificationData(currentOrder);
+            templateData.put("currentStatus", getStatusDescription(oldStatus));
+            templateData.put("targetStatus", getStatusDescription(newStatus));
+            
+            // 发送通知给订单审核人
+            notificationService.sendNotificationToRole(
+                NotificationTypeEnum.ORDER_STATUS_CHANGE,
+                "order_auditor", // 订单审核人角色标识
+                currentOrder.getInnerId(),
+                "ORDER",
+                templateData
+            );
+            // 标记通知为已读
+            notificationService.markNotificationsAsReadByBusiness(currentOrder.getInnerId(), "ORDER");
+            log.info("订单重新提交审核流程处理完成，订单ID：{}，审核记录ID：{}", 
+                    currentOrder.getId(), auditRecord.getId());
         } catch (Exception e) {
             log.error("处理订单状态变更失败，订单ID：{}", updatedOrder.getId(), e);
             throw new RuntimeException("处理订单状态变更失败", e);
