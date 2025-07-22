@@ -335,7 +335,10 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                     log.error("不支持的审核类型：{}", auditTypeEnum);
                     return false;
             }
-            
+
+            // 关闭该订单其他所有待审核的记录
+            closeObsoleteAuditRecords(auditRecord);
+
             log.info("通用审核处理成功，审核记录ID：{}，审核类型：{}，审核结果：{}", 
                     auditRecordId, auditTypeEnum.getDescription(), accept);
             return true;
@@ -663,23 +666,22 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             Map<String, Object> templateData = buildOrderNotificationData(order);
             templateData.put("auditor", auditor);
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
-            
-            // ==================== 根据审核类型，动态决定通知对象 START ====================
+
             String notifyRole = "sell-dept"; // 默认通知销售部（适用于初次审核被拒）
-            Integer preStatus = auditRecord.getPreStatus();
+
             
-            // 如果 preStatus 不为 null，说明这是一个状态变更审核被拒
-            if (preStatus != null) {
-                Integer packagedStatus = ordersService.getStatusValue(OrderStatus.PACKAGED.getLabel());
-                if (preStatus < packagedStatus) {
-                    // 如果是"拉线完成"之前的状态变更被拒（即生产采购阶段），通知PMC协调
-                    notifyRole = "pmc-dept";
-                } else {
-                    // 如果是"拉线完成"之后的状态变更被拒（即发货完成阶段），通知销售部
-                    notifyRole = "sell-dept";
-                }
-            }
-            // ==================== 根据审核类型，动态决定通知对象 END ====================
+//            // 如果 preStatus 不为 null，说明这是一个状态变更审核被拒
+//            Integer preStatus = auditRecord.getPreStatus();
+//            if (preStatus != null) {
+//                Integer packagedStatus = ordersService.getStatusValue(OrderStatus.PACKAGED.getLabel());
+//                if (preStatus < packagedStatus) {
+//                    // 如果是"拉线完成"之前的状态变更被拒（即生产采购阶段），通知PMC协调
+//                    notifyRole = "pmc-dept";
+//                } else {
+//                    // 如果是"拉线完成"之后的状态变更被拒（即发货完成阶段），通知销售部
+//                    notifyRole = "sell-dept";
+//                }
+//            }
 
             // 4. 发送通知给对应的角色
             notificationService.sendNotificationToRole(
@@ -877,58 +879,51 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             ErpAuditRecord auditRecord = records.get(0);
             
             // 2. 更新布产计划状态
-            ErpProductionSchedule schedule = productionScheduleService.getById(auditRecord.getAuditId());
-            if (schedule == null) {
+            List<ErpProductionSchedule>  schedules = productionScheduleService.selectSchedulesByOrderCode(auditRecord.getAuditId());
+            if (schedules.isEmpty()) {
                 throw new RuntimeException("布产计划不存在");
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(schedule.getOrderCode(), "PRODUCTION_SCHEDULE");
+            notificationService.markNotificationsAsReadByBusiness(auditRecord.getAuditId(), "PRODUCTION_SCHEDULE");
 
-            schedule.setStatus(Long.valueOf(auditRecord.getToStatus()));
-            schedule.setAuditStatus(2); // 审核通过
-            productionScheduleService.applyApprovedStatus(schedule);
+
 
             // ==================== 自动更新父订单状态 START ====================
             try {
-                ErpOrders order = ordersService.selectByOrderCode(schedule.getOrderCode());
+                ErpOrders order = ordersService.selectByOrderCode(auditRecord.getAuditId());
                 if (order != null) {
-                    Integer currentStatus = order.getStatus();
-                    Integer statusValuePending = ordersService.getStatusValue(OrderStatus.PRODUCTION_SCHEDULE_PENDING.getLabel());
-                    Integer statusValueInProduction = ordersService.getStatusValue(OrderStatus.IN_PRODUCTION.getLabel());
-
-                    if (Objects.equals(currentStatus, statusValuePending)) {
-                        // 如果订单当前是"待计划"状态，则直接进入"布产中"
-                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.IN_PRODUCTION);
-                    } else if (Objects.equals(currentStatus, statusValueInProduction)) {
-                        // 如果订单当前已在"排产中"，则进入"生产完成(待采购完成)"
-                        ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_DONE_PURCHASING);
-                    }
+                    ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_PENDING);
                 } else {
-                    log.warn("布产计划审核通过后，未找到对应的父订单，订单号: {}", schedule.getOrderCode());
+                    log.warn("布产计划审核通过后，未找到对应的父订单，订单号: {}", auditRecord.getAuditId());
                 }
             } catch (Exception e) {
-                log.error("布产计划审核通过后，自动更新父订单状态失败，布产计划ID: {}", schedule.getId(), e);
+                log.error("布产计划审核通过后，自动更新父订单状态失败，布产计划ID: {}", auditRecord.getAuditId(), e);
                 // 这里不向上抛出异常，确保布产计划的流程能正常完成
             }
             // ==================== 自动更新父订单状态 END ====================
-            
-            // 3. 构建通知模板数据
-            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
-            templateData.put("auditor", auditor);
-            templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
-            
-            // 4. 发送通知给注塑部
-            notificationService.sendNotificationToRole(
-                NotificationTypeEnum.PRODUCTION_APPROVED_TO_DEPT,
-                "injectionmolding-dept", // 注塑部角色标识
-                schedule.getOrderCode(),
-                "PRODUCTION_SCHEDULE",
-                templateData
-            );
-            
-            log.info("布产计划审核通过流程处理完成，布产计划ID：{}，审核记录ID：{}", 
-                    schedule.getId(), auditRecordId);
+
+            for(ErpProductionSchedule schedule:schedules) {
+                schedule.setStatus(1L);
+                schedule.setAuditStatus(2); // 审核通过
+                productionScheduleService.applyApprovedStatus(schedule);
+
+                // 3. 构建通知模板数据
+                Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+                templateData.put("auditor", auditor);
+                templateData.put("auditComment", auditComment != null ? auditComment : "审核通过");
+
+                // 4. 发送通知给注塑部
+                notificationService.sendNotificationToRole(
+                        NotificationTypeEnum.PRODUCTION_APPROVED_TO_DEPT,
+                        "injectionmolding-dept", // 注塑部角色标识
+                        schedule.getOrderCode(),
+                        "PRODUCTION_SCHEDULE",
+                        templateData
+                );
+
+                log.info("布产计划审核通过流程处理完成，布产计划ID：{}，审核记录ID：{}", schedule.getId(), auditRecordId);
+            }
 
             // 关闭该生产计划其他所有待审核的记录
             closeObsoleteAuditRecords(auditRecord);
@@ -958,33 +953,35 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             ErpAuditRecord auditRecord = records.get(0);
             
             // 2. 获取布产计划信息（不修改状态，保持原状态）
-            ErpProductionSchedule schedule = productionScheduleService.getById(auditRecord.getAuditId());
-            if (schedule == null) {
+            List<ErpProductionSchedule>  schedules = productionScheduleService.selectSchedulesByOrderCode(auditRecord.getAuditId());
+            if (schedules.isEmpty()) {
                 throw new RuntimeException("布产计划不存在");
             }
             
             // 在发送新通知前，将旧通知标记为已读
-            notificationService.markNotificationsAsReadByBusiness(schedule.getOrderCode(), "PRODUCTION_SCHEDULE");
+            notificationService.markNotificationsAsReadByBusiness(auditRecord.getAuditId(), "PRODUCTION_SCHEDULE");
 
-            schedule.setAuditStatus(-1); // 审核被拒绝
-            productionScheduleService.updateById(schedule); // 单独更新审核状态
-            
-            // 3. 构建通知模板数据
-            Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
-            templateData.put("auditor", auditor);
-            templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
-            
-            // 4. 发送通知给PMC部门
-            notificationService.sendNotificationToRole(
-                NotificationTypeEnum.PRODUCTION_REJECTED_TO_PMC,
-                "pmc-dept", // PMC部门角色标识
-                schedule.getOrderCode(),
-                "PRODUCTION_SCHEDULE",
-                templateData
-            );
-            
-            log.info("布产计划审核拒绝流程处理完成，布产计划ID：{}，审核记录ID：{}", 
-                    schedule.getId(), auditRecordId);
+            for(ErpProductionSchedule schedule:schedules) {
+                schedule.setAuditStatus(-1); // 审核被拒绝
+                productionScheduleService.updateById(schedule); // 单独更新审核状态
+
+                // 3. 构建通知模板数据
+                Map<String, Object> templateData = buildProductionScheduleNotificationData(schedule);
+                templateData.put("auditor", auditor);
+                templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
+
+                // 4. 发送通知给PMC部门
+                notificationService.sendNotificationToRole(
+                        NotificationTypeEnum.PRODUCTION_REJECTED_TO_PMC,
+                        "pmc-dept", // PMC部门角色标识
+                        schedule.getOrderCode(),
+                        "PRODUCTION_SCHEDULE",
+                        templateData
+                );
+            }
+
+            log.info("布产计划审核拒绝流程处理完成，订单号：{}，审核记录ID：{}",
+                    auditRecord.getAuditId(), auditRecordId);
             
         } catch (Exception e) {
             log.error("处理布产计划审核拒绝流程失败，审核记录ID：{}", auditRecordId, e);
@@ -1041,24 +1038,10 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
      * 获取布产计划详情
      */
     @Override
-    public ErpProductionSchedule getProductionScheduleDetail(String scheduleId) {
+    public List<ErpProductionSchedule> getProductionScheduleDetail(String orderCode) {
         try {
-            log.info("获取布产计划详情，布产计划ID：{}", scheduleId);
-            // 尝试解析为Long类型，如果失败则按字符串处理
-            ErpProductionSchedule schedule = null;
-            try {
-                Long id = Long.parseLong(scheduleId);
-                schedule = productionScheduleService.getById(id);
-            } catch (NumberFormatException e) {
-                // 如果不是数字，可能需要其他查询方式
-                log.warn("布产计划ID不是数字格式：{}", scheduleId);
-            }
-            if (schedule == null) {
-                log.warn("布产计划不存在，布产计划ID：{}", scheduleId);
-            }
-            return schedule;
+            return productionScheduleService.selectSchedulesByOrderCode(orderCode);
         } catch (Exception e) {
-            log.error("获取布产计划详情失败，布产计划ID：{}", scheduleId, e);
             throw new RuntimeException("获取布产计划详情失败", e);
         }
     }

@@ -11,6 +11,8 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
     // 订单布产计划是否制定完成
     boolean isAllScheduled(String orderCode);
 
+    List<ErpProductionSchedule> selectSchedulesByOrderCode(String orderCode);
+
     // 标记布产计划已经制定完成
     void markAllScheduled(String orderCode);
 

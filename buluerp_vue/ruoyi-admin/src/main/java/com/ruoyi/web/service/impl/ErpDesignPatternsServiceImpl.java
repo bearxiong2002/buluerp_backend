@@ -153,7 +153,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
             );
 
             // 然后，立刻检查该订单是否已满足所有产品均设计的条件
-            checkAndUpdateRelatedOrders(productId);
+            if (erpProductsMapper.selectById(productId).getDesignStatus()==1) {
+                checkAndUpdateRelatedOrders(productId);
+            }
         }
 
         return result;

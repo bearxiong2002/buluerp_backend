@@ -272,9 +272,8 @@ public class ErpAuditRecordController extends BaseController
                     businessDetail = erpAuditRecordService.getProductionScheduleDetail(auditId);
                     break;
                 case SUBCONTRACT_AUDIT:
-                    // TODO: 调用分包服务获取详情
-                    // businessDetail = subcontractAuditService.getSubcontractDetail(auditId);
-                    return error("分包审核详情功能待实现");
+                    businessDetail = erpAuditRecordService.getPackagingListDetail(auditId);
+                    break;
                 case PURCHASE_AUDIT:
                     // 调用采购汇总服务获取详情
                     businessDetail = erpAuditRecordService.getPurchaseCollectionDetail(auditId);

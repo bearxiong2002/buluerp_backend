@@ -196,7 +196,7 @@ public interface IErpAuditRecordService
      * @param scheduleId 布产计划ID（String类型，支持InnerID）
      * @return 布产计划详情
      */
-    ErpProductionSchedule getProductionScheduleDetail(String scheduleId);
+    List<ErpProductionSchedule>  getProductionScheduleDetail(String orderCode);
 
     /**
      * 布产完成审核处理（创建审核记录并发送通知）
