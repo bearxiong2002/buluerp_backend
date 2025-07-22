@@ -5,6 +5,7 @@ import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.write.metadata.WriteSheet;
 import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.excel.ListValidationException;
 import com.ruoyi.common.exception.excel.ListRowErrorInfo;
@@ -173,7 +174,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             throw new ServiceException("订单不存在");
         }
         erpPackagingList.setProductId(order.getProductId());
-        // TODO: 将订单状态修改逻辑移到审核流程中
+
         erpOrdersService.updateOrderStatusAutomatic(
                 erpPackagingList.getOrderCode(),
                 OrderStatus.PACKAGING
@@ -449,5 +450,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     public void applyApprovedStatus(ErpPackagingList packagingList) {
         // 直接更新数据库，不包含其他业务逻辑
         erpPackagingListMapper.updateErpPackagingList(packagingList);
+    }
+
+    @Override
+    public List<ErpPackagingList> selectErpPackagingListByOrderCode(String orderCode){
+        LambdaQueryWrapper<ErpPackagingList> wrapper= Wrappers.lambdaQuery();
+        wrapper.eq(ErpPackagingList::getOrderCode,orderCode);
+        return erpPackagingListMapper.selectList(wrapper);
     }
 }
