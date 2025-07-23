@@ -151,6 +151,27 @@ public class ErpProductionArrangeServiceImpl
 
     @Override
     @Transactional
+    public void removeChecked(Long id) {
+        LambdaQueryWrapper<ErpProductionSchedule> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(ErpProductionSchedule::getArrangeId, id);
+        if (erpProductionScheduleService.count(wrapper) > 0) {
+            throw new ServiceException("部分布产已添加到排产" + id + "，不能删除");
+        }
+        if (!removeById(id)) {
+            throw new ServiceException("指定排产不存在");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeBatchChecked(List<Long> ids) {
+        for (Long id : ids) {
+            removeChecked(id);
+        }
+    }
+
+    @Override
+    @Transactional
     public void markArrangeComplete(Long id, Date completeDate) {
         if (completeDate.after(DateUtils.getLastSecondOfToday())) {
             throw new ServiceException("完成时间不能大于当前时间");

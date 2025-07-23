@@ -129,10 +129,8 @@ public class ErpProductionScheduleController extends BaseController {
     @DeleteMapping("/{ids}")
     @ApiOperation(value = "删除布产", notes = "删除布产")
     public AjaxResult remove(@PathVariable List<Long> ids) {
-        return toAjax(
-                erpProductionScheduleService
-                        .removeErpProductionScheduleList(ids)
-        );
+        erpProductionScheduleService.removeBatchChecked(ids);
+        return success();
     }
 
     @Anonymous

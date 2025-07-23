@@ -370,6 +370,30 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
+    @Transactional
+    public void removeChecked(Long id) {
+        ErpPurchaseCollection purchase = erpPurchaseCollectionMapper.selectErpPurchaseCollectionById(id);
+        if (purchase == null) {
+            throw new ServiceException("采购计划" + id + "不存在");
+        }
+        ErpOrders order = erpOrdersService.selectByOrderCode(purchase.getOrderCode());
+        if (order != null && order.getAllPurchased()) {
+            throw new ServiceException("订单已标记采购计划定制完成，不允许删除采购计划" + id);
+        }
+        if (deleteErpPurchaseCollectionById(id) == 0) {
+            throw new ServiceException("删除采购计划失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeBatchChecked(List<Long> ids) {
+        for (Long id : ids) {
+            removeChecked(id);
+        }
+    }
+
+    @Override
     public void applyApprovedStatus(ErpPurchaseCollection erpPurchaseCollection) {
         // 直接更新数据库，不包含其他业务逻辑
         erpPurchaseCollectionMapper.updateErpPurchaseCollection(erpPurchaseCollection);

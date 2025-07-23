@@ -364,6 +364,30 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
+    @Transactional
+    public void removeChecked(Long id) {
+        ErpProductionSchedule schedule = getById(id);
+        if (schedule == null) {
+            throw new ServiceException("布产" + id + "不存在");
+        }
+        ErpOrders order = erpOrdersService.selectByOrderCode(schedule.getOrderCode());
+        if (order != null && order.getAllScheduled()) {
+            throw new ServiceException("订单已完成布产计划定制，不允许删除布产" + id);
+        }
+        if (!removeById(id)) {
+            throw new ServiceException("删除布产" + id + "失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeBatchChecked(List<Long> ids) {
+        for (Long id : ids) {
+            removeChecked(id);
+        }
+    }
+
+    @Override
     public List<Long> getProductionScheduleMaterialIds(Long productionScheduleId) {
         return baseMapper.listProductionScheduleMaterialIds(productionScheduleId);
     }

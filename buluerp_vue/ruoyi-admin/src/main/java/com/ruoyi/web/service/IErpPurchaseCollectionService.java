@@ -33,6 +33,9 @@ public interface IErpPurchaseCollectionService {
      */
     ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode);
 
+    void removeChecked(Long id);
+    void removeBatchChecked(List<Long> ids);
+
     /**
      * 在审核通过后，直接应用新的状态，不触发额外的审核流程
      * @param erpPurchaseCollection 包含新状态的采购集合对象

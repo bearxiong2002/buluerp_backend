@@ -40,6 +40,10 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
 
     int attachToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
 
+    void removeChecked(Long id);
+
+    void removeBatchChecked(List<Long> ids);
+
     List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
 
     int removeErpProductionScheduleList(List<Long> ids);

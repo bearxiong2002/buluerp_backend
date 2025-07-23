@@ -12,6 +12,8 @@ public interface IErpProductionArrangeService extends IService<ErpProductionArra
     int insertErpProductionArrangeList(List<ErpProductionArrange> erpProductionArranges) throws IOException;
     int insertFromSchedule(AddProductionArrangeFromScheduleRequest request) throws IOException;
     int updateErpProductionArrange(ErpProductionArrange erpProductionArrange) throws IOException;
+    void removeChecked(Long id);
+    void removeBatchChecked(List<Long> ids);
 
     void markArrangeComplete(Long id, Date completeDate);
 }

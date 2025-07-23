@@ -26,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -104,7 +105,8 @@ public class ErpPurchaseCollectionController extends BaseController {
     @DeleteMapping("/{ids}")
     @ApiOperation(value = "删除采购计划", notes = "删除采购计划")
     public AjaxResult remove(@PathVariable Long[] ids) {
-        return toAjax(erpPurchaseCollectionService.deleteErpPurchaseCollectionByIds(ids));
+        erpPurchaseCollectionService.removeBatchChecked(Arrays.asList(ids));
+        return success();
     }
 
     @Anonymous
