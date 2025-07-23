@@ -79,6 +79,21 @@ public class ErpProductionScheduleServiceImpl
                 throw new ServiceException("订单不存在");
             }
         }
+        if (erpProductionSchedule.getProductId() != null) {
+            LambdaQueryWrapper<ErpProducts> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpProducts::getInnerId, erpProductionSchedule.getProductId());
+            ErpProducts product = erpProductsService.getOne(queryWrapper);
+            if (product == null) {
+                throw new ServiceException("产品不存在");
+            }
+        }
+        if (erpProductionSchedule.getMaterialId() != null) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService
+                    .selectErpMaterialInfoById(erpProductionSchedule.getMaterialId());
+            if (materialInfo == null) {
+                throw new ServiceException("物料不存在");
+            }
+        }
     }
 
     private void check(ErpProductionSchedule erpProductionSchedule) {

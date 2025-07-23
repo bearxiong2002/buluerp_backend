@@ -66,7 +66,31 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     private void check(ErpPurchaseCollection erpPurchaseCollection) {
         checkValid(erpPurchaseCollection);
+        checkReferences(erpPurchaseCollection);
         checkUnique(erpPurchaseCollection);
+    }
+
+    private void checkReferences(ErpPurchaseCollection erpPurchaseCollection) {
+        if (erpPurchaseCollection.getOrderCode() != null) {
+            ErpOrders order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
+            if (order == null) {
+                throw new ServiceException("订单不存在");
+            }
+        }
+        if (erpPurchaseCollection.getPurchaseCode() != null) {
+            LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpPurchaseInfo::getPurchaseCode, erpPurchaseCollection.getPurchaseCode());
+            ErpPurchaseInfo purchaseInfo = erpPurchaseInfoService.getOne(queryWrapper);
+            if (purchaseInfo == null) {
+                throw new ServiceException("外购编码不存在");
+            }
+        }
+        if (erpPurchaseCollection.getPurchaseId() != null) {
+            ErpPurchaseInfo purchaseInfo = erpPurchaseInfoService.getById(erpPurchaseCollection.getPurchaseId());
+            if (purchaseInfo == null) {
+                throw new ServiceException("外购编码不存在");
+            }
+        }
     }
 
     @Override
