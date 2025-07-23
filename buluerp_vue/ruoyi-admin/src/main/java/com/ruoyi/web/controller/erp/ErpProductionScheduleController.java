@@ -1,11 +1,8 @@
 package com.ruoyi.web.controller.erp;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
@@ -13,7 +10,9 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
 import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
+import com.ruoyi.web.result.ProductionScheduleResult;
 import com.ruoyi.web.service.IErpProductionScheduleService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -27,7 +26,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -49,13 +47,9 @@ public class ErpProductionScheduleController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
             @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
     })
-    public TableDataInfo list(ErpProductionSchedule erpProductionSchedule, @RequestParam(required = false) String orderCodeExact) {
+    public TableDataInfo list(ListProductionScheduleRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
-        LambdaQueryWrapper<ErpProductionSchedule> wrapper = new LambdaQueryWrapper<>(erpProductionSchedule);
-        if (orderCodeExact != null) {
-            wrapper.eq(ErpProductionSchedule::getOrderCode, orderCodeExact);
-        }
-        List<ErpProductionSchedule> list = erpProductionScheduleService.list(wrapper);
+        List<ProductionScheduleResult> list = erpProductionScheduleService.listResult(request);
         return getDataTable(list);
     }
 
@@ -63,7 +57,7 @@ public class ErpProductionScheduleController extends BaseController {
     @GetMapping
     @ApiOperation(value = "根据ID查询布产", notes = "根据ID查询布产")
     public AjaxResult getInfo(Long[] ids) {
-        return success(erpProductionScheduleService.listByIds(Arrays.asList(ids)));
+        return success(erpProductionScheduleService.listResultByIds(Arrays.asList(ids)));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:export')")

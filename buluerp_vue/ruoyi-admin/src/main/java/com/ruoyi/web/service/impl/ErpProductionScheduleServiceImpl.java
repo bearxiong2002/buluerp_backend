@@ -13,6 +13,8 @@ import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
+import com.ruoyi.web.result.ProductionScheduleResult;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,8 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpProductionArrangeService erpProductionArrangeService;
+    @Autowired
+    private ErpProductionScheduleMapper erpProductionScheduleMapper;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
@@ -119,6 +123,21 @@ public class ErpProductionScheduleServiceImpl
         // 移除创建时的审核触发，布产审核只保留布产完成审核
 
         return 1;
+    }
+
+    @Override
+    public List<ProductionScheduleResult> listResult(ListProductionScheduleRequest request) {
+        return erpProductionScheduleMapper.selectResultList(request);
+    }
+
+    @Override
+    public ProductionScheduleResult getResultById(Long id) {
+        return erpProductionScheduleMapper.selectResultById(id);
+    }
+
+    @Override
+    public List<ProductionScheduleResult> listResultByIds(List<Long> ids) {
+        return erpProductionScheduleMapper.selectResultListByIds(ids);
     }
 
     @Override

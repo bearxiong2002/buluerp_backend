@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -10,12 +11,14 @@ import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.mapper.ErpPurchaseInfoMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
+import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.ruoyi.web.domain.ErpPurchaseInfo;
 import com.ruoyi.web.service.IErpPurchaseInfoService;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 /**
  * 外购资料，用于存储外购物料的基本信息和相关数据Service业务层处理
@@ -30,6 +33,9 @@ public class ErpPurchaseInfoServiceImpl
 {
     @Autowired
     private IErpMaterialInfoService erpMaterialInfoService;
+
+    @Autowired
+    private IErpPurchaseCollectionService erpPurchaseCollectionService;
 
     @Override
     public int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo) throws IOException {
@@ -84,7 +90,34 @@ public class ErpPurchaseInfoServiceImpl
     }
 
     @Override
+    public boolean deleteChecked(Long id) {
+        if (!CollectionUtils.isEmpty(erpPurchaseCollectionService.listByPurchaseId(id))) {
+            throw new ServiceException("外购资料" + id + "已被采购，不能删除");
+        }
+        return baseMapper.deleteById(id) > 0;
+    }
+
+    @Override
+    @Transactional
+    public void deleteBatchChecked(Long[] ids) {
+        for (Long id : ids) {
+            if (!deleteChecked(id)) {
+                throw new ServiceException("删除失败，无法删除外购资料" + id);
+            }
+        }
+    }
+
+    @Override
+    @Transactional
     public boolean deleteErpPurchaseInfoByMaterialIds(Long[] ids) {
-        return baseMapper.deleteByMaterialIds(ids) > 0;
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.in(ErpPurchaseInfo::getMaterialId, Arrays.asList(ids));
+        List<ErpPurchaseInfo> list = baseMapper.selectList(queryWrapper);
+        for (ErpPurchaseInfo erpPurchaseInfo : list) {
+            if (!deleteChecked(erpPurchaseInfo.getId())) {
+                throw new ServiceException("删除失败，无法删除外购资料" + erpPurchaseInfo.getId());
+            }
+        }
+        return true;
     }
 }

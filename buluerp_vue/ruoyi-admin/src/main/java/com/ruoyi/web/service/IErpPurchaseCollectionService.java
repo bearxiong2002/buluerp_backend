@@ -4,6 +4,7 @@ import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
 import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
+import com.ruoyi.web.result.PurchaseCollectionResult;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,10 +21,10 @@ public interface IErpPurchaseCollectionService {
     int insertFromInfo(AddPurchaseCollectionFromInfoRequest request) throws IOException;
     int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException;
     int insertErpPurchaseCollections(List<ErpPurchaseCollection> erpPurchaseCollectionList) throws IOException;
-    ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
-    List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
-    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
-    List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode);
+    PurchaseCollectionResult selectErpPurchaseCollectionById(Long id);
+    List<PurchaseCollectionResult> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
+    List<PurchaseCollectionResult> selectErpPurchaseCollectionListByIds(Long[] ids);
+    List<PurchaseCollectionResult> selectErpPurchaseCollectionListByOrderCode(String orderCode);
     
     /**
      * 根据purchaseCode查询采购汇总
@@ -31,10 +32,12 @@ public interface IErpPurchaseCollectionService {
      * @param purchaseCode 外购编码
      * @return 采购汇总信息
      */
-    ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode);
+    PurchaseCollectionResult selectErpPurchaseCollectionByPurchaseCode(String purchaseCode);
 
     void removeChecked(Long id);
     void removeBatchChecked(List<Long> ids);
+
+    List<PurchaseCollectionResult> listByPurchaseId(Long purchaseId);
 
     /**
      * 在审核通过后，直接应用新的状态，不触发额外的审核流程

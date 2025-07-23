@@ -12,6 +12,7 @@ import com.ruoyi.web.mapper.ErpPurchaseCollectionMapper;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
 import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 import com.ruoyi.web.result.DesignPatternsResult;
+import com.ruoyi.web.result.PurchaseCollectionResult;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -84,8 +85,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
         ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
         collection.setOrderCode(orderCode);
-        List<ErpPurchaseCollection> collections = selectErpPurchaseCollectionList(collection);
-        for (ErpPurchaseCollection erpPurchaseCollection : collections) {
+        List<PurchaseCollectionResult> collections = selectErpPurchaseCollectionList(collection);
+        for (PurchaseCollectionResult erpPurchaseCollection : collections) {
             if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
                 continue;
             }
@@ -107,8 +108,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         // 新增：校验所有采购都已审核通过
         ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
         collection.setOrderCode(orderCode);
-        List<ErpPurchaseCollection> collections = selectErpPurchaseCollectionList(collection);
-        for (ErpPurchaseCollection erpPurchaseCollection : collections) {
+        List<PurchaseCollectionResult> collections = selectErpPurchaseCollectionList(collection);
+        for (PurchaseCollectionResult erpPurchaseCollection : collections) {
             if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
                 continue;
             }
@@ -308,34 +309,34 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
-    public ErpPurchaseCollection selectErpPurchaseCollectionById(Long id) {
-        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionById(id);
+    public PurchaseCollectionResult selectErpPurchaseCollectionById(Long id) {
+        return erpPurchaseCollectionMapper.selectResultById(id);
     }
 
     @Override
-    public List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request) {
-        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(request);
+    public List<PurchaseCollectionResult> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request) {
+        return erpPurchaseCollectionMapper.selectResultList(request);
     }
 
     @Override
-    public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids) {
-        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids);
+    public List<PurchaseCollectionResult> selectErpPurchaseCollectionListByIds(Long[] ids) {
+        return erpPurchaseCollectionMapper.selectResultListByIds(ids);
     }
 
     @Override
-    public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode) {
-        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByOrderCode(orderCode);
+    public List<PurchaseCollectionResult> selectErpPurchaseCollectionListByOrderCode(String orderCode) {
+        return erpPurchaseCollectionMapper.selectResultListByOrderCode(orderCode);
     }
     
     @Override
-    public ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode) {
-        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionByPurchaseCode(purchaseCode);
+    public PurchaseCollectionResult selectErpPurchaseCollectionByPurchaseCode(String purchaseCode) {
+        return erpPurchaseCollectionMapper.selectResultListByPurchaseCode(purchaseCode);
     }
 
     @Override
     @Transactional
     public void removeChecked(Long id) {
-        ErpPurchaseCollection purchase = erpPurchaseCollectionMapper.selectErpPurchaseCollectionById(id);
+        ErpPurchaseCollection purchase = erpPurchaseCollectionMapper.selectResultById(id);
         if (purchase == null) {
             throw new ServiceException("采购计划" + id + "不存在");
         }
@@ -354,6 +355,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         for (Long id : ids) {
             removeChecked(id);
         }
+    }
+
+    @Override
+    public List<PurchaseCollectionResult> listByPurchaseId(Long purchaseId) {
+        return erpPurchaseCollectionMapper.selectResultListByPurchaseId(purchaseId);
     }
 
     @Override
