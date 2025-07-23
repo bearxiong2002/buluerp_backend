@@ -129,9 +129,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     }
 
     @Override
-    @Transactional
     public int deleteErpPurchaseCollectionById(Long id) {
-        erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(id);
         return erpPurchaseCollectionMapper.deleteErpPurchaseCollectionById(id);
     }
 
@@ -144,7 +142,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
                 AuditTypeEnum.PURCHASE_AUDIT.getCode(),
                 String.valueOf(id)
             );
-            erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(id);
         }
         return erpPurchaseCollectionMapper.deleteErpPurchaseCollectionByIds(ids);
     }
@@ -167,15 +164,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
         if (0 >= erpPurchaseCollectionMapper.updateErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("更新失败");
-        }
-        if (erpPurchaseCollection.getMaterialIds() != null) {
-            erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(erpPurchaseCollection.getId());
-            if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
-                erpPurchaseCollectionMapper.insertErpPurchaseCollectionMaterials(
-                        erpPurchaseCollection.getId(),
-                        erpPurchaseCollection.getMaterialIds()
-                );
-            }
         }
         if (erpPurchaseCollection.getDeliveryDate() != null) {
             ErpPurchaseCollection updated = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());
@@ -252,8 +240,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         erpPurchaseCollection.setSupplier(erpPurchaseInfo.getSupplier());
         erpPurchaseCollection.setRemarks(request.getRemarks());
 
-        erpPurchaseCollection.setMaterialIds(Collections.singletonList(erpMaterialInfo.getId()));
-
         return insertErpPurchaseCollection(erpPurchaseCollection);
     }
 
@@ -277,13 +263,6 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             erpPurchaseCollection.setPictureUrl(
                     FileUploadUtils.upload(erpPurchaseCollection.getPicture())
             );
-        }
-        if (!CollectionUtils.isEmpty(erpPurchaseCollection.getMaterialIds())) {
-            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                    erpPurchaseCollection.getMaterialIds().get(0)
-            );
-            erpPurchaseCollection.setMouldNumber(materialInfo.getMouldNumber());
-            erpPurchaseCollection.setMaterialType(materialInfo.getMaterialType());
         }
         if (0 >= erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("添加失败");
@@ -328,47 +307,29 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         return count;
     }
 
-    private ErpPurchaseCollection fillMaterialIds(ErpPurchaseCollection erpPurchaseCollection) {
-        if (erpPurchaseCollection == null) {
-            return null;
-        }
-        erpPurchaseCollection.setMaterialIds(
-                erpPurchaseCollectionMapper
-                        .getErpPurchaseCollectionMaterialIds(erpPurchaseCollection.getId())
-        );
-        return erpPurchaseCollection;
-    }
-
-    private List<ErpPurchaseCollection> fillMaterialIds(List<ErpPurchaseCollection> erpPurchaseCollectionList) {
-        for (ErpPurchaseCollection erpPurchaseCollection : erpPurchaseCollectionList) {
-            fillMaterialIds(erpPurchaseCollection);
-        }
-        return erpPurchaseCollectionList;
-    }
-
     @Override
     public ErpPurchaseCollection selectErpPurchaseCollectionById(Long id) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionById(id));
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionById(id);
     }
 
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(request));
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionList(request);
     }
 
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids));
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByIds(ids);
     }
 
     @Override
     public List<ErpPurchaseCollection> selectErpPurchaseCollectionListByOrderCode(String orderCode) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByOrderCode(orderCode));
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionListByOrderCode(orderCode);
     }
     
     @Override
     public ErpPurchaseCollection selectErpPurchaseCollectionByPurchaseCode(String purchaseCode) {
-        return fillMaterialIds(erpPurchaseCollectionMapper.selectErpPurchaseCollectionByPurchaseCode(purchaseCode));
+        return erpPurchaseCollectionMapper.selectErpPurchaseCollectionByPurchaseCode(purchaseCode);
     }
 
     @Override

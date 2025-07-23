@@ -13,9 +13,6 @@ public interface ErpPurchaseCollectionMapper {
     int updateErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection);
     int deleteErpPurchaseCollectionById(Long id);
     int deleteErpPurchaseCollectionByIds(Long[] ids);
-    int clearErpPurchaseCollectionMaterials(Long id);
-    int insertErpPurchaseCollectionMaterials(@Param("id") Long id, @Param("materialIds") List<Long> materialIds);
-    List<Long> getErpPurchaseCollectionMaterialIds(Long id);
     ErpPurchaseCollection selectErpPurchaseCollectionById(Long id);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionList(ListPurchaseCollectionRequest request);
     List<ErpPurchaseCollection> selectErpPurchaseCollectionListByIds(Long[] ids);
