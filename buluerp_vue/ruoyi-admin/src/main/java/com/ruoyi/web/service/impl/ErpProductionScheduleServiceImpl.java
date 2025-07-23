@@ -243,21 +243,33 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException {
         ErpProductionSchedule schedule = new ErpProductionSchedule();
-        Long designPatternId = request.getDesignPatternId();
-        List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
-                .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
-        if (designPatterns.isEmpty()) {
-            throw new ServiceException("设计总表不存在");
-        }
-        ErpDesignPatterns designPattern = designPatterns.get(0);
-        schedule.setProductId(designPattern.getProductId());
 
-
-        ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
-        if (order == null) {
-            throw new ServiceException("设计总表项对应订单不存在或已被删除");
+        if (request.getDesignPatternId() != null) {
+            Long designPatternId = request.getDesignPatternId();
+            List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
+                    .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
+            if (designPatterns.isEmpty()) {
+                throw new ServiceException("设计总表不存在");
+            }
+            ErpDesignPatterns designPattern = designPatterns.get(0);
+            schedule.setProductId(designPattern.getProductId());
+            ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
+            if (order == null) {
+                throw new ServiceException("设计总表项对应订单不存在或已被删除");
+            }
+            schedule.setOrderCode(order.getInnerId());
+            schedule.setCustomerId(order.getCustomerId());
+        } else if (request.getOrderCode() != null) {
+            ErpOrders order = erpOrdersService.selectByOrderCode(request.getOrderCode());
+            if (order == null) {
+                throw new ServiceException("订单不存在");
+            }
+            schedule.setOrderCode(order.getInnerId());
+            schedule.setProductId(order.getProductId());
+            schedule.setCustomerId(order.getCustomerId());
+        } else {
+            throw new ServiceException("未指定订单或设计总表");
         }
-        schedule.setOrderCode(order.getInnerId());
 
         schedule.setProductionTime(request.getProductionTime());
 
@@ -288,7 +300,6 @@ public class ErpProductionScheduleServiceImpl
         schedule.setSupplier(request.getSupplier());
         schedule.setMouldManufacturer(request.getMouldManufacturer());
 
-        schedule.setCustomerId(order.getCustomerId());
         schedule.setMaterialId(materialInfo.getId());
 
         return insertErpProductionSchedule(schedule);
@@ -330,7 +341,7 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
-    public int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
+    public int attachToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
         int result = baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
 
         Set<String> orderCodes = new HashSet<>();

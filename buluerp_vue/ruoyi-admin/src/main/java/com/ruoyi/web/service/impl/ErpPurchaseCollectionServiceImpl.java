@@ -198,19 +198,30 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     public int insertFromInfo(AddPurchaseCollectionFromInfoRequest request) throws IOException {
         ErpPurchaseCollection erpPurchaseCollection = new ErpPurchaseCollection();
 
-        List<ErpDesignPatterns> designPatternsList = erpDesignPatternsService
-                .selectErpDesignPatternsListByIds(new Long[]{request.getDesignPatternId()});
-        if (designPatternsList == null || designPatternsList.isEmpty()) {
-            throw new ServiceException("设计总表不存在");
-        }
+        if (request.getDesignPatternId() != null) {
+            List<ErpDesignPatterns> designPatternsList = erpDesignPatternsService
+                    .selectErpDesignPatternsListByIds(new Long[]{request.getDesignPatternId()});
+            if (designPatternsList == null || designPatternsList.isEmpty()) {
+                throw new ServiceException("设计总表不存在");
+            }
 
-        ErpDesignPatterns designPatterns = designPatternsList.get(0);
-        ErpOrders erpOrders = erpOrdersService.selectByOrderCode(designPatterns.getOrderId());
-        if (erpOrders == null) {
-            throw new ServiceException("设计总表对应订单不存在");
+            ErpDesignPatterns designPatterns = designPatternsList.get(0);
+            ErpOrders erpOrders = erpOrdersService.selectByOrderCode(designPatterns.getOrderId());
+            if (erpOrders == null) {
+                throw new ServiceException("设计总表对应订单不存在");
+            }
+            erpPurchaseCollection.setOrderCode(erpOrders.getInnerId());
+            erpPurchaseCollection.setProductId(erpOrders.getProductId());
+        } else if (request.getOrderCode() != null) {
+            ErpOrders erpOrders = erpOrdersService.selectByOrderCode(request.getOrderCode());
+            if (erpOrders == null) {
+                throw new ServiceException("订单不存在");
+            }
+            erpPurchaseCollection.setOrderCode(request.getOrderCode());
+            erpPurchaseCollection.setProductId(erpOrders.getProductId());
+        } else {
+            throw new ServiceException("未指定订单或设计总表");
         }
-        erpPurchaseCollection.setOrderCode(erpOrders.getInnerId());
-        erpPurchaseCollection.setProductId(erpOrders.getProductId());
 
         ErpPurchaseInfo erpPurchaseInfo = erpPurchaseInfoService.getById(request.getPurchaseInfoId());
         if (erpPurchaseInfo == null) {

@@ -9,8 +9,10 @@ import java.util.Date;
 
 public class AddProductionScheduleFromMaterialRequest {
     @ApiModelProperty(value = "设计总表ID", required = true)
-    @NotNull(message = "设计总表ID未填写或无效", groups = Save.class)
     private Long designPatternId;
+
+    @ApiModelProperty(value = "订单编号", required = true)
+    private String orderCode;
 
     @ApiModelProperty(value = "物料ID", required = true)
     @NotNull(message = "物料ID未填写或无效", groups = Save.class)
@@ -171,5 +173,13 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setMouldManufacturer(String mouldManufacturer) {
         this.mouldManufacturer = mouldManufacturer;
+    }
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 }

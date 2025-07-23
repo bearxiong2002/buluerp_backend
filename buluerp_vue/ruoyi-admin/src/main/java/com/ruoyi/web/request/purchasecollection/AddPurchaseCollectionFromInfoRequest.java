@@ -16,6 +16,9 @@ public class AddPurchaseCollectionFromInfoRequest {
     @ApiModelProperty(value = "设计总表ID")
     Long designPatternId;
 
+    @ApiModelProperty(value = "订单编号")
+    String orderCode;
+
     @ApiModelProperty(value = "下单时间")
     Date orderTime;
 
@@ -39,6 +42,14 @@ public class AddPurchaseCollectionFromInfoRequest {
 
     public void setDesignPatternId(Long designPatternId) {
         this.designPatternId = designPatternId;
+    }
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
     }
 
     public Long getPurchaseInfoId() {

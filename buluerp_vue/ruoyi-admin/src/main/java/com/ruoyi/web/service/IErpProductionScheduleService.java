@@ -38,7 +38,7 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
 
     int updateErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;
 
-    int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
+    int attachToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
 
     List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
 

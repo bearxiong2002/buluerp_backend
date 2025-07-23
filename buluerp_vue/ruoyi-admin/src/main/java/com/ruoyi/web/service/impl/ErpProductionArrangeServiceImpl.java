@@ -2,18 +2,14 @@ package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.common.utils.reflect.ReflectUtils;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.OrderStatus;
-import com.ruoyi.web.exception.AutoLogException;
 import com.ruoyi.web.mapper.ErpProductionArrangeMapper;
-import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.arrange.AddProductionArrangeFromScheduleRequest;
 import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductionArrangeService;
@@ -25,9 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ruoyi.web.annotation.MarkNotificationsAsRead;
 
 import java.io.IOException;
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.function.Function;
 
 @Service
 public class ErpProductionArrangeServiceImpl
@@ -133,7 +127,7 @@ public class ErpProductionArrangeServiceImpl
             throw new ServiceException("添加排产失败");
         }
         return erpProductionScheduleService
-                .attatchToArrange(erpProductionArrange.getId(), request.getScheduleIds());
+                .attachToArrange(erpProductionArrange.getId(), request.getScheduleIds());
     }
 
     @Override
