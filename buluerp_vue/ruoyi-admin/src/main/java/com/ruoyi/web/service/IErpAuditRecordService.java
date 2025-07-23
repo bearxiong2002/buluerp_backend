@@ -196,7 +196,7 @@ public interface IErpAuditRecordService
      * @param scheduleId 布产计划ID（String类型，支持InnerID）
      * @return 布产计划详情
      */
-    ErpProductionSchedule getProductionScheduleDetail(String scheduleId);
+    List<ErpProductionSchedule>  getProductionScheduleDetail(String orderCode);
 
     /**
      * 布产完成审核处理（创建审核记录并发送通知）
@@ -273,7 +273,7 @@ public interface IErpAuditRecordService
      * @param auditType 审核类型
      * @param auditId   被删除的审核对象ID
      */
-    void handleAuditableEntityDeleted(Integer auditType, Long auditId);
+    void handleAuditableEntityDeleted(Integer auditType, String auditId);
 
     // ==================== 包装清单/分包审核业务方法 ====================
 

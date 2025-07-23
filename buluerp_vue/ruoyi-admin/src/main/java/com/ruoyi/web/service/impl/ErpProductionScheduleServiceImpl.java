@@ -2,6 +2,7 @@ package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
@@ -396,11 +397,11 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public int removeErpProductionScheduleList(List<Long> ids) {
         for (Long id : ids) {
-            // 在删除布产计划之前，处理相关的待审核记录
-            auditRecordService.handleAuditableEntityDeleted(
-                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
-                id
-            );
+//            // 在删除布产计划之前，处理相关的待审核记录
+//            auditRecordService.handleAuditableEntityDeleted(
+//                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
+//                id
+//            );
             getBaseMapper().clearProductionScheduleMaterialIds(id);
         }
         return getBaseMapper().deleteBatchIds(ids);
@@ -410,5 +411,12 @@ public class ErpProductionScheduleServiceImpl
     public void applyApprovedStatus(ErpProductionSchedule erpProductionSchedule) {
         // 直接更新数据库，不包含其他业务逻辑
         updateById(erpProductionSchedule);
+    }
+
+    @Override
+    public List<ErpProductionSchedule> selectSchedulesByOrderCode(String orderCode){
+        LambdaQueryWrapper<ErpProductionSchedule> wrapper= Wrappers.lambdaQuery();
+        wrapper.eq(ErpProductionSchedule::getOrderCode,orderCode);
+        return this.list(wrapper);
     }
 }

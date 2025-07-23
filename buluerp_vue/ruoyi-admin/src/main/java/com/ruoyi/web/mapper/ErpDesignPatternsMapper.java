@@ -72,5 +72,5 @@ public interface ErpDesignPatternsMapper extends BaseMapper<ErpDesignPatterns>
 
     int cancelConfirmById(Long id);
 
-    List<ErpOrders> findOrdersByProductIdAndStatus(@Param("productId") Long productId, @Param("status") Integer status);
+    List<Integer> findOrdersByProductIdAndStatus(@Param("productId") String productId, @Param("status") Integer status);
 }

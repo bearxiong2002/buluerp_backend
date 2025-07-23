@@ -153,7 +153,9 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
             );
 
             // 然后，立刻检查该订单是否已满足所有产品均设计的条件
-            checkAndUpdateRelatedOrders(productId);
+            if (erpProductsMapper.selectById(productId).getDesignStatus()==1) {
+                checkAndUpdateRelatedOrders(productId);
+            }
         }
 
         return result;
@@ -221,28 +223,33 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
         
         // 1. 找出所有包含该产品且处于“设计中”状态的订单
         Integer designingStatusValue = erpOrdersService.getStatusValue(OrderStatus.DESIGNED.getLabel());
-        List<ErpOrders> relatedOrders = erpDesignPatternsMapper.findOrdersByProductIdAndStatus(productId, designingStatusValue);
+        String productCode=erpProductsService.getById(productId).getInnerId();
+        List<Integer> ordersId = erpDesignPatternsMapper.findOrdersByProductIdAndStatus(productCode, designingStatusValue);
 
-        for (ErpOrders order : relatedOrders) {
+        for (Integer oId : ordersId) {
             try {
-                // 2. 重新获取订单的完整信息，包括其所有产品
-                ErpOrders fullOrder = erpOrdersService.selectErpOrdersById(order.getId());
-                if (fullOrder == null || fullOrder.getProducts().isEmpty()) {
-                    continue;
-                }
+//                // 2. 重新获取订单的完整信息，包括其所有产品
+//                ErpOrders fullOrder = erpOrdersService.selectErpOrdersById(order.getId());
+//                if (fullOrder == null || fullOrder.getProducts().isEmpty()) {
+//                    continue;
+//                }
+//
+//                // 3. 检查该订单的所有产品是否都已设计完成
+//                boolean allProductsDesigned = fullOrder.getProducts().stream()
+//                        .map(ErpOrdersProduct::getProduct)
+//                        .allMatch(p -> p != null && Objects.equals(p.getDesignStatus(), 1));
+//
+//                if (allProductsDesigned) {
+//                    log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。", fullOrder.getInnerId());
+//                    // 4. 如果是，则自动更新订单状态
+//                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PRODUCTION_SCHEDULE_PENDING);
+//                }
 
-                // 3. 检查该订单的所有产品是否都已设计完成
-                boolean allProductsDesigned = fullOrder.getProducts().stream()
-                        .map(ErpOrdersProduct::getProduct)
-                        .allMatch(p -> p != null && Objects.equals(p.getDesignStatus(), 1));
-
-                if (allProductsDesigned) {
-                    log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。", fullOrder.getInnerId());
-                    // 4. 如果是，则自动更新订单状态
-                    erpOrdersService.updateOrderStatusAutomatic(fullOrder.getId(), OrderStatus.PRODUCTION_SCHEDULE_PENDING);
-                }
+                log.info("订单 {} 的所有产品均已设计完成，自动更新状态至“待计划”。",oId );
+                // 4. 如果是，则自动更新订单状态
+                erpOrdersService.updateOrderStatusAutomatic(Long.valueOf(oId), OrderStatus.PRODUCTION_SCHEDULE_PENDING);
             } catch (Exception e) {
-                log.error("自动更新订单 {} 状态失败，产品ID: {}", order.getInnerId(), productId, e);
+                log.error("自动更新订单 {} 状态失败，产品ID: {}", oId, productId, e);
                 // 单个订单更新失败不影响其他订单
             }
         }

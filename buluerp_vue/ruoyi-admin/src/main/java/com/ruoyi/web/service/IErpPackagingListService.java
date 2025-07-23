@@ -39,4 +39,6 @@ public interface IErpPackagingListService {
      * @param orderCode 订单号
      */
     void executeMarkPackagingDone(String orderCode);
+
+    List<ErpPackagingList> selectErpPackagingListByOrderCode(String orderCode);
 }

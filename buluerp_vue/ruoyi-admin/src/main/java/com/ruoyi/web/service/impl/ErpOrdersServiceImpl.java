@@ -446,8 +446,23 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                  boolean auditEnabled = erpAuditSwitchService.isAuditEnabled(1); // 1 = 订单审核类型
                  
                  if (auditEnabled) {
-                     // 审核开关已启用，使用原始订单状态和更新后的订单数据创建审核记录
-                     erpAuditRecordService.handleOrderStatusChange(originalOrder, oldStatus, newStatus);
+                     // 检查订单当前审核状态，只有符合条件的订单才进入审核流程
+                     // 条件：审核状态为-1（被拒绝）且订单状态为0（待审核）
+                     if (originalOrder.getAuditStatus() != null && 
+                         originalOrder.getAuditStatus() == -1 && originalOrder.getStatus() == 0) {
+                         // 符合条件的订单，进入审核流程
+                         erpAuditRecordService.handleOrderStatusChange(originalOrder, oldStatus, newStatus);
+                     } else {
+                         // 不符合条件的订单，直接更新状态，不进入审核流程
+                         ErpOrders statusUpdate = new ErpOrders();
+                         statusUpdate.setId(erpOrders.getId());
+                         statusUpdate.setStatus(newStatus);
+                         statusUpdate.setUpdateTime(DateUtils.getNowDate());
+                         
+                         if (0 == erpOrdersMapper.updateErpOrders(statusUpdate)) {
+                             throw new ServiceException("更新订单状态失败");
+                         }
+                     }
                  } else {
                      // 审核开关已关闭，直接更新状态
                      ErpOrders statusUpdate = new ErpOrders();
@@ -521,7 +536,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             try {
                 erpAuditRecordService.handleAuditableEntityDeleted(
                     AuditTypeEnum.ORDER_AUDIT.getCode(),
-                    id
+                        erpOrdersMapper.selectErpOrdersById(id).getInnerId()
                 );
             } catch (Exception e) {
                 // 记录日志，但不要影响主删除流程

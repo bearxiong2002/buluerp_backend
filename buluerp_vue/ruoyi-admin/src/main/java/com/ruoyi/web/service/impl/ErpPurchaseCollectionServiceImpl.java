@@ -142,7 +142,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             // 在删除采购单之前，处理相关的待审核记录
             auditRecordService.handleAuditableEntityDeleted(
                 AuditTypeEnum.PURCHASE_AUDIT.getCode(),
-                id
+                String.valueOf(id)
             );
             erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(id);
         }
