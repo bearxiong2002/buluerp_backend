@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.mapper.ErpPurchaseInfoMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +40,14 @@ public class ErpPurchaseInfoServiceImpl
         queryWrapper.eq(ErpPurchaseInfo::getPurchaseCode, erpPurchaseInfo.getPurchaseCode());
         if (baseMapper.selectCount(queryWrapper) > 0) {
             throw new ServiceException("外购编码已存在，请更换外购编码");
+        }
+        ErpMaterialInfo erpMaterialInfo =
+                erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
+        if (erpMaterialInfo == null) {
+            throw new ServiceException("物料ID不存在，请先添加相应物料信息");
+        }
+        if (erpPurchaseInfo.getPictureUrl() == null && erpPurchaseInfo.getPicture() == null) {
+            erpPurchaseInfo.setPictureUrl(erpMaterialInfo.getDrawingReference());
         }
         if (erpPurchaseInfo.getPicture() != null) {
             String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());

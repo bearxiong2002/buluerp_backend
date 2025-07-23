@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 public class ErpPurchaseInfo
 {
     @TableId(type = IdType.AUTO)
+    @TableField(condition = SqlCondition.LIKE)
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")
     private Long id;
 
