@@ -219,13 +219,13 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     @Override
     @Transactional
     public int deleteErpPackagingListByIds(Long[] ids) {
-        for (Long id : ids) {
-            // 删除前处理关联的待审核记录
-            auditRecordService.handleAuditableEntityDeleted(
-                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
-                id
-            );
-        }
+//        for (Long id : ids) {
+//            // 删除前处理关联的待审核记录
+//            auditRecordService.handleAuditableEntityDeleted(
+//                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
+//                id
+//            );
+//        }
         erpPackagingBagService.deleteCascadeByListIds(ids);
         return erpPackagingListMapper.deleteErpPackagingListByIds(ids);
     }

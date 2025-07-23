@@ -536,7 +536,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             try {
                 erpAuditRecordService.handleAuditableEntityDeleted(
                     AuditTypeEnum.ORDER_AUDIT.getCode(),
-                    id
+                        erpOrdersMapper.selectErpOrdersById(id).getInnerId()
                 );
             } catch (Exception e) {
                 // 记录日志，但不要影响主删除流程

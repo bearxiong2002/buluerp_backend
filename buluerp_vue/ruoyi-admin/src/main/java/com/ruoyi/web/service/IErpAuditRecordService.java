@@ -273,7 +273,7 @@ public interface IErpAuditRecordService
      * @param auditType 审核类型
      * @param auditId   被删除的审核对象ID
      */
-    void handleAuditableEntityDeleted(Integer auditType, Long auditId);
+    void handleAuditableEntityDeleted(Integer auditType, String auditId);
 
     // ==================== 包装清单/分包审核业务方法 ====================
 

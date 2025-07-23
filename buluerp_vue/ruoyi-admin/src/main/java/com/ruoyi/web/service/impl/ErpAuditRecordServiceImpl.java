@@ -79,9 +79,9 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
     private IErpProductsService productsService;
 
     /** 订单状态常量 */
-    private static final Integer ORDER_STATUS_PENDING = 0;  // 待审核
-    private static final Integer ORDER_STATUS_APPROVED = 1; // 已审核 待设计
-    private static final Integer ORDER_STATUS_DESIGNING = 2; // 设计中
+    private static final Integer ORDER_STATUS_PENDING = 0;  //
+    private static final Integer ORDER_STATUS_APPROVED = 1; //
+    private static final Integer ORDER_STATUS_DESIGNING = 2; //
 
     /**
      * 查询审核记录
@@ -468,7 +468,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             if (auditType == null || auditId == null) {
                 throw new IllegalArgumentException("审核类型和审核对象ID不能为空");
             }
-            
+
             ErpAuditRecord auditRecord = new ErpAuditRecord();
             auditRecord.setAuditType(auditType);
             auditRecord.setAuditId(auditId);
@@ -479,7 +479,10 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
             // 更新业务表的审核状态为"审核中"
             updateAuditStatus(auditType, auditId, 1); // 1 = 审核中
-            
+
+            // 关闭该订单其他所有待审核的记录
+            closeFormerAudit(auditRecord);
+
             erpAuditRecordMapper.insert(auditRecord);
             log.info("创建审核记录成功，审核类型：{}，审核对象ID：{}，记录ID：{}", 
                     auditType, auditId, auditRecord.getId());
@@ -507,7 +510,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 先将该订单之前的通知标记为已读
             notificationService.markNotificationsAsReadByBusiness(order.getInnerId(), "ORDER");
             log.info("开始处理订单创建后流程，订单ID：{}，订单编号：{}", order.getId(), order.getInnerId());
-            
+
             // 1. 创建审核记录
             ErpAuditRecord auditRecord = createAuditRecord(
                 AuditTypeEnum.ORDER_AUDIT.getCode(),
@@ -1374,7 +1377,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
 
     @Override
     @Transactional
-    public void handleAuditableEntityDeleted(Integer auditType, Long auditId) {
+    public void handleAuditableEntityDeleted(Integer auditType, String auditId) {
         try {
             if (auditType == null || auditId == null) {
                 log.warn("处理待审核对象删除事件时，auditType 或 auditId 为空，已跳过。");
@@ -1441,6 +1444,36 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             }
         } catch (Exception e) {
             log.error("关闭过时审核记录时发生错误，业务 [类型: {}, ID: {}]", 
+                    processedRecord.getAuditType(), processedRecord.getAuditId(), e);
+            // 此处不向上抛出异常，以免影响主审核流程
+        }
+    }
+
+    @Transactional
+    public void closeFormerAudit(ErpAuditRecord processedRecord) {
+        if (processedRecord == null || processedRecord.getAuditId() == null || processedRecord.getAuditType() == null) {
+            return;
+        }
+
+        try {
+            // 找到除了当前已处理记录之外，所有与该业务对象相关的"待处理"审核
+            LambdaUpdateWrapper<ErpAuditRecord> wrapper = new LambdaUpdateWrapper<>();
+            wrapper.eq(ErpAuditRecord::getAuditType, processedRecord.getAuditType())
+                    .eq(ErpAuditRecord::getAuditId, processedRecord.getAuditId())
+                    .eq(ErpAuditRecord::getConfirm, 0); // 状态为"待处理"
+
+            wrapper.set(ErpAuditRecord::getConfirm, 1); // 标记为"已处理"
+            wrapper.set(ErpAuditRecord::getAuditor, "system");
+            wrapper.set(ErpAuditRecord::getCheckTime, new Date());
+            wrapper.set(ErpAuditRecord::getAuditComment, "过时的审核请求");
+
+            int updatedCount = erpAuditRecordMapper.update(null, wrapper);
+            if (updatedCount > 0) {
+                log.info("成功关闭了 {} 个关于业务 [类型: {}, ID: {}] 的过时审核记录。",
+                        updatedCount, processedRecord.getAuditType(), processedRecord.getAuditId());
+            }
+        } catch (Exception e) {
+            log.error("关闭过时审核记录时发生错误，业务 [类型: {}, ID: {}]",
                     processedRecord.getAuditType(), processedRecord.getAuditId(), e);
             // 此处不向上抛出异常，以免影响主审核流程
         }
