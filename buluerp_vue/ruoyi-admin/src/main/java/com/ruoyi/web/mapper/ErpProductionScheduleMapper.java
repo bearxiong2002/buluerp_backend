@@ -9,13 +9,6 @@ import java.util.List;
 
 @Mapper
 public interface ErpProductionScheduleMapper extends BaseMapper<ErpProductionSchedule> {
-    List<Long> listProductionScheduleMaterialIds(Long productionScheduleId);
-    int clearProductionScheduleMaterialIds(Long productionScheduleId);
-    int insertProductionScheduleMaterialIds(
-            @Param("productionScheduleId") Long productionScheduleId,
-            @Param("materialIds") List<Long> materialIds
-    );
-
     int attatchToArrange(
             @Param("productionArrangeId") Long productionArrangeId,
             @Param("productionScheduleIds") List<Long> productionScheduleIds

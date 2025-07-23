@@ -56,14 +56,14 @@ public class ErpProductionScheduleController extends BaseController {
             wrapper.eq(ErpProductionSchedule::getOrderCode, orderCodeExact);
         }
         List<ErpProductionSchedule> list = erpProductionScheduleService.list(wrapper);
-
-        for (ErpProductionSchedule item : list) {
-            item.setMaterialIds(
-                erpProductionScheduleService
-                    .getProductionScheduleMaterialIds(item.getId())
-            );
-        }
         return getDataTable(list);
+    }
+
+    @Anonymous
+    @GetMapping
+    @ApiOperation(value = "根据ID查询布产", notes = "根据ID查询布产")
+    public AjaxResult getInfo(Long[] ids) {
+        return success(erpProductionScheduleService.listByIds(Arrays.asList(ids)));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:export')")

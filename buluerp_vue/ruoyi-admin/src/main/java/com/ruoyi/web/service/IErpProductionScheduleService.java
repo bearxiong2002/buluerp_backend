@@ -46,8 +46,6 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
 
     void removeBatchChecked(List<Long> ids);
 
-    List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
-
     int removeErpProductionScheduleList(List<Long> ids);
 
     /**

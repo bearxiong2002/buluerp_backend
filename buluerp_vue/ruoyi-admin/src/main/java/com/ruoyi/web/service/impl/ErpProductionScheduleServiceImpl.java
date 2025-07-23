@@ -102,13 +102,6 @@ public class ErpProductionScheduleServiceImpl
         }
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         erpProductionSchedule.setCreationTime(DateUtils.getNowDate());
-        if (!CollectionUtils.isEmpty(erpProductionSchedule.getMaterialIds())) {
-            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                    erpProductionSchedule.getMaterialIds().get(0)
-            );
-            erpProductionSchedule.setMouldNumber(materialInfo.getMouldNumber());
-            erpProductionSchedule.setMaterialType(materialInfo.getMaterialType());
-        }
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
@@ -122,12 +115,6 @@ public class ErpProductionScheduleServiceImpl
         //         erpProductionSchedule.getOrderCode(),
         //         OrderStatus.PRODUCTION_SCHEDULING
         // );
-        if (erpProductionSchedule.getMaterialIds() != null) {
-            getBaseMapper().insertProductionScheduleMaterialIds(
-                    erpProductionSchedule.getId(),
-                    erpProductionSchedule.getMaterialIds()
-            );
-        }
 
         // 移除创建时的审核触发，布产审核只保留布产完成审核
 
@@ -324,13 +311,6 @@ public class ErpProductionScheduleServiceImpl
         if (0 == getBaseMapper().updateById(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
-        if (erpProductionSchedule.getMaterialIds() != null) {
-            getBaseMapper().clearProductionScheduleMaterialIds(erpProductionSchedule.getId());
-            getBaseMapper().insertProductionScheduleMaterialIds(
-                    erpProductionSchedule.getId(),
-                    erpProductionSchedule.getMaterialIds()
-            );
-        }
 
         // 检查状态变更
         if (erpProductionSchedule.getStatus() != null &&
@@ -389,21 +369,8 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
-    public List<Long> getProductionScheduleMaterialIds(Long productionScheduleId) {
-        return baseMapper.listProductionScheduleMaterialIds(productionScheduleId);
-    }
-
-    @Override
     @Transactional
     public int removeErpProductionScheduleList(List<Long> ids) {
-        for (Long id : ids) {
-//            // 在删除布产计划之前，处理相关的待审核记录
-//            auditRecordService.handleAuditableEntityDeleted(
-//                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
-//                id
-//            );
-            getBaseMapper().clearProductionScheduleMaterialIds(id);
-        }
         return getBaseMapper().deleteBatchIds(ids);
     }
 
