@@ -80,7 +80,7 @@ public class ErpProductionArrangeController extends BaseController {
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:add')")
     @Anonymous
     @PostMapping
-    @ApiOperation(value = "新增排产", notes = "新增排产")
+    @ApiOperation(value = "新增排产", notes = "新增排产", hidden = true)
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionArrange erpProductionArrange) throws IOException {
         return toAjax(erpProductionArrangeService.insertErpProductionArrangeList(
                 Collections.singletonList(erpProductionArrange)

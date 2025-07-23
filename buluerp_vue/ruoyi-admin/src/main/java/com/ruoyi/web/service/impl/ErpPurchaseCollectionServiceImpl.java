@@ -170,10 +170,12 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
         if (erpPurchaseCollection.getMaterialIds() != null) {
             erpPurchaseCollectionMapper.clearErpPurchaseCollectionMaterials(erpPurchaseCollection.getId());
-            erpPurchaseCollectionMapper.insertErpPurchaseCollectionMaterials(
-                    erpPurchaseCollection.getId(),
-                    erpPurchaseCollection.getMaterialIds()
-            );
+            if (!erpPurchaseCollection.getMaterialIds().isEmpty()) {
+                erpPurchaseCollectionMapper.insertErpPurchaseCollectionMaterials(
+                        erpPurchaseCollection.getId(),
+                        erpPurchaseCollection.getMaterialIds()
+                );
+            }
         }
         if (erpPurchaseCollection.getDeliveryDate() != null) {
             ErpPurchaseCollection updated = selectErpPurchaseCollectionById(erpPurchaseCollection.getId());
