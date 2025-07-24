@@ -1125,7 +1125,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 在发送新通知前，将旧通知标记为已读
             notificationService.markNotificationsAsReadByBusiness(String.valueOf(collection.getId()), "PURCHASE_COLLECTION");
 
-            collection.setStatus(Long.valueOf(auditRecord.getToStatus()));
+            collection.setStatus(1L);
             collection.setAuditStatus(2); // 审核通过
             purchaseCollectionService.applyApprovedStatus(collection);
 

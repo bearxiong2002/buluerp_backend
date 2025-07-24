@@ -235,6 +235,15 @@
             <if test="purchaseId != null">
                 purchase_id = #{purchaseId},
             </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="auditStatus != null">
+                audit_status = #{auditStatus},
+            </if>
+            <if test="purchaseId != null">
+                purchase_id = #{purchaseId},
+            </if>
         </trim>
         where id = #{id}
     </update>
@@ -346,91 +355,91 @@
         <include refid="selectResult"/>
         <where>
             <if test="id != null">
-                and id like concat('%', #{id}, '%')
+                and pc.id like concat('%', #{id}, '%')
             </if>
             <if test="orderCode != null and orderCode != ''">
-                and order_code like concat('%', #{orderCode}, '%')
+                and pc.order_code like concat('%', #{orderCode}, '%')
             </if>
             <if test="creationTime != null">
-                and DATE(creation_time) = DATE(#{creationTime})
+                and DATE(pc.creation_time) = DATE(#{creationTime})
             </if>
             <if test="operator != null and operator != ''">
-                and operator like concat('%', #{operator}, '%')
+                and pc.operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null and productId != ''">
-                and product_id like concat('%', #{productId}, '%')
+                and pc.product_id like concat('%', #{productId}, '%')
             </if>
             <if test="orderTime != null">
-                and order_time = #{orderTime}
+                and pc.order_time = #{orderTime}
             </if>
             <if test="pictureUrl != null and pictureUrl != ''">
-                and picture_url like concat('%', #{pictureUrl}, '%')
+                and pc.picture_url like concat('%', #{pictureUrl}, '%')
             </if>
             <if test="purchaseCode != null and purchaseCode != ''">
-                and purchase_code like concat('%', #{purchaseCode}, '%')
+                and pi.purchase_code like concat('%', #{purchaseCode}, '%')
             </if>
             <if test="mouldNumber != null and mouldNumber != ''">
-                and mould_number like concat('%', #{mouldNumber}, '%')
+                and mi.mould_number like concat('%', #{mouldNumber}, '%')
             </if>
             <if test="specification != null and specification != ''">
-                and specification like concat('%', #{specification}, '%')
+                and mi.specification_name like concat('%', #{specification}, '%')
             </if>
             <if test="purchaseQuantity != null">
-                and purchase_quantity = #{purchaseQuantity}
+                and pc.purchase_quantity = #{purchaseQuantity}
             </if>
             <if test="colorCode != null and colorCode != ''">
-                and color_code like concat('%', #{colorCode}, '%')
+                and pc.color_code like concat('%', #{colorCode}, '%')
             </if>
             <if test="materialType != null and materialType != ''">
-                and material_type like concat('%', #{materialType}, '%')
+                and mi.material_type like concat('%', #{materialType}, '%')
             </if>
             <if test="singleWeight != null">
-                and single_weight = #{singleWeight}
+                and mi.single_weight = #{singleWeight}
             </if>
             <if test="purchaseWeight != null">
-                and purchase_weight = #{purchaseWeight}
+                and pc.purchase_weight = #{purchaseWeight}
             </if>
             <if test="deliveryTime != null">
-                and delivery_time like concat('%', #{deliveryTime}, '%')
+                and pc.delivery_time like concat('%', #{deliveryTime}, '%')
             </if>
             <if test="deliveryDate != null">
-                and DATE(delivery_date) = DATE(#{deliveryDate})
+                and DATE(pc.delivery_date) = DATE(#{deliveryDate})
             </if>
             <if test="supplier != null and supplier != ''">
-                and supplier like concat('%', #{supplier}, '%')
+                and pc.supplier like concat('%', #{supplier}, '%')
             </if>
             <if test="remarks != null and remarks != ''">
-                and remarks like concat('%', #{remarks}, '%')
+                and pc.remarks like concat('%', #{remarks}, '%')
             </if>
             <if test="orderCodeExact != null">
-                and order_code = #{orderCodeExact}
+                and pc.order_code = #{orderCodeExact}
             </if>
             <if test="purchaseId != null">
-                and purchase_id = #{purchaseId}
+                and pc.purchase_id = #{purchaseId}
             </if>
         </where>
     </select>
     <select id="selectResultById" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where id = #{id}
+        where pc.id = #{id}
     </select>
     <select id="selectResultListByIds" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where id in
+        where pc.id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </select>
     <select id="selectResultListByOrderCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where order_code = #{orderCode}
+        where pc.order_code = #{orderCode}
     </select>
     <select id="selectResultListByPurchaseCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where purchase_code = #{purchaseCode}
+        where pi.purchase_code = #{purchaseCode}
     </select>
     <select id="selectResultListByPurchaseId" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where purchase_id = #{purchaseId}
+        where pc.purchase_id = #{purchaseId}
     </select>
 </mapper>

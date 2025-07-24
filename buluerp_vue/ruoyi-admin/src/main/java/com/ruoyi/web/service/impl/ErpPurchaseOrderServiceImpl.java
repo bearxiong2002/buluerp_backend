@@ -155,7 +155,7 @@ public class ErpPurchaseOrderServiceImpl extends ServiceImpl<ErpPurchaseOrderMap
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @MarkNotificationsAsRead(businessType = "PURCHASE_COLLECTION", businessIdsExpression = "T(java.util.Collections).singletonList(#addPurchaseOrderRequest.purchaseId)")
+//    @MarkNotificationsAsRead(businessType = "PURCHASE_COLLECTION", businessIdsExpression = "T(java.util.Collections).singletonList(#addPurchaseOrderRequest.purchaseId)")
     public int insertErpPurchaseOrder(AddPurchaseOrderRequest addPurchaseOrderRequest) throws IOException {
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
