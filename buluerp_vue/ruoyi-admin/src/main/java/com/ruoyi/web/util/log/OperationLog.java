@@ -3,6 +3,9 @@ package com.ruoyi.web.util.log;
 import java.util.Date;
 
 public interface OperationLog {
+    String OPERATOR_SYSTEM = "系统";
+    String OPERATOR_UNKNOWN = "未知";
+
     Date getOperationTime();
     String getOperationType();
     String getRecordId();

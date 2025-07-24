@@ -16,11 +16,9 @@ import com.ruoyi.system.service.ISysUserService;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
-import com.ruoyi.web.mapper.ErpProductsMapper;
 import com.ruoyi.web.util.log.LogUtil;
 import com.ruoyi.web.util.log.OperationLog;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
-import com.ruoyi.web.request.design.ListDesignPatternsRequest;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.result.OrderStatisticsResult;
 import com.ruoyi.web.service.*;
@@ -236,7 +234,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public boolean isOrderStatusTransitionAllowed(Integer fromStatus, Integer toStatus, String operator) {
         List<String> roles;
-        if (LogUtil.OPERATOR_SYSTEM.equals(operator)) {
+        if (OperationLog.OPERATOR_SYSTEM.equals(operator)) {
             roles = Collections.singletonList("admin");
         } else {
             SysUser sysUser = sysUserService.selectUserByUserName(operator);
@@ -317,12 +315,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Override
     public void updateOrderStatusAutomatic(Long id, OrderStatus status) {
-        updateOrderStatus(id, status.getValue(this), LogUtil.OPERATOR_SYSTEM);
+        updateOrderStatus(id, status.getValue(this), OperationLog.OPERATOR_SYSTEM);
     }
 
     @Override
     public void updateOrderStatusAutomatic(String orderCode, OrderStatus status) {
-        updateOrderStatus(orderCode, status.getValue(this), LogUtil.OPERATOR_SYSTEM);
+        updateOrderStatus(orderCode, status.getValue(this), OperationLog.OPERATOR_SYSTEM);
     }
 
     @Override
