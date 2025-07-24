@@ -896,7 +896,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             try {
                 ErpOrders order = ordersService.selectByOrderCode(auditRecord.getAuditId());
                 if (order != null) {
-                    ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PRODUCTION_PENDING);
+                    productionScheduleService.executeMarkAllScheduled(auditRecord.getAuditId());
                 } else {
                     log.warn("布产计划审核通过后，未找到对应的父订单，订单号: {}", auditRecord.getAuditId());
                 }
@@ -1536,7 +1536,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             try {
                 ErpOrders order = ordersService.selectByOrderCode(packagingList.getOrderCode());
                 if (order != null) {
-                    ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.PACKAGED);
+                    packagingListService.executeMarkPackagingDone(auditRecord.getAuditId());
                 } else {
                     log.warn("包装清单审核通过后，未找到对应的父订单，订单号: {}", packagingList.getOrderCode());
                 }
