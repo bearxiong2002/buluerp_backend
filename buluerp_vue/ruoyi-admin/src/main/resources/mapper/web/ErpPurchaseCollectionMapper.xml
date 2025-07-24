@@ -21,10 +21,12 @@
         <result property="deliveryDate" column="delivery_date"/>
         <result property="supplier" column="supplier"/>
         <result property="remarks" column="remarks"/>
+        <result property="status" column="status"/>
+        <result property="auditStatus" column="audit_status"/>
         <result property="purchaseId" column="purchase_id"/>
     </resultMap>
     <sql id="selectErpPurchaseCollection">
-        select id,order_code,creation_time,operator,product_id,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks,purchase_id
+        select id,order_code,creation_time,operator,product_id,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks,status,audit_status,purchase_id
         from erp_purchase_collection
     </sql>
 
@@ -48,6 +50,8 @@
                 pc.delivery_date as delivery_date,
                 pc.supplier as supplier,
                 pc.remarks as remarks,
+                pc.status as status,
+                pc.audit_status as audit_status,
                 pc.purchase_id as purchase_id
         from erp_purchase_collection pc
             left join erp_purchase_info pi on pc.purchase_id = pi.id
@@ -111,6 +115,12 @@
             <if test="remarks != null">
                 remarks,
             </if>
+            <if test="status != null">
+                (`status`),
+            </if>
+            <if test="auditStatus != null">
+                audit_status,
+            </if>
             <if test="purchaseId != null">
                 purchase_id,
             </if>
@@ -169,6 +179,12 @@
             </if>
             <if test="remarks != null">
                 #{remarks},
+            </if>
+            <if test="status != null">
+                #{status},
+            </if>
+            <if test="auditStatus != null">
+                #{auditStatus},
             </if>
             <if test="purchaseId != null">
                 #{purchaseId},
@@ -236,7 +252,7 @@
                 purchase_id = #{purchaseId},
             </if>
             <if test="status != null">
-                status = #{status},
+                (`status`) = #{status},
             </if>
             <if test="auditStatus != null">
                 audit_status = #{auditStatus},
@@ -320,11 +336,17 @@
             <if test="remarks != null and remarks != ''">
                 and remarks like concat('%', #{remarks}, '%')
             </if>
-            <if test="orderCodeExact != null">
-                and order_code = #{orderCodeExact}
+            <if test="status != null">
+                and (`status`) = #{status}
+            </if>
+            <if test="auditStatus != null">
+                and audit_status = #{auditStatus}
             </if>
             <if test="purchaseId != null">
                 and purchase_id = #{purchaseId}
+            </if>
+            <if test="orderCodeExact != null">
+                and order_code = #{orderCodeExact}
             </if>
         </where>
     </select>
@@ -411,11 +433,17 @@
             <if test="remarks != null and remarks != ''">
                 and pc.remarks like concat('%', #{remarks}, '%')
             </if>
-            <if test="orderCodeExact != null">
-                and pc.order_code = #{orderCodeExact}
+            <if test="status != null">
+                and (pc.`status`) = #{status}
+            </if>
+            <if test="auditStatus != null">
+                and pc.audit_status = #{auditStatus}
             </if>
             <if test="purchaseId != null">
                 and pc.purchase_id = #{purchaseId}
+            </if>
+            <if test="orderCodeExact != null">
+                and pc.order_code = #{orderCodeExact}
             </if>
         </where>
     </select>
