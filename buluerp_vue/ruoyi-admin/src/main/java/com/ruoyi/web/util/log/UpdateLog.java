@@ -74,8 +74,8 @@ public class UpdateLog implements OperationLog {
                     String updates = change.getValue().stream()
                             .filter(fieldChange -> !UpdateLog.isIgnoreField(fieldChange.getName()))
                             .filter(fieldChange -> !Objects.equals(
-                                    Objects.toString(fieldChange.getOldValue()),
-                                    Objects.toString(fieldChange.getNewValue())
+                                    LogUtil.formatValue(fieldChange.getOldValue()),
+                                    LogUtil.formatValue(fieldChange.getNewValue())
                             ))
                             .map(fieldChange -> String.format(
                                     "%s从%s改为%s",
