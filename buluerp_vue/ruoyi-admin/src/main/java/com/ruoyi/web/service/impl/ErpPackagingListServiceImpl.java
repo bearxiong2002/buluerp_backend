@@ -195,15 +195,21 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
         erpPackagingList.setOperator(SecurityUtils.getUsername());
         check(erpPackagingList);
 
-        // 检查状态变更是否需要触发审核
+        // 检查状态变更
         ErpPackagingList oldPackagingList = erpPackagingListMapper.selectErpPackagingListById(erpPackagingList.getId());
+//        if (erpPackagingList.getStatus() != null &&
+//            !erpPackagingList.getStatus().equals(oldPackagingList.getStatus()) &&
+//            auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
+//
+//            auditRecordService.handlePackagingListStatusChange(erpPackagingList, erpPackagingList.getStatus());
+//            // 状态变更进入审核流程，本次不直接更新状态
+//            erpPackagingList.setStatus(oldPackagingList.getStatus());
+//        }
+
         if (erpPackagingList.getStatus() != null &&
-            !erpPackagingList.getStatus().equals(oldPackagingList.getStatus()) &&
-            auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
-            
-            auditRecordService.handlePackagingListStatusChange(erpPackagingList, erpPackagingList.getStatus());
-            // 状态变更进入审核流程，本次不直接更新状态
-            erpPackagingList.setStatus(oldPackagingList.getStatus());
+                !erpPackagingList.getStatus().equals(oldPackagingList.getStatus()) &&
+                auditSwitchService.isAuditEnabled(AuditTypeEnum.SUBCONTRACT_AUDIT.getCode())) {
+            throw new ServiceException("不允许直接变更分包状态");
         }
 
         boolean done = erpPackagingList.getDone() != null && erpPackagingList.getDone();
