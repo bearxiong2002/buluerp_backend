@@ -65,7 +65,9 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             }
         }
         if (erpPackagingList.getProductId() != null) {
-            if (erpProductsService.getById(erpPackagingList.getProductId()) == null) {
+            LambdaQueryWrapper<ErpProducts> queryWrapper = Wrappers.lambdaQuery();
+            queryWrapper.eq(ErpProducts::getInnerId, erpPackagingList.getProductId());
+            if (erpProductsService.count(queryWrapper) == 0) {
                 throw new ServiceException("产品不存在");
             }
         }
