@@ -29,6 +29,8 @@ public interface IErpOrdersService extends OrderStatus.StatusMapper
 
     ErpOrders selectByOrderCode(String orderCode);
 
+    List<ErpOrders> selectByInnerIds(List<String> innerIds);
+
     /**
      * 查询订单列表
      * 

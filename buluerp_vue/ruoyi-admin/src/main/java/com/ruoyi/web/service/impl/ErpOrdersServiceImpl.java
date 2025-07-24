@@ -116,6 +116,14 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         return fillErpOrders(erpOrdersMapper.selectErpOrdersByInnerId(orderCode));
     }
 
+    @Override
+    public List<ErpOrders> selectByInnerIds(List<String> innerIds) {
+        return erpOrdersMapper.selectErpOrdersByInnerIds(innerIds)
+                .stream()
+                .map(this::fillErpOrders)
+                .collect(Collectors.toList());
+    }
+
     /**
      * 查询订单列表
      * 
