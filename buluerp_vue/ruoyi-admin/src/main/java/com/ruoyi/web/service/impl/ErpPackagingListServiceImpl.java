@@ -12,10 +12,7 @@ import com.ruoyi.common.exception.excel.ListRowErrorInfo;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
-import com.ruoyi.web.domain.ErpOrders;
-import com.ruoyi.web.domain.ErpPackagingBag;
-import com.ruoyi.web.domain.ErpPackagingDetail;
-import com.ruoyi.web.domain.ErpPackagingList;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
@@ -219,13 +216,20 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     @Override
     @Transactional
     public int deleteErpPackagingListByIds(Long[] ids) {
-//        for (Long id : ids) {
-//            // 删除前处理关联的待审核记录
-//            auditRecordService.handleAuditableEntityDeleted(
-//                AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
-//                id
-//            );
-//        }
+        for (Long id : ids) {
+            ErpPackagingList erpPackagingList = erpPackagingListMapper.selectErpPackagingListById(id);
+            if (erpPackagingList == null) {
+                throw new ServiceException("分包" + id + "不存在");
+            }
+            if (erpPackagingList.getDone()) {
+                throw new ServiceException("分包" + id + "已完成，不能删除");
+            }
+            // // 删除前处理关联的待审核记录
+            // auditRecordService.handleAuditableEntityDeleted(
+            //     AuditTypeEnum.SUBCONTRACT_AUDIT.getCode(),
+            //     id
+            // );
+        }
         erpPackagingBagService.deleteCascadeByListIds(ids);
         return erpPackagingListMapper.deleteErpPackagingListByIds(ids);
     }

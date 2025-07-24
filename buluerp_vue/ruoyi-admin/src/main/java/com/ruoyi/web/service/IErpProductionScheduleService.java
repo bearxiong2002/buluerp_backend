@@ -3,11 +3,17 @@ package com.ruoyi.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
+import com.ruoyi.web.result.ProductionScheduleResult;
 
 import java.io.IOException;
 import java.util.List;
 
 public interface IErpProductionScheduleService extends IService<ErpProductionSchedule> {
+    List<ProductionScheduleResult> listResult(ListProductionScheduleRequest request);
+    ProductionScheduleResult getResultById(Long id);
+    List<ProductionScheduleResult> listResultByIds(List<Long> ids);
+
     // 订单布产计划是否制定完成
     boolean isAllScheduled(String orderCode);
 
@@ -40,9 +46,11 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
 
     int updateErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;
 
-    int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
+    int attachToArrange(Long productionArrangeId, List<Long> productionScheduleIds);
 
-    List<Long> getProductionScheduleMaterialIds(Long productionScheduleId);
+    void removeChecked(Long id);
+
+    void removeBatchChecked(List<Long> ids);
 
     int removeErpProductionScheduleList(List<Long> ids);
 

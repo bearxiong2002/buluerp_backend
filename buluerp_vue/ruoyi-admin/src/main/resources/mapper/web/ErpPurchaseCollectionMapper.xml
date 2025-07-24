@@ -21,11 +21,39 @@
         <result property="deliveryDate" column="delivery_date"/>
         <result property="supplier" column="supplier"/>
         <result property="remarks" column="remarks"/>
+        <result property="purchaseId" column="purchase_id"/>
     </resultMap>
     <sql id="selectErpPurchaseCollection">
-        select id,order_code,creation_time,operator,product_id,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks
+        select id,order_code,creation_time,operator,product_id,order_time,picture_url,purchase_code,mould_number,specification,purchase_quantity,color_code,material_type,single_weight,purchase_weight,delivery_time,delivery_date,supplier,remarks,purchase_id
         from erp_purchase_collection
     </sql>
+
+    <sql id="selectResult">
+        select pc.id as id,
+                pc.order_code as order_code,
+                pc.creation_time as creation_time,
+                pc.operator as operator,
+                pc.product_id as product_id,
+                pc.order_time as order_time,
+                pc.picture_url as picture_url,
+                pi.purchase_code as purchase_code,
+                mi.mould_number as mould_number,
+                mi.specification_name as specification,
+                pc.purchase_quantity as purchase_quantity,
+                pc.color_code as color_code,
+                mi.material_type as material_type,
+                mi.single_weight as single_weight,
+                pc.purchase_weight as purchase_weight,
+                pc.delivery_time as delivery_time,
+                pc.delivery_date as delivery_date,
+                pc.supplier as supplier,
+                pc.remarks as remarks,
+                pc.purchase_id as purchase_id
+        from erp_purchase_collection pc
+            left join erp_purchase_info pi on pc.purchase_id = pi.id
+            left join erp_material_info mi on pi.material_id = mi.id
+    </sql>
+
     <insert id="insertErpPurchaseCollection" useGeneratedKeys="true" keyProperty="id">
         insert into erp_purchase_collection
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -83,6 +111,9 @@
             <if test="remarks != null">
                 remarks,
             </if>
+            <if test="purchaseId != null">
+                purchase_id,
+            </if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="orderCode != null">
@@ -139,14 +170,10 @@
             <if test="remarks != null">
                 #{remarks},
             </if>
+            <if test="purchaseId != null">
+                #{purchaseId},
+            </if>
         </trim>
-    </insert>
-    <insert id="insertErpPurchaseCollectionMaterials">
-        insert into erp_purchase_collection_material(purchase_collection_id,material_id)
-        values
-        <foreach item="item" index="index" collection="materialIds" separator=",">
-            (#{id},#{item})
-        </foreach>
     </insert>
     <update id="updateErpPurchaseCollection">
         update erp_purchase_collection
@@ -205,6 +232,9 @@
             <if test="remarks != null">
                 remarks = #{remarks},
             </if>
+            <if test="purchaseId != null">
+                purchase_id = #{purchaseId},
+            </if>
         </trim>
         where id = #{id}
     </update>
@@ -217,14 +247,11 @@
             #{id}
         </foreach>
     </delete>
-    <delete id="clearErpPurchaseCollectionMaterials">
-        delete from erp_purchase_collection_material where purchase_collection_id = #{id}
-    </delete>
     <select id="selectErpPurchaseCollectionById" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
         <include refid="selectErpPurchaseCollection"/>
         where id = #{id}
     </select>
-    <select id="selectErpPurchaseCollectionList" resultType="com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest">
+    <select id="selectErpPurchaseCollectionList" resultMap="ErpPurchaseCollectionResult">
         <include refid="selectErpPurchaseCollection"/>
         <where>
             <if test="id != null">
@@ -287,6 +314,9 @@
             <if test="orderCodeExact != null">
                 and order_code = #{orderCodeExact}
             </if>
+            <if test="purchaseId != null">
+                and purchase_id = #{purchaseId}
+            </if>
         </where>
     </select>
     <select id="selectErpPurchaseCollectionListByIds" resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
@@ -295,9 +325,6 @@
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
-    </select>
-    <select id="getErpPurchaseCollectionMaterialIds" resultType="java.lang.Long">
-        select material_id from erp_purchase_collection_material where purchase_collection_id = #{id}
     </select>
     <select id="selectErpPurchaseCollectionListByOrderCode"
             resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
@@ -309,5 +336,101 @@
             resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
         <include refid="selectErpPurchaseCollection"/>
         where purchase_code = #{purchaseCode}
+    </select>
+    <select id="selectErpPurchaseCollectionListByPurchaseId"
+            resultType="com.ruoyi.web.domain.ErpPurchaseCollection">
+        <include refid="selectErpPurchaseCollection"/>
+        where purchase_id = #{purchaseId}
+    </select>
+    <select id="selectResultList" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        <where>
+            <if test="id != null">
+                and id like concat('%', #{id}, '%')
+            </if>
+            <if test="orderCode != null and orderCode != ''">
+                and order_code like concat('%', #{orderCode}, '%')
+            </if>
+            <if test="creationTime != null">
+                and DATE(creation_time) = DATE(#{creationTime})
+            </if>
+            <if test="operator != null and operator != ''">
+                and operator like concat('%', #{operator}, '%')
+            </if>
+            <if test="productId != null and productId != ''">
+                and product_id like concat('%', #{productId}, '%')
+            </if>
+            <if test="orderTime != null">
+                and order_time = #{orderTime}
+            </if>
+            <if test="pictureUrl != null and pictureUrl != ''">
+                and picture_url like concat('%', #{pictureUrl}, '%')
+            </if>
+            <if test="purchaseCode != null and purchaseCode != ''">
+                and purchase_code like concat('%', #{purchaseCode}, '%')
+            </if>
+            <if test="mouldNumber != null and mouldNumber != ''">
+                and mould_number like concat('%', #{mouldNumber}, '%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and specification like concat('%', #{specification}, '%')
+            </if>
+            <if test="purchaseQuantity != null">
+                and purchase_quantity = #{purchaseQuantity}
+            </if>
+            <if test="colorCode != null and colorCode != ''">
+                and color_code like concat('%', #{colorCode}, '%')
+            </if>
+            <if test="materialType != null and materialType != ''">
+                and material_type like concat('%', #{materialType}, '%')
+            </if>
+            <if test="singleWeight != null">
+                and single_weight = #{singleWeight}
+            </if>
+            <if test="purchaseWeight != null">
+                and purchase_weight = #{purchaseWeight}
+            </if>
+            <if test="deliveryTime != null">
+                and delivery_time like concat('%', #{deliveryTime}, '%')
+            </if>
+            <if test="deliveryDate != null">
+                and DATE(delivery_date) = DATE(#{deliveryDate})
+            </if>
+            <if test="supplier != null and supplier != ''">
+                and supplier like concat('%', #{supplier}, '%')
+            </if>
+            <if test="remarks != null and remarks != ''">
+                and remarks like concat('%', #{remarks}, '%')
+            </if>
+            <if test="orderCodeExact != null">
+                and order_code = #{orderCodeExact}
+            </if>
+            <if test="purchaseId != null">
+                and purchase_id = #{purchaseId}
+            </if>
+        </where>
+    </select>
+    <select id="selectResultById" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        where id = #{id}
+    </select>
+    <select id="selectResultListByIds" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="selectResultListByOrderCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        where order_code = #{orderCode}
+    </select>
+    <select id="selectResultListByPurchaseCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        where purchase_code = #{purchaseCode}
+    </select>
+    <select id="selectResultListByPurchaseId" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
+        <include refid="selectResult"/>
+        where purchase_id = #{purchaseId}
     </select>
 </mapper>

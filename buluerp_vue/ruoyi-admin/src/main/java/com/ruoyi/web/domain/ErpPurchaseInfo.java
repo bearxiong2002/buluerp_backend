@@ -30,7 +30,9 @@ import javax.validation.constraints.NotNull;
 public class ErpPurchaseInfo
 {
     @TableId(type = IdType.AUTO)
+    @TableField(condition = SqlCondition.LIKE)
     @ApiModelProperty(value = "序号 [GET|list|PUT|DELETE|response]")
+    @Excel(name = "序号", type = Excel.Type.EXPORT)
     private Long id;
 
     /** 外购编码，唯一标识外购物料 */

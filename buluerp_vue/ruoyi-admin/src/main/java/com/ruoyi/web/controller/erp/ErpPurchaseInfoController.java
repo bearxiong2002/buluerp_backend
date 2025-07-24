@@ -145,6 +145,7 @@ public class ErpPurchaseInfoController extends BaseController
     @ApiOperation(value = "删除外购资料", notes = "删除外购资料")
     public AjaxResult remove(@PathVariable Long[] ids)
     {
-        return toAjax(erpPurchaseInfoService.removeBatchByIds(Arrays.asList(ids)));
+        erpPurchaseInfoService.deleteBatchChecked(ids);
+        return success();
     }
 }

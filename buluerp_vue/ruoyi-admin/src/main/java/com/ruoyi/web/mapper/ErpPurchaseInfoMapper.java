@@ -64,6 +64,4 @@ public interface ErpPurchaseInfoMapper extends BaseMapper<ErpPurchaseInfo>
      * @return 结果
      */
     public int deleteErpPurchaseInfoByIds(Long[] ids);
-
-    int deleteByMaterialIds(Long[] ids);
 }

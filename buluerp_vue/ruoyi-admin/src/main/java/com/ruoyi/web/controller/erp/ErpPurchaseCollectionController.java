@@ -14,6 +14,7 @@ import com.ruoyi.web.domain.ErpPurchaseCollection;
 import com.ruoyi.web.request.purchasecollection.AddPurchaseCollectionFromInfoRequest;
 import com.ruoyi.web.request.purchasecollection.ListPurchaseCollectionRequest;
 import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
+import com.ruoyi.web.result.PurchaseCollectionResult;
 import com.ruoyi.web.service.IErpPurchaseCollectionService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
@@ -26,6 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -45,7 +47,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @ApiOperation(value = "获取采购计划列表", notes = "获取采购计划列表")
     public TableDataInfo list(ListPurchaseCollectionRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
-        List<ErpPurchaseCollection> tableDataInfos = erpPurchaseCollectionService
+        List<PurchaseCollectionResult> tableDataInfos = erpPurchaseCollectionService
                 .selectErpPurchaseCollectionList(request);
         return getDataTable(tableDataInfos);
     }
@@ -55,8 +57,8 @@ public class ErpPurchaseCollectionController extends BaseController {
     @PostMapping("/export")
     @ApiOperation(value = "导出采购计划列表", notes = "导出采购计划列表")
     public void export(HttpServletResponse response, Long[] ids) {
-        List<ErpPurchaseCollection> list = erpPurchaseCollectionService.selectErpPurchaseCollectionListByIds(ids);
-        ExcelUtil<ErpPurchaseCollection> util = new ExcelUtil<>(ErpPurchaseCollection.class);
+        List<PurchaseCollectionResult> list = erpPurchaseCollectionService.selectErpPurchaseCollectionListByIds(ids);
+        ExcelUtil<PurchaseCollectionResult> util = new ExcelUtil<>(PurchaseCollectionResult.class);
         util.exportExcel(response, list, "采购计划数据");
     }
 
@@ -104,7 +106,8 @@ public class ErpPurchaseCollectionController extends BaseController {
     @DeleteMapping("/{ids}")
     @ApiOperation(value = "删除采购计划", notes = "删除采购计划")
     public AjaxResult remove(@PathVariable Long[] ids) {
-        return toAjax(erpPurchaseCollectionService.deleteErpPurchaseCollectionByIds(ids));
+        erpPurchaseCollectionService.removeBatchChecked(Arrays.asList(ids));
+        return success();
     }
 
     @Anonymous

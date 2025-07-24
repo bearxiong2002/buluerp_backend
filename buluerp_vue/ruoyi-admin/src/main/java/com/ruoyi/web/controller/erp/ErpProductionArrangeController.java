@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
-import com.ruoyi.common.core.domain.BaseEntity;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.utils.page.PageDefaultOptions;
 import com.ruoyi.common.validation.Save;
@@ -81,7 +80,7 @@ public class ErpProductionArrangeController extends BaseController {
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:add')")
     @Anonymous
     @PostMapping
-    @ApiOperation(value = "新增排产", notes = "新增排产")
+    @ApiOperation(value = "新增排产", notes = "新增排产", hidden = true)
     public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionArrange erpProductionArrange) throws IOException {
         return toAjax(erpProductionArrangeService.insertErpProductionArrangeList(
                 Collections.singletonList(erpProductionArrange)
@@ -110,8 +109,7 @@ public class ErpProductionArrangeController extends BaseController {
     @DeleteMapping("/{ids}")
     @ApiOperation(value = "删除排产", notes = "删除排产")
     public AjaxResult remove(@PathVariable Long[] ids) {
-        return toAjax(
-                erpProductionArrangeService.removeBatchByIds(Arrays.asList(ids))
-        );
+        erpProductionArrangeService.removeBatchChecked(Arrays.asList(ids));
+        return success();
     }
 }

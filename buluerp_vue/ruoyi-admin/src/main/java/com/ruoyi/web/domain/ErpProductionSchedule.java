@@ -198,10 +198,6 @@ public class ErpProductionSchedule {
     @ApiModelProperty(value = "图片 [POST|PUT]", dataType = "MultipartFile", notes = "仅请求")
     private MultipartFile picture;
 
-    @TableField(exist = false)
-    @ApiModelProperty(value = "物料ID列表 [response]", dataType = "List<Long>")
-    private List<Long> materialIds;
-
     @ApiModelProperty(value = "布产状态 0=待审核，1=审核通过")
     private Long status;
 
@@ -430,14 +426,6 @@ public class ErpProductionSchedule {
 
     public void setPicture(MultipartFile picture) {
         this.picture = picture;
-    }
-
-    public List<Long> getMaterialIds() {
-        return materialIds;
-    }
-
-    public void setMaterialIds(List<Long> materialIds) {
-        this.materialIds = materialIds;
     }
 
     public @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class}) Long getArrangeId() {

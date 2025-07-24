@@ -9,19 +9,148 @@
             #{item}
         </foreach>
     </update>
-    <select id="listProductionScheduleMaterialIds" resultType="java.lang.Long">
-        select material_id from erp_production_schedule_material
-        where production_schedule_id = #{productionScheduleId}
+    <sql id="selectResult">
+        select
+            ps.id as id,
+            ps.order_code as order_code,
+            ps.creation_time as creation_time,
+            ps.operator as operator,
+            ps.product_id as product_id,
+            ps.arrange_id as arrange_id,
+            ps.production_time as production_time,
+            ps.product_code as product_code,
+            mi.mould_number as mould_number,
+            mi.mould_status as mould_condition,
+            ps.picture_url as picture_url,
+            ps.color_code as color_code,
+            (ps.`usage`) as `usage`,
+            mi.material_type as material_type,
+            mi.cavity_count as cavity_count,
+            mi.single_weight as single_weight,
+            ps.production_quantity as production_quantity,
+            ps.production_mould_count as production_mould_count,
+            ps.production_weight as production_weight,
+            ps.color_powder_needed as color_powder_needed,
+            ps.cycle_time as cycle_time,
+            ps.time_hours as time_hours,
+            ps.shipment_time as shipment_time,
+            ps.supplier as supplier,
+            mi.mould_manufacturer as mould_manufacturer,
+            ps.inventory as inventory,
+            ps.customer_id as customer_id,
+            ps.status as status,
+            ps.audit_status as audit_status,
+            ps.material_id as material_id
+        from erp_production_schedule ps
+            left join erp_material_info mi on ps.material_id = mi.id
+    </sql>
+    <select id="selectResultList" resultType="com.ruoyi.web.result.ProductionScheduleResult">
+        <include refid="selectResult" />
+        <where>
+            <if test="id != null">
+                and id like concat('%', #{id}, '%')
+            </if>
+            <if test="orderCode != null">
+                and order_code like concat('%', #{orderCode}, '%')
+            </if>
+            <if test="creationTime != null">
+                and date(creation_time) = date(#{creationTime})
+            </if>
+            <if test="operator != null">
+                and operator like concat('%', #{operator}, '%')
+            </if>
+            <if test="productId != null">
+                and product_id = #{productId}
+            </if>
+            <if test="arrangeId != null">
+                and arrange_id = #{arrangeId}
+            </if>
+            <if test="productionTime != null">
+                and date(production_time) = date(#{productionTime})
+            </if>
+            <if test="productCode != null">
+                and product_code like concat('%', #{productCode}, '%')
+            </if>
+            <if test="mouldNumber != null">
+                and mould_number like concat('%', #{mouldNumber}, '%')
+            </if>
+            <if test="mouldCondition != null">
+                and mould_condition like concat('%', #{mouldCondition}, '%')
+            </if>
+            <if test="pictureUrl != null">
+                and picture_url like concat('%', #{pictureUrl}, '%')
+            </if>
+            <if test="colorCode != null">
+                and color_code like concat('%', #{colorCode}, '%')
+            </if>
+            <if test="usage != null">
+                and `usage` = #{usage}
+            </if>
+            <if test="materialType != null">
+                and material_type like concat('%', #{materialType}, '%')
+            </if>
+            <if test="cavityCount != null">
+                and cavity_count = #{cavityCount}
+            </if>
+            <if test="singleWeight != null">
+                and single_weight = #{singleWeight}
+            </if>
+            <if test="productionQuantity != null">
+                and production_quantity = #{productionQuantity}
+            </if>
+            <if test="productionMouldCount != null">
+                and production_mould_count = #{productionMouldCount}
+            </if>
+            <if test="productionWeight != null">
+                and production_weight = #{productionWeight}
+            </if>
+            <if test="colorPowderNeeded != null">
+                and color_powder_needed = #{colorPowderNeeded}
+            </if>
+            <if test="cycleTime != null">
+                and cycle_time = #{cycleTime}
+            </if>
+            <if test="timeHours != null">
+                and time_hours = #{timeHours}
+            </if>
+            <if test="shipmentTime != null">
+                and date(shipment_time) = date(#{shipmentTime})
+            </if>
+            <if test="supplier != null">
+                and supplier like concat('%', #{supplier}, '%')
+            </if>
+            <if test="mouldManufacturer != null">
+                and mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
+            </if>
+            <if test="inventory != null">
+                and inventory = #{inventory}
+            </if>
+            <if test="customerId != null">
+                and customer_id = #{customerId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+            <if test="auditStatus != null">
+                and audit_status = #{auditStatus}
+            </if>
+            <if test="materialId != null">
+                and material_id = #{materialId}
+            </if>
+            <if test="orderCodeExact != null">
+                and order_code = #{orderCodeExact}
+            </if>
+        </where>
     </select>
-    <delete id="clearProductionScheduleMaterialIds">
-        delete from erp_production_schedule_material
-        where production_schedule_id = #{productionScheduleId}
-    </delete>
-    <insert id="insertProductionScheduleMaterialIds">
-        insert into erp_production_schedule_material(production_schedule_id, material_id)
-        values
-        <foreach item="item" index="index" collection="materialIds" separator=",">
-            (#{productionScheduleId}, #{item})
+    <select id="selectResultById" resultType="com.ruoyi.web.result.ProductionScheduleResult">
+        <include refid="selectResult" />
+        where id = #{id}
+    </select>
+    <select id="selectResultListByIds" resultType="com.ruoyi.web.result.ProductionScheduleResult">
+        <include refid="selectResult" />
+        where id in
+        <foreach item="item" collection="list" open="(" separator="," close=")">
+            #{item}
         </foreach>
-    </insert>
+    </select>
 </mapper>

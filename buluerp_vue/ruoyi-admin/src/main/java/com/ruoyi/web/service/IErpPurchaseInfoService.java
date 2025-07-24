@@ -16,5 +16,7 @@ public interface IErpPurchaseInfoService extends IService<ErpPurchaseInfo> {
     int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo) throws IOException;
     int insertErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException;
     int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException;
+    boolean deleteChecked(Long id);
+    void deleteBatchChecked(Long[] ids);
     boolean deleteErpPurchaseInfoByMaterialIds(Long[] ids);
 }

@@ -102,8 +102,6 @@ public class ErpPurchaseCollection extends BaseEntity {
     @JsonIgnore
     private MultipartFile picture;
 
-    List<Long> materialIds;
-
     @ApiModelProperty(value = "状态 0=待审核，1=审核通过")
     private Long status;
 
@@ -124,14 +122,6 @@ public class ErpPurchaseCollection extends BaseEntity {
 
     public void setStatus(Long status) {
         this.status = status;
-    }
-
-    public List<Long> getMaterialIds() {
-        return materialIds;
-    }
-
-    public void setMaterialIds(List<Long> materialIds) {
-        this.materialIds = materialIds;
     }
 
     public Long getId() {

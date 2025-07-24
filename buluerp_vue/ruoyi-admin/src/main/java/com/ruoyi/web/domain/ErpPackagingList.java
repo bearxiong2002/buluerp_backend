@@ -96,7 +96,6 @@ public class ErpPackagingList {
     @ApiModelProperty(value = "分包袋列表 [response]")
     private List<ErpPackagingBag> bagList;
 
-    @TableField(exist = false)
     @ApiModelProperty(value = "是否已完成 [list|POST|PUT|response]")
     private Boolean isDone;
 

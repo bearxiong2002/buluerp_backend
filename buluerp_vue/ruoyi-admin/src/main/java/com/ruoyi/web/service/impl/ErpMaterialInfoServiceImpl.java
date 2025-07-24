@@ -5,11 +5,11 @@ import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.domain.ErpPackagingDetail;
+import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.domain.ErpPurchaseInfo;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
-import com.ruoyi.web.service.IErpMaterialInfoService;
-import com.ruoyi.web.service.IErpPurchaseInfoService;
-import com.ruoyi.web.service.IErpDesignStyleService;
+import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +28,12 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private IErpDesignStyleService erpDesignStyleService;
+
+    @Autowired
+    private IErpProductionScheduleService erpProductionScheduleService;
+
+    @Autowired
+    private IErpPackagingDetailService erpPackagingDetailService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -107,6 +113,18 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     @Transactional
     public int deleteErpMaterialInfoByIds(Long[] ids) {
+        for (Long id : ids) {
+            LambdaQueryWrapper<ErpProductionSchedule> scheduleQuery = new LambdaQueryWrapper<>();
+            scheduleQuery.eq(ErpProductionSchedule::getMaterialId, id);
+            if (erpProductionScheduleService.count(scheduleQuery) > 0) {
+                throw new ServiceException("该物料已被布产，不能删除");
+            }
+            LambdaQueryWrapper<ErpPackagingDetail> packagingDetailQuery = new LambdaQueryWrapper<>();
+            packagingDetailQuery.eq(ErpPackagingDetail::getMaterialId, id);
+            if (erpPackagingDetailService.count(packagingDetailQuery) > 0) {
+                throw new ServiceException("该物料已被拉线组包，不能删除");
+            }
+        }
         erpPurchaseInfoService.deleteErpPurchaseInfoByMaterialIds(ids);
         return erpMaterialInfoMapper.deleteErpMaterialInfoByIds(ids);
     }
@@ -114,7 +132,6 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     @Transactional
     public int deleteErpMaterialInfoById(Long id) {
-        erpPurchaseInfoService.deleteErpPurchaseInfoByMaterialIds(new Long[]{id});
-        return erpMaterialInfoMapper.deleteErpMaterialInfoById(id);
+        return deleteErpMaterialInfoByIds(new Long[]{id});
     }
 }

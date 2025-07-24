@@ -81,13 +81,4 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             #{id}
         </foreach>
     </delete>
-    <delete id="deleteByMaterialIds">
-        delete from erp_purchase_info where material_type in (
-            select material_type from erp_material_info
-            where id in
-            <foreach item="id" collection="array" separator="," open="(" close=")">
-                #{id}
-            </foreach>
-        )
-    </delete>
 </mapper>

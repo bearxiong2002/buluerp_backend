@@ -13,6 +13,8 @@ import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
+import com.ruoyi.web.result.ProductionScheduleResult;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -56,6 +58,8 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpProductionArrangeService erpProductionArrangeService;
+    @Autowired
+    private ErpProductionScheduleMapper erpProductionScheduleMapper;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
@@ -73,6 +77,21 @@ public class ErpProductionScheduleServiceImpl
             ErpOrders order = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
             if (order == null) {
                 throw new ServiceException("订单不存在");
+            }
+        }
+        if (erpProductionSchedule.getProductId() != null) {
+            LambdaQueryWrapper<ErpProducts> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpProducts::getInnerId, erpProductionSchedule.getProductId());
+            ErpProducts product = erpProductsService.getOne(queryWrapper);
+            if (product == null) {
+                throw new ServiceException("产品不存在");
+            }
+        }
+        if (erpProductionSchedule.getMaterialId() != null) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService
+                    .selectErpMaterialInfoById(erpProductionSchedule.getMaterialId());
+            if (materialInfo == null) {
+                throw new ServiceException("物料不存在");
             }
         }
     }
@@ -102,13 +121,6 @@ public class ErpProductionScheduleServiceImpl
         }
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         erpProductionSchedule.setCreationTime(DateUtils.getNowDate());
-        if (!CollectionUtils.isEmpty(erpProductionSchedule.getMaterialIds())) {
-            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                    erpProductionSchedule.getMaterialIds().get(0)
-            );
-            erpProductionSchedule.setMouldNumber(materialInfo.getMouldNumber());
-            erpProductionSchedule.setMaterialType(materialInfo.getMaterialType());
-        }
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
@@ -122,16 +134,25 @@ public class ErpProductionScheduleServiceImpl
         //         erpProductionSchedule.getOrderCode(),
         //         OrderStatus.PRODUCTION_SCHEDULING
         // );
-        if (erpProductionSchedule.getMaterialIds() != null) {
-            getBaseMapper().insertProductionScheduleMaterialIds(
-                    erpProductionSchedule.getId(),
-                    erpProductionSchedule.getMaterialIds()
-            );
-        }
 
         // 移除创建时的审核触发，布产审核只保留布产完成审核
 
         return 1;
+    }
+
+    @Override
+    public List<ProductionScheduleResult> listResult(ListProductionScheduleRequest request) {
+        return erpProductionScheduleMapper.selectResultList(request);
+    }
+
+    @Override
+    public ProductionScheduleResult getResultById(Long id) {
+        return erpProductionScheduleMapper.selectResultById(id);
+    }
+
+    @Override
+    public List<ProductionScheduleResult> listResultByIds(List<Long> ids) {
+        return erpProductionScheduleMapper.selectResultListByIds(ids);
     }
 
     @Override
@@ -244,21 +265,33 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException {
         ErpProductionSchedule schedule = new ErpProductionSchedule();
-        Long designPatternId = request.getDesignPatternId();
-        List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
-                .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
-        if (designPatterns.isEmpty()) {
-            throw new ServiceException("设计总表不存在");
-        }
-        ErpDesignPatterns designPattern = designPatterns.get(0);
-        schedule.setProductId(designPattern.getProductId());
 
-
-        ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
-        if (order == null) {
-            throw new ServiceException("设计总表项对应订单不存在或已被删除");
+        if (request.getDesignPatternId() != null) {
+            Long designPatternId = request.getDesignPatternId();
+            List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
+                    .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
+            if (designPatterns.isEmpty()) {
+                throw new ServiceException("设计总表不存在");
+            }
+            ErpDesignPatterns designPattern = designPatterns.get(0);
+            schedule.setProductId(designPattern.getProductId());
+            ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
+            if (order == null) {
+                throw new ServiceException("设计总表项对应订单不存在或已被删除");
+            }
+            schedule.setOrderCode(order.getInnerId());
+            schedule.setCustomerId(order.getCustomerId());
+        } else if (request.getOrderCode() != null) {
+            ErpOrders order = erpOrdersService.selectByOrderCode(request.getOrderCode());
+            if (order == null) {
+                throw new ServiceException("订单不存在");
+            }
+            schedule.setOrderCode(order.getInnerId());
+            schedule.setProductId(order.getProductId());
+            schedule.setCustomerId(order.getCustomerId());
+        } else {
+            throw new ServiceException("未指定订单或设计总表");
         }
-        schedule.setOrderCode(order.getInnerId());
 
         schedule.setProductionTime(request.getProductionTime());
 
@@ -289,7 +322,6 @@ public class ErpProductionScheduleServiceImpl
         schedule.setSupplier(request.getSupplier());
         schedule.setMouldManufacturer(request.getMouldManufacturer());
 
-        schedule.setCustomerId(order.getCustomerId());
         schedule.setMaterialId(materialInfo.getId());
 
         return insertErpProductionSchedule(schedule);
@@ -313,13 +345,6 @@ public class ErpProductionScheduleServiceImpl
         if (0 == getBaseMapper().updateById(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
         }
-        if (erpProductionSchedule.getMaterialIds() != null) {
-            getBaseMapper().clearProductionScheduleMaterialIds(erpProductionSchedule.getId());
-            getBaseMapper().insertProductionScheduleMaterialIds(
-                    erpProductionSchedule.getId(),
-                    erpProductionSchedule.getMaterialIds()
-            );
-        }
 
         // 检查状态变更
         if (erpProductionSchedule.getStatus() != null &&
@@ -331,7 +356,7 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
-    public int attatchToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
+    public int attachToArrange(Long productionArrangeId, List<Long> productionScheduleIds) {
         int result = baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
 
         Set<String> orderCodes = new HashSet<>();
@@ -354,21 +379,32 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
-    public List<Long> getProductionScheduleMaterialIds(Long productionScheduleId) {
-        return baseMapper.listProductionScheduleMaterialIds(productionScheduleId);
+    @Transactional
+    public void removeChecked(Long id) {
+        ErpProductionSchedule schedule = getById(id);
+        if (schedule == null) {
+            throw new ServiceException("布产" + id + "不存在");
+        }
+        ErpOrders order = erpOrdersService.selectByOrderCode(schedule.getOrderCode());
+        if (order != null && order.getAllScheduled()) {
+            throw new ServiceException("订单已完成布产计划定制，不允许删除布产" + id);
+        }
+        if (!removeById(id)) {
+            throw new ServiceException("删除布产" + id + "失败");
+        }
+    }
+
+    @Override
+    @Transactional
+    public void removeBatchChecked(List<Long> ids) {
+        for (Long id : ids) {
+            removeChecked(id);
+        }
     }
 
     @Override
     @Transactional
     public int removeErpProductionScheduleList(List<Long> ids) {
-        for (Long id : ids) {
-//            // 在删除布产计划之前，处理相关的待审核记录
-//            auditRecordService.handleAuditableEntityDeleted(
-//                AuditTypeEnum.PRODUCTION_AUDIT.getCode(),
-//                id
-//            );
-            getBaseMapper().clearProductionScheduleMaterialIds(id);
-        }
         return getBaseMapper().deleteBatchIds(ids);
     }
 
