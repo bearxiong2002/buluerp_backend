@@ -11,6 +11,7 @@ import com.ruoyi.web.annotation.AutoLogIdentifier;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.service.IErpOperationLogService;
 import io.swagger.annotations.ApiModel;
+import org.apache.commons.lang3.time.DateFormatUtils;
 import org.apache.ibatis.binding.MapperMethod;
 import org.apache.ibatis.executor.Executor;
 import org.apache.ibatis.executor.parameter.ParameterHandler;
@@ -22,7 +23,10 @@ import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.sql.*;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -148,8 +152,6 @@ public class LogUtil {
     }
 
     private static final ThreadLocal<String> CURRENT_OPERATOR = new ThreadLocal<>();
-    public static final String OPERATOR_SYSTEM = "系统";
-    public static final String OPERATOR_UNKNOWN = "未知";
 
     // 修改当前线程中自动日志的操作人
     public static void setCurrentOperator(String operator) {
@@ -157,7 +159,7 @@ public class LogUtil {
     }
 
     public static void setSystemOperator() {
-        setCurrentOperator(OPERATOR_SYSTEM);
+        setCurrentOperator(OperationLog.OPERATOR_SYSTEM);
     }
 
     public static String getCurrentOperator() {
@@ -165,12 +167,12 @@ public class LogUtil {
             return CURRENT_OPERATOR.get();
         }
         if (!isUserOperating()) {
-            return OPERATOR_SYSTEM;
+            return OperationLog.OPERATOR_SYSTEM;
         }
         try {
             return SecurityUtils.getUsername();
         } catch (Exception e) {
-            return OPERATOR_UNKNOWN;
+            return OperationLog.OPERATOR_UNKNOWN;
         }
     }
 
@@ -526,5 +528,19 @@ public class LogUtil {
 
     public static boolean isTranslationSuccess(String nameCn) {
         return !nameCn.startsWith("<") || !nameCn.endsWith(">");
+    }
+
+    public static String formatValue(Object value) {
+        if (value == null) {
+            return "空值";
+        } else if (value instanceof String) {
+            return "\"" + value + "\"";
+        } else if (value instanceof Date) {
+            return DateFormatUtils.format((Date) value, "yyyy-MM-dd HH:mm:ss");
+        } else if (value instanceof LocalDateTime) {
+            return ((LocalDateTime) value).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+        }
+
+        return value.toString();
     }
 }
