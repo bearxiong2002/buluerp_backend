@@ -1968,7 +1968,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             List<ErpPackagingList> packagingLists = erpPackagingListMapper.selectList(wrapper);
             
             for (ErpPackagingList packagingList : packagingLists) {
-                packagingList.setDone(true); // 标记为完成
+                packagingList.setStatus(1); // 标记为审核通过
                 packagingList.setAuditStatus(2); // 标记审核状态为通过
                 packagingListService.updateErpPackagingList(packagingList);
             }
