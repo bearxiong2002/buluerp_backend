@@ -52,6 +52,13 @@ public class ErpPurchaseCollectionController extends BaseController {
         return getDataTable(tableDataInfos);
     }
 
+    @Anonymous
+    @GetMapping
+    @ApiOperation(value = "根据ID获取采购计划详情", notes = "根据ID获取采购计划详情")
+    public AjaxResult get(Long[] ids) {
+        return success(erpPurchaseCollectionService.selectErpPurchaseCollectionListByIds(ids));
+    }
+
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:export')")
     @Anonymous
     @PostMapping("/export")

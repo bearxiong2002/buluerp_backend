@@ -7,6 +7,7 @@ import com.ruoyi.web.result.OrderStatisticsResult;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.springframework.beans.PropertyValues;
 
 import java.util.Date;
 import java.util.List;
@@ -94,4 +95,6 @@ public interface ErpOrdersMapper
             @Param("startTime") Date startTime,
             @Param("endTime") Date endTime
     );
+
+    List<ErpOrders> selectErpOrdersByInnerIds(List<String> innerIds);
 }

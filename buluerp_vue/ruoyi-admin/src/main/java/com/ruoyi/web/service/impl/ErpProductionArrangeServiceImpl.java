@@ -11,6 +11,7 @@ import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpProductionArrangeMapper;
 import com.ruoyi.web.request.arrange.AddProductionArrangeFromScheduleRequest;
+import com.ruoyi.web.result.ProductionScheduleResult;
 import com.ruoyi.web.service.IErpOrdersService;
 import com.ruoyi.web.service.IErpProductionArrangeService;
 import com.ruoyi.web.service.IErpProductionScheduleService;
@@ -63,8 +64,8 @@ public class ErpProductionArrangeServiceImpl
     @Transactional(rollbackFor = Exception.class)
     @MarkNotificationsAsRead(businessType = "PRODUCTION_SCHEDULE", businessIdsExpression = "#request.scheduleIds")
     public int insertFromSchedule(AddProductionArrangeFromScheduleRequest request) throws IOException {
-        List<ErpProductionSchedule> schedules = erpProductionScheduleService
-                .listByIds(request.getScheduleIds());
+        List<ProductionScheduleResult> schedules = erpProductionScheduleService
+                .listResultByIds(request.getScheduleIds());
         if (schedules.size() != request.getScheduleIds().size()) {
             throw new ServiceException("部分布产ID无效");
         }
@@ -78,7 +79,7 @@ public class ErpProductionArrangeServiceImpl
         erpProductionArrange.setScheduledTime(request.getScheduledTime());
         erpProductionArrange.setRemarks(request.getRemarks());
 
-        ErpProductionSchedule first = schedules.get(0);
+        ProductionScheduleResult first = schedules.get(0);
         String diffField = schedules.stream()
                 .skip(1)
                 .map(schedule -> {

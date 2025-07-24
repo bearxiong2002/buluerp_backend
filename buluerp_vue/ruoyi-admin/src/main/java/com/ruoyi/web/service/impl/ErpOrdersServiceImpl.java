@@ -116,6 +116,14 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         return fillErpOrders(erpOrdersMapper.selectErpOrdersByInnerId(orderCode));
     }
 
+    @Override
+    public List<ErpOrders> selectByInnerIds(List<String> innerIds) {
+        return erpOrdersMapper.selectErpOrdersByInnerIds(innerIds)
+                .stream()
+                .map(this::fillErpOrders)
+                .collect(Collectors.toList());
+    }
+
     /**
      * 查询订单列表
      * 
@@ -287,6 +295,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
             ErpOrders order = new ErpOrders();
             order.setId(oldOrder.getId());
             order.setStatus(status);
+            order.setUpdateTime(DateUtils.getNowDate());
             if (0 == erpOrdersMapper.updateErpOrders(order)) {
                 throw new ServiceException("更新订单状态失败");
             }
@@ -454,14 +463,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                          erpAuditRecordService.handleOrderStatusChange(originalOrder, oldStatus, newStatus);
                      } else {
                          // 不符合条件的订单，直接更新状态，不进入审核流程
-                         ErpOrders statusUpdate = new ErpOrders();
-                         statusUpdate.setId(erpOrders.getId());
-                         statusUpdate.setStatus(newStatus);
-                         statusUpdate.setUpdateTime(DateUtils.getNowDate());
-                         
-                         if (0 == erpOrdersMapper.updateErpOrders(statusUpdate)) {
-                             throw new ServiceException("更新订单状态失败");
-                         }
+                         updateOrderStatus(erpOrders.getId(), newStatus, erpOrders.getOperator());
                      }
                  } else {
                      // 审核开关已关闭，直接更新状态

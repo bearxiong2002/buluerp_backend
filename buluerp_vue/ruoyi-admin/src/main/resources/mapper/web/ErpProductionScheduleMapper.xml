@@ -48,107 +48,107 @@
         <include refid="selectResult" />
         <where>
             <if test="id != null">
-                and id like concat('%', #{id}, '%')
+                and ps.id like concat('%', #{id}, '%')
             </if>
             <if test="orderCode != null">
-                and order_code like concat('%', #{orderCode}, '%')
+                and ps.order_code like concat('%', #{orderCode}, '%')
             </if>
             <if test="creationTime != null">
-                and date(creation_time) = date(#{creationTime})
+                and date(ps.creation_time) = date(#{creationTime})
             </if>
             <if test="operator != null">
-                and operator like concat('%', #{operator}, '%')
+                and ps.operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null">
-                and product_id = #{productId}
+                and ps.product_id = #{productId}
             </if>
             <if test="arrangeId != null">
-                and arrange_id = #{arrangeId}
+                and ps.arrange_id = #{arrangeId}
             </if>
             <if test="productionTime != null">
-                and date(production_time) = date(#{productionTime})
+                and date(ps.production_time) = date(#{productionTime})
             </if>
             <if test="productCode != null">
-                and product_code like concat('%', #{productCode}, '%')
+                and ps.product_code like concat('%', #{productCode}, '%')
             </if>
             <if test="mouldNumber != null">
-                and mould_number like concat('%', #{mouldNumber}, '%')
+                and mi.mould_number like concat('%', #{mouldNumber}, '%')
             </if>
             <if test="mouldCondition != null">
-                and mould_condition like concat('%', #{mouldCondition}, '%')
+                and mi.mould_status like concat('%', #{mouldCondition}, '%')
             </if>
             <if test="pictureUrl != null">
-                and picture_url like concat('%', #{pictureUrl}, '%')
+                and ps.picture_url like concat('%', #{pictureUrl}, '%')
             </if>
             <if test="colorCode != null">
-                and color_code like concat('%', #{colorCode}, '%')
+                and ps.color_code like concat('%', #{colorCode}, '%')
             </if>
             <if test="usage != null">
-                and `usage` = #{usage}
+                and (ps.`usage`) = #{usage}
             </if>
             <if test="materialType != null">
-                and material_type like concat('%', #{materialType}, '%')
+                and mi.material_type like concat('%', #{materialType}, '%')
             </if>
             <if test="cavityCount != null">
-                and cavity_count = #{cavityCount}
+                and mi.cavity_count = #{cavityCount}
             </if>
             <if test="singleWeight != null">
-                and single_weight = #{singleWeight}
+                and mi.single_weight = #{singleWeight}
             </if>
             <if test="productionQuantity != null">
-                and production_quantity = #{productionQuantity}
+                and ps.production_quantity = #{productionQuantity}
             </if>
             <if test="productionMouldCount != null">
-                and production_mould_count = #{productionMouldCount}
+                and ps.production_mould_count = #{productionMouldCount}
             </if>
             <if test="productionWeight != null">
-                and production_weight = #{productionWeight}
+                and ps.production_weight = #{productionWeight}
             </if>
             <if test="colorPowderNeeded != null">
-                and color_powder_needed = #{colorPowderNeeded}
+                and ps.color_powder_needed = #{colorPowderNeeded}
             </if>
             <if test="cycleTime != null">
-                and cycle_time = #{cycleTime}
+                and ps.cycle_time = #{cycleTime}
             </if>
             <if test="timeHours != null">
-                and time_hours = #{timeHours}
+                and ps.time_hours = #{timeHours}
             </if>
             <if test="shipmentTime != null">
-                and date(shipment_time) = date(#{shipmentTime})
+                and date(ps.shipment_time) = date(#{shipmentTime})
             </if>
             <if test="supplier != null">
-                and supplier like concat('%', #{supplier}, '%')
+                and ps.supplier like concat('%', #{supplier}, '%')
             </if>
             <if test="mouldManufacturer != null">
-                and mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
+                and mi.mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
             </if>
             <if test="inventory != null">
-                and inventory = #{inventory}
+                and ps.inventory = #{inventory}
             </if>
             <if test="customerId != null">
-                and customer_id = #{customerId}
+                and ps.customer_id = #{customerId}
             </if>
             <if test="status != null">
-                and status = #{status}
+                and ps.status = #{status}
             </if>
             <if test="auditStatus != null">
-                and audit_status = #{auditStatus}
+                and ps.audit_status = #{auditStatus}
             </if>
             <if test="materialId != null">
-                and material_id = #{materialId}
+                and ps.material_id = #{materialId}
             </if>
             <if test="orderCodeExact != null">
-                and order_code = #{orderCodeExact}
+                and ps.order_code = #{orderCodeExact}
             </if>
         </where>
     </select>
     <select id="selectResultById" resultType="com.ruoyi.web.result.ProductionScheduleResult">
         <include refid="selectResult" />
-        where id = #{id}
+        where ps.id = #{id}
     </select>
     <select id="selectResultListByIds" resultType="com.ruoyi.web.result.ProductionScheduleResult">
         <include refid="selectResult" />
-        where id in
+        where ps.id in
         <foreach item="item" collection="list" open="(" separator="," close=")">
             #{item}
         </foreach>

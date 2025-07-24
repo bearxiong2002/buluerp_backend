@@ -72,10 +72,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="customerId != null "> and o.customer_id = #{customerId}</if>
             <if test="allScheduled != null "> and o.all_scheduled = #{allScheduled}</if>
             <if test="allPurchased != null "> and o.all_purchased = #{allPurchased}</if>
-            <if test="productId != null "> and product_id like concat('%',#{productId},'%')</if>
-            <!--<if test="productionId != null "> and production_id = #{productionId}</if>-->
-            <!--<if test="purchaseId != null "> and purchase_id = #{purchaseId}</if>-->
-            <if test="subcontractId != null "> and subcontract_id = #{subcontractId}</if>
+            <if test="productId != null "> and erp_design_patterns.product_id like concat('%',#{productId},'%')</if>
+            <!--<if test="productionId != null "> and erp_production_schedule.id = #{productionId}</if>-->
+            <!--<if test="purchaseId != null "> and erp_purchase_collection.id = #{purchaseId}</if>-->
+            <if test="subcontractId != null "> and erp_packaging_list.subcontract_id = #{subcontractId}</if>
             <if test="remark != null "> and o.remark like CONCAT('%',#{remark},'%')</if>
             <if test="customerName != null "> and c.name like CONCAT('%',#{customerName},'%')</if>
             <if test="createTimeFrom != null">
@@ -172,6 +172,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             </if>
         </where>
         group by status
+    </select>
+    <select id="selectErpOrdersByInnerIds" resultType="com.ruoyi.web.domain.ErpOrders">
+        <include refid="selectErpOrdersVo"/>
+        where inner_id in
+        <foreach item="item" collection="list" separator="," open="(" close=")" index="">
+            #{item}
+        </foreach>
     </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">

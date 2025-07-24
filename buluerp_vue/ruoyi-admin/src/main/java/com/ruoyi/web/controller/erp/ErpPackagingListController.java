@@ -76,10 +76,10 @@ public class ErpPackagingListController extends BaseController {
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:query')")
     @Anonymous
-    @GetMapping(value = "/{id}")
+    @GetMapping
     @ApiOperation(value = "获取分包详细信息", notes = "获取分包详细信息")
-    public AjaxResult getInfo(@PathVariable("id") Long id) {
-        return success(requiresNotNull(packagingListService.selectErpPackagingListById(id)));
+    public AjaxResult getInfo(Long[] ids) {
+        return success(requiresNotNull(packagingListService.selectErpPackagingListListByIds(ids)));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:add')")

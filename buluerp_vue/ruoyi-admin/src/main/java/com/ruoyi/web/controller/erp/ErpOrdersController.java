@@ -1,6 +1,7 @@
 package com.ruoyi.web.controller.erp;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -104,11 +105,18 @@ public class ErpOrdersController extends BaseController
      */
     // @PreAuthorize("@ss.hasPermi('system:orders:query')")
     @Anonymous
-    @GetMapping(value = "/{id}")
+    @GetMapping
     @ApiOperation(value = "获取订单详细信息", notes = "获取订单详细信息")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
+    public AjaxResult getInfo(Long[] ids)
     {
-        return success(requiresNotNull(erpOrdersService.selectErpOrdersById(id)));
+        return success(erpOrdersService.selectErpOrdersListByIds(ids));
+    }
+
+    @Anonymous
+    @GetMapping("/inner-id")
+    @ApiOperation(value = "根据内部订单号查询订单", notes = "根据内部订单号查询订单")
+    public AjaxResult getByInnerIds(String[] innerIds) {
+        return success(erpOrdersService.selectByInnerIds(Arrays.asList(innerIds)));
     }
 
     /**
