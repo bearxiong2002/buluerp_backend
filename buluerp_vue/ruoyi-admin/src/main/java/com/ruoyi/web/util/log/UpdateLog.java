@@ -73,6 +73,10 @@ public class UpdateLog implements OperationLog {
                     String id = change.getKey();
                     String updates = change.getValue().stream()
                             .filter(fieldChange -> !UpdateLog.isIgnoreField(fieldChange.getName()))
+                            .filter(fieldChange -> !Objects.equals(
+                                    Objects.toString(fieldChange.getOldValue()),
+                                    Objects.toString(fieldChange.getNewValue())
+                            ))
                             .map(fieldChange -> String.format(
                                     "%s从\"%s\"改为\"%s\"",
                                     LogUtil.translateFieldName(tableName, fieldChange.getName()),
