@@ -116,7 +116,7 @@
                 remarks,
             </if>
             <if test="status != null">
-                (`status`),
+                `status`,
             </if>
             <if test="auditStatus != null">
                 audit_status,
@@ -252,7 +252,7 @@
                 purchase_id = #{purchaseId},
             </if>
             <if test="status != null">
-                (`status`) = #{status},
+                `status` = #{status},
             </if>
             <if test="auditStatus != null">
                 audit_status = #{auditStatus},
@@ -337,7 +337,7 @@
                 and remarks like concat('%', #{remarks}, '%')
             </if>
             <if test="status != null">
-                and (`status`) = #{status}
+                and `status` = #{status}
             </if>
             <if test="auditStatus != null">
                 and audit_status = #{auditStatus}
