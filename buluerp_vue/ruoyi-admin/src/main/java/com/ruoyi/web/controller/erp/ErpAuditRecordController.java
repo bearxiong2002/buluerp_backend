@@ -456,30 +456,15 @@ public class ErpAuditRecordController extends BaseController
 
         String auditor = SecurityUtils.getUsername();
 
-        // 验证是否为包装清单审核记录
-        ErpAuditRecord queryRecord = new ErpAuditRecord();
-        queryRecord.setId(id);
-        List<ErpAuditRecord> records = erpAuditRecordService.selectAuditRecords(queryRecord, null, null, null, null);
-        if (records.isEmpty()) {
-            return error("审核记录不存在");
-        }
+        boolean result = erpAuditRecordService.processAuditByRecordId(
+                id,
+                auditRequest.getAccept(),
+                auditor,
+                auditRequest.getAuditComment()
+        );
 
-        ErpAuditRecord auditRecord = records.get(0);
-        if (!AuditTypeEnum.SUBCONTRACT_AUDIT.getCode().equals(auditRecord.getAuditType())) {
-            return error("该记录不是包装清单审核记录");
-        }
-
-        // 处理审核
-        int result = erpAuditRecordService.processAudit(Arrays.asList(id), auditRequest.getAccept(), auditor, auditRequest.getAuditComment());
-        if (result > 0) {
-            // 根据confirm字段调用相应的业务处理
-            if (auditRequest.getAccept().equals(1)) {
-                erpAuditRecordService.handlePackagingListApproved(id, auditor, auditRequest.getAuditComment());
-                return success("包装清单审核通过成功");
-            } else {
-                erpAuditRecordService.handlePackagingListRejected(id, auditor, auditRequest.getAuditComment());
-                return success("包装清单审核拒绝成功");
-            }
+        if (result) {
+            return success("审核处理成功");
         } else {
             return error("审核处理失败");
         }

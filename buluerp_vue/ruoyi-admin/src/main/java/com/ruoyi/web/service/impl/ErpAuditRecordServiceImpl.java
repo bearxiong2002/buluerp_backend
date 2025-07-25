@@ -1970,7 +1970,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             for (ErpPackagingList packagingList : packagingLists) {
                 packagingList.setStatus(1); // 标记为审核通过
                 packagingList.setAuditStatus(2); // 标记审核状态为通过
-                packagingListService.updateErpPackagingList(packagingList);
+                erpPackagingListMapper.updateById(packagingList);
             }
             
             // 3. 执行实际的分包完成逻辑
