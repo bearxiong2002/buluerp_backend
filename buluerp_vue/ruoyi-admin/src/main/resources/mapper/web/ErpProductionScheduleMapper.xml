@@ -22,7 +22,7 @@
             mi.mould_number as mould_number,
             mi.mould_status as mould_condition,
             ps.picture_url as picture_url,
-            ps.color_code as color_code,
+            mt.color_code as color_code,
             (ps.`usage`) as `usage`,
             mi.material_type as material_type,
             mi.cavity_count as cavity_count,
@@ -30,7 +30,7 @@
             ps.production_quantity as production_quantity,
             ps.production_mould_count as production_mould_count,
             ps.production_weight as production_weight,
-            ps.color_powder_needed as color_powder_needed,
+            mt.color_weight as color_powder_needed,
             ps.cycle_time as cycle_time,
             ps.time_hours as time_hours,
             ps.shipment_time as shipment_time,
@@ -43,6 +43,7 @@
             ps.material_id as material_id
         from erp_production_schedule ps
             left join erp_material_info mi on ps.material_id = mi.id
+            left join erp_material_type mt on mi.material_type = mt.name
     </sql>
     <select id="selectResultList" resultType="com.ruoyi.web.result.ProductionScheduleResult">
         <include refid="selectResult" />

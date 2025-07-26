@@ -39,11 +39,6 @@ public class AddPurchaseCollectionFromInfoRequest {
     @Example("100")
     private Long purchaseQuantity;
 
-    @ApiModelProperty(value = "颜色编号，产品的颜色编号")
-    @Excel(name = "颜色编号")
-    @Example("123ABC")
-    private String colorCode;
-
     @ApiModelProperty(value = "货期，供应商承诺的交货时间")
     @Excel(name = "货期")
     @Example("2023-01-01")
@@ -84,14 +79,6 @@ public class AddPurchaseCollectionFromInfoRequest {
 
     public void setPurchaseQuantity(Long purchaseQuantity) {
         this.purchaseQuantity = purchaseQuantity;
-    }
-
-    public String getColorCode() {
-        return colorCode;
-    }
-
-    public void setColorCode(String colorCode) {
-        this.colorCode = colorCode;
     }
 
     public String getDeliveryTime() {

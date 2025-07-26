@@ -142,8 +142,8 @@ public class ErpProductionSchedule {
     @Excel(name = "需要色粉份数")
     @ApiModelProperty(value = "需要色粉份数 [list|POST|PUT|response]", dataType = "Integer")
     @Range(min = 0, message = "需要色粉份数必须大于0", groups = {Save.class, Update.class})
-    @Example("12")
-    private Integer colorPowderNeeded;
+    @Example("1.2")
+    private Double colorPowderNeeded;
 
     @Excel(name = "生产周期(s)")
     @ApiModelProperty(value = "生产周期(s) [list|POST|PUT|response]", dataType = "Double")
@@ -364,11 +364,11 @@ public class ErpProductionSchedule {
         this.productionWeight = productionWeight;
     }
 
-    public Integer getColorPowderNeeded() {
+    public Double getColorPowderNeeded() {
         return colorPowderNeeded;
     }
 
-    public void setColorPowderNeeded(Integer colorPowderNeeded) {
+    public void setColorPowderNeeded(Double colorPowderNeeded) {
         this.colorPowderNeeded = colorPowderNeeded;
     }
 
