@@ -77,6 +77,7 @@ public class ErpProductionArrangeServiceImpl
         erpProductionArrange.setPictureUrl(request.getPictureUrl());
         erpProductionArrange.setMouldOutput(request.getMouldOutput());
         erpProductionArrange.setScheduledTime(request.getScheduledTime());
+        erpProductionArrange.setCompletionTime(request.getCompletionTime());
         erpProductionArrange.setRemarks(request.getRemarks());
 
         ProductionScheduleResult first = schedules.get(0);

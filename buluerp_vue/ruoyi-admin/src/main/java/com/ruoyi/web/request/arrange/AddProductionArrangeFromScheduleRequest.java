@@ -50,6 +50,11 @@ public class AddProductionArrangeFromScheduleRequest {
     @Example("2023-01-01")
     private Date scheduledTime;
 
+    @ApiModelProperty(value = "完成时间")
+    @Excel(name = "完成时间")
+    @Example("2023-01-01")
+    private Date completionTime;
+
     @ApiModelProperty(value = "备注")
     @Excel(name = "备注")
     @Example("备注")
@@ -132,5 +137,13 @@ public class AddProductionArrangeFromScheduleRequest {
 
     public void setScheduleIdsExpr(String scheduleIdsExpr) {
         this.scheduleIdsExpr = scheduleIdsExpr;
+    }
+
+    public Date getCompletionTime() {
+        return completionTime;
+    }
+
+    public void setCompletionTime(Date completionTime) {
+        this.completionTime = completionTime;
     }
 }
