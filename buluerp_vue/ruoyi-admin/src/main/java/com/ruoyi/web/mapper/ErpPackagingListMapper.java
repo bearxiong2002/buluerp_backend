@@ -15,5 +15,5 @@ public interface ErpPackagingListMapper extends BaseMapper<ErpPackagingList> {
     int updateErpPackagingList(ErpPackagingList erpPackagingList);
     int deleteErpPackagingListById(Long id);
     int deleteErpPackagingListByIds(Long[] ids);
-    int deleteErpPackagingListByProductId(Long productId);
+    int deleteErpPackagingListByProductId(String productId);
 }

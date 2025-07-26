@@ -221,7 +221,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     public int deleteErpProductsByIds(List<Integer> ids) {
         List<ErpProducts> erpProductsList=erpProductsMapper.selectBatchIds(ids);
         for(ErpProducts erpProducts:erpProductsList){
-            erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getId());
+            erpPackagingListMapper.deleteErpPackagingListByProductId(erpProducts.getInnerId());
             erpProductsMapper.clearProductMaterial(erpProducts.getId());
             erpOrdersMapper.clearOrdersProductsByProduct(erpProducts.getId());
             String url=erpProducts.getPictureUrl();
