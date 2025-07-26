@@ -32,7 +32,7 @@ public class ErpMaterialType {
     @Excel(name = "名称")
     @Example("料型A")
     @NotBlank(message = "名称不能为空", groups = Save.class)
-    @Null(message = "名称不能修改", groups = Update.class)
+    // @Null(message = "名称不能修改", groups = Update.class)
     private String name;
 
     @TableField(condition = SqlCondition.LIKE)
