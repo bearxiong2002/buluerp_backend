@@ -4,10 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
-import com.ruoyi.web.domain.ErpMaterialInfo;
-import com.ruoyi.web.domain.ErpPackagingDetail;
-import com.ruoyi.web.domain.ErpProductionSchedule;
-import com.ruoyi.web.domain.ErpPurchaseInfo;
+import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +32,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Autowired
     private IErpPackagingDetailService erpPackagingDetailService;
 
+    @Autowired
+    private IErpMaterialTypeService erpMaterialTypeService;
+
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpPurchaseInfo::getMaterialId, erpMaterialInfo.getId());
@@ -51,6 +51,19 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         return erpMaterialInfoList;
     }
 
+    private void checkReferences(ErpMaterialInfo erpMaterialInfo) {
+        if (erpMaterialInfo.getMaterialType() == null) {
+            ErpMaterialType type = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
+            if (type == null) {
+                throw new ServiceException("对应物料类型不存在");
+            }
+        }
+    }
+
+    private void check(ErpMaterialInfo erpMaterialInfo) {
+        checkReferences(erpMaterialInfo);
+    }
+
     @Override
     public List<ErpMaterialInfo> selectErpMaterialInfoList(ErpMaterialInfo erpMaterialInfo) {
         return fill(erpMaterialInfoMapper.selectErpMaterialInfoList(erpMaterialInfo));
@@ -62,6 +75,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
+    public List<ErpMaterialInfo> listByMaterialType(String materialType) {
+        return fill(erpMaterialInfoMapper.selectByMaterialType(materialType));
+    }
+
+    @Override
     public ErpMaterialInfo selectErpMaterialInfoById(Long id) {
         return erpMaterialInfoMapper.selectErpMaterialInfoById(id);
     }
@@ -70,6 +88,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     public Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setCreatTime(DateUtils.getNowDate());
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
+        check(erpMaterialInfo);
         // if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
         //     throw new ServiceException("物料类型已存在");
         // }
@@ -97,6 +116,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Transactional
     public int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
+        check(erpMaterialInfo);
         if (erpMaterialInfo.getDeleteDrawingReference()) {
             erpMaterialInfoMapper.deleteErpMaterialInfoDrawingReferenceById(erpMaterialInfo.getId());
             // 联动删除使用该物料的设计造型图片

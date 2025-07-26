@@ -248,7 +248,7 @@
             #{id}
         </foreach>
     </select>
-    <select id="selectErpMaterialInfoByMaterialType" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+    <select id="selectByMaterialType" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
         <include refid="selectErpMaterialInfo"/>
         where material_type = #{materialType}
     </select>

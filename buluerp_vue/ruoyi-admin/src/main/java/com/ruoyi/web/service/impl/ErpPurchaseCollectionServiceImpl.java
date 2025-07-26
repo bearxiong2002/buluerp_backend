@@ -47,6 +47,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Autowired
     private IErpDesignPatternsService erpDesignPatternsService;
 
+    @Autowired
+    private IErpMaterialTypeService erpMaterialTypeService;
+
     private void checkUnique(ErpPurchaseCollection erpPurchaseCollection) {
         // if (erpPurchaseCollection.getOrderCode()!= null) {
         //     ErpPurchaseCollection original = erpPurchaseCollectionMapper.selectErpPurchaseCollectionByOrderCode(erpPurchaseCollection.getOrderCode());
@@ -247,6 +250,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (erpMaterialInfo.getSingleWeight() == null) {
             throw new ServiceException("请先完善对应物料资料的单重信息");
         }
+        ErpMaterialType erpMaterialType = erpMaterialTypeService
+                .getByName(erpMaterialInfo.getMaterialType());
+        if (erpMaterialType == null) {
+            throw new ServiceException("物料类型无效");
+        }
 
         erpPurchaseCollection.setOrderTime(request.getOrderTime());
         erpPurchaseCollection.setPurchaseId(erpPurchaseInfo.getId());
@@ -255,7 +263,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         erpPurchaseCollection.setMouldNumber(erpMaterialInfo.getMouldNumber());
         erpPurchaseCollection.setSpecification(erpMaterialInfo.getSpecificationName());
         erpPurchaseCollection.setPurchaseQuantity(request.getPurchaseQuantity());
-        erpPurchaseCollection.setColorCode(request.getColorCode());
+        erpPurchaseCollection.setColorCode(erpMaterialType.getColorCode());
         erpPurchaseCollection.setMaterialType(erpMaterialInfo.getMaterialType());
         erpPurchaseCollection.setSingleWeight(erpMaterialInfo.getSingleWeight());
         erpPurchaseCollection.setPurchaseWeight(

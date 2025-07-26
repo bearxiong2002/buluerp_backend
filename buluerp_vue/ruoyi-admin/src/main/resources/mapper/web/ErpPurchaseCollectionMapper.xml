@@ -42,7 +42,7 @@
                 mi.mould_number as mould_number,
                 mi.specification_name as specification,
                 pc.purchase_quantity as purchase_quantity,
-                pc.color_code as color_code,
+                mt.color_code as color_code,
                 mi.material_type as material_type,
                 mi.single_weight as single_weight,
                 pc.purchase_weight as purchase_weight,
@@ -56,6 +56,7 @@
         from erp_purchase_collection pc
             left join erp_purchase_info pi on pc.purchase_id = pi.id
             left join erp_material_info mi on pi.material_id = mi.id
+            left join erp_material_type mt on mi.material_type = mt.name
     </sql>
 
     <insert id="insertErpPurchaseCollection" useGeneratedKeys="true" keyProperty="id">

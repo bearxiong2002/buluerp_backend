@@ -58,8 +58,12 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpProductionArrangeService erpProductionArrangeService;
+
     @Autowired
     private ErpProductionScheduleMapper erpProductionScheduleMapper;
+
+    @Autowired
+    private IErpMaterialTypeService erpMaterialTypeService;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
@@ -301,12 +305,17 @@ public class ErpProductionScheduleServiceImpl
         if (materialInfo == null) {
             throw new ServiceException("物料信息不存在");
         }
+        ErpMaterialType materialType = erpMaterialTypeService.getByName(materialInfo.getMaterialType());
+        if (materialType == null) {
+            throw new ServiceException("物料类型无效");
+        }
+
         schedule.setMouldNumber(materialInfo.getMouldNumber());
         schedule.setMouldCondition(materialInfo.getMouldStatus());
         schedule.setMouldManufacturer(materialInfo.getMouldManufacturer());
         schedule.setPictureUrl(materialInfo.getDrawingReference());
 
-        schedule.setColorCode(request.getColorCode());
+        schedule.setColorCode(materialType.getColorCode());
         schedule.setUsage(request.getUsage());
 
         schedule.setMaterialType(materialInfo.getMaterialType());
@@ -316,7 +325,7 @@ public class ErpProductionScheduleServiceImpl
         schedule.setProductionQuantity(request.getProductionQuantity().intValue());
         schedule.setProductionMouldCount(request.getProductionMouldCount().intValue());
         schedule.setProductionWeight(request.getProductionWeight());
-        schedule.setColorPowderNeeded(request.getColorPowderNeeded().intValue());
+        schedule.setColorPowderNeeded(materialType.getColorWeight());
         schedule.setCycleTime(request.getCycleTime());
         schedule.setTimeHours(request.getTimeHours());
         schedule.setShipmentTime(request.getShipmentTime());

@@ -33,17 +33,17 @@ public class AddProductionScheduleFromMaterialRequest {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private Date productionTime;
 
-    @ApiModelProperty(value = "颜色编码", required = true)
-    @Excel(name = "颜色编码")
-    @Example("RED")
-    @NotNull(message = "颜色编码未填写或无效", groups = Save.class)
-    private String colorCode;
-
-    @ApiModelProperty(value = "需要色粉数", required = true)
-    @Excel(name = "需要色粉数")
-    @Example("100")
-    @NotNull(groups = Save.class, message = "需要色粉数未填写或无效")
-    private Long colorPowderNeeded;
+    // @ApiModelProperty(value = "颜色编码", required = true)
+    // @Excel(name = "颜色编码")
+    // @Example("RED")
+    // @NotNull(message = "颜色编码未填写或无效", groups = Save.class)
+    // private String colorCode;
+    //
+    // @ApiModelProperty(value = "需要色粉数", required = true)
+    // @Excel(name = "需要色粉数")
+    // @Example("100")
+    // @NotNull(groups = Save.class, message = "需要色粉数未填写或无效")
+    // private Long colorPowderNeeded;
 
     @ApiModelProperty(value = "用量", required = true)
     @Excel(name = "用量")
@@ -90,14 +90,6 @@ public class AddProductionScheduleFromMaterialRequest {
     @Example("供应商A")
     private String supplier;
 
-    public String getColorCode() {
-        return colorCode;
-    }
-
-    public void setColorCode(String colorCode) {
-        this.colorCode = colorCode;
-    }
-
     public Long getDesignPatternId() {
         return designPatternId;
     }
@@ -120,14 +112,6 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setProductionTime(Date productionTime) {
         this.productionTime = productionTime;
-    }
-
-    public Long getColorPowderNeeded() {
-        return colorPowderNeeded;
-    }
-
-    public void setColorPowderNeeded(Long colorPowderNeeded) {
-        this.colorPowderNeeded = colorPowderNeeded;
     }
 
     public Double getUsage() {
