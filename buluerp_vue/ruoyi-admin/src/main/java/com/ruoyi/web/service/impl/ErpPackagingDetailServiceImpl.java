@@ -5,9 +5,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.domain.ErpMaterialType;
 import com.ruoyi.web.domain.ErpPackagingDetail;
 import com.ruoyi.web.mapper.ErpPackagingDetailMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
+import com.ruoyi.web.service.IErpMaterialTypeService;
 import com.ruoyi.web.service.IErpPackagingBagService;
 import com.ruoyi.web.service.IErpPackagingDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,20 +29,27 @@ public class ErpPackagingDetailServiceImpl
     @Autowired
     private IErpMaterialInfoService erpMaterialInfoService;
 
+    @Autowired
+    private IErpMaterialTypeService erpMaterialTypeService;
+
     @Override
     public void checkReferences(ErpPackagingDetail entity) {
         if (entity.getMaterialId() != null) {
             ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService.selectErpMaterialInfoById(entity.getMaterialId());
             if (erpMaterialInfo == null) {
                 throw new ServiceException("物料不存在");
-            } else {
-                entity.setMouldNumber(erpMaterialInfo.getMouldNumber());
-                entity.setPartImageUrl(erpMaterialInfo.getDrawingReference());
-                entity.setPartImageFile(null);
-                entity.setMaterialType(erpMaterialInfo.getMaterialType());
-                entity.setSpecificationName(erpMaterialInfo.getSpecificationName());
-                entity.setSingleWeight(erpMaterialInfo.getSingleWeight());
             }
+            ErpMaterialType erpMaterialType = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
+            if (erpMaterialType == null) {
+                throw new ServiceException("物料类型无效");
+            }
+            entity.setMouldNumber(erpMaterialInfo.getMouldNumber());
+            entity.setPartImageUrl(erpMaterialInfo.getDrawingReference());
+            entity.setPartImageFile(null);
+            entity.setMaterialType(erpMaterialInfo.getMaterialType());
+            entity.setSpecificationName(erpMaterialInfo.getSpecificationName());
+            entity.setSingleWeight(erpMaterialInfo.getSingleWeight());
+            entity.setColorCode(erpMaterialType.getColorCode());
         }
         if (entity.getPackagingBagId() != null) {
             if (erpPackagingBagService.getById(entity.getPackagingBagId()) == null) {

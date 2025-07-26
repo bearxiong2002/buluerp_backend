@@ -53,8 +53,7 @@ public class ErpPackagingDetail {
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "颜色")
     @Example("RGB")
-    @ApiModelProperty(value = "颜色编号，模具零件的颜色编码 [list|POST|PUT|response]", required = true)
-    @NotNull(groups = Save.class, message = "颜色编号不能为空")
+    @ApiModelProperty(value = "颜色编号，模具零件的颜色编码 [list|POST|PUT|response]")
     private String colorCode;
 
     @TableField(condition = SqlCondition.LIKE)
