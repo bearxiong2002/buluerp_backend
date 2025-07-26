@@ -65,8 +65,8 @@ public class ErpProductionScheduleController extends BaseController {
     @PostMapping("/export")
     @ApiOperation(value = "导出布产列表", notes = "导出布产列表")
     public void export(HttpServletResponse response, Long[] ids) {
-        List<ErpProductionSchedule> list = erpProductionScheduleService.listByIds(Arrays.asList(ids));
-        ExcelUtil<ErpProductionSchedule> util = new ExcelUtil<>(ErpProductionSchedule.class);
+        List<ProductionScheduleResult> list = erpProductionScheduleService.listResultByIds(Arrays.asList(ids));
+        ExcelUtil<ProductionScheduleResult> util = new ExcelUtil<>(ProductionScheduleResult.class);
         util.exportExcel(response, list, "布产数据");
     }
 
@@ -74,7 +74,7 @@ public class ErpProductionScheduleController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载布产导入模板", notes = "下载布产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpProductionSchedule.class);
+        IListValidationService.exportExample(response, AddProductionScheduleFromMaterialRequest.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:import')")
@@ -82,7 +82,7 @@ public class ErpProductionScheduleController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入布产列表", notes = "导入布产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, ErpProductionSchedule.class, erpProductionScheduleService::insertErpProductionSchedule);
+        listValidationService.importExcel(file, AddProductionScheduleFromMaterialRequest.class, erpProductionScheduleService::insertFromMaterial);
         return success();
     }
 
