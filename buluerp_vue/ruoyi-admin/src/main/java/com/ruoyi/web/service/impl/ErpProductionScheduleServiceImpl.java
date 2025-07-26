@@ -303,6 +303,7 @@ public class ErpProductionScheduleServiceImpl
         }
         schedule.setMouldNumber(materialInfo.getMouldNumber());
         schedule.setMouldCondition(materialInfo.getMouldStatus());
+        schedule.setMouldManufacturer(materialInfo.getMouldManufacturer());
         schedule.setPictureUrl(materialInfo.getDrawingReference());
 
         schedule.setColorCode(request.getColorCode());
@@ -320,7 +321,6 @@ public class ErpProductionScheduleServiceImpl
         schedule.setTimeHours(request.getTimeHours());
         schedule.setShipmentTime(request.getShipmentTime());
         schedule.setSupplier(request.getSupplier());
-        schedule.setMouldManufacturer(request.getMouldManufacturer());
 
         schedule.setMaterialId(materialInfo.getId());
 
