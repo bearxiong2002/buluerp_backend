@@ -65,7 +65,7 @@ public class ErpProductionArrangeController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载排产导入模板", notes = "下载排产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpProductionArrange.class);
+        IListValidationService.exportExample(response, AddProductionArrangeFromScheduleRequest.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:import')")
@@ -73,7 +73,10 @@ public class ErpProductionArrangeController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入排产列表", notes = "导入排产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, ErpProductionArrange.class, erpProductionArrangeService::save);
+        listValidationService.importExcel(file, AddProductionArrangeFromScheduleRequest.class, (request) -> {
+            request.parseScheduleIdsExpr();
+            return erpProductionArrangeService.insertFromSchedule(request);
+        });
         return success();
     }
 

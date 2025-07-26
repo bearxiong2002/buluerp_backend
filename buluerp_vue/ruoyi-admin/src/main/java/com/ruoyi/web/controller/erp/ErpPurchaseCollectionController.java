@@ -73,7 +73,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载采购计划导入模板", notes = "下载采购计划导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpPurchaseCollection.class);
+        IListValidationService.exportExample(response, AddPurchaseCollectionFromInfoRequest.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:import')")
@@ -81,7 +81,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入采购计划列表", notes = "导入采购计划列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, ErpPurchaseCollection.class, erpPurchaseCollectionService::insertErpPurchaseCollection);
+        listValidationService.importExcel(file, AddPurchaseCollectionFromInfoRequest.class, erpPurchaseCollectionService::insertFromInfo);
         return success();
     }
 

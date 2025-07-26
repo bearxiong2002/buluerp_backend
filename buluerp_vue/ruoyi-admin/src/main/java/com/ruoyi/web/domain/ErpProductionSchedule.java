@@ -83,7 +83,7 @@ public class ErpProductionSchedule {
     @Example("正常")
     private String mouldCondition;
 
-    @Excel(name = "图片链接", cellType = Excel.ColumnType.IMAGE)
+    @Excel(name = "图片", cellType = Excel.ColumnType.IMAGE)
     @ApiModelProperty(value = "图片链接 [list|POST|PUT|response]", dataType = "String", notes = "仅响应")
     @TableField(condition = SqlCondition.LIKE)
     @Example
