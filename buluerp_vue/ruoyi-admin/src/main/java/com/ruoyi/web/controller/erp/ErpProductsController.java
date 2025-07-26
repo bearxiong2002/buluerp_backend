@@ -108,10 +108,10 @@ public class ErpProductsController extends BaseController {
         // 单独处理图片 - 使用ExcelImageImportUtil来获取DISPIMG格式的图片
         Map<Integer, String> pictureMap = new HashMap<>();
         try {
-            // 使用工具类直接获取图片，现在图片在第5列（索引4）
+            // 使用工具类直接获取图片，现在图片在第4列（索引3）
             Map<Integer, List<String>> productImages =
                 ExcelImageImportUtil.importInvoiceImages(
-                    file.getInputStream(), 4); // 图片在第5列（索引4）
+                    file.getInputStream(), 3); // 图片在第4列（索引3）
             
             // 将图片数据映射到对应的行（转换为从0开始的索引）
             productImages.forEach((rowIndex, images) -> {
@@ -229,7 +229,6 @@ public class ErpProductsController extends BaseController {
         example.setInnerId("inner123");
         example.setOuterId("outer123");
         example.setName("示例产品"); // 产品名称（非空）
-        example.setMaterialString("1,2,3"); // 物料ID列表（逗号分隔整数）
         example.setPictureStr("请在此单元格插入图片"); // 图片字段提示
         templateData.add(example);
 
