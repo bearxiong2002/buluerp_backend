@@ -90,11 +90,6 @@ public class AddProductionScheduleFromMaterialRequest {
     @Example("供应商A")
     private String supplier;
 
-    @ApiModelProperty("模具生产厂商")
-    @Excel(name = "模具生产厂商")
-    @Example("模具厂商A")
-    private String mouldManufacturer;
-
     public String getColorCode() {
         return colorCode;
     }
@@ -197,14 +192,6 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setSupplier(String supplier) {
         this.supplier = supplier;
-    }
-
-    public String getMouldManufacturer() {
-        return mouldManufacturer;
-    }
-
-    public void setMouldManufacturer(String mouldManufacturer) {
-        this.mouldManufacturer = mouldManufacturer;
     }
 
     public String getOrderCode() {
