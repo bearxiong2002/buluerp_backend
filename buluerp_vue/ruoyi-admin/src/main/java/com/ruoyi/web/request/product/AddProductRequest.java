@@ -28,7 +28,6 @@ public class AddProductRequest {
     @ApiModelProperty(dataType = "File",value = "产品图片",required = true)
     private MultipartFile picture;
     @Excel(name ="物料id列表")
-    @NotBlank
     private String materialString;
     @Excel(name = "产品图片",cellType = Excel.ColumnType.IMAGE)
     private String pictureStr;

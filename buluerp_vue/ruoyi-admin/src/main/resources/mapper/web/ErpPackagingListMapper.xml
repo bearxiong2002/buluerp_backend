@@ -148,8 +148,8 @@
     </delete>
     <delete id="deleteErpPackagingListByProductId">
         delete p
-        from erp_packaging_list p
-                 inner join erp_products prod on p.product_id = prod.id
-        where prod.id = #{productId}
+        from buluerp.erp_packaging_list p
+                 inner join buluerp.erp_products prod on p.product_id = prod.inner_id
+        where prod.inner_id = #{productId}
     </delete>
 </mapper>
