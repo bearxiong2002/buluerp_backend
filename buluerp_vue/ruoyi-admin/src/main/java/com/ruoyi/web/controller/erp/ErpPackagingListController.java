@@ -63,7 +63,8 @@ public class ErpPackagingListController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
     public void exportTemplate(HttpServletResponse response) throws IOException, InstantiationException, IllegalAccessException {
-        listValidationService.exportExample(response, ErpPackagingList.class);
+        ErpPackagingList example = listValidationService.createExample(ErpPackagingList.class);
+        packagingListService.exportExcel(response, example);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:import')")
