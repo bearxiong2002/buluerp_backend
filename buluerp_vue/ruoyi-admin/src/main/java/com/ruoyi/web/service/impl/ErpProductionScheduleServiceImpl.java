@@ -176,6 +176,9 @@ public class ErpProductionScheduleServiceImpl
     @Transactional
     public void markAllScheduled(String orderCode) {
         ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
         if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
             throw new ServiceException("订单不在布产计划定制阶段");
         }

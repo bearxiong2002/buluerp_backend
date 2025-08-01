@@ -129,7 +129,11 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Transactional
     public void markAllPurchased(String orderCode) {
         ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
-        if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)) {
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)
+                || order.getAllPurchased()) {
             throw new ServiceException("订单不在采购阶段");
         }
         // 新增：校验所有采购都已审核通过
