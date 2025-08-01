@@ -150,13 +150,13 @@ public class ErpProductsController extends BaseController {
                     }
                     throw new ImportException(rowNumber, String.join("; ", errors), request.toString());
                 }
-
-                // 5. 替换中文逗号并去除空格
-                String materialStr = request.getMaterialString();
-                String normalized = materialStr.replace("，", ",").replaceAll("\\s+", "");
-                if (!normalized.matches("^\\d+(,\\d+)*$")) { // 正则表达式校验
-                    throw new ImportException(request.getRowNumber(), "物料ID列表格式错误（必须为逗号分隔的整数）", request.toString());
-                }
+                //物料id校验
+//                // 5. 替换中文逗号并去除空格
+//                String materialStr = request.getMaterialString();
+//                String normalized = materialStr.replace("，", ",").replaceAll("\\s+", "");
+//                if (!normalized.matches("^\\d+(,\\d+)*$")) { // 正则表达式校验
+//                    throw new ImportException(request.getRowNumber(), "物料ID列表格式错误（必须为逗号分隔的整数）", request.toString());
+//                }
             } catch (ImportException e) {
                 Map<String, Object> errorEntry = new HashMap<>();
                 errorEntry.put("row", e.getRowNumber());
