@@ -4,6 +4,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.ruoyi.common.core.domain.entity.SysRole;
 import com.ruoyi.common.core.domain.entity.SysUser;
 import com.ruoyi.common.core.domain.model.LoginUser;
@@ -87,7 +88,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         //     }
         // }
         if (erpOrders.getProductId() != null) {
-            ErpProducts erpProducts = erpProductsService.getById(erpOrders.getProductId());
+            LambdaQueryWrapper<ErpProducts> wrapper = new LambdaQueryWrapper<>();
+            wrapper.eq(ErpProducts::getInnerId, erpOrders.getProductId());
+            ErpProducts erpProducts = erpProductsService.getOne(wrapper);
             if (erpProducts != null) {
                 erpOrders.setProduct(erpProducts);
             }
