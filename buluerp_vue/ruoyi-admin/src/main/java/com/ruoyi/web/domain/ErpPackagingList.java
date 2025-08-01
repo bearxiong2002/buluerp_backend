@@ -94,6 +94,7 @@ public class ErpPackagingList {
 
     @TableField(exist = false)
     @ApiModelProperty(value = "分包袋列表 [response]")
+    @Example(value = Example.CREATE_RECURSIVE, elementType = ErpPackagingBag.class)
     private List<ErpPackagingBag> bagList;
 
     @ApiModelProperty(value = "是否已完成 [list|POST|PUT|response]")
@@ -111,20 +112,6 @@ public class ErpPackagingList {
 
     public void setAuditStatus(Integer auditStatus) {
         this.auditStatus = auditStatus;
-    }
-
-    public static ErpPackagingList createExample() {
-        try {
-            ErpPackagingList e = IListValidationService.createExample(ErpPackagingList.class);
-            List<ErpPackagingBag> bagList = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
-                bagList.add(ErpPackagingBag.createExample());
-            }
-            e.setBagList(bagList);
-            return e;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public Integer getStatus() {

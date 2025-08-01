@@ -94,7 +94,11 @@ public class ErpMaterialInfo extends BaseEntity {
     @Example("-")
     private String spareCode;
 
-    private List<ErpPurchaseInfo> purchaseInfos;
+    @Example(Example.CREATE_RECURSIVE)
+    private ErpPurchaseInfo purchaseInfo;
+
+    @ApiModelProperty("是否外购，用于查询参数和结果")
+    private Boolean isPurchased;
 
     @JsonIgnore
     private MultipartFile drawingReferenceFile;
@@ -249,11 +253,19 @@ public class ErpMaterialInfo extends BaseEntity {
         this.deleteDrawingReference = deleteDrawingReference;
     }
 
-    public List<ErpPurchaseInfo> getPurchaseInfos() {
-        return purchaseInfos;
+    public ErpPurchaseInfo getPurchaseInfo() {
+        return purchaseInfo;
     }
 
-    public void setPurchaseInfos(List<ErpPurchaseInfo> purchaseInfos) {
-        this.purchaseInfos = purchaseInfos;
+    public void setPurchaseInfo(ErpPurchaseInfo purchaseInfo) {
+        this.purchaseInfo = purchaseInfo;
+    }
+
+    public Boolean isPurchased() {
+        return isPurchased;
+    }
+
+    public void setPurchased(Boolean purchased) {
+        isPurchased = purchased;
     }
 }

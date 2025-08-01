@@ -75,7 +75,7 @@ public class ErpCustomersController extends BaseController
     @GetMapping("/export/template")
     @ApiOperation(value = "下载客户导入模板", notes = "下载客户导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpCustomers.class);
+        listValidationService.exportExample(response, ErpCustomers.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:customers:import')")

@@ -73,7 +73,7 @@ public class ErpPurchaseCollectionController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载采购计划导入模板", notes = "下载采购计划导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, AddPurchaseCollectionFromInfoRequest.class);
+        listValidationService.exportExample(response, AddPurchaseCollectionFromInfoRequest.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:purchase-collection:import')")

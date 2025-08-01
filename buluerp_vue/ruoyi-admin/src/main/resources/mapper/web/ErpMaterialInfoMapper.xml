@@ -18,10 +18,29 @@
         <result property="sampleLocation" column="sample_location" />
         <result property="remarks" column="remarks" />
         <result property="spareCode" column="spare_code" />
+        <result property="purchased" column="purchased" />
     </resultMap>
     <sql id="selectErpMaterialInfo">
-        select id,creat_time,update_time,drawing_reference,mould_number,specification_name,cavity_count,material_type,standard_code,single_weight,mould_status,mould_manufacturer,cycle_time,sample_location,remarks,spare_code
-        from erp_material_info
+        select
+            m.id,
+            m.creat_time,
+            m.update_time,
+            m.drawing_reference,
+            m.mould_number,
+            m.specification_name,
+            m.cavity_count,
+            m.material_type,
+            m.standard_code,
+            m.single_weight,
+            m.mould_status,
+            m.mould_manufacturer,
+            m.cycle_time,
+            m.sample_location,
+            m.remarks,
+            m.spare_code,
+            (case when p.id is not null then 1 else 0 end) as purchased
+        from erp_material_info m
+            left join erp_purchase_info p on m.id = p.material_id
     </sql>
     <insert id="insertErpMaterialInfo" useGeneratedKeys="true" keyProperty="id">
         insert into erp_material_info
@@ -188,68 +207,78 @@
         <include refid="selectErpMaterialInfo"/>
         <where>
             <if test="id != null">
-                and id like concat('%', #{id}, '%')
+                and m.id like concat('%', #{id}, '%')
             </if>
             <if test="creatTime != null">
-                and DATE(creat_time) = DATE(#{creatTime})
+                and DATE(m.creat_time) = DATE(#{creatTime})
             </if>
             <if test="updateTime != null">
-                and update_time = #{updateTime}
+                and m.update_time = #{updateTime}
             </if>
             <if test="drawingReference != null and drawingReference != ''">
-                and drawing_reference like concat('%', #{drawingReference}, '%')
+                and m.drawing_reference like concat('%', #{drawingReference}, '%')
             </if>
             <if test="mouldNumber != null and mouldNumber != ''">
-                and mould_number like concat('%', #{mouldNumber}, '%')
+                and m.mould_number like concat('%', #{mouldNumber}, '%')
             </if>
             <if test="specificationName != null and specificationName != ''">
-                and specification_name like concat('%', #{specificationName}, '%')
+                and m.specification_name like concat('%', #{specificationName}, '%')
             </if>
             <if test="cavityCount != null">
-                and cavity_count = #{cavityCount}
+                and m.cavity_count = #{cavityCount}
             </if>
             <if test="materialType != null and materialType != ''">
-                and material_type like concat('%', #{materialType}, '%')
+                and m.material_type like concat('%', #{materialType}, '%')
             </if>
             <if test="standardCode != null and standardCode != ''">
-                and standard_code like concat('%', #{standardCode}, '%')
+                and m.standard_code like concat('%', #{standardCode}, '%')
             </if>
             <if test="singleWeight != null">
-                and single_weight = #{singleWeight}
+                and m.single_weight = #{singleWeight}
             </if>
             <if test="mouldStatus != null and mouldStatus != ''">
-                and mould_status like concat('%', #{mouldStatus}, '%')
+                and m.mould_status like concat('%', #{mouldStatus}, '%')
             </if>
             <if test="mouldManufacturer != null and mouldManufacturer != ''">
-                and mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
+                and m.mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
             </if>
             <if test="cycleTime != null">
-                and cycle_time = #{cycleTime}
+                and m.cycle_time = #{cycleTime}
             </if>
             <if test="sampleLocation != null and sampleLocation != ''">
-                and sample_location like concat('%', #{sampleLocation}, '%')
+                and m.sample_location like concat('%', #{sampleLocation}, '%')
             </if>
             <if test="remarks != null and remarks != ''">
-                and remarks like concat('%', #{remarks}, '%')
+                and m.remarks like concat('%', #{remarks}, '%')
             </if>
             <if test="spareCode != null and spareCode != ''">
-                and spare_code like concat('%', #{spareCode}, '%')
+                and m.spare_code like concat('%', #{spareCode}, '%')
+            </if>
+            <if test="purchased != null">
+                <choose>
+                    <when test="purchased">
+                        and p.id is not null
+                    </when>
+                    <otherwise>
+                        and p.id is null
+                    </otherwise>
+                </choose>
             </if>
         </where>
     </select>
     <select id="selectErpMaterialInfoById" resultMap="ErpMaterialInfoResult">
         <include refid="selectErpMaterialInfo"/>
-        where id = #{id}
+        where m.id = #{id}
     </select>
     <select id="selectErpMaterialInfoListByIds" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
         <include refid="selectErpMaterialInfo"/>
-        where id in
+        where m.id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>
     </select>
     <select id="selectByMaterialType" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
         <include refid="selectErpMaterialInfo"/>
-        where material_type = #{materialType}
+        where m.material_type = #{materialType}
     </select>
 </mapper>

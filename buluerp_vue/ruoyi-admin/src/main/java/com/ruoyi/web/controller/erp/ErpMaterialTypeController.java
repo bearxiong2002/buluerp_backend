@@ -61,7 +61,7 @@ public class ErpMaterialTypeController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "导出物料类型导入模板", notes = "导出物料类型导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpMaterialType.class);
+        listValidationService.exportExample(response, ErpMaterialType.class);
     }
 
     @Anonymous

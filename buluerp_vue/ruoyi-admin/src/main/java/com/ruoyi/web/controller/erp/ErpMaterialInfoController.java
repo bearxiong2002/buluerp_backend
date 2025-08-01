@@ -12,6 +12,8 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
+import com.ruoyi.web.result.PurchasedMaterialResult;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.Api;
@@ -25,6 +27,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/system/material-info")
@@ -64,8 +67,11 @@ public class ErpMaterialInfoController extends BaseController {
     @ApiOperation(value = "导出物料资料列表", notes = "导出物料资料列表")
     public void export(HttpServletResponse response, Long[] ids)
     {
-        List<ErpMaterialInfo> list = erpMaterialInfoService.selectErpMaterialInfoListByIds(ids);
-        ExcelUtil<ErpMaterialInfo> util = new ExcelUtil<>(ErpMaterialInfo.class);
+        List<PurchasedMaterialResult> list = erpMaterialInfoService.selectErpMaterialInfoListByIds(ids)
+                .stream()
+                .map(PurchasedMaterialResult::fromMaterialInfo)
+                .collect(Collectors.toList());
+        ExcelUtil<PurchasedMaterialResult> util = new ExcelUtil<>(PurchasedMaterialResult.class);
         util.exportExcel(response, list, "物料资料数据");
     }
 
@@ -73,15 +79,24 @@ public class ErpMaterialInfoController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载物料导入模板", notes = "下载物料导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpMaterialInfo.class);
+        listValidationService.exportExample(response, ErpMaterialInfo.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:import')")
+    @Anonymous
     @Log(title = "物料资料", businessType = BusinessType.IMPORT)
     @PostMapping("/import")
     @ApiOperation(value = "导入物料资料列表", notes = "导入物料资料列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         listValidationService.importExcel(file, ErpMaterialInfo.class, erpMaterialInfoService::insertErpMaterialInfo);
+        return success();
+    }
+
+    @Anonymous
+    @PostMapping("/import/purchased")
+    @ApiOperation(value = "导入外购物料资料列表", notes = "导入外购物料资料列表")
+    public AjaxResult importPurchased(@RequestPart("file") MultipartFile file) throws IOException {
+        listValidationService.importExcel(file, AddPurchasedMaterialRequest.class, erpMaterialInfoService::insertPurchased);
         return success();
     }
 
@@ -96,6 +111,18 @@ public class ErpMaterialInfoController extends BaseController {
          } else {
              return success(id);
          }
+    }
+
+    @Anonymous
+    @PostMapping("/purchased")
+    @ApiOperation(value = "新增外购物料信息", notes = "新增外购物料信息")
+    public AjaxResult addPurchased(@ModelAttribute @Validated({Save.class}) AddPurchasedMaterialRequest request) throws IOException {
+        Long id = erpMaterialInfoService.insertPurchased(request);
+        if (id == null) {
+            return error();
+        } else {
+            return success(id);
+        }
     }
 
     // @PreAuthorize("@ss.hasPermi('system:material-info:edit')")

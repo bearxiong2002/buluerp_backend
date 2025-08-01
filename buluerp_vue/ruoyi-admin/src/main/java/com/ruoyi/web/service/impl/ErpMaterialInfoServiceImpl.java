@@ -6,6 +6,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
+import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,9 +39,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpPurchaseInfo::getMaterialId, erpMaterialInfo.getId());
-        List<ErpPurchaseInfo> erpPurchaseInfos =
-                erpPurchaseInfoService.list(queryWrapper);
-        erpMaterialInfo.setPurchaseInfos(erpPurchaseInfos);
+        ErpPurchaseInfo erpPurchaseInfos =
+                erpPurchaseInfoService.getOne(queryWrapper);
+        erpMaterialInfo.setPurchaseInfo(erpPurchaseInfos);
         return erpMaterialInfo;
     }
 
@@ -110,6 +111,39 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             count += erpMaterialInfoMapper.insertErpMaterialInfo(erpMaterialInfo);
         }
         return count;
+    }
+
+    @Override
+    @Transactional
+    public Long insertPurchased(AddPurchasedMaterialRequest request) throws IOException {
+        ErpMaterialInfo erpMaterialInfo = new ErpMaterialInfo();
+        erpMaterialInfo.setMouldNumber(request.getMouldNumber());
+        erpMaterialInfo.setSpecificationName(request.getSpecificationName());
+        erpMaterialInfo.setMaterialType(request.getMaterialType());
+        erpMaterialInfo.setSingleWeight(request.getSingleWeight());
+
+        Long materialId = insertErpMaterialInfo(erpMaterialInfo);
+        if (materialId == null) {
+            throw new ServiceException("物料新增失败");
+        }
+
+        ErpPurchaseInfo erpPurchaseInfo = new ErpPurchaseInfo();
+        erpPurchaseInfo.setPurchaseCode(request.getPurchaseCode());
+
+        if (request.getPictureFile() != null) {
+            String url = FileUploadUtils.upload(request.getPictureFile());
+            erpPurchaseInfo.setPictureUrl(url);
+        } else {
+            erpPurchaseInfo.setPictureUrl(request.getPictureUrl());
+        }
+
+        erpPurchaseInfo.setUnitPrice(request.getUnitPrice());
+        erpPurchaseInfo.setMaterialId(materialId);
+        erpPurchaseInfo.setSupplier(request.getSupplier());
+        if (0 == erpPurchaseInfoService.insertErpPurchaseInfo(erpPurchaseInfo)) {
+            throw new ServiceException("外购信息新增失败");
+        }
+        return materialId;
     }
 
     @Override

@@ -84,7 +84,7 @@ public class ErpOrdersController extends BaseController
     @GetMapping("/export/template")
     @ApiOperation(value = "下载订单导入模板", notes = "下载订单导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpOrders.class);
+        listValidationService.exportExample(response, ErpOrders.class);
     }
 
     /**

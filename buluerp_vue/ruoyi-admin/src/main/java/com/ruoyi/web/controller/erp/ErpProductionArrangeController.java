@@ -65,7 +65,7 @@ public class ErpProductionArrangeController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "下载排产导入模板", notes = "下载排产导入模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, AddProductionArrangeFromScheduleRequest.class);
+        listValidationService.exportExample(response, AddProductionArrangeFromScheduleRequest.class);
     }
 
     // @PreAuthorize("@ss.hasPermi('system:production-arrange:import')")

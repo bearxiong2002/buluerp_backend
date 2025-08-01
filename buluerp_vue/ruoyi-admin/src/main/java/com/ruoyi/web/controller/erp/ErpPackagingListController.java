@@ -11,6 +11,7 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPackagingList;
 import com.ruoyi.web.service.IErpPackagingListService;
+import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
@@ -30,6 +31,9 @@ import java.util.List;
 public class ErpPackagingListController extends BaseController {
     @Autowired
     private IErpPackagingListService packagingListService;
+
+    @Autowired
+    private IListValidationService listValidationService;
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:list')")
     @Anonymous
@@ -58,8 +62,8 @@ public class ErpPackagingListController extends BaseController {
     @Anonymous
     @GetMapping("/export/template")
     @ApiOperation(value = "下载分包导入模板", notes = "下载分包导入模板")
-    public void exportTemplate(HttpServletResponse response) throws IOException {
-        ErpPackagingList example = ErpPackagingList.createExample();
+    public void exportTemplate(HttpServletResponse response) throws IOException, InstantiationException, IllegalAccessException {
+        ErpPackagingList example = listValidationService.createExample(ErpPackagingList.class);
         packagingListService.exportExcel(response, example);
     }
 

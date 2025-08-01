@@ -37,21 +37,43 @@ public class ErpPurchaseInfoServiceImpl
     @Autowired
     private IErpPurchaseCollectionService erpPurchaseCollectionService;
 
+    void checkUnique(ErpPurchaseInfo erpPurchaseInfo) {
+        if (erpPurchaseInfo.getPurchaseCode() != null) {
+            LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpPurchaseInfo::getPurchaseCode, erpPurchaseInfo.getPurchaseCode());
+            ErpPurchaseInfo original = this.getOne(queryWrapper);
+            if (original != null && !original.getId().equals(erpPurchaseInfo.getId())) {
+                throw new ServiceException("外购编码已存在，请更换外购编码");
+            }
+        }
+        if (erpPurchaseInfo.getMaterialId() != null) {
+            LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(ErpPurchaseInfo::getMaterialId, erpPurchaseInfo.getMaterialId());
+            ErpPurchaseInfo original = this.getOne(queryWrapper);
+            if (original != null && !original.getId().equals(erpPurchaseInfo.getId())) {
+                throw new ServiceException("物料ID已存在，请更换物料ID");
+            }
+        }
+    }
+
+    void checkReferences(ErpPurchaseInfo erpPurchaseInfo) {
+        if (erpPurchaseInfo.getMaterialId() != null) {
+            ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
+            if (erpMaterialInfo == null) {
+                throw new ServiceException("物料ID不存在，请先添加相应物料信息");
+            }
+        }
+    }
+
+    void check(ErpPurchaseInfo erpPurchaseInfo) {
+        checkUnique(erpPurchaseInfo);
+        checkReferences(erpPurchaseInfo);
+    }
+
     @Override
     public int insertErpPurchaseInfo(ErpPurchaseInfo erpPurchaseInfo) throws IOException {
-        if (erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId()) == null) {
-            throw new ServiceException("物料ID不存在，请先添加相应物料信息");
-        }
-        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(ErpPurchaseInfo::getPurchaseCode, erpPurchaseInfo.getPurchaseCode());
-        if (baseMapper.selectCount(queryWrapper) > 0) {
-            throw new ServiceException("外购编码已存在，请更换外购编码");
-        }
-        ErpMaterialInfo erpMaterialInfo =
-                erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
-        if (erpMaterialInfo == null) {
-            throw new ServiceException("物料ID不存在，请先添加相应物料信息");
-        }
+        check(erpPurchaseInfo);
+        ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
         if (erpPurchaseInfo.getPictureUrl() == null && erpPurchaseInfo.getPicture() == null) {
             erpPurchaseInfo.setPictureUrl(erpMaterialInfo.getDrawingReference());
         }
@@ -77,9 +99,7 @@ public class ErpPurchaseInfoServiceImpl
     public int updateErpPurchaseInfoList(List<ErpPurchaseInfo> list) throws IOException {
         int count = 0;
         for (ErpPurchaseInfo erpPurchaseInfo : list) {
-            if (erpMaterialInfoService.selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId()) == null) {
-                throw new ServiceException("物料ID不存在，请先添加相应物料信息");
-            }
+            check(erpPurchaseInfo);
             if (erpPurchaseInfo.getPicture() != null) {
                 String url = FileUploadUtils.upload(erpPurchaseInfo.getPicture());
                 erpPurchaseInfo.setPictureUrl(url);

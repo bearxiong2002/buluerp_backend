@@ -94,7 +94,7 @@ public class ErpPurchaseInfoController extends BaseController
     @PostMapping("/export/template")
     @ApiOperation(value = "下载外购资料模板", notes = "下载外购资料模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        IListValidationService.exportExample(response, ErpPurchaseInfo.class);
+        listValidationService.exportExample(response, ErpPurchaseInfo.class);
     }
 
     /**

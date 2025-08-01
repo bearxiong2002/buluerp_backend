@@ -1,6 +1,7 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,6 +13,7 @@ public interface IErpMaterialInfoService {
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
     Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException;
     int insertErpMaterialInfos(List<ErpMaterialInfo> erpMaterialInfos);
+    Long insertPurchased(AddPurchasedMaterialRequest request) throws IOException;
     int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException;
     int deleteErpMaterialInfoByIds(Long[] ids);
     int deleteErpMaterialInfoById(Long id);

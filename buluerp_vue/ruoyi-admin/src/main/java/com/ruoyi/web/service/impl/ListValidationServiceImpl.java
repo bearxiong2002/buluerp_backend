@@ -1,23 +1,31 @@
 package com.ruoyi.web.service.impl;
 
+import com.ruoyi.common.annotation.Example;
+import com.ruoyi.common.core.text.Convert;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.excel.ListValidationException;
 import com.ruoyi.common.exception.excel.ListRowErrorInfo;
+import com.ruoyi.common.exception.excel.UnsupportedExampleTypeException;
+import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.common.utils.reflect.ReflectUtils;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.web.service.IListValidationService;
+import io.swagger.annotations.ApiModel;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class ListValidationServiceImpl implements IListValidationService {
@@ -164,5 +172,93 @@ public class ListValidationServiceImpl implements IListValidationService {
         if (!errorList.isEmpty()) {
             throw new ListValidationException(errorList);
         }
+    }
+
+    @Override
+    public <Type> ExcelUtil<Type> createTemplateExcelUtil(Class<Type> clazz) {
+        ExcelUtil<Type> util = new ExcelUtil<>(clazz);
+        util.showColumn(
+                Stream.concat(Arrays.stream(clazz.getDeclaredFields()),
+                                Arrays.stream(clazz.getSuperclass().getDeclaredFields()))
+                        .filter(field -> field.isAnnotationPresent(Example.class))
+                        .map(Field::getName)
+                        .toArray(String[]::new)
+        );
+        return util;
+    }
+
+    @Override
+    public <T> T createExample(Class<T> clazz) throws InstantiationException, IllegalAccessException {
+        T example = clazz.newInstance();
+        List<Field> fields = new ArrayList<>();
+        Class<?> superClass = clazz;
+        while (superClass != null) {
+            fields.addAll(Arrays.asList(superClass.getDeclaredFields()));
+            superClass = superClass.getSuperclass();
+        }
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Example exampleAnnotation = field.getAnnotation(Example.class);
+            if (exampleAnnotation != null) {
+                Class<?> type = field.getType();
+                String value = exampleAnnotation.value();
+                if (value.equals(Example.GEN_UUID)) {
+                    if (String.class == type) {
+                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID().toString());
+                    } else if (UUID.class == type) {
+                        ReflectUtils.invokeSetter(example, field.getName(), UUID.randomUUID());
+                    }
+                } else if (value.equals(Example.CREATE_RECURSIVE)) {
+                    if (Collection.class.isAssignableFrom(type)) {
+                        Collection<Object> list;
+                        if (type == List.class) {
+                            list = new ArrayList<>();
+                        } else if (type == Set.class) {
+                            list = new HashSet<>();
+                        } else if (!type.isInterface()) {
+                            list = (Collection<Object>) type.newInstance();
+                        } else {
+                            throw new UnsupportedExampleTypeException("不支持的集合类型");
+                        }
+                        for (int i = 0; i < 3; i++) {
+                            list.add(createExample(exampleAnnotation.elementType()));
+                        }
+                        ReflectUtils.invokeSetter(example, field.getName(), list);
+                    } else {
+                        ReflectUtils.invokeSetter(example, field.getName(), createExample(type));
+                    }
+                } else if (String.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), value);
+                } else if (Integer.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toInt(value));
+                } else if (Long.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toLong(value));
+                } else if (Double.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toDouble(value));
+                } else if (Float.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toFloat(value));
+                } else if (BigDecimal.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBigDecimal(value));
+                } else if (Date.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), DateUtils.parseDate(value));
+                } else if (Boolean.class == type) {
+                    ReflectUtils.invokeSetter(example, field.getName(), Convert.toBool(value));
+                } else {
+                    throw new UnsupportedExampleTypeException("不支持的示例值类型");
+                }
+            }
+        }
+        return example;
+    }
+
+    @Override
+    public <T> void exportExample(HttpServletResponse response, Class<T> clazz) throws InstantiationException, IllegalAccessException {
+        T example = createExample(clazz);
+        ExcelUtil<T> util = createTemplateExcelUtil(clazz);
+        String sheetName = "导入模板";
+        if (clazz.isAnnotationPresent(ApiModel.class)) {
+            sheetName = clazz.getAnnotation(ApiModel.class).value() + sheetName;
+        }
+        util.exportExcel(response, Collections.singletonList(example), sheetName);
     }
 }

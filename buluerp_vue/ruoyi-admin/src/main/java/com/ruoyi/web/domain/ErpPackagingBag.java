@@ -62,21 +62,8 @@ public class ErpPackagingBag {
 
     @TableField(exist = false)
     @ApiModelProperty("分包明细列表 [response]")
+    @Example(value = Example.CREATE_RECURSIVE, elementType = ErpPackagingDetail.class)
     private List<ErpPackagingDetail> details;
-
-    public static ErpPackagingBag createExample() {
-        try {
-            ErpPackagingBag example = IListValidationService.createExample(ErpPackagingBag.class);
-            List<ErpPackagingDetail> details = new ArrayList<>();
-            for (int i = 0; i < 3; i++) {
-                details.add(IListValidationService.createExample(ErpPackagingDetail.class));
-            }
-            example.setDetails(details);
-            return example;
-        } catch (InstantiationException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public Long getId() {
         return id;
