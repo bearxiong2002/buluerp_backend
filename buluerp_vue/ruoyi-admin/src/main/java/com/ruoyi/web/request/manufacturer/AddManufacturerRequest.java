@@ -15,7 +15,6 @@ public class AddManufacturerRequest {
     @ApiModelProperty(dataType = "String",value = "厂家名称",required = true)
     private String name;
     @Excel(name = "联系方式")
-    @Pattern(regexp = "^(\\d{3,4}-?\\d{7,8}|1[3-9]\\d{9})?$", message = "联系方式格式错误")
     @ApiModelProperty(dataType = "String",value = "联系方式",required = false)
     private String tel;
     @Excel(name = "邮箱地址")
