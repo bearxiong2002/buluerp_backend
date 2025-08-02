@@ -10,6 +10,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpPackagingList;
+import com.ruoyi.web.request.packaging.ListPackagingListRequest;
 import com.ruoyi.web.service.IErpPackagingListService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiImplicitParam;
@@ -45,9 +46,9 @@ public class ErpPackagingListController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "isAsc", value = "排序方式", dataType = "String", paramType = "query", defaultValue = "asc")
     })
-    public TableDataInfo list(ErpPackagingList erpPackagingList) {
+    public TableDataInfo list(ListPackagingListRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
-        return getDataTable(packagingListService.selectErpPackagingListList(erpPackagingList));
+        return getDataTable(packagingListService.selectErpPackagingListList(request));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:packaging-list:export')")
