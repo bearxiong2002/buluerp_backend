@@ -429,7 +429,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     public void insertCascade(ErpPackagingList erpPackagingList, List<String> basSheetNames) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
-        List<ListRowErrorInfo> errorInfos = listValidationService.collectInsertionErrors(
+        List<ListRowErrorInfo> errorInfos = listValidationService.collectErrors(
                 Collections.singletonList(erpPackagingList),
                 this::insertErpPackagingList
         )

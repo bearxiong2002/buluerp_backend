@@ -28,7 +28,7 @@ public class AddPurchaseCollectionFromInfoRequest {
     String orderCode;
 
     @ApiModelProperty(value = "下单时间")
-    @Excel(name = "下单时间")
+    @Excel(name = "下单时间", dateFormat = "yyyy-MM-dd")
     @Example("2023-01-01")
     Date orderTime;
 

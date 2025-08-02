@@ -64,16 +64,22 @@ public class ListValidationServiceImpl implements IListValidationService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public <Type> List<ListRowErrorInfo> collectErrors(List<Type> list, InsertConsumer<Type> insertConsumer) {
         List<ListRowErrorInfo> listRowErrorInfos = collectValidationErrors(list);
-        listRowErrorInfos.addAll(collectInsertionErrors(list, insertConsumer));
+        if (listRowErrorInfos.isEmpty()) {
+            listRowErrorInfos = collectInsertionErrors(list, insertConsumer);
+        }
         return listRowErrorInfos;
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public <Type> List<ListRowErrorInfo> collectErrors(List<Type> list, InsertFunction<Type> insertFunction) {
         List<ListRowErrorInfo> listRowErrorInfos = collectValidationErrors(list);
-        listRowErrorInfos.addAll(collectInsertionErrors(list, insertFunction));
+        if (listRowErrorInfos.isEmpty()) {
+            listRowErrorInfos = collectInsertionErrors(list, insertFunction);
+        }
         return listRowErrorInfos;
     }
 
