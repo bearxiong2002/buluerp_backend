@@ -82,6 +82,13 @@ public class ErpMaterialInfoController extends BaseController {
         listValidationService.exportExample(response, ErpMaterialInfo.class);
     }
 
+    @Anonymous
+    @GetMapping("/import/purchased/template")
+    @ApiOperation(value = "下载外购物料导入模板", notes = "下载外购物料导入模板")
+    public void exportPurchasedTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        listValidationService.exportExample(response, AddPurchasedMaterialRequest.class);
+    }
+
     // @PreAuthorize("@ss.hasPermi('system:material-info:import')")
     @Anonymous
     @Log(title = "物料资料", businessType = BusinessType.IMPORT)
