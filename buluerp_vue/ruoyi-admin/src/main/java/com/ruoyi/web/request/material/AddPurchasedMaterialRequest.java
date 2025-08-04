@@ -47,6 +47,11 @@ public class AddPurchasedMaterialRequest {
     @Example("凝聚")
     private String supplier;
 
+    @ApiModelProperty("产品编码")
+    @Excel(name = "产品编码")
+    @Example("ABC123")
+    private String productCode;
+
     @ApiModelProperty("外购图片文件")
     private MultipartFile pictureFile;
 
@@ -120,5 +125,13 @@ public class AddPurchasedMaterialRequest {
 
     public void setPictureFile(MultipartFile pictureFile) {
         this.pictureFile = pictureFile;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
     }
 }

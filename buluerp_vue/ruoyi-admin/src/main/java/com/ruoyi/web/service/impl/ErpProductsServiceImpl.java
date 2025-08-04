@@ -39,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -145,7 +146,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     public int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException {
         ErpProducts erpProducts = new ErpProducts();
         erpProducts.setId(updateProductRequest.getId());
-        if(updateProductRequest.getDeletePicture()==1&&updateProductRequest.getPicture()==null){
+        if(Objects.equals(updateProductRequest.getDeletePicture(), 1)&&updateProductRequest.getPicture()==null){
             //删除原先的图片
             String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
             if(url1!=null){

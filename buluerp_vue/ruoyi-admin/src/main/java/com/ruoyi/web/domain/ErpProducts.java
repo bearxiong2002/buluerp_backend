@@ -50,7 +50,6 @@ public class ErpProducts {
     private String createUsername;
 
     @TableField(exist = false)
-    @JsonIgnore // 不再使用
     private List<Integer> materialIds;
 
     public String getInnerId() {

@@ -6,13 +6,16 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
+import com.ruoyi.web.request.material.AddMaterialInfoRequest;
 import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
+import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.rmi.ServerException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,6 +38,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private IErpMaterialTypeService erpMaterialTypeService;
+
+    @Autowired
+    private IErpProductsService erpProductsService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -86,19 +92,35 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
-    public Long insertErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
-        erpMaterialInfo.setCreatTime(DateUtils.getNowDate());
-        erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
-        check(erpMaterialInfo);
-        // if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(erpMaterialInfo.getMaterialType()) != null) {
+    @Transactional
+    public Long insertErpMaterialInfo(AddMaterialInfoRequest request) throws IOException {
+        request.setCreatTime(DateUtils.getNowDate());
+        request.setUpdateTime(DateUtils.getNowDate());
+        check(request);
+        // if (erpMaterialInfoMapper.selectErpMaterialInfoByMaterialType(request.getMaterialType()) != null) {
         //     throw new ServiceException("物料类型已存在");
         // }
-        if (erpMaterialInfo.getDrawingReferenceFile() != null) {
-            String url = FileUploadUtils.upload(erpMaterialInfo.getDrawingReferenceFile());
-            erpMaterialInfo.setDrawingReference(url);
+        if (request.getDrawingReferenceFile() != null) {
+            String url = FileUploadUtils.upload(request.getDrawingReferenceFile());
+            request.setDrawingReference(url);
         }
-        return 0 == erpMaterialInfoMapper.insertErpMaterialInfo(erpMaterialInfo) ?
-                null : erpMaterialInfo.getId();
+        if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
+            throw new ServerException("物料新增失败");
+        }
+        if (request.getProductCode() != null) {
+            Long productId = erpProductsService.getIdByInnerId(request.getProductCode());
+            List<ErpProducts> products = erpProductsService.selectErpProductsListByIds(new Long[]{productId});
+            if (products.isEmpty()) {
+                throw new ServiceException("产品不存在");
+            }
+            ErpProducts product = products.get(0);
+            product.getMaterialIds().add(request.getId().intValue());
+            UpdateProductRequest updateProductRequest = new UpdateProductRequest();
+            updateProductRequest.setId(product.getId());
+            updateProductRequest.setMaterialIds(product.getMaterialIds());
+            erpProductsService.updateErpProducts(updateProductRequest);
+        }
+        return request.getId();
     }
 
     @Override
@@ -116,13 +138,14 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     @Transactional
     public Long insertPurchased(AddPurchasedMaterialRequest request) throws IOException {
-        ErpMaterialInfo erpMaterialInfo = new ErpMaterialInfo();
-        erpMaterialInfo.setMouldNumber(request.getMouldNumber());
-        erpMaterialInfo.setSpecificationName(request.getSpecificationName());
-        erpMaterialInfo.setMaterialType(request.getMaterialType());
-        erpMaterialInfo.setSingleWeight(request.getSingleWeight());
+        AddMaterialInfoRequest materialRequest = new AddMaterialInfoRequest();
+        materialRequest.setMouldNumber(request.getMouldNumber());
+        materialRequest.setSpecificationName(request.getSpecificationName());
+        materialRequest.setMaterialType(request.getMaterialType());
+        materialRequest.setSingleWeight(request.getSingleWeight());
+        materialRequest.setProductCode(request.getProductCode());
 
-        Long materialId = insertErpMaterialInfo(erpMaterialInfo);
+        Long materialId = insertErpMaterialInfo(materialRequest);
         if (materialId == null) {
             throw new ServiceException("物料新增失败");
         }
