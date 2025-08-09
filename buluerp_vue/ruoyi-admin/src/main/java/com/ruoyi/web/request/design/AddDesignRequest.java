@@ -44,9 +44,9 @@ public class AddDesignRequest {
     @ApiModelProperty(dataType = "String", value = "模具类别", required = true)
     private String mouldCategory;
 
-    @NotNull(message = "模具id不能为空")
+//    @NotNull(message = "模具id不能为空")
     @Excel(name = "物料(模具)id")
-    @ApiModelProperty(dataType = "int", value = "物料(模具)id", required = true)
+    @ApiModelProperty(dataType = "int", value = "物料(模具)id", required = false)
     private Long materialId;
 
     @NotBlank(message = "产品名称不能为空")
