@@ -109,6 +109,7 @@ public class ErpPackagingDetail {
     @Excel(name = "物料ID")
     @ApiModelProperty(value = "物料ID，与物料信息主键关联 [list|POST|PUT|response]", required = true)
     @NotNull(message = "物料ID不能为空", groups = {Save.class})
+    @Example("1")
     private Long materialId;
 
     @TableField(exist = false)

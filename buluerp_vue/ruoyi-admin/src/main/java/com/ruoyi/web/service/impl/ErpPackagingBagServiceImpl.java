@@ -77,16 +77,17 @@ public class ErpPackagingBagServiceImpl
     public void insertCascade(ErpPackagingBag entity) {
         List<ListRowErrorInfo> listRowErrorInfos = listValidationService
                 .collectErrors(Collections.singletonList(entity), baseMapper::insert);
-        listRowErrorInfos.addAll(
-                listValidationService.collectErrors(entity.getDetails(), (detail) -> {
-                            detail.setPackagingBagId(entity.getId());
-                            erpPackagingDetailService.checkUnique(detail);
-                            erpPackagingDetailService.saveOrUpdate(detail);
-                        })
-                        .stream()
-                        .peek((e) -> e.setRowNum(e.getRowNum() + IErpPackagingListService.BAG_TEMPLATE_HEADER_ROW + 1))
-                        .collect(Collectors.toList())
-        );
+        if (!listRowErrorInfos.isEmpty()) {
+            throw new ListValidationException(listRowErrorInfos);
+        }
+        listRowErrorInfos = listValidationService.collectErrors(entity.getDetails(), (detail) -> {
+                    detail.setPackagingBagId(entity.getId());
+                    erpPackagingDetailService.checkUnique(detail);
+                    erpPackagingDetailService.saveOrUpdate(detail);
+                })
+                .stream()
+                .peek((e) -> e.setRowNum(e.getRowNum() + IErpPackagingListService.BAG_TEMPLATE_HEADER_ROW + 1))
+                .collect(Collectors.toList());
         if (!listRowErrorInfos.isEmpty()) {
             throw new ListValidationException(listRowErrorInfos);
         }

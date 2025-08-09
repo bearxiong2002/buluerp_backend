@@ -1,6 +1,7 @@
 package com.ruoyi.web.service;
 
 import com.ruoyi.web.domain.ErpPackagingList;
+import com.ruoyi.web.request.packaging.ListPackagingListRequest;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
@@ -17,7 +18,7 @@ public interface IErpPackagingListService {
     void markPackagingDone(Long id);
 
     ErpPackagingList selectErpPackagingListById(Long id);
-    List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList);
+    List<ErpPackagingList> selectErpPackagingListList(ListPackagingListRequest request);
     List<ErpPackagingList> selectErpPackagingListListByIds(Long[] ids);
     int insertErpPackagingList(ErpPackagingList erpPackagingList);
     int updateErpPackagingList(ErpPackagingList erpPackagingList);

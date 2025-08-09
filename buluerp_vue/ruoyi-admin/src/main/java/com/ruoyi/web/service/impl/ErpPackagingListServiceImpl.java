@@ -16,6 +16,7 @@ import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpPackagingListMapper;
+import com.ruoyi.web.request.packaging.ListPackagingListRequest;
 import com.ruoyi.web.service.*;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
@@ -149,8 +150,8 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     }
 
     @Override
-    public List<ErpPackagingList> selectErpPackagingListList(ErpPackagingList erpPackagingList) {
-        return fill(erpPackagingListMapper.selectErpPackagingListList(erpPackagingList));
+    public List<ErpPackagingList> selectErpPackagingListList(ListPackagingListRequest request) {
+        return fill(erpPackagingListMapper.selectErpPackagingListList(request));
     }
 
     @Override
@@ -429,7 +430,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     public void insertCascade(ErpPackagingList erpPackagingList, List<String> basSheetNames) {
         erpPackagingList.setCreationTime(DateUtils.getNowDate());
         erpPackagingList.setOperator(SecurityUtils.getUsername());
-        List<ListRowErrorInfo> errorInfos = listValidationService.collectInsertionErrors(
+        List<ListRowErrorInfo> errorInfos = listValidationService.collectErrors(
                 Collections.singletonList(erpPackagingList),
                 this::insertErpPackagingList
         )

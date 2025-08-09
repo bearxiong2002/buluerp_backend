@@ -69,6 +69,9 @@
             <if test="isDone != null">
                 and is_done = #{isDone}
             </if>
+            <if test="orderCodeExact != null and orderCodeExact != ''">
+                and order_code = #{orderCodeExact}
+            </if>
         </where>
     </select>
     <select id="selectErpPackagingListListByIds" resultType="com.ruoyi.web.domain.ErpPackagingList">

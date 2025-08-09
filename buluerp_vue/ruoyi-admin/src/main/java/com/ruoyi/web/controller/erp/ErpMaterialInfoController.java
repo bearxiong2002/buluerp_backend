@@ -12,6 +12,7 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpCustomers;
 import com.ruoyi.web.domain.ErpMaterialInfo;
+import com.ruoyi.web.request.material.AddMaterialInfoRequest;
 import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
 import com.ruoyi.web.result.PurchasedMaterialResult;
 import com.ruoyi.web.service.IErpMaterialInfoService;
@@ -82,13 +83,20 @@ public class ErpMaterialInfoController extends BaseController {
         listValidationService.exportExample(response, ErpMaterialInfo.class);
     }
 
+    @Anonymous
+    @GetMapping("/import/purchased/template")
+    @ApiOperation(value = "下载外购物料导入模板", notes = "下载外购物料导入模板")
+    public void exportPurchasedTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
+        listValidationService.exportExample(response, AddPurchasedMaterialRequest.class);
+    }
+
     // @PreAuthorize("@ss.hasPermi('system:material-info:import')")
     @Anonymous
     @Log(title = "物料资料", businessType = BusinessType.IMPORT)
     @PostMapping("/import")
     @ApiOperation(value = "导入物料资料列表", notes = "导入物料资料列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, ErpMaterialInfo.class, erpMaterialInfoService::insertErpMaterialInfo);
+        listValidationService.importExcel(file, AddMaterialInfoRequest.class, erpMaterialInfoService::insertErpMaterialInfo);
         return success();
     }
 
@@ -104,8 +112,8 @@ public class ErpMaterialInfoController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增物料信息", notes = "新增物料信息")
-    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpMaterialInfo erpMaterialInfo) throws IOException {
-         Long id = erpMaterialInfoService.insertErpMaterialInfo(erpMaterialInfo);
+    public AjaxResult add(@ModelAttribute @Validated({Save.class}) AddMaterialInfoRequest request) throws IOException {
+         Long id = erpMaterialInfoService.insertErpMaterialInfo(request);
          if (id == null) {
              return error();
          } else {

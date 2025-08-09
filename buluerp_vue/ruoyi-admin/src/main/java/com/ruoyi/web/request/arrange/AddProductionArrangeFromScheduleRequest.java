@@ -46,12 +46,12 @@ public class AddProductionArrangeFromScheduleRequest {
     private Long mouldOutput;
 
     @ApiModelProperty(value = "安排时间")
-    @Excel(name = "安排时间")
+    @Excel(name = "安排时间", dateFormat = "yyyy-MM-dd")
     @Example("2023-01-01")
     private Date scheduledTime;
 
     @ApiModelProperty(value = "完成时间")
-    @Excel(name = "完成时间")
+    @Excel(name = "完成时间", dateFormat = "yyyy-MM-dd")
     @Example("2023-01-01")
     private Date completionTime;
 
