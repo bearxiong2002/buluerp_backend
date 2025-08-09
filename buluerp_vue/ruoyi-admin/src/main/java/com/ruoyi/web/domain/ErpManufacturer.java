@@ -26,7 +26,7 @@ public class ErpManufacturer {
     private String email;
     @Excel(name = "客户备注")
     private String remark;
-    @Excel(name = "创建时间")
+    @Excel(name = "创建时间",dateFormat = "yyyy-MM-dd")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date createTime;
 
