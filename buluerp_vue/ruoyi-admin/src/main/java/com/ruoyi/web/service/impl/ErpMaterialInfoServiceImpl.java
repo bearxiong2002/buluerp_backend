@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.IOException;
 import java.rmi.ServerException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -58,8 +59,18 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         return erpMaterialInfoList;
     }
 
+    private void checkUnique(ErpMaterialInfo erpMaterialInfo) {
+        if (erpMaterialInfo.getMouldNumber() != null) {
+            ErpMaterialInfo original = erpMaterialInfoMapper
+                    .selectByMouldNumber(erpMaterialInfo.getMouldNumber());
+            if (original != null && !Objects.equals(original.getId(), erpMaterialInfo.getId())) {
+                throw new ServiceException("模具编号重复");
+            }
+        }
+    }
+
     private void checkReferences(ErpMaterialInfo erpMaterialInfo) {
-        if (erpMaterialInfo.getMaterialType() == null) {
+        if (erpMaterialInfo.getMaterialType() != null) {
             ErpMaterialType type = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
             if (type == null) {
                 throw new ServiceException("对应物料类型不存在");
@@ -68,6 +79,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     private void check(ErpMaterialInfo erpMaterialInfo) {
+        checkUnique(erpMaterialInfo);
         checkReferences(erpMaterialInfo);
     }
 
@@ -89,6 +101,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     public ErpMaterialInfo selectErpMaterialInfoById(Long id) {
         return erpMaterialInfoMapper.selectErpMaterialInfoById(id);
+    }
+
+    @Override
+    public ErpMaterialInfo getByMouldNumber(String mouldNumber) {
+        return erpMaterialInfoMapper.selectByMouldNumber(mouldNumber);
     }
 
     @Override
@@ -173,8 +190,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Transactional
     public int updateErpMaterialInfo(ErpMaterialInfo erpMaterialInfo) throws IOException {
         erpMaterialInfo.setUpdateTime(DateUtils.getNowDate());
+        erpMaterialInfo.setMouldNumber(null);
         check(erpMaterialInfo);
-        if (erpMaterialInfo.getDeleteDrawingReference()) {
+        if (Boolean.TRUE.equals(erpMaterialInfo.getDeleteDrawingReference())) {
             erpMaterialInfoMapper.deleteErpMaterialInfoDrawingReferenceById(erpMaterialInfo.getId());
             // 联动删除使用该物料的设计造型图片
             erpDesignStyleService.updateDesignStylePictureByMaterialId(erpMaterialInfo.getId(), null);
