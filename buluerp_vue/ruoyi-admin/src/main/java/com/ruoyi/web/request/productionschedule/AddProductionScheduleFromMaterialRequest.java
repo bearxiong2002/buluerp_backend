@@ -21,10 +21,15 @@ public class AddProductionScheduleFromMaterialRequest {
     private String orderCode;
 
     @ApiModelProperty(value = "物料ID", required = true)
-    @Excel(name = "物料ID")
-    @Example("1")
-    @NotNull(message = "物料ID未填写或无效", groups = Save.class)
+    // @Excel(name = "物料ID")
+    // @Example("1")
+    // @NotNull(message = "物料ID未填写或无效", groups = Save.class)
     private Long materialId;
+
+    @ApiModelProperty(value = "模具编号", required = true)
+    @Excel(name = "模具编号")
+    @Example("M123")
+    private String mouldNumber;
 
     @ApiModelProperty(value = "布产时间，计划开始时间", required = true)
     @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
@@ -184,5 +189,13 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setOrderCode(String orderCode) {
         this.orderCode = orderCode;
+    }
+
+    public String getMouldNumber() {
+        return mouldNumber;
+    }
+
+    public void setMouldNumber(String mouldNumber) {
+        this.mouldNumber = mouldNumber;
     }
 }
