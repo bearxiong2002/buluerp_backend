@@ -11,6 +11,8 @@
         <result property="name"    column="name"    />
         <result property="createUserId" column="create_user_id"/>
         <result property="remark" column="remark" />
+        <!-- 新增 create_time 到实体字段 createTime 的映射 -->
+        <result property="createTime" column="create_time" />
     </resultMap>
 
     <delete id="deleteManufacturerByIds">
@@ -21,7 +23,7 @@
     </delete>
 
     <sql id="selectErpManufacturerVo">
-        select id, tel, email, name, create_user_id, remark
+        select id, tel, email, name, create_user_id, remark, create_time
         from erp_manufacturer
     </sql>
 
@@ -44,7 +46,8 @@
             </if>
         </where>
     </select>
-    <select id="selectErpManufacturerListByIds" resultType="com.ruoyi.web.domain.ErpManufacturer">
+    <!-- 改为使用 resultMap，确保下方查询同样映射 createTime -->
+    <select id="selectErpManufacturerListByIds" resultMap="ErpManufacturerResult">
         <include refid="selectErpManufacturerVo"/>
         where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
