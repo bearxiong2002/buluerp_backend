@@ -15,6 +15,7 @@ import javax.validation.ValidatorFactory;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.constant.HttpStatus;
 import com.ruoyi.common.utils.poi.ExcelUtil;
+import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.request.design.AddDesignRequest;
@@ -90,10 +91,10 @@ public class ErpDesignPatternsController extends BaseController
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:patterns:export')")
     //@Log(title = "导出", businessType = BusinessType.EXPORT)
-    @PostMapping("/export/{ids}")
-    public void export(HttpServletResponse response,@PathVariable List<Integer> ids)
+    @PostMapping("/export/{id}")
+    public void export(HttpServletResponse response,@PathVariable Integer id)
     {
-
+        /*旧逻辑
         List<DesignPatternsExportDTO> exportList = new ArrayList<>();
         for (Integer id : ids) {
             // 获取原始结果对象
@@ -105,6 +106,12 @@ public class ErpDesignPatternsController extends BaseController
         // 3. 使用 ExcelUtil 导出 DTO
         ExcelUtil<DesignPatternsExportDTO> util = new ExcelUtil<>(DesignPatternsExportDTO.class);
         util.exportExcel(response, exportList, "产品设计数据");
+         */
+
+        List<ErpDesignStyle> exportList=erpDesignPatternsService.selectStyleById(id.longValue());
+        ExcelUtil<ErpDesignStyle> util = new ExcelUtil<>(ErpDesignStyle.class);
+        util.exportExcel(response, exportList, "产品设计数据");
+
     }
 
     @Anonymous

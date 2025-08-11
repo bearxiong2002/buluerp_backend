@@ -1,6 +1,7 @@
 package com.ruoyi.web.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
 import com.ruoyi.web.domain.ErpDesignPatterns;
 import com.ruoyi.web.request.design.ListDesignPatternsRequest;
@@ -25,6 +26,8 @@ public interface IErpDesignPatternsService extends IService<ErpDesignPatterns>
      * @return 【请填写功能名称】
      */
     DesignPatternsResult selectErpDesignPatternsById(Long id);
+
+    List<ErpDesignStyle> selectStyleById(Long productId);
 
     /**
      * 查询【请填写功能名称】列表

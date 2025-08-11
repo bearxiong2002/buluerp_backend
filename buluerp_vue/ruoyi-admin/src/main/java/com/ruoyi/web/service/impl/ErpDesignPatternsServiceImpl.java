@@ -13,6 +13,7 @@ import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
+import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.domain.ErpOrders;
 import com.ruoyi.web.domain.ErpOrdersProduct;
 import com.ruoyi.web.enums.OrderStatus;
@@ -87,6 +88,16 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
                 erpDesignStyleMapper.selectMaterialSet(productId),
                 erpDesignStyleMapper.selectConfirm(productId)
         );
+    }
+
+    @Override
+    //public DesignPatternsResult selectErpDesignPatternsById(Long productId)
+    public List<ErpDesignStyle> selectStyleById(Long productId)
+    {
+        //导出该产品的所有造型表
+        LambdaQueryWrapper<ErpDesignStyle> wrapper=Wrappers.lambdaQuery();
+        wrapper.eq(ErpDesignStyle::getProductId,productId);
+        return erpDesignStyleMapper.selectList(wrapper);
     }
 
     /**
