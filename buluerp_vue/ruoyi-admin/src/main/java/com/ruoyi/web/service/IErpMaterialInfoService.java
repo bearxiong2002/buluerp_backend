@@ -12,6 +12,7 @@ public interface IErpMaterialInfoService {
     List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids);
     List<ErpMaterialInfo> listByMaterialType(String materialType);
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
+    ErpMaterialInfo getByMouldNumber(String mouldNumber);
     Long insertErpMaterialInfo(AddMaterialInfoRequest request) throws IOException;
     int insertErpMaterialInfos(List<ErpMaterialInfo> erpMaterialInfos);
     Long insertPurchased(AddPurchasedMaterialRequest request) throws IOException;

@@ -302,9 +302,18 @@ public class ErpProductionScheduleServiceImpl
 
         schedule.setProductionTime(request.getProductionTime());
 
-        ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                request.getMaterialId()
-        );
+        ErpMaterialInfo materialInfo;
+        if (request.getMaterialId() != null) {
+            materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
+                    request.getMaterialId()
+            );
+        } else if (request.getMouldNumber() != null) {
+            materialInfo = erpMaterialInfoService.getByMouldNumber(
+                    request.getMouldNumber()
+            );
+        } else {
+            throw new ServiceException("未指定物料ID或模具编号");
+        }
         if (materialInfo == null) {
             throw new ServiceException("物料信息不存在");
         }

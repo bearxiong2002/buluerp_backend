@@ -2,15 +2,19 @@ package com.ruoyi.web.request.material;
 
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
+import com.ruoyi.common.validation.Save;
 import io.swagger.annotations.ApiModelProperty;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 
 public class AddPurchasedMaterialRequest {
     @ApiModelProperty("模具编号")
     @Excel(name = "模具编号")
     @Example("ABC123")
+    @NotBlank(message = "模具编号不能为空", groups = Save.class)
     private String mouldNumber;
 
     @ApiModelProperty("规格名称")
@@ -21,6 +25,7 @@ public class AddPurchasedMaterialRequest {
     @ApiModelProperty("料型")
     @Excel(name = "料型")
     @Example("A1")
+    @NotNull(message = "料型不能为空", groups = Save.class)
     private String materialType;
 
     @ApiModelProperty("单重")
@@ -31,6 +36,7 @@ public class AddPurchasedMaterialRequest {
     @ApiModelProperty("外购编码")
     @Excel(name = "外购编码")
     @Example("A1")
+    @NotBlank(message = "外购编码不能为空", groups = Save.class)
     private String purchaseCode;
 
     @ApiModelProperty("外购图片")

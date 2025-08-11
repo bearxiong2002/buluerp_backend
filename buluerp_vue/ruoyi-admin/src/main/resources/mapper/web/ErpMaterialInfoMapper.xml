@@ -281,4 +281,9 @@
         <include refid="selectErpMaterialInfo"/>
         where m.material_type = #{materialType}
     </select>
+    <select id="selectByMouldNumber" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialInfo"/>
+        where m.mould_number = #{mouldNumber}
+        limit 1
+    </select>
 </mapper>

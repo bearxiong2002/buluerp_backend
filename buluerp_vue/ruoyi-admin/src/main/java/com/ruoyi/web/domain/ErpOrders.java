@@ -80,8 +80,8 @@ public class ErpOrders extends BaseEntity
     private Integer status;
 
     /** 客户ID（外键引用客户表） */
-    @Excel(name = "客户ID")
-    @Example("1")
+    // @Excel(name = "客户ID")
+    // @Example("1")
     private Long customerId;
 
     /** 产品ID（外键引用产品表） */
@@ -114,6 +114,8 @@ public class ErpOrders extends BaseEntity
     @ApiModelProperty("是否所有布产已完成(只读)")
     private Boolean allScheduled;
 
+    @Excel(name = "客户姓名")
+    @Example("张三")
     private String customerName;
 
     @ApiModelProperty(value = "通过设计总表关联的产品，仅用于响应")

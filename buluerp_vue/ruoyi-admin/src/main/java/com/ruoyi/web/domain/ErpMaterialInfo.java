@@ -43,6 +43,7 @@ public class ErpMaterialInfo extends BaseEntity {
 
     @Excel(name = "模具编号")
     @Example("客户")
+    @NotBlank(message = "模具编号不能为空", groups = {Save.class})
     private String mouldNumber;
 
     @Excel(name = "规格名称")
