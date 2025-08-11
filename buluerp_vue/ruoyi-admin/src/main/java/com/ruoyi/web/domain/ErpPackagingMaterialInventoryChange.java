@@ -42,7 +42,6 @@ public class ErpPackagingMaterialInventoryChange {
     private Date changeDate;
 
     /** 编辑动作（例如：1=入库，2=出库） */
-    @Excel(name = "操作信息")
     @TableField("edit_action")
     private String editAction;
 

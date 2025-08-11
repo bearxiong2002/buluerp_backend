@@ -260,7 +260,7 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
         inExample.setPackagingNumber("PKG-001");          // 分包编号示例
         inExample.setInOutQuantity(100);                  // 入库数量（正数）
         inExample.setStorageLocation("A区-01-01");        // 存储位置示例
-        inExample.setEditAction("入库");                  // 操作信息
+        //inExample.setEditAction("入库");                  // 操作信息
         inExample.setChangeDate(new Date());              // 变更日期
         inExample.setRemarks("新产品入库");               // 备注信息
         templateData.add(inExample);
@@ -272,7 +272,7 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
         outExample.setPackagingNumber("PKG-002");         // 分包编号示例
         outExample.setInOutQuantity(-50);                 // 出库数量（负数）
         outExample.setStorageLocation("B区-02-03");       // 存储位置示例
-        outExample.setEditAction("出库");                 // 操作信息
+        //outExample.setEditAction("出库");                 // 操作信息
         outExample.setChangeDate(new Date());             // 变更日期
         outExample.setRemarks("生产领料");                // 备注信息
         templateData.add(outExample);
