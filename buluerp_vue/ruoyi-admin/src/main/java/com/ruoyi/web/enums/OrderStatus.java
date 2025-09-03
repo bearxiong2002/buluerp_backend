@@ -15,11 +15,11 @@ public enum OrderStatus {
     PRODUCTION_PENDING("布产计划已定制(待排产)"),
     IN_PRODUCTION("排产中"),
     PRODUCTION_DONE_PURCHASING("生产完成(待采购完成)"),
-    MATERIAL_IN_INVENTORY("已齐料入库(待套料)"),
-    MATERIAL_NESTING("套料中"),
-    PACKAGING_PENDING("套料完成(待拉线)"),
+    MATERIAL_IN_INVENTORY("已齐料入库(待拉线)"),
     PACKAGING("拉线组包中"),
-    PACKAGED("拉线完成(分包已入库)"),
+    PACKAGED("拉线完成(待套料)"),
+    MATERIAL_NESTING("套料中"),
+    MATERIAL_NESTED("套料完成(待包装)"),
     PACKING("包装中"),
     DELIVERED("已发货"),
     COMPLETED("已完成");
@@ -138,8 +138,8 @@ public enum OrderStatus {
             // new StatusRoute(IN_PRODUCTION, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
             // new StatusRoute(PRODUCTION_DONE_PURCHASING, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
             new StatusBlock(DESIGN_PENDING, MATERIAL_IN_INVENTORY, "admin"),
-            new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGING_PENDING, new String[]{"warehouse"}),
-            new StatusBlock(PACKAGING_PENDING, PACKAGED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
-            new StatusBlock(PACKAGED, COMPLETED, new String[]{"sell-dept"})
+            new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGED, new String[]{"warehouse"}),
+            new StatusBlock(PACKAGED, MATERIAL_NESTED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
+            new StatusBlock(MATERIAL_NESTED, COMPLETED, new String[]{"sell-dept"})
     );
 }
