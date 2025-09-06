@@ -342,4 +342,18 @@ public interface IErpAuditRecordService
      * @param auditComment 审核意见
      */
     void handlePackagingListCompleteRejected(Long auditRecordId, String auditor, String auditComment);
+
+    /**
+     * 根据用户权限查询审核记录（支持多审核类型）
+     *
+     * @param erpAuditRecord 审核记录查询条件
+     * @param allowedAuditTypes 允许的审核类型列表
+     * @param auditId 审核对象ID（可选）
+     * @param dateParams 时间范围参数
+     * @return 审核记录列表
+     */
+    List<ErpAuditRecord> selectAuditRecordsByAllowedTypes(ErpAuditRecord erpAuditRecord,
+                                                          List<Integer> allowedAuditTypes,
+                                                          String auditId,
+                                                          Map<String, Date> dateParams);
 } 

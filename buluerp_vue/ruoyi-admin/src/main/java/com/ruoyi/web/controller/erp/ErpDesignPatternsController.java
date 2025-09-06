@@ -14,6 +14,7 @@ import javax.validation.ValidatorFactory;
 
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.constant.HttpStatus;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpDesignStyle;
 import com.ruoyi.web.request.design.AddDesignPatternsRequest;
@@ -277,6 +278,11 @@ public class ErpDesignPatternsController extends BaseController
     @PutMapping("/{id}")
     public AjaxResult confirm(@PathVariable Long id)
     {
+        // 检查用户是否为PMC部门角色
+        if (!SecurityUtils.hasRole("pmc-dept")) {
+            return error("只有PMC部门用户才能进行确认操作");
+        }
+        
         return toAjax(erpDesignPatternsService.confirmProduct(id));
     }
 
@@ -290,6 +296,11 @@ public class ErpDesignPatternsController extends BaseController
     @PutMapping("/cancel/{id}")
     public AjaxResult cancel(@PathVariable Long id)
     {
+        // 检查用户是否为PMC部门角色
+        if (!SecurityUtils.hasRole("pmc-dept")) {
+            return error("只有PMC部门用户才能进行取消确认操作");
+        }
+        
         return toAjax(erpDesignPatternsService.cancelConfirmProductById(id));
     }
 }

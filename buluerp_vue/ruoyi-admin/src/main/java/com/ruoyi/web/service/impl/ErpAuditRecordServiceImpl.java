@@ -2059,4 +2059,66 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             throw new RuntimeException("处理分包完成审核拒绝流程失败", e);
         }
     }
+    @Override
+    public List<ErpAuditRecord> selectAuditRecordsByAllowedTypes(ErpAuditRecord erpAuditRecord,
+                                                                 List<Integer> allowedAuditTypes,
+                                                                 String auditId,
+                                                                 Map<String, Date> dateParams) {
+        try {
+            LambdaQueryWrapper<ErpAuditRecord> wrapper = new LambdaQueryWrapper<>();
+
+            // 设置审核类型条件（IN查询）
+            if (allowedAuditTypes != null && !allowedAuditTypes.isEmpty()) {
+                wrapper.in(ErpAuditRecord::getAuditType, allowedAuditTypes);
+            }
+
+            // 设置其他查询条件
+            if (erpAuditRecord != null) {
+                if (erpAuditRecord.getId() != null) {
+                    wrapper.eq(ErpAuditRecord::getId, erpAuditRecord.getId());
+                }
+                if (erpAuditRecord.getAuditId() != null) {
+                    wrapper.eq(ErpAuditRecord::getAuditId, erpAuditRecord.getAuditId());
+                }
+                if (erpAuditRecord.getPreStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getPreStatus, erpAuditRecord.getPreStatus());
+                }
+                if (erpAuditRecord.getToStatus() != null) {
+                    wrapper.eq(ErpAuditRecord::getToStatus, erpAuditRecord.getToStatus());
+                }
+                if (erpAuditRecord.getConfirm() != null) {
+                    wrapper.eq(ErpAuditRecord::getConfirm, erpAuditRecord.getConfirm());
+                }
+                if (StringUtils.hasText(erpAuditRecord.getAuditor())) {
+                    wrapper.like(ErpAuditRecord::getAuditor, erpAuditRecord.getAuditor());
+                }
+                if (StringUtils.hasText(erpAuditRecord.getAuditComment())) {
+                    wrapper.like(ErpAuditRecord::getAuditComment, erpAuditRecord.getAuditComment());
+                }
+            }
+
+            // 处理时间范围查询
+            if (dateParams != null) {
+                if (dateParams.get("createTimeStart") != null) {
+                    wrapper.ge(ErpAuditRecord::getCreateTime, dateParams.get("createTimeStart"));
+                }
+                if (dateParams.get("createTimeEnd") != null) {
+                    wrapper.le(ErpAuditRecord::getCreateTime, dateParams.get("createTimeEnd"));
+                }
+                if (dateParams.get("checkTimeStart") != null) {
+                    wrapper.ge(ErpAuditRecord::getCheckTime, dateParams.get("checkTimeStart"));
+                }
+                if (dateParams.get("checkTimeEnd") != null) {
+                    wrapper.le(ErpAuditRecord::getCheckTime, dateParams.get("checkTimeEnd"));
+                }
+            }
+
+            wrapper.orderByDesc(ErpAuditRecord::getCreateTime);
+            return erpAuditRecordMapper.selectList(wrapper);
+
+        } catch (Exception e) {
+            log.error("根据允许的审核类型查询审核记录失败", e);
+            throw new RuntimeException("根据允许的审核类型查询审核记录失败", e);
+        }
+    }
 } 
