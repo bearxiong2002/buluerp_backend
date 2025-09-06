@@ -279,7 +279,7 @@ public class ErpDesignPatternsController extends BaseController
     public AjaxResult confirm(@PathVariable Long id)
     {
         // 检查用户是否为PMC部门角色
-        if (!SecurityUtils.hasRole("pmc-dept")) {
+        if (!SecurityUtils.hasRole("pmc_dept")) {
             return error("只有PMC部门用户才能进行确认操作");
         }
         
@@ -297,7 +297,7 @@ public class ErpDesignPatternsController extends BaseController
     public AjaxResult cancel(@PathVariable Long id)
     {
         // 检查用户是否为PMC部门角色
-        if (!SecurityUtils.hasRole("pmc-dept")) {
+        if (!SecurityUtils.hasRole("pmc_dept")) {
             return error("只有PMC部门用户才能进行取消确认操作");
         }
         

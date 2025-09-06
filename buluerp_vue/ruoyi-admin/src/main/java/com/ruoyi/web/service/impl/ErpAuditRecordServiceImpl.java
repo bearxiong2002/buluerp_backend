@@ -591,7 +591,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                         order.getId(), auditRecordId);
             } else {
                 // ==================== 根据状态变更，动态决定通知对象 START ====================
-                String notifyRole = "design-dept"; // 默认通知设计部（适用于初次审核）
+                String notifyRole = "design_dept"; // 默认通知设计部（适用于初次审核）
                 Integer preStatus = auditRecord.getPreStatus();
                 
                 // 如果 preStatus 不为 null，说明这是一个状态变更审核，而不是初次创建审核
@@ -602,7 +602,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                     if (Objects.equals(toStatus, materialInInventoryStatus)) {
                         notifyRole = "warehouse"; // 通知仓库开始套料
                     } else if (Objects.equals(toStatus, deliveredStatus)) {
-                        notifyRole = "sell-dept"; // 发货相关的，通知回销售部
+                        notifyRole = "sell_dept"; // 发货相关的，通知回销售部
                     }
                 }
                 // ==================== 根据状态变更，动态决定通知对象 END ====================
@@ -670,7 +670,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             templateData.put("auditor", auditor);
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
 
-            String notifyRole = "sell-dept"; // 默认通知销售部（适用于初次审核被拒）
+            String notifyRole = "sell_dept"; // 默认通知销售部（适用于初次审核被拒）
 
             
 //            // 如果 preStatus 不为 null，说明这是一个状态变更审核被拒
@@ -920,7 +920,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
                 // 4. 发送通知给注塑部
                 notificationService.sendNotificationToRole(
                         NotificationTypeEnum.PRODUCTION_APPROVED_TO_DEPT,
-                        "injectionmolding-dept", // 注塑部角色标识
+                        "injectionmolding_dept", // 注塑部角色标识
                         String.valueOf(schedule.getId()),
                         "PRODUCTION_SCHEDULE",
                         templateData
@@ -979,7 +979,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 4. 发送通知给PMC部门
             notificationService.sendNotificationToRole(
                     NotificationTypeEnum.PRODUCTION_REJECTED_TO_PMC,
-                    "pmc-dept", // PMC部门角色标识
+                    "pmc_dept", // PMC部门角色标识
                     auditRecord.getAuditId(),
                     "PRODUCTION_SCHEDULE",
                     templateData
@@ -1151,7 +1151,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 4. 发送通知给采购部
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_APPROVED_TO_DEPT,
-                "purchase-dept", // 采购部角色标识
+                "purchase_dept", // 采购部角色标识
                 String.valueOf(collection.getId()),
                 "PURCHASE_COLLECTION",
                 templateData
@@ -1207,7 +1207,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             templateData.put("rejectReason", auditComment != null ? auditComment : "审核未通过");
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PURCHASE_REJECTED_TO_PMC,
-                "pmc-dept", // 发送给PMC部门
+                "pmc_dept", // 发送给PMC部门
                 String.valueOf(collection.getId()),
                 "PURCHASE_COLLECTION",
                 templateData
@@ -1608,7 +1608,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.SUBCONTRACT_AUDIT_REJECTED,
-                "pmc-dept", // 发送给PMC部门
+                "pmc_dept", // 发送给PMC部门
                 packagingList.getOrderCode(),
                 "PACKAGING",
                 templateData
@@ -1850,7 +1850,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 5. 发送通知给注塑部
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PRODUCTION_COMPLETE_AUDIT_APPROVED,
-                "injectionmolding-dept", // 注塑部角色标识
+                "injectionmolding_dept", // 注塑部角色标识
                 auditRecord.getAuditId(),
                 "PRODUCTION_COMPLETE",
                 templateData
@@ -1891,7 +1891,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 3. 发送通知给PMC部门
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.PRODUCTION_COMPLETE_AUDIT_REJECTED,
-                "pmc-dept", // PMC部门角色标识
+                "pmc_dept", // PMC部门角色标识
                 auditRecord.getAuditId(),
                 "PRODUCTION_COMPLETE",
                 templateData
@@ -2043,7 +2043,7 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             // 3. 发送通知给PMC部门
             notificationService.sendNotificationToRole(
                 NotificationTypeEnum.SUBCONTRACT_COMPLETE_AUDIT_REJECTED,
-                "pmc-dept", // PMC部门角色标识
+                "pmc_dept", // PMC部门角色标识
                 auditRecord.getAuditId(),
                 "SUBCONTRACT_COMPLETE",
                 templateData
