@@ -29,11 +29,11 @@ public class ErpMaterialInfo extends BaseEntity {
     @Excel(name = "物料id")
     private Long id;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT)
     private Date creatTime;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "更新时间", type = Excel.Type.EXPORT)
     private Date updateTime;
 

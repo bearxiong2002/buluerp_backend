@@ -32,7 +32,7 @@ public class ErpProductionSchedule {
     @NotNull(message = "订单编号不能为空", groups = {Save.class})
     private String orderCode;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间 [list|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
@@ -57,7 +57,7 @@ public class ErpProductionSchedule {
     @Range(min = 1, message = "排产ID不能小于1", groups = {Save.class, Update.class})
     private Long arrangeId;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "布产时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
@@ -157,7 +157,7 @@ public class ErpProductionSchedule {
     @Example("123.456")
     private Double timeHours;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Excel(name = "出货时间", dateFormat = "yyyy-MM-dd")
     @ApiModelProperty(value = "出货时间 [list|POST|PUT|response]", dataType = "Date")
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)

@@ -34,7 +34,7 @@ public class ErpPackagingList {
     @NotNull(message = "订单编号不能为空", groups = {Save.class})
     private String orderCode;
 
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
     @ApiModelProperty(value = "创建时间 [list|response]")
     private Date creationTime;
@@ -54,7 +54,7 @@ public class ErpPackagingList {
     @ApiModelProperty(value = "产品中文名称 [list|POST|PUT|response]")
     private String productNameCn;
 
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Excel(name = "发布日期", dateFormat = "yyyy-MM-dd")
     @DateTimeFormat("yyyy-MM-dd")
     @Example("2022-05-28")

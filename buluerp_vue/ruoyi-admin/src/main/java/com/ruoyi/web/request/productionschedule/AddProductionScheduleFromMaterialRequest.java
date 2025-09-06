@@ -35,7 +35,7 @@ public class AddProductionScheduleFromMaterialRequest {
     @Excel(name = "布产时间", dateFormat = "yyyy-MM-dd")
     @Example("2023-01-01")
     @NotNull(message = "布产时间未填写或无效", groups = Save.class)
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date productionTime;
 
     // @ApiModelProperty(value = "颜色编码", required = true)
@@ -87,7 +87,7 @@ public class AddProductionScheduleFromMaterialRequest {
     @ApiModelProperty("出货时间")
     @Excel(name = "出货时间", dateFormat = "yyyy-MM-dd")
     @Example("2023-01-01")
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date shipmentTime;
 
     @ApiModelProperty("原材料供应商")
