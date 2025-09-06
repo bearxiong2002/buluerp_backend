@@ -60,14 +60,14 @@ public class ErpOrders extends BaseEntity
     private Long quantity;
 
     /** 交货期限 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     // @NotNull(groups = {Save.class}, message = "交货期限格式有误")
     @Excel(name = "交货期限", width = 30, dateFormat = "yyyy-MM-dd")
     @Example("2021-01-01")
     private Date deliveryDeadline;
 
     /** 交货时间 */
-    @JsonFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     @Excel(name = "交货时间", width = 30, dateFormat = "yyyy-MM-dd")
     @Example("2021-01-01")
     private Date deliveryTime;
