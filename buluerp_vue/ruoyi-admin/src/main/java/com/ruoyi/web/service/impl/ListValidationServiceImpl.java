@@ -104,6 +104,13 @@ public class ListValidationServiceImpl implements IListValidationService {
         List<ListRowErrorInfo> errorList = new ArrayList<>();
         int rowIndex = 1;
         for (Type row : list) {
+            if (row == null) {
+                ListRowErrorInfo errorInfo = new ListRowErrorInfo();
+                errorInfo.setRowNum(rowIndex);
+                errorInfo.setErrorMsg("数据模式错误，请检查导入模板是否正确");
+                errorList.add(errorInfo);
+                continue;
+            }
             Set<ConstraintViolation<Type>> constraints = validator.validate(row, Save.class);
             if (!constraints.isEmpty()) {
                 ListRowErrorInfo errorInfo = new ListRowErrorInfo();
