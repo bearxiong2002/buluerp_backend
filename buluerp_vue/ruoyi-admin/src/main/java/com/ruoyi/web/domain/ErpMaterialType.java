@@ -51,13 +51,13 @@ public class ErpMaterialType {
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @ApiModelProperty(value = "创建时间")
     @Excel(name = "创建时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date createTime;
 
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
     @ApiModelProperty(value = "更新时间")
     @Excel(name = "更新时间", type = Excel.Type.EXPORT, dateFormat = "yyyy-MM-dd HH:mm:ss")
-    @JsonFormat(timezone = "GMT+8", pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date updateTime;
 
     public Long getId() {
