@@ -128,7 +128,7 @@ public enum OrderStatus {
     public static final List<StatusRule> STATUS_RULES = Arrays.asList(
             // 审计负责，订单模块不作限制
             new StatusBlock(AUDIT_REJECT, DESIGN_PENDING, (String) null),
-            new StatusBlock(DESIGN_PENDING, PRODUCTION_SCHEDULE_PENDING, "design-dept"),
+            new StatusBlock(DESIGN_PENDING, PRODUCTION_SCHEDULE_PENDING, "design_dept"),
             // ***********************************************************************************
             // ** 以下状态的变更不再由部门手动触发，而是由关联业务（布产、采购）的审核结果自动触发 **
             // ***********************************************************************************
@@ -139,7 +139,7 @@ public enum OrderStatus {
             // new StatusRoute(PRODUCTION_DONE_PURCHASING, MATERIAL_IN_INVENTORY, new String[]{ "admin" }),
             new StatusBlock(DESIGN_PENDING, MATERIAL_IN_INVENTORY, "admin"),
             new StatusBlock(MATERIAL_IN_INVENTORY, PACKAGED, new String[]{"warehouse"}),
-            new StatusBlock(PACKAGED, MATERIAL_NESTED, new String[]{"wirestaying-dept", "admin"}), // 分包审核通过后自动变更
-            new StatusBlock(MATERIAL_NESTED, COMPLETED, new String[]{"sell-dept"})
+            new StatusBlock(PACKAGED, MATERIAL_NESTED, new String[]{"wirestaying_dept", "admin"}), // 分包审核通过后自动变更
+            new StatusBlock(MATERIAL_NESTED, COMPLETED, new String[]{"sell_dept"})
     );
 }

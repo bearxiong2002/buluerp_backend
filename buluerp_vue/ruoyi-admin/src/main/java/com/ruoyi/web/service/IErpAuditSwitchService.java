@@ -45,4 +45,13 @@ public interface IErpAuditSwitchService extends IService<ErpAuditSwitch>
      * @return 结果
      */
     boolean setAuditStatus(Integer auditType, Integer status);
+
+    /**
+     * 根据用户角色查询审核开关列表
+     * boss和admin角色可以查看所有审核开关，其他审核人只能查看自己对应的审核开关
+     * 
+     * @param erpAuditSwitch 查询条件
+     * @return 过滤后的审核开关集合
+     */
+    List<ErpAuditSwitch> selectErpAuditSwitchListWithPermission(ErpAuditSwitch erpAuditSwitch);
 } 
