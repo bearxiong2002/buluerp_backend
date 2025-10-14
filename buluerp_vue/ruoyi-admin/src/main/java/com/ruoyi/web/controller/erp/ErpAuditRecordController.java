@@ -699,8 +699,6 @@ public class ErpAuditRecordController extends BaseController
                     .map(SysRole::getRoleKey)
                     .collect(Collectors.toSet());
 
-            System.out.println("!!!!!!!!!!!!!!!!!! "+userRoles+" !!!!!!!!!!!!!");
-
             // 检查用户是否为管理员
             boolean isAdmin = SecurityUtils.isAdmin(SecurityUtils.getUserId()) ||
                     userRoles.contains("admin") ||
