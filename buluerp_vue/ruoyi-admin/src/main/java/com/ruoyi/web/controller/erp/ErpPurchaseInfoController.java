@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.domain.BaseEntity;
@@ -61,7 +62,12 @@ public class ErpPurchaseInfoController extends BaseController
     public TableDataInfo list(ErpPurchaseInfo erpPurchaseInfo)
     {
         startPage();
-        QueryWrapper<ErpPurchaseInfo> queryWrapper = new QueryWrapper<>(erpPurchaseInfo);
+        Long id = erpPurchaseInfo.getId();
+        erpPurchaseInfo.setId(null);
+        LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>(erpPurchaseInfo);
+        if (id != null) {
+            queryWrapper.like(ErpPurchaseInfo::getId, id);
+        }
         List<ErpPurchaseInfo> list = erpPurchaseInfoService.list(queryWrapper);
         return getDataTable(list);
     }

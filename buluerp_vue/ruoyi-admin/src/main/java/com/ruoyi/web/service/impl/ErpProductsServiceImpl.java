@@ -258,6 +258,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     public Long getIdByInnerId(String innerId){
         LambdaQueryWrapper<ErpProducts> wrapper=Wrappers.lambdaQuery();
         wrapper.eq(ErpProducts::getInnerId,innerId);
-        return erpProductsMapper.selectOne(wrapper).getId();
+        // return erpProductsMapper.selectOne(wrapper).getId();
+        ErpProducts erpProducts = erpProductsMapper.selectOne(wrapper);
+        if (erpProducts == null) {
+            return null;
+        }
+        return erpProducts.getId();
     }
 }
