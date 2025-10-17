@@ -32,7 +32,7 @@
             m.material_type,
             m.standard_code,
             m.single_weight,
-            m.mould_status,
+            mould.status as mould_status,
             m.mould_manufacturer,
             m.cycle_time,
             m.sample_location,
@@ -41,6 +41,7 @@
             (case when p.id is not null then 1 else 0 end) as purchased
         from erp_material_info m
             left join erp_purchase_info p on m.id = p.material_id
+            left join erp_mould mould on m.mould_number = mould.mould_number
     </sql>
     <insert id="insertErpMaterialInfo" useGeneratedKeys="true" keyProperty="id">
         insert into erp_material_info
@@ -237,7 +238,7 @@
                 and m.single_weight = #{singleWeight}
             </if>
             <if test="mouldStatus != null and mouldStatus != ''">
-                and m.mould_status like concat('%', #{mouldStatus}, '%')
+                and mould_status like concat('%', #{mouldStatus}, '%')
             </if>
             <if test="mouldManufacturer != null and mouldManufacturer != ''">
                 and m.mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
