@@ -45,8 +45,8 @@ public class ErpMouldController extends BaseController {
     @Anonymous
     @GetMapping("/{mouldId}")
     @ApiOperation(value = "查询模具详情")
-    public ErpMould detail(@PathVariable Long mouldId) {
-        return mouldService.getById(mouldId);
+    public AjaxResult detail(@PathVariable Long mouldId) {
+        return success(mouldService.getById(mouldId));
     }
 
     @Anonymous
