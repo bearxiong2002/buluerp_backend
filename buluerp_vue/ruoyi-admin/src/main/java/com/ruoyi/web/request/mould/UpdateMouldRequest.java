@@ -12,7 +12,7 @@ public class UpdateMouldRequest {
     @NotNull(message = "模具ID不能为空")
     private Long id;
 
-    @ApiModelProperty(value = "模具状态：创建(待制作)/制作完成(待验收)/验收通过/试模完成")
+    @ApiModelProperty(value = "模具状态：创建(待制作)/制作完成(待验收)/验收通过/维修中/试模完成")
     @NullOrNotBlank(message = "模具状态不能为空")
     private String status;
 
