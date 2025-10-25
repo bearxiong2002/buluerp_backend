@@ -7,12 +7,14 @@ import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.web.domain.ErpManufacturer;
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import com.ruoyi.web.domain.ErpMould;
+import com.ruoyi.web.domain.ErpMouldHouse;
 import com.ruoyi.web.mapper.ErpMouldMapper;
 import com.ruoyi.web.request.mould.AddMouldRequest;
 import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.mould.UpdateMouldRequest;
 import com.ruoyi.web.service.IErpManufacturerService;
 import com.ruoyi.web.service.IErpMaterialInfoService;
+import com.ruoyi.web.service.IErpMouldHouseService;
 import com.ruoyi.web.service.IErpMouldService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,11 @@ public class ErpMouldServiceImpl
     @Autowired
     private IErpMaterialInfoService materialInfoService;
 
+    @Autowired
+    private IErpMouldHouseService mouldHouseService;
+
+
+
     @Override
     public void checkUnique(ErpMould mould) {
         if (mould.getMouldNumber() != null) {
@@ -49,6 +56,14 @@ public class ErpMouldServiceImpl
             ErpManufacturer manufacturer = manufacturerService.selectErpManufacturerById(mould.getManufacturerId());
             if (manufacturer == null) {
                 throw new IllegalArgumentException("厂商ID不存在");
+            }
+        }
+        if (mould.getMouldHouseId() != null && mould.getMouldHouseId() >= 0) {
+            ErpMouldHouse mouldHouse = mouldHouseService.lambdaQuery()
+                    .eq(ErpMouldHouse::getId, mould.getMouldHouseId())
+                    .one();
+            if (mouldHouse == null) {
+                throw new IllegalArgumentException("模房ID不存在");
             }
         }
     }
@@ -94,8 +109,12 @@ public class ErpMouldServiceImpl
         ErpMould mould = new ErpMould();
         BeanUtils.copyProperties(request, mould);
         checkReferences(mould);
-        if (!ErpMould.isStatusValid(request.getStatus())) {
+        if (request.getStatus() != null && !ErpMould.isStatusValid(request.getStatus())) {
             throw new IllegalArgumentException("无效的模具状态");
+        }
+        if (request.getMouldHouseId() < 0) {
+            // 未分配统一设置为-1便于检索
+            mould.setMouldHouseId(-1L);
         }
         if (baseMapper.updateById(mould) <= 0) {
             throw new IllegalArgumentException("更新模具失败：无效的ID");

@@ -15,8 +15,9 @@ public class ErpMould {
     public static final String STATUS_CREATED = "创建(待制作)";
     public static final String STATUS_MADE = "制作完成(待验收)";
     public static final String STATUS_ACCEPTED = "验收通过";
+    public static final String STATUS_REPAIRING = "维修中";
     public static final String STATUS_DONE = "试模完成";
-    public static final String[] STATUS_LIST = {STATUS_CREATED, STATUS_MADE, STATUS_ACCEPTED, STATUS_DONE};
+    public static final String[] STATUS_LIST = {STATUS_CREATED, STATUS_MADE, STATUS_ACCEPTED, STATUS_REPAIRING, STATUS_DONE};
     public static boolean isStatusValid(String status) {
         for (String s : STATUS_LIST) {
             if (s.equals(status)) {
@@ -48,6 +49,11 @@ public class ErpMould {
     @Excel(name = "生产商ID")
     @Example(value = "1")
     private Long manufacturerId;
+
+    @Excel(name = "模房ID（-1代表未分配）")
+    @Example(value = "1")
+    private Long mouldHouseId;
+
 
     public Long getId() {
         return id;
@@ -87,5 +93,13 @@ public class ErpMould {
 
     public void setManufacturerId(Long manufacturerId) {
         this.manufacturerId = manufacturerId;
+    }
+
+    public Long getMouldHouseId() {
+        return mouldHouseId;
+    }
+
+    public void setMouldHouseId(Long mouldHouseId) {
+        this.mouldHouseId = mouldHouseId;
     }
 }

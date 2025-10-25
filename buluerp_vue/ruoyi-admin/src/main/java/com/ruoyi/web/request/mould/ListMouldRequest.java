@@ -30,6 +30,9 @@ public class ListMouldRequest {
     @ApiModelProperty(value = "厂商ID")
     private Long manufacturerId;
 
+    @ApiModelProperty(value = "模房ID（-1代表未分配）")
+    private Long mouldHouseId;
+
     public Long getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public class ListMouldRequest {
 
     public void setManufacturerId(Long manufacturerId) {
         this.manufacturerId = manufacturerId;
+    }
+
+    public Long getMouldHouseId() {
+        return mouldHouseId;
+    }
+
+    public void setMouldHouseId(Long mouldHouseId) {
+        this.mouldHouseId = mouldHouseId;
     }
 }

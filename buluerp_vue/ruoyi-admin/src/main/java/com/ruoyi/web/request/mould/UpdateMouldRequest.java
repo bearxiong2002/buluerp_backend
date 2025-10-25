@@ -23,6 +23,17 @@ public class UpdateMouldRequest {
     @ApiModelProperty(value = "厂商ID")
     private Long manufacturerId;
 
+    @ApiModelProperty(value = "模房ID（传负数代表从模房移除）")
+    private Long mouldHouseId;
+
+    public Long getMouldHouseId() {
+        return mouldHouseId;
+    }
+
+    public void setMouldHouseId(Long mouldHouseId) {
+        this.mouldHouseId = mouldHouseId;
+    }
+
     public Long getManufacturerId() {
         return manufacturerId;
     }
