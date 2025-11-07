@@ -20,7 +20,7 @@
             ps.production_time as production_time,
             ps.product_code as product_code,
             mi.mould_number as mould_number,
-            mi.mould_status as mould_condition,
+            md.status as mould_condition,
             ps.picture_url as picture_url,
             mt.color_code as color_code,
             (ps.`usage`) as `usage`,
@@ -44,6 +44,7 @@
         from erp_production_schedule ps
             left join erp_material_info mi on ps.material_id = mi.id
             left join erp_material_type mt on mi.material_type = mt.name
+            left join erp_mould md on mi.mould_number = md.mould_number
     </sql>
     <select id="selectResultList" resultType="com.ruoyi.web.result.ProductionScheduleResult">
         <include refid="selectResult" />
