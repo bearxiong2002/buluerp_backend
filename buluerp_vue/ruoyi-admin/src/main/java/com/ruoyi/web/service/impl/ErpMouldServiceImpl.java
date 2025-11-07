@@ -100,6 +100,7 @@ public class ErpMouldServiceImpl
         checkReferences(mould);
 
         mould.setStatus(ErpMould.STATUS_CREATED);
+        mould.setMouldHouseId(-1L);
         baseMapper.insert(mould);
     }
 
