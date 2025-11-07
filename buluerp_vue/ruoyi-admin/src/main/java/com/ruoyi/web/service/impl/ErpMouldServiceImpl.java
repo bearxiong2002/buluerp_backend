@@ -131,7 +131,7 @@ public class ErpMouldServiceImpl
         }
         ErpMaterialInfo materialInfo = new ErpMaterialInfo();
         materialInfo.setMouldNumber(mould.getMouldNumber());
-        if (CollectionUtils.isEmpty(materialInfoService.selectErpMaterialInfoList(materialInfo))) {
+        if (!CollectionUtils.isEmpty(materialInfoService.selectErpMaterialInfoList(materialInfo))) {
             throw new ServiceException("该模具下存在物料信息，不能删除");
         }
         if (baseMapper.deleteById(id) <= 0) {
