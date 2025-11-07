@@ -76,7 +76,7 @@ public class ErpMouldController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "添加模具")
-    public AjaxResult add(@Validated AddMouldRequest request) {
+    public AjaxResult add(@RequestBody @Validated AddMouldRequest request) {
         mouldService.add(request);
         return success();
     }
@@ -84,7 +84,7 @@ public class ErpMouldController extends BaseController {
     @Anonymous
     @PutMapping
     @ApiOperation(value = "更新模具信息")
-    public AjaxResult update(@Validated UpdateMouldRequest request) {
+    public AjaxResult update(@RequestBody @Validated UpdateMouldRequest request) {
         mouldService.update(request);
         return success();
     }
