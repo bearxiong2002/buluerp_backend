@@ -7,17 +7,24 @@ import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
-import com.ruoyi.common.core.domain.BaseEntity;
 
 import java.util.Date;
 
 public class ErpMould {
-    public static final String STATUS_CREATED = "创建(待制作)";
-    public static final String STATUS_MADE = "制作完成(待验收)";
-    public static final String STATUS_ACCEPTED = "验收通过";
-    public static final String STATUS_REPAIRING = "维修中";
-    public static final String STATUS_DONE = "试模完成";
-    public static final String[] STATUS_LIST = {STATUS_CREATED, STATUS_MADE, STATUS_ACCEPTED, STATUS_REPAIRING, STATUS_DONE};
+    public static final String STATUS_CREATED = "新模(排产中)";
+    public static final String STATUS_MADE = "新模完成(待试模)";
+    public static final String STATUS_ACCEPTED = "验收合格(已入库)";
+    public static final String STATUS_REPAIRING = "模具故障送修中";
+    public static final String STATUS_REPAIRED = "维修好返厂待试模";
+    public static final String STATUS_DISTRIBUTED = "已外发";
+    public static final String[] STATUS_LIST = {
+            STATUS_CREATED,
+            STATUS_MADE,
+            STATUS_ACCEPTED,
+            STATUS_REPAIRING,
+            STATUS_REPAIRED,
+            STATUS_DISTRIBUTED
+    };
     public static boolean isStatusValid(String status) {
         for (String s : STATUS_LIST) {
             if (s.equals(status)) {
