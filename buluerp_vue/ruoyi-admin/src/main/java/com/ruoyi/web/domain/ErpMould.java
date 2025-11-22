@@ -47,7 +47,7 @@ public class ErpMould {
     @Excel(name = "模具状态")
     private String status;
 
-    @Excel(name = "试用日期")
+    @Excel(name = "试模日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trialDate;
 
