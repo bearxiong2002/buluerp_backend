@@ -45,11 +45,9 @@ public class ErpMould {
 
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "模具状态")
-    @Example(value = "创建(待制作)")
     private String status;
 
     @Excel(name = "试用日期")
-    @Example(value = "2023-01-01")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trialDate;
 
@@ -58,7 +56,6 @@ public class ErpMould {
     private Long manufacturerId;
 
     @Excel(name = "模房ID（-1代表未分配）")
-    @Example(value = "1")
     private Long mouldHouseId;
 
 
