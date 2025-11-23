@@ -43,10 +43,10 @@ public class ErpMouldController extends BaseController {
     }
 
     @Anonymous
-    @GetMapping("/{mouldId}")
+    @GetMapping("/{mouldNumber}")
     @ApiOperation(value = "查询模具详情")
-    public AjaxResult detail(@PathVariable Long mouldId) {
-        return success(mouldService.getById(mouldId));
+    public AjaxResult detail(@PathVariable String mouldNumber) {
+        return success(mouldService.lambdaQuery().eq(ErpMould::getMouldNumber, mouldNumber).one());
     }
 
     @Anonymous
