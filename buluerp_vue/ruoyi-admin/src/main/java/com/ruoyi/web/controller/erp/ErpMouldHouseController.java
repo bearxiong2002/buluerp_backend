@@ -43,10 +43,10 @@ public class ErpMouldHouseController extends BaseController {
     @Anonymous
     @PostMapping("/export")
     @ApiOperation("导出模房列表")
-    public void export(Long[] ids) {
+    public void export(Long[] ids, HttpServletResponse response) {
         List<ErpMouldHouse> mouldHouseList = erpMouldHouseService.listByIds(Arrays.asList(ids));
         ExcelUtil<ErpMouldHouse> util = new ExcelUtil<>(ErpMouldHouse.class);
-        util.exportExcel(mouldHouseList, "模房列表");
+        util.exportExcel(response, mouldHouseList, "模房列表");
     }
 
     @Anonymous
