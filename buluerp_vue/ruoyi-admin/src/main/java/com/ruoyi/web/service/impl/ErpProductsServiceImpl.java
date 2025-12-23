@@ -35,7 +35,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -124,8 +126,8 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         erpProducts.setOuterId(addProductRequest.getOuterId());
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
         erpProducts.setName(addProductRequest.getName());
-        erpProducts.setCreateTime(LocalDateTime.now());
-        erpProducts.setUpdateTime(LocalDateTime.now());
+        erpProducts.setCreateTime(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Shanghai")));
+        erpProducts.setUpdateTime(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Shanghai")));
         if (0 >= erpProductsMapper.insert(erpProducts)) {
             if(addProductRequest.getRowNumber()!=null)
                 throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
@@ -183,7 +185,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
 //            }
 //        }
 
-        erpProducts.setUpdateTime(LocalDateTime.now());
+        erpProducts.setUpdateTime(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Shanghai")));
         if (0 >= erpProductsMapper.updateById(erpProducts)) {
             throw new ServiceException("修改失败");
         }
