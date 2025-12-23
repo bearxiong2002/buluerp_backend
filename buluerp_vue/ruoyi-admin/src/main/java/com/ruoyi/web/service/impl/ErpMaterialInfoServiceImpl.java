@@ -8,11 +8,13 @@ import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
 import com.ruoyi.web.request.material.AddMaterialInfoRequest;
 import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
+import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.rmi.ServerException;
@@ -42,6 +44,9 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private IErpProductsService erpProductsService;
+
+    @Autowired
+    private IErpMouldService erpMouldService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -74,6 +79,13 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             ErpMaterialType type = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
             if (type == null) {
                 throw new ServiceException("对应物料类型不存在");
+            }
+        }
+        if (erpMaterialInfo.getMouldNumber() != null) {
+            ListMouldRequest request = new ListMouldRequest();
+            request.setMouldNumber(erpMaterialInfo.getMouldNumber());
+            if (CollectionUtils.isEmpty(erpMouldService.list(request))) {
+                throw new ServiceException("对应模具不存在");
             }
         }
     }

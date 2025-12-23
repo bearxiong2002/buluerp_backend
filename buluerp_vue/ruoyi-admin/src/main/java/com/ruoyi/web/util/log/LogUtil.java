@@ -6,6 +6,8 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.reflect.ReflectUtils;
 import com.ruoyi.common.utils.spring.SpringUtils;
+import com.ruoyi.framework.manager.AsyncManager;
+import com.ruoyi.framework.manager.factory.AsyncFactory;
 import com.ruoyi.web.annotation.AutoLogIgnore;
 import com.ruoyi.web.annotation.AutoLogIdentifier;
 import com.ruoyi.web.domain.ErpCustomers;
@@ -88,7 +90,9 @@ public class LogUtil {
         for (OperationLog log : operationLog) {
             debugOperation(log);
         }
-        erpOperationLogService.saveOperations(operationLog);
+        AsyncManager.me().execute(AsyncFactory.fromRunnable(
+                () -> erpOperationLogService.saveOperations(operationLog)
+        ));
         LogUtil.clearOperationLog();
     }
 

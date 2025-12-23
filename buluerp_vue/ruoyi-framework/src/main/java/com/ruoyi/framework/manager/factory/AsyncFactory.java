@@ -99,4 +99,17 @@ public class AsyncFactory
             }
         };
     }
+
+
+    public static TimerTask fromRunnable(final Runnable runnable)
+    {
+        return new TimerTask()
+        {
+            @Override
+            public void run()
+            {
+                runnable.run();
+            }
+        };
+    }
 }
