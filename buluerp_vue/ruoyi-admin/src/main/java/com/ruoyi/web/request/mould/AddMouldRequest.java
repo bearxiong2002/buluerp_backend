@@ -12,10 +12,10 @@ public class AddMouldRequest {
     @Excel(name = "模具编号")
     private String mouldNumber;
 
-    @ApiModelProperty(value = "厂商ID")
-    @NotNull(message = "厂商ID不能为空")
-    @Excel(name = "生产商ID")
-    private Long manufacturerId;
+    @ApiModelProperty(value = "厂商名称")
+    @NotNull(message = "厂商名称不能为空")
+    @Excel(name = "生产商名称")
+    private String manufacturerName;
 
     public String getMouldNumber() {
         return mouldNumber;
@@ -25,11 +25,11 @@ public class AddMouldRequest {
         this.mouldNumber = mouldNumber;
     }
 
-    public Long getManufacturerId() {
-        return manufacturerId;
+    public String getManufacturerName() {
+        return manufacturerName;
     }
 
-    public void setManufacturerId(Long manufacturerId) {
-        this.manufacturerId = manufacturerId;
+    public void setManufacturerName(String manufacturerName) {
+        this.manufacturerName = manufacturerName;
     }
 }

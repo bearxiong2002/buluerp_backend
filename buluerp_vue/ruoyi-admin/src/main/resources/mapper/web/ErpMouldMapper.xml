@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.web.mapper.ErpMouldMapper">
+
+
+    <select id="findMouldInfoById" resultType="com.ruoyi.web.result.MouldInfoResult">
+        select
+            em.id,
+            em.mould_number,
+            em.status,
+            em.trial_date,
+            emf.name as manufacturer_name,
+            em.mould_house_id
+            from
+        erp_mould em
+        left join erp_manufacturer emf on emf.id=em.manufacturer_id
+        where em.mould_number=#{mouldNumber}
+    </select>
+
+    <select id="selectMouldInfoList" resultType="com.ruoyi.web.result.MouldInfoResult">
+        select
+        em.id,
+        em.mould_number,
+        em.status,
+        em.trial_date,
+        emf.name as manufacturer_name,
+        em.mould_house_id
+        from
+        erp_mould em
+        left join erp_manufacturer emf on emf.id=em.manufacturer_id
+        <where>
+            <if test="id != null">
+                AND em.id like concat('%', #{id}, '%')
+            </if>
+            <if test="mouldNumber != null and mouldNumber != ''">
+                AND em.mould_number like concat('%', #{mouldNumber}, '%')
+            </if>
+            <if test="status != null and status != ''">
+                AND em.status = #{status}
+            </if>
+            <if test="trialDateFrom != null">
+                AND em.trial_date &gt;= #{trialDateFrom}
+            </if>
+            <if test="trialDateTo != null">
+                AND em.trial_date &lt;= #{trialDateTo}
+            </if>
+            <if test="manufacturerId != null">
+                AND em.manufacturer_id = #{manufacturerId}
+            </if>
+            <if test="mouldHouseId != null">
+                AND em.mould_house_id = #{mouldHouseId}
+            </if>
+        </where>
+        order by em.id desc
+    </select>
+</mapper>
