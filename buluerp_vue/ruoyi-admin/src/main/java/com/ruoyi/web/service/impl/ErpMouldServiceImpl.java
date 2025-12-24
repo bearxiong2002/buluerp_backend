@@ -12,6 +12,9 @@ import com.ruoyi.web.mapper.ErpMouldMapper;
 import com.ruoyi.web.request.mould.AddMouldRequest;
 import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.mould.UpdateMouldRequest;
+import com.ruoyi.web.mapper.ErpManufacturerMapper;
+import com.ruoyi.common.utils.StringUtils;
+import com.ruoyi.web.result.MouldInfoResult;
 import com.ruoyi.web.service.IErpManufacturerService;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import com.ruoyi.web.service.IErpMouldHouseService;
@@ -37,7 +40,8 @@ public class ErpMouldServiceImpl
     @Autowired
     private IErpMouldHouseService mouldHouseService;
 
-
+    @Autowired
+    private ErpManufacturerMapper manufacturerMapper;
 
     @Override
     public void checkUnique(ErpMould mould) {
@@ -69,25 +73,17 @@ public class ErpMouldServiceImpl
     }
 
     @Override
-    public List<ErpMould> list(ListMouldRequest request) {
-        ErpMould condition = new ErpMould();
-        BeanUtils.copyProperties(request, condition);
-        condition.setId(null);
-        LambdaQueryWrapper<ErpMould> queryWrapper = new LambdaQueryWrapper<>(condition);
+    public MouldInfoResult getMouldInfo(String mouldNumber) {
+        MouldInfoResult mouldInfoById = baseMapper.findMouldInfoById(mouldNumber);
+        if (mouldInfoById == null) {
+            throw new ServiceException("没有模具信息");
+        }
+        return mouldInfoById;
+    }
 
-        if (request.getId() != null) {
-            queryWrapper.like(ErpMould::getId, request.getId());
-        }
-        if (request.getTrialDateFrom() != null) {
-            queryWrapper.isNotNull(ErpMould::getTrialDate);
-            queryWrapper.ge(ErpMould::getTrialDate, request.getTrialDateFrom());
-        }
-        if (request.getTrialDateTo() != null) {
-            queryWrapper.isNotNull(ErpMould::getTrialDate);
-            queryWrapper.le(ErpMould::getTrialDate, request.getTrialDateTo());
-        }
-
-        return baseMapper.selectList(queryWrapper);
+    @Override
+    public List<MouldInfoResult> list(ListMouldRequest request) {
+        return baseMapper.selectMouldInfoList(request);
     }
 
     @Override
@@ -97,7 +93,20 @@ public class ErpMouldServiceImpl
         BeanUtils.copyProperties(request, mould);
 
         checkUnique(mould);
-        checkReferences(mould);
+
+        if (StringUtils.isNotEmpty(request.getManufacturerName())) {
+            List<ErpManufacturer> manufacturers = manufacturerMapper
+                    .selectList(new LambdaQueryWrapper<ErpManufacturer>()
+                            .like(ErpManufacturer::getName, request.getManufacturerName()));
+
+            if (CollectionUtils.isEmpty(manufacturers)) {
+                throw new IllegalArgumentException("厂商不存在");
+            }
+            if (manufacturers.size() > 1) {
+                throw new IllegalArgumentException("厂商名称匹配到多条记录，请提供更精确的名称");
+            }
+            mould.setManufacturerId(manufacturers.get(0).getId());
+        }
 
         mould.setStatus(ErpMould.STATUS_CREATED);
         mould.setMouldHouseId(-1L);

@@ -11,6 +11,7 @@ import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.mould.UpdateMouldRequest;
 import com.ruoyi.web.service.IErpMouldService;
 import com.ruoyi.web.service.IListValidationService;
+import com.ruoyi.web.result.MouldInfoResult;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
@@ -38,7 +39,7 @@ public class ErpMouldController extends BaseController {
     @GetMapping("/list")
     public TableDataInfo list(ListMouldRequest request) {
         startPage();
-        List<ErpMould> mouldList = mouldService.list(request);
+        List<MouldInfoResult> mouldList = mouldService.list(request);
         return getDataTable(mouldList);
     }
 
@@ -46,7 +47,7 @@ public class ErpMouldController extends BaseController {
     @GetMapping("/{mouldNumber}")
     @ApiOperation(value = "查询模具详情")
     public AjaxResult detail(@PathVariable String mouldNumber) {
-        return success(mouldService.lambdaQuery().eq(ErpMould::getMouldNumber, mouldNumber).one());
+        return success(mouldService.getMouldInfo(mouldNumber));
     }
 
     @Anonymous

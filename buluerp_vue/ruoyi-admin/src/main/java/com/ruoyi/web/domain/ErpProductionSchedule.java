@@ -170,8 +170,8 @@ public class ErpProductionSchedule {
     @Example("凝聚")
     private String supplier;
 
-    @Excel(name = "模具厂家")
-    @ApiModelProperty(value = "模具厂家 [list|POST|PUT|response]", dataType = "String")
+    @Excel(name = "模具厂家名称")
+    @ApiModelProperty(value = "模具厂家名称 [list|POST|PUT|response]", dataType = "String")
     @TableField(condition = SqlCondition.LIKE)
     @Example("布鲁科")
     private String mouldManufacturer;
