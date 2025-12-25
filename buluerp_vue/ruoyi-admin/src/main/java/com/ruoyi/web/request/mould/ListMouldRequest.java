@@ -8,7 +8,6 @@ import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Date;
 
-@TableName("erp_mould")
 public class ListMouldRequest {
     @ApiModelProperty(value = "模具ID")
     private Long id;
@@ -27,8 +26,8 @@ public class ListMouldRequest {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trialDateTo;
 
-    @ApiModelProperty(value = "厂商ID")
-    private Long manufacturerId;
+    @ApiModelProperty(value = "厂商名称")
+    private String manufacturerName;
 
     @ApiModelProperty(value = "模房ID（-1代表未分配）")
     private Long mouldHouseId;
@@ -73,12 +72,12 @@ public class ListMouldRequest {
         this.trialDateTo = trialDateTo;
     }
 
-    public Long getManufacturerId() {
-        return manufacturerId;
+    public String getManufacturerName() {
+        return manufacturerName;
     }
 
-    public void setManufacturerId(Long manufacturerId) {
-        this.manufacturerId = manufacturerId;
+    public void setManufacturerName(String manufacturerName) {
+        this.manufacturerName = manufacturerName;
     }
 
     public Long getMouldHouseId() {

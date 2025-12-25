@@ -32,6 +32,9 @@ public class ErpMouldServiceImpl
         implements IErpMouldService {
 
     @Autowired
+    private ErpMouldMapper erpMouldMapper;
+
+    @Autowired
     private IErpManufacturerService manufacturerService;
 
     @Autowired
@@ -83,7 +86,7 @@ public class ErpMouldServiceImpl
 
     @Override
     public List<MouldInfoResult> list(ListMouldRequest request) {
-        return baseMapper.selectMouldInfoList(request);
+        return erpMouldMapper.selectMouldInfoList(request);
     }
 
     @Override
