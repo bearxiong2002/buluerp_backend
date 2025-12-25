@@ -116,13 +116,6 @@ public class ErpProductionScheduleServiceImpl
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
-        MouldInfoResult mouldInfoById = erpMouldMapper.findMouldInfoById(erpProductionSchedule.getMouldNumber());
-        if (mouldInfoById == null) {
-            throw new ServiceException("模具信息错误");
-        }
-        if (!mouldInfoById.getManufacturerName().equals(erpProductionSchedule.getMouldManufacturer())) {
-            throw new ServiceException("模具编号和厂商不一致");
-        }
         check(erpProductionSchedule);
         ErpOrders erpOrders = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
         if (!Objects.equals(erpOrders.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
