@@ -118,11 +118,24 @@ public class ErpMouldServiceImpl
     public void update(UpdateMouldRequest request) {
         ErpMould mould = new ErpMould();
         BeanUtils.copyProperties(request, mould);
+        if (StringUtils.isNotEmpty(request.getManufacturerName())) {
+            List<ErpManufacturer> manufacturers = manufacturerMapper
+                    .selectList(new LambdaQueryWrapper<ErpManufacturer>()
+                            .eq(ErpManufacturer::getName, request.getManufacturerName()));
+
+            if (CollectionUtils.isEmpty(manufacturers)) {
+                throw new IllegalArgumentException("厂商不存在");
+            }
+            if (manufacturers.size() > 1) {
+                throw new IllegalArgumentException("厂商名称匹配到多条记录，请提供更精确的名称");
+            }
+            mould.setManufacturerId(manufacturers.get(0).getId());
+        }
         checkReferences(mould);
         if (request.getStatus() != null && !ErpMould.isStatusValid(request.getStatus())) {
             throw new IllegalArgumentException("无效的模具状态");
         }
-        if (request.getMouldHouseId() < 0) {
+        if (request.getMouldHouseId() != null && request.getMouldHouseId() < 0) {
             // 未分配统一设置为-1便于检索
             mould.setMouldHouseId(-1L);
         }
