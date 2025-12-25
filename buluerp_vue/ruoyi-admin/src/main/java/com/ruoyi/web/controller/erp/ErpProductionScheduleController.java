@@ -47,7 +47,7 @@ public class ErpProductionScheduleController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
             @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
     })
-    public TableDataInfo list(@RequestBody ListProductionScheduleRequest request) {
+    public TableDataInfo list(ListProductionScheduleRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         List<ProductionScheduleResult> list = erpProductionScheduleService.listResult(request);
         return getDataTable(list);

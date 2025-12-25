@@ -46,8 +46,8 @@
             <if test="trialDateTo != null">
                 AND em.trial_date &lt;= #{trialDateTo}
             </if>
-            <if test="manufacturerId != null">
-                AND em.manufacturer_id = #{manufacturerId}
+            <if test="manufacturerName != null and manufacturerName != ''">
+                AND emf.name like concat('%', #{manufacturerName}, '%')
             </if>
             <if test="mouldHouseId != null">
                 AND em.mould_house_id = #{mouldHouseId}
