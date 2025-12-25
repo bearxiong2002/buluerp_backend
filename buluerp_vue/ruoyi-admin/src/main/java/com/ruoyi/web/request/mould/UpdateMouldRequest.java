@@ -20,8 +20,8 @@ public class UpdateMouldRequest {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trialDate;
 
-    @ApiModelProperty(value = "厂商ID")
-    private Long manufacturerId;
+    @ApiModelProperty(value = "厂商名称")
+    private String manufacturerName;
 
     @ApiModelProperty(value = "模房ID（传负数代表从模房移除）")
     private Long mouldHouseId;
@@ -34,12 +34,12 @@ public class UpdateMouldRequest {
         this.mouldHouseId = mouldHouseId;
     }
 
-    public Long getManufacturerId() {
-        return manufacturerId;
+    public String getManufacturerName() {
+        return manufacturerName;
     }
 
-    public void setManufacturerId(Long manufacturerId) {
-        this.manufacturerId = manufacturerId;
+    public void setManufacturerName(String manufacturerName) {
+        this.manufacturerName = manufacturerName;
     }
 
     public Date getTrialDate() {

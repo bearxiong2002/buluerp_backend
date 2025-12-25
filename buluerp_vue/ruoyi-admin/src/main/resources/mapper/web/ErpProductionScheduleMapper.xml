@@ -35,7 +35,7 @@
             ps.time_hours as time_hours,
             ps.shipment_time as shipment_time,
             ps.supplier as supplier,
-            em.name as mould_manufacturer,
+            ps.mould_manufacturer as mould_manufacturer,
             ps.inventory as inventory,
             ps.customer_id as customer_id,
             ps.status as status,
@@ -45,7 +45,6 @@
             left join erp_material_info mi on ps.material_id = mi.id
             left join erp_material_type mt on mi.material_type = mt.name
             left join erp_mould md on mi.mould_number = md.mould_number
-            left join erp_manufacturer em on em.id=md.manufacturer_id
     </sql>
     <select id="selectResultList" resultType="com.ruoyi.web.result.ProductionScheduleResult">
         <include refid="selectResult" />
@@ -123,7 +122,7 @@
                 and ps.supplier like concat('%', #{supplier}, '%')
             </if>
             <if test="mouldManufacturer != null">
-                and mi.mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
+                and ps.mould_manufacturer like concat('%', #{mouldManufacturer}, '%')
             </if>
             <if test="inventory != null">
                 and ps.inventory = #{inventory}

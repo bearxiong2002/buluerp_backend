@@ -47,7 +47,7 @@ public class ErpProductionScheduleController extends BaseController {
             @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
             @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
     })
-    public TableDataInfo list(ListProductionScheduleRequest request) {
+    public TableDataInfo list(@RequestBody ListProductionScheduleRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
         List<ProductionScheduleResult> list = erpProductionScheduleService.listResult(request);
         return getDataTable(list);
@@ -90,32 +90,33 @@ public class ErpProductionScheduleController extends BaseController {
     @Anonymous
     @PostMapping
     @ApiOperation(value = "新增布产", notes = "新增布产", hidden = true)
-    public AjaxResult add(@ModelAttribute @Validated({Save.class}) ErpProductionSchedule erpProductionSchedule) throws IOException {
+    public AjaxResult add(@ModelAttribute @Validated({ Save.class }) ErpProductionSchedule erpProductionSchedule)
+            throws IOException {
         return toAjax(
                 erpProductionScheduleService
-                        .insertErpProductionSchedule(erpProductionSchedule)
-        );
+                        .insertErpProductionSchedule(erpProductionSchedule));
     }
 
     @Anonymous
     @PostMapping("/from-material")
     @ApiOperation(value = "根据物料ID创建布产", notes = "根据物料ID创建布产")
-    public AjaxResult fromMaterial(@RequestBody @Validated({Save.class})AddProductionScheduleFromMaterialRequest request) throws IOException {
+    public AjaxResult fromMaterial(
+            @RequestBody @Validated({ Save.class }) AddProductionScheduleFromMaterialRequest request)
+            throws IOException {
         return toAjax(
                 erpProductionScheduleService
-                        .insertFromMaterial(request)
-        );
+                        .insertFromMaterial(request));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:edit')")
     @Anonymous
     @PutMapping
     @ApiOperation(value = "修改布产", notes = "修改布产")
-    public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpProductionSchedule erpProductionSchedule) throws IOException {
+    public AjaxResult edit(@ModelAttribute @Validated({ Update.class }) ErpProductionSchedule erpProductionSchedule)
+            throws IOException {
         return toAjax(
                 erpProductionScheduleService
-                        .updateErpProductionSchedule(erpProductionSchedule)
-        );
+                        .updateErpProductionSchedule(erpProductionSchedule));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:remove')")

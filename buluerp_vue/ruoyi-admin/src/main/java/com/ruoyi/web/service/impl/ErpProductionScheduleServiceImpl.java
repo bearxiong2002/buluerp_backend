@@ -11,9 +11,11 @@ import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.enums.AuditTypeEnum;
 import com.ruoyi.web.enums.OrderStatus;
+import com.ruoyi.web.mapper.ErpMouldMapper;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
 import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
+import com.ruoyi.web.result.MouldInfoResult;
 import com.ruoyi.web.result.ProductionScheduleResult;
 import com.ruoyi.web.service.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,21 +65,27 @@ public class ErpProductionScheduleServiceImpl
     private ErpProductionScheduleMapper erpProductionScheduleMapper;
 
     @Autowired
+    private ErpMouldMapper erpMouldMapper;
+
+    @Autowired
     private IErpMaterialTypeService erpMaterialTypeService;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
-        //     LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
-        //     queryWrapper.eq(ErpProductionSchedule::getOrderCode, erpProductionSchedule.getOrderCode());
-        //     ErpProductionSchedule original = this.getOne(queryWrapper);
-        //     if (original != null && !Objects.equals(original.getId(), erpProductionSchedule.getId())) {
-        //         throw new ServiceException("此订单已存在布产" + erpProductionSchedule.getId());
-        //     }
+        // LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new
+        // LambdaQueryWrapper<>();
+        // queryWrapper.eq(ErpProductionSchedule::getOrderCode,
+        // erpProductionSchedule.getOrderCode());
+        // ErpProductionSchedule original = this.getOne(queryWrapper);
+        // if (original != null && !Objects.equals(original.getId(),
+        // erpProductionSchedule.getId())) {
+        // throw new ServiceException("此订单已存在布产" + erpProductionSchedule.getId());
+        // }
         // }
     }
 
     private void checkReferences(ErpProductionSchedule erpProductionSchedule) {
-        if (erpProductionSchedule.getOrderCode()!= null) {
+        if (erpProductionSchedule.getOrderCode() != null) {
             ErpOrders order = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
             if (order == null) {
                 throw new ServiceException("订单不存在");
@@ -108,6 +116,13 @@ public class ErpProductionScheduleServiceImpl
     @Override
     @Transactional
     public int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException {
+        MouldInfoResult mouldInfoById = erpMouldMapper.findMouldInfoById(erpProductionSchedule.getMouldNumber());
+        if (mouldInfoById == null) {
+            throw new ServiceException("模具信息错误");
+        }
+        if (!mouldInfoById.getManufacturerName().equals(erpProductionSchedule.getMouldManufacturer())) {
+            throw new ServiceException("模具编号和厂商不一致");
+        }
         check(erpProductionSchedule);
         ErpOrders erpOrders = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
         if (!Objects.equals(erpOrders.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
@@ -116,7 +131,7 @@ public class ErpProductionScheduleServiceImpl
 
         // 设置初始状态为待审核
         erpProductionSchedule.setStatus(0L);
-        
+
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
@@ -135,8 +150,8 @@ public class ErpProductionScheduleServiceImpl
         erpProductionSchedule.setProductId(order.getProductId());
         // TODO: 将订单状态修改逻辑移到审核流程中
         // erpOrdersService.updateOrderStatusAutomatic(
-        //         erpProductionSchedule.getOrderCode(),
-        //         OrderStatus.PRODUCTION_SCHEDULING
+        // erpProductionSchedule.getOrderCode(),
+        // OrderStatus.PRODUCTION_SCHEDULING
         // );
 
         // 移除创建时的审核触发，布产审核只保留布产完成审核
@@ -170,6 +185,7 @@ public class ErpProductionScheduleServiceImpl
 
     /**
      * 标记完成方法与具体逻辑解耦，方便审核
+     * 
      * @param orderCode
      */
     @Override
@@ -182,7 +198,7 @@ public class ErpProductionScheduleServiceImpl
         if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
             throw new ServiceException("订单不在布产计划定制阶段");
         }
-        
+
         // 检查是否启用布产审核
         if (auditSwitchService.isAuditEnabled(AuditTypeEnum.PRODUCTION_AUDIT.getCode())) {
             // 发起布产完成审核
@@ -192,7 +208,7 @@ public class ErpProductionScheduleServiceImpl
             executeMarkAllScheduled(orderCode);
         }
     }
-    
+
     /**
      * 执行标记全部布产完成的具体逻辑
      */
@@ -223,7 +239,8 @@ public class ErpProductionScheduleServiceImpl
         if (arrange == null) {
             return false;
         }
-        return arrange.getCompletionTime() != null && !arrange.getCompletionTime().after(DateUtils.getLastSecondOfToday());
+        return arrange.getCompletionTime() != null
+                && !arrange.getCompletionTime().after(DateUtils.getLastSecondOfToday());
     }
 
     @Override
@@ -276,7 +293,7 @@ public class ErpProductionScheduleServiceImpl
         if (request.getDesignPatternId() != null) {
             Long designPatternId = request.getDesignPatternId();
             List<ErpDesignPatterns> designPatterns = erpDesignPatternsService
-                    .selectErpDesignPatternsListByIds(new Long[]{designPatternId});
+                    .selectErpDesignPatternsListByIds(new Long[] { designPatternId });
             if (designPatterns.isEmpty()) {
                 throw new ServiceException("设计总表不存在");
             }
@@ -305,12 +322,10 @@ public class ErpProductionScheduleServiceImpl
         ErpMaterialInfo materialInfo;
         if (request.getMaterialId() != null) {
             materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
-                    request.getMaterialId()
-            );
+                    request.getMaterialId());
         } else if (request.getMouldNumber() != null) {
             materialInfo = erpMaterialInfoService.getByMouldNumber(
-                    request.getMouldNumber()
-            );
+                    request.getMouldNumber());
         } else {
             throw new ServiceException("未指定物料ID或模具编号");
         }
@@ -355,7 +370,7 @@ public class ErpProductionScheduleServiceImpl
 
         // 获取原始记录以检查状态变更
         ErpProductionSchedule oldSchedule = getById(erpProductionSchedule.getId());
-        
+
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
@@ -369,7 +384,7 @@ public class ErpProductionScheduleServiceImpl
 
         // 检查状态变更
         if (erpProductionSchedule.getStatus() != null &&
-            !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus()) ) {
+                !erpProductionSchedule.getStatus().equals(oldSchedule.getStatus())) {
             throw new ServiceException("不允许直接修改布产状态");
         }
 
@@ -381,7 +396,7 @@ public class ErpProductionScheduleServiceImpl
         int result = baseMapper.attatchToArrange(productionArrangeId, productionScheduleIds);
 
         Set<String> orderCodes = new HashSet<>();
-        for  (Long productionScheduleId : productionScheduleIds) {
+        for (Long productionScheduleId : productionScheduleIds) {
             ErpProductionSchedule schedule = getById(productionScheduleId);
             if (schedule != null) {
                 orderCodes.add(schedule.getOrderCode());
@@ -436,9 +451,9 @@ public class ErpProductionScheduleServiceImpl
     }
 
     @Override
-    public List<ErpProductionSchedule> selectSchedulesByOrderCode(String orderCode){
-        LambdaQueryWrapper<ErpProductionSchedule> wrapper= Wrappers.lambdaQuery();
-        wrapper.eq(ErpProductionSchedule::getOrderCode,orderCode);
+    public List<ErpProductionSchedule> selectSchedulesByOrderCode(String orderCode) {
+        LambdaQueryWrapper<ErpProductionSchedule> wrapper = Wrappers.lambdaQuery();
+        wrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
         return this.list(wrapper);
     }
 }
