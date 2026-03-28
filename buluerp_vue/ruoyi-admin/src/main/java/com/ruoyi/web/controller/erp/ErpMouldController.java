@@ -68,7 +68,7 @@ public class ErpMouldController extends BaseController {
     @GetMapping("/export/template")
     @ApiOperation(value = "导出模具列表模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {
-        listValidationService.exportExample(response, ErpMould.class);
+        listValidationService.exportExample(response, AddMouldRequest.class);
     }
 
     @Anonymous

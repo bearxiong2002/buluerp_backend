@@ -1,5 +1,6 @@
 package com.ruoyi.web.request.mould;
 
+import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -10,11 +11,13 @@ public class AddMouldRequest {
     @ApiModelProperty(value = "模具编号")
     @NotBlank(message = "模具编号不能为空")
     @Excel(name = "模具编号")
+    @Example(value = "123456")
     private String mouldNumber;
 
     @ApiModelProperty(value = "厂商名称")
     @NotNull(message = "厂商名称不能为空")
     @Excel(name = "生产商名称")
+    @Example(value = "ABC")
     private String manufacturerName;
 
     public String getMouldNumber() {
