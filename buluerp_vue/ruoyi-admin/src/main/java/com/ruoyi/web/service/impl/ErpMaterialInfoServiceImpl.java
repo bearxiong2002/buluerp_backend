@@ -1,9 +1,14 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.exception.file.InvalidExtensionException;
 import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
+import com.ruoyi.common.utils.file.MimeTypeUtils;
 import com.ruoyi.web.domain.*;
 import com.ruoyi.web.mapper.ErpMaterialInfoMapper;
 import com.ruoyi.web.request.material.AddMaterialInfoRequest;
@@ -11,11 +16,16 @@ import com.ruoyi.web.request.material.AddPurchasedMaterialRequest;
 import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.*;
+import com.ruoyi.web.util.ModelConversionUtils;
+import com.ruoyi.framework.config.ServerConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.rmi.ServerException;
 import java.util.List;
@@ -24,6 +34,8 @@ import java.util.stream.Collectors;
 
 @Service
 public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
+    private static final Logger log = LoggerFactory.getLogger(ErpMaterialInfoServiceImpl.class);
+
     @Autowired
     private ErpMaterialInfoMapper erpMaterialInfoMapper;
 
@@ -47,6 +59,12 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private IErpMouldService erpMouldService;
+
+    @Autowired
+    private ModelConversionUtils modelConversionUtils;
+
+    @Autowired
+    private ServerConfig serverConfig;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -133,6 +151,48 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             String url = FileUploadUtils.upload(request.getDrawingReferenceFile());
             request.setDrawingReference(url);
         }
+
+        // 处理3D模型文件上传与转换
+        if (request.getModelFile() != null && !request.getModelFile().isEmpty()) {
+            String modelSubDir = modelConversionUtils.getModel3dPath();
+            String stpUrlPath;
+            try {
+                stpUrlPath = FileUploadUtils.upload(
+                        RuoYiConfig.getUploadPath() + modelSubDir,
+                        request.getModelFile(),
+                        MimeTypeUtils.MODEL_3D_EXTENSION
+                );
+            } catch (InvalidExtensionException e) {
+                throw new ServiceException("3D模型文件格式不支持，仅支持STP/STEP格式");
+            }
+
+            // 根据URL路径还原文件绝对路径
+            // stpUrlPath = "/profile/upload/model/3d/2025/04/28/filename_xxx.stp"
+            String stpAbsPath = RuoYiConfig.getProfile()
+                    + StringUtils.substringAfter(stpUrlPath, Constants.RESOURCE_PREFIX);
+            File stpFile = new File(stpAbsPath);
+
+            if (stpFile.exists()) {
+                String gltfFileName = stpFile.getName().replaceAll("\\.(stp|step)$", ".gltf");
+                String gltfAbsPath = stpFile.getParent() + File.separator + gltfFileName;
+
+                boolean converted = modelConversionUtils.convertStpToGltf(
+                        stpFile.getAbsolutePath(), gltfAbsPath
+                );
+
+                if (converted) {
+                    String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
+                            + "/" + gltfFileName;
+                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
+                    request.setModelUrl(gltfUrl);
+                } else {
+                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
+                }
+            } else {
+                log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
+            }
+        }
+
         if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
             throw new ServerException("物料新增失败");
         }

@@ -95,6 +95,13 @@ public class ErpMaterialInfo extends BaseEntity {
     @Example("-")
     private String spareCode;
 
+    /** 3D模型文件URL（GLTF格式） */
+    private String modelUrl;
+
+    /** 上传的STP模型文件（不持久化） */
+    @JsonIgnore
+    private MultipartFile modelFile;
+
     @Example(Example.CREATE_RECURSIVE)
     private ErpPurchaseInfo purchaseInfo;
 
@@ -268,5 +275,21 @@ public class ErpMaterialInfo extends BaseEntity {
 
     public void setPurchased(Boolean purchased) {
         isPurchased = purchased;
+    }
+
+    public String getModelUrl() {
+        return modelUrl;
+    }
+
+    public void setModelUrl(String modelUrl) {
+        this.modelUrl = modelUrl;
+    }
+
+    public MultipartFile getModelFile() {
+        return modelFile;
+    }
+
+    public void setModelFile(MultipartFile modelFile) {
+        this.modelFile = modelFile;
     }
 }

@@ -19,6 +19,7 @@
         <result property="remarks" column="remarks" />
         <result property="spareCode" column="spare_code" />
         <result property="purchased" column="purchased" />
+        <result property="modelUrl" column="model_url" />
     </resultMap>
     <sql id="selectErpMaterialInfo">
         select
@@ -38,6 +39,7 @@
             m.sample_location,
             m.remarks,
             m.spare_code,
+            m.model_url,
             (case when p.id is not null then 1 else 0 end) as purchased
         from erp_material_info m
             left join erp_purchase_info p on m.id = p.material_id
@@ -91,6 +93,9 @@
             <if test="spareCode != null">
                 spare_code,
             </if>
+            <if test="modelUrl != null">
+                model_url,
+            </if>
         </trim>
         values
         <trim prefix="(" suffix=")" suffixOverrides=",">
@@ -139,6 +144,9 @@
             <if test="spareCode != null">
                 #{spareCode},
             </if>
+            <if test="modelUrl != null">
+                #{modelUrl},
+            </if>
         </trim>
     </insert>
     <update id="updateErpMaterialInfo">
@@ -185,6 +193,9 @@
             </if>
             <if test="spareCode != null">
                 spare_code = #{spareCode},
+            </if>
+            <if test="modelUrl != null">
+                model_url = #{modelUrl},
             </if>
         </set>
         where id = #{id}

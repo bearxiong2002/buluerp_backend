@@ -26,6 +26,8 @@ public class MimeTypeUtils
 
     public static final String[] VIDEO_EXTENSION = { "mp4", "avi", "rmvb" };
 
+    public static final String[] MODEL_3D_EXTENSION = { "stp", "step", "gltf", "glb" };
+
     public static final String[] DEFAULT_ALLOWED_EXTENSION = {
             // 图片
             "bmp", "gif", "jpg", "jpeg", "png",
@@ -36,7 +38,9 @@ public class MimeTypeUtils
             // 视频格式
             "mp4", "avi", "rmvb",
             // pdf
-            "pdf" };
+            "pdf",
+            // 3d模型
+            "stp", "step", "gltf", "glb" };
 
     public static String getExtension(String prefix)
     {
