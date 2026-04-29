@@ -45,7 +45,6 @@ public class ErpMaterialType {
     @ApiModelProperty(value = "色粉重量", required = true)
     @Excel(name = "色粉重量")
     @Example("100.00")
-    @NotNull(message = "色粉重量不能为空", groups = Save.class)
     private Double colorWeight;
 
     @TableField(condition = BaseEntity.DATE_SQL_CONDITION)
