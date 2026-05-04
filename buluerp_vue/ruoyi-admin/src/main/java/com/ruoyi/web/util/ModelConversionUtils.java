@@ -19,8 +19,31 @@ public class ModelConversionUtils {
 
     private static final long CONVERT_TIMEOUT = 180;
 
-    @Value("${ruoyi.python-path:python}")
+    @Value("${ruoyi.python-path:}")
     private String pythonPath;
+
+    private String resolvePythonPath() {
+        // 如果配置了python-path且文件存在，直接使用
+        if (pythonPath != null && !pythonPath.isEmpty()) {
+            File configured = new File(pythonPath);
+            // 如果是绝对路径或者相对路径且文件存在
+            if (configured.isAbsolute() && configured.exists()) {
+                return configured.getAbsolutePath();
+            }
+            // 相对于user.dir解析
+            File relative = new File(System.getProperty("user.dir"), pythonPath);
+            if (relative.exists()) {
+                return relative.getAbsolutePath();
+            }
+        }
+        // 回退：检测操作系统，使用默认python
+        String os = System.getProperty("os.name").toLowerCase();
+        if (os.contains("win")) {
+            return "python";
+        } else {
+            return "python3";
+        }
+    }
 
     @Value("${ruoyi.model-3d-path:/model/3d}")
     private String model3dPath;
@@ -41,8 +64,11 @@ public class ModelConversionUtils {
             return false;
         }
 
+        String resolvedPython = resolvePythonPath();
+        log.info("使用Python路径: {} (原始配置: {})", resolvedPython, pythonPath);
+
         ProcessBuilder pb = new ProcessBuilder(
-                pythonPath,
+                resolvedPython,
                 scriptFile.getAbsolutePath(),
                 stpFilePath,
                 gltfFilePath

@@ -12,7 +12,7 @@ ruoyi:
   # 验证码类型 math 数字计算 char 字符验证
   captchaType: math
   # 3D模型转换Python脚本路径（缺省使用项目内置的便携式Python环境）
-  python-path: ../tools/venv/Scripts/python.exe
+  python-path: ../tools/conda/envs/cadquery-env/bin/python
   # 3D模型文件存储子目录
   model-3d-path: /model/3d
 

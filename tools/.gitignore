@@ -1,1 +1,4 @@
-# 不需要忽略venv，提交到git供Jenkins直接使用
+# conda环境由install_deps.sh自动安装，体积较大，不纳入git
+conda/
+# 旧版venv不再使用（但不删除已有文件）
+venv/
