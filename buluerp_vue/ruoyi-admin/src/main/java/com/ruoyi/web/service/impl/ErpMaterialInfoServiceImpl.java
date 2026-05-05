@@ -236,6 +236,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         materialRequest.setMaterialType(request.getMaterialType());
         materialRequest.setSingleWeight(request.getSingleWeight());
         materialRequest.setProductCode(request.getProductCode());
+        materialRequest.setModelFile(request.getModelFile());
 
         Long materialId = insertErpMaterialInfo(materialRequest);
         if (materialId == null) {

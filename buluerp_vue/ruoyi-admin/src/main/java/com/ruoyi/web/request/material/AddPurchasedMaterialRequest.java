@@ -61,6 +61,9 @@ public class AddPurchasedMaterialRequest {
     @ApiModelProperty("外购图片文件")
     private MultipartFile pictureFile;
 
+    @ApiModelProperty("3D模型文件(STP/STEP)")
+    private MultipartFile modelFile;
+
     public String getMouldNumber() {
         return mouldNumber;
     }
@@ -139,5 +142,13 @@ public class AddPurchasedMaterialRequest {
 
     public void setProductCode(String productCode) {
         this.productCode = productCode;
+    }
+
+    public MultipartFile getModelFile() {
+        return modelFile;
+    }
+
+    public void setModelFile(MultipartFile modelFile) {
+        this.modelFile = modelFile;
     }
 }
