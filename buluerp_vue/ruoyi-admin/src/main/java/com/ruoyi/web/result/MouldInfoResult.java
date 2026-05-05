@@ -30,6 +30,9 @@ public class MouldInfoResult {
     /** 关联物料的3D模型URL */
     private String modelUrl;
 
+    /** 关联物料的胶件图片 */
+    private String drawingReference;
+
     public MouldInfoResult() {
     }
 
@@ -144,6 +147,14 @@ public class MouldInfoResult {
 
     public void setModelUrl(String modelUrl) {
         this.modelUrl = modelUrl;
+    }
+
+    public String getDrawingReference() {
+        return drawingReference;
+    }
+
+    public void setDrawingReference(String drawingReference) {
+        this.drawingReference = drawingReference;
     }
 
     public String toString() {
