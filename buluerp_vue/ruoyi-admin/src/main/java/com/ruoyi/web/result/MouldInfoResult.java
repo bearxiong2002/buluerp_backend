@@ -27,6 +27,9 @@ public class MouldInfoResult {
     @Excel(name = "模房ID（-1代表未分配）")
     private Long mouldHouseId;
 
+    /** 关联物料的3D模型URL */
+    private String modelUrl;
+
     public MouldInfoResult() {
     }
 
@@ -133,6 +136,14 @@ public class MouldInfoResult {
      */
     public void setMouldHouseId(Long mouldHouseId) {
         this.mouldHouseId = mouldHouseId;
+    }
+
+    public String getModelUrl() {
+        return modelUrl;
+    }
+
+    public void setModelUrl(String modelUrl) {
+        this.modelUrl = modelUrl;
     }
 
     public String toString() {

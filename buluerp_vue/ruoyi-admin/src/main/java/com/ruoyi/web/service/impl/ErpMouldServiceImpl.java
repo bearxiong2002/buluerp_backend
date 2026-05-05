@@ -81,12 +81,25 @@ public class ErpMouldServiceImpl
         if (mouldInfoById == null) {
             throw new ServiceException("没有模具信息");
         }
+        // 查询关联物料的3D模型URL
+        ErpMaterialInfo material = materialInfoService.getByMouldNumber(mouldNumber);
+        if (material != null) {
+            mouldInfoById.setModelUrl(material.getModelUrl());
+        }
         return mouldInfoById;
     }
 
     @Override
     public List<MouldInfoResult> list(ListMouldRequest request) {
-        return erpMouldMapper.selectMouldInfoList(request);
+        List<MouldInfoResult> results = erpMouldMapper.selectMouldInfoList(request);
+        // 填充每个模具关联物料的3D模型URL
+        for (MouldInfoResult result : results) {
+            ErpMaterialInfo material = materialInfoService.getByMouldNumber(result.getMouldNumber());
+            if (material != null) {
+                result.setModelUrl(material.getModelUrl());
+            }
+        }
+        return results;
     }
 
     @Override
