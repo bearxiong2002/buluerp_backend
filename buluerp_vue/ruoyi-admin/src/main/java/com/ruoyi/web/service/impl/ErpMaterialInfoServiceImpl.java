@@ -278,6 +278,46 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             // 联动更新使用该物料的设计造型图片
             erpDesignStyleService.updateDesignStylePictureByMaterialId(erpMaterialInfo.getId(), url);
         }
+
+        // 处理3D模型文件更新
+        if (erpMaterialInfo.getModelFile() != null && !erpMaterialInfo.getModelFile().isEmpty()) {
+            String modelSubDir = modelConversionUtils.getModel3dPath();
+            String stpUrlPath;
+            try {
+                stpUrlPath = FileUploadUtils.upload(
+                        RuoYiConfig.getUploadPath() + modelSubDir,
+                        erpMaterialInfo.getModelFile(),
+                        MimeTypeUtils.MODEL_3D_EXTENSION
+                );
+            } catch (InvalidExtensionException e) {
+                throw new ServiceException("3D模型文件格式不支持，仅支持STP/STEP格式");
+            }
+
+            String stpAbsPath = RuoYiConfig.getProfile()
+                    + StringUtils.substringAfter(stpUrlPath, Constants.RESOURCE_PREFIX);
+            File stpFile = new File(stpAbsPath);
+
+            if (stpFile.exists()) {
+                String gltfFileName = stpFile.getName().replaceAll("\\.(stp|step)$", ".gltf");
+                String gltfAbsPath = stpFile.getParent() + File.separator + gltfFileName;
+
+                boolean converted = modelConversionUtils.convertStpToGltf(
+                        stpFile.getAbsolutePath(), gltfAbsPath
+                );
+
+                if (converted) {
+                    String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
+                            + "/" + gltfFileName;
+                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
+                    erpMaterialInfo.setModelUrl(gltfUrl);
+                } else {
+                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
+                }
+            } else {
+                log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
+            }
+        }
+
         return erpMaterialInfoMapper.updateErpMaterialInfo(erpMaterialInfo);
     }
 
