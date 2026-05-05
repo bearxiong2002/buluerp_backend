@@ -196,7 +196,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
             throw new ServerException("物料新增失败");
         }
-        if (request.getProductCode() != null) {
+        if (StringUtils.isNotBlank(request.getProductCode())) {
             Long productId = erpProductsService.getIdByInnerId(request.getProductCode());
             if (productId == null) {
                 throw new ServiceException("产品不存在");
