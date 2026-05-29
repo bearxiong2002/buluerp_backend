@@ -3,6 +3,7 @@ package com.ruoyi.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromProductRequest;
 import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
 import com.ruoyi.web.result.ProductionScheduleResult;
 
@@ -41,6 +42,8 @@ public interface IErpProductionScheduleService extends IService<ErpProductionSch
     boolean isAllProducing(String orderCode);
 
     int insertFromMaterial(AddProductionScheduleFromMaterialRequest request) throws IOException;
+
+    List<Long> insertFromProduct(AddProductionScheduleFromProductRequest request) throws IOException;
 
     int insertErpProductionSchedule(ErpProductionSchedule erpProductionSchedule) throws IOException;
 

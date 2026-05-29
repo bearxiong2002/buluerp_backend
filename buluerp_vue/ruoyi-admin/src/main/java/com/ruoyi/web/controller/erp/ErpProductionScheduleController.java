@@ -10,6 +10,7 @@ import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
 import com.ruoyi.web.domain.ErpProductionSchedule;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromProductRequest;
 import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
 import com.ruoyi.web.request.purchasecollection.MarkOrderPurchaseDoneRequest;
 import com.ruoyi.web.result.ProductionScheduleResult;
@@ -106,6 +107,17 @@ public class ErpProductionScheduleController extends BaseController {
         return toAjax(
                 erpProductionScheduleService
                         .insertFromMaterial(request));
+    }
+
+    @Anonymous
+    @PostMapping("/from-product")
+    @ApiOperation(value = "根据产品批量生成布产", notes = "根据产品物料清单自动批量生成布产记录")
+    public AjaxResult fromProduct(
+            @RequestBody @Validated({ Save.class }) AddProductionScheduleFromProductRequest request)
+            throws IOException {
+        return success(
+                erpProductionScheduleService
+                        .insertFromProduct(request));
     }
 
     // @PreAuthorize("@ss.hasPermi('system:products-schedule:edit')")

@@ -14,6 +14,7 @@ import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.mapper.ErpMouldMapper;
 import com.ruoyi.web.mapper.ErpProductionScheduleMapper;
 import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromMaterialRequest;
+import com.ruoyi.web.request.productionschedule.AddProductionScheduleFromProductRequest;
 import com.ruoyi.web.request.productionschedule.ListProductionScheduleRequest;
 import com.ruoyi.web.result.MouldInfoResult;
 import com.ruoyi.web.result.ProductionScheduleResult;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -69,6 +71,9 @@ public class ErpProductionScheduleServiceImpl
 
     @Autowired
     private IErpMaterialTypeService erpMaterialTypeService;
+
+    @Autowired
+    private com.ruoyi.web.mapper.ErpProductsMapper erpProductsMapper;
 
     private void checkUnique(ErpProductionSchedule erpProductionSchedule) {
         // if (erpProductionSchedule.getOrderCode() != null) {
@@ -355,6 +360,95 @@ public class ErpProductionScheduleServiceImpl
 
         return insertErpProductionSchedule(schedule);
     }
+
+    @Override
+    @Transactional
+    public List<Long> insertFromProduct(AddProductionScheduleFromProductRequest request) throws IOException {
+        // 校验产品
+        ErpProducts product = erpProductsService.getById(request.getProductId());
+        if (product == null) {
+            throw new ServiceException("产品不存在");
+        }
+
+        // 校验订单
+        ErpOrders order = erpOrdersService.selectByOrderCode(request.getOrderCode());
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        if (!Objects.equals(order.getStatus(), OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrderService))) {
+            throw new ServiceException("订单不在布产计划定制阶段");
+        }
+
+        // 获取产品的物料清单
+        List<Integer> materialIds = erpProductsMapper.getProductMaterialIds(request.getProductId());
+        if (materialIds == null || materialIds.isEmpty()) {
+            throw new ServiceException("产品未绑定任何物料，请先在产品中配置物料清单");
+        }
+
+        List<Long> createdIds = new ArrayList<>();
+        int quantity = request.getQuantity();
+
+        for (Integer materialId : materialIds) {
+            ErpMaterialInfo materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(materialId.longValue());
+            if (materialInfo == null) {
+                continue;
+            }
+
+            ErpMaterialType materialType = erpMaterialTypeService.getByName(materialInfo.getMaterialType());
+
+            ErpProductionSchedule schedule = new ErpProductionSchedule();
+            schedule.setProductId(product.getInnerId());
+            schedule.setOrderCode(order.getInnerId());
+            schedule.setCustomerId(order.getCustomerId());
+            schedule.setProductionTime(request.getProductionTime());
+
+            // 从物料信息复制数据
+            schedule.setMouldNumber(materialInfo.getMouldNumber());
+            schedule.setMouldCondition(materialInfo.getMouldStatus());
+            schedule.setMouldManufacturer(materialInfo.getMouldManufacturer());
+            schedule.setPictureUrl(materialInfo.getDrawingReference());
+            schedule.setMaterialType(materialInfo.getMaterialType());
+            schedule.setCavityCount(materialInfo.getCavityCount());
+            schedule.setSingleWeight(materialInfo.getSingleWeight());
+            schedule.setCycleTime(materialInfo.getCycleTime());
+
+            // 从物料类型复制数据
+            if (materialType != null) {
+                schedule.setColorCode(materialType.getColorCode());
+                schedule.setColorPowderNeeded(materialType.getColorWeight());
+            }
+
+            // 根据数量自动计算
+            schedule.setProductionQuantity(quantity);
+            if (materialInfo.getSingleWeight() != null) {
+                double weightKg = quantity * materialInfo.getSingleWeight() / 1000.0;
+                schedule.setProductionWeight(weightKg);
+            }
+            if (materialInfo.getCavityCount() != null && materialInfo.getCavityCount() > 0) {
+                int mouldCount = (int) Math.ceil((double) quantity / materialInfo.getCavityCount());
+                schedule.setProductionMouldCount(mouldCount);
+            }
+
+            schedule.setSupplier(request.getSupplier());
+            schedule.setShipmentTime(request.getShipmentTime());
+            schedule.setMaterialId(materialInfo.getId());
+
+            // 插入布产记录
+            schedule.setStatus(0L);
+            schedule.setOperator(SecurityUtils.getUsername());
+            schedule.setCreationTime(DateUtils.getNowDate());
+            if (getBaseMapper().insert(schedule) > 0) {
+                createdIds.add(schedule.getId());
+            }
+        }
+
+        if (createdIds.isEmpty()) {
+            throw new ServiceException("未生成任何布产记录，请检查产品物料清单");
+        }
+
+        return createdIds;
+    }
+
 
     @Override
     @Transactional
