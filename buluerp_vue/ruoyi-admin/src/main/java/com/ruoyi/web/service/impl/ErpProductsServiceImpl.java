@@ -133,13 +133,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                 throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
             else throw new ServiceException("添加失败");
         }
-        if (addProductRequest.getMaterialIds() != null) {
-            for (Integer materialId : addProductRequest.getMaterialIds()) {
-                if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
-                    if(addProductRequest.getRowNumber()!=null)
-                        throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
-                    else throw new ServiceException("添加失败");
-                }
+        if (addProductRequest.getMaterialId() != null) {
+            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), addProductRequest.getMaterialId().intValue())) {
+                if(addProductRequest.getRowNumber()!=null)
+                    throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
+                else throw new ServiceException("添加失败");
             }
         }
         return 1;
@@ -191,13 +189,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if (0 >= erpProductsMapper.updateById(erpProducts)) {
             throw new ServiceException("修改失败");
         }
-        List<Integer> materialIds = updateProductRequest.getMaterialIds();
-        if (materialIds != null) {
+        Long materialId = updateProductRequest.getMaterialId();
+        if (materialId != null) {
             erpProductsMapper.clearProductMaterial(erpProducts.getId());
-            for (Integer materialId : materialIds) {
-                if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId)) {
-                    throw new ServiceException("添加失败");
-                }
+            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId.intValue())) {
+                throw new ServiceException("添加失败");
             }
         }
         
@@ -207,18 +203,19 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     @Override
     public void processMaterialIds(AddProductRequest item) {
 
-        // 数据清洗：兼容中文逗号、空格
+        if (item.getMaterialString() == null || item.getMaterialString().trim().isEmpty()) {
+            return;
+        }
+
+        // 数据清洗：兼容中文逗号、空格，只取第一个ID
         String normalized = item.getMaterialString()
-                .replace("，", ",")  // 中文逗号转英文
-                .replaceAll("\\s+", "");  // 去除所有空格
+                .replace("，", ",")
+                .replaceAll("\\s+", "");
 
-        List<Integer> ids = Arrays.stream(normalized.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())  // 过滤空字符串
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
-
-        item.setMaterialIds(ids);
+        String firstId = normalized.split(",")[0].trim();
+        if (!firstId.isEmpty()) {
+            item.setMaterialId(Long.parseLong(firstId));
+        }
     }
 
     @Override

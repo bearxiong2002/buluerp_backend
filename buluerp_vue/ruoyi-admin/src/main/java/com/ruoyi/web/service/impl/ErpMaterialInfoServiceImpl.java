@@ -209,7 +209,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             product.getMaterialIds().add(request.getId().intValue());
             UpdateProductRequest updateProductRequest = new UpdateProductRequest();
             updateProductRequest.setId(product.getId());
-            updateProductRequest.setMaterialIds(product.getMaterialIds());
+            updateProductRequest.setMaterialId(request.getId());
             erpProductsService.updateErpProducts(updateProductRequest);
         }
         return request.getId();

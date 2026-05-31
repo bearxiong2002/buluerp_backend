@@ -31,8 +31,8 @@ public class AddProductRequest {
     private String materialString;
     @Excel(name = "产品图片",cellType = Excel.ColumnType.IMAGE)
     private String pictureStr;
-    @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
-    private List<Integer> materialIds;
+    @ApiModelProperty(dataType = "Long",value = "物料id",required = false)
+    private Long materialId;
 
     private Integer rowNumber;
 
@@ -203,12 +203,12 @@ public class AddProductRequest {
         this.pictureStr = pictureStr;
     }
 
-    public List<Integer> getMaterialIds() {
-        return materialIds;
+    public Long getMaterialId() {
+        return materialId;
     }
 
-    public void setMaterialIds(List<Integer> materialIds) {
-        this.materialIds = materialIds;
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
     }
 
 }
