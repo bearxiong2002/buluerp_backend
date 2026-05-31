@@ -65,6 +65,14 @@ public class ErpMouldController extends BaseController {
     }
 
     @Anonymous
+    @PostMapping("/import/with-manufacturer")
+    @ApiOperation(value = "导入模具列表并自动创建厂商")
+    public AjaxResult importExcelWithManufacturer(@RequestPart MultipartFile file) throws IOException {
+        listValidationService.importExcel(file, AddMouldRequest.class, mouldService::addWithManufacturer);
+        return success();
+    }
+
+    @Anonymous
     @GetMapping("/export/template")
     @ApiOperation(value = "导出模具列表模板")
     public void exportTemplate(HttpServletResponse response) throws InstantiationException, IllegalAccessException {

@@ -20,6 +20,8 @@ public interface IErpMouldService extends IService<ErpMould> {
 
     void add(AddMouldRequest request);
 
+    void addWithManufacturer(AddMouldRequest request);
+
     void update(UpdateMouldRequest request);
 
     void remove(Long id);
