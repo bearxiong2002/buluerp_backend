@@ -7,6 +7,12 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         insert into erp_product_material(product_id,material_id)
         values (#{param1},#{param2})
     </insert>
+    <insert id="insertProductMaterials">
+        insert into erp_product_material(product_id,material_id) values
+        <foreach collection="materialIds" item="materialId" separator=",">
+            (#{productId},#{materialId})
+        </foreach>
+    </insert>
     <update id="updateStatusById">
         update erp_products
         set design_status = #{design_status}
