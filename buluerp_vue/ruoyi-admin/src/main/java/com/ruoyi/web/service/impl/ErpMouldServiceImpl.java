@@ -3,6 +3,8 @@ package com.ruoyi.web.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.DateUtils;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
 import com.ruoyi.web.domain.ErpManufacturer;
 import com.ruoyi.web.domain.ErpMaterialInfo;
@@ -129,6 +131,55 @@ public class ErpMouldServiceImpl
         mould.setStatus(ErpMould.STATUS_CREATED);
         mould.setMouldHouseId(-1L);
         baseMapper.insert(mould);
+    }
+
+    @Override
+    @Transactional
+    public void addWithManufacturer(AddMouldRequest request) {
+        ErpMould mould = new ErpMould();
+        BeanUtils.copyProperties(request, mould);
+
+        checkUnique(mould);
+
+        Long manufacturerId = getOrCreateManufacturerId(request.getManufacturerName());
+        mould.setManufacturerId(manufacturerId);
+        mould.setStatus(ErpMould.STATUS_CREATED);
+        mould.setMouldHouseId(-1L);
+        baseMapper.insert(mould);
+    }
+
+    private Long getOrCreateManufacturerId(String manufacturerName) {
+        if (StringUtils.isBlank(manufacturerName)) {
+            throw new IllegalArgumentException("厂商名称不能为空");
+        }
+        String trimmedName = manufacturerName.trim();
+        List<ErpManufacturer> manufacturers = manufacturerMapper
+                .selectList(new LambdaQueryWrapper<ErpManufacturer>()
+                        .eq(ErpManufacturer::getName, trimmedName));
+
+        if (manufacturers.size() > 1) {
+            throw new IllegalArgumentException("厂商名称匹配到多条记录，请提供更精确的名称");
+        }
+        if (!CollectionUtils.isEmpty(manufacturers)) {
+            return manufacturers.get(0).getId();
+        }
+
+        ErpManufacturer manufacturer = new ErpManufacturer();
+        manufacturer.setName(trimmedName);
+        manufacturer.setCreateUserId(getCurrentUserIdOrDefault());
+        manufacturer.setCreateTime(DateUtils.getNowDate());
+        if (manufacturerMapper.insert(manufacturer) <= 0 || manufacturer.getId() == null) {
+            throw new ServiceException("厂商创建失败");
+        }
+        return manufacturer.getId();
+    }
+
+    private Long getCurrentUserIdOrDefault() {
+        try {
+            return SecurityUtils.getUserId();
+        } catch (Exception ignored) {
+            return 1L;
+        }
     }
 
     @Override
