@@ -133,9 +133,21 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
                 throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
             else throw new ServiceException("添加失败");
         }
-        if (addProductRequest.getMaterialId() != null) {
+        List<Long> materialIds = addProductRequest.getMaterialIds();
+        if (materialIds != null && !materialIds.isEmpty()) {
+            // 批量绑定
+            List<Integer> intIds = materialIds.stream()
+                    .map(Long::intValue)
+                    .collect(Collectors.toList());
+            if (0 >= erpProductsMapper.insertProductMaterials(erpProducts.getId(), intIds)) {
+                if (addProductRequest.getRowNumber() != null)
+                    throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
+                else throw new ServiceException("添加失败");
+            }
+        } else if (addProductRequest.getMaterialId() != null) {
+            // 单物料绑定（兼容旧逻辑）
             if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), addProductRequest.getMaterialId().intValue())) {
-                if(addProductRequest.getRowNumber()!=null)
+                if (addProductRequest.getRowNumber() != null)
                     throw new ImportException(addProductRequest.getRowNumber(), "插入物料关联失败", addProductRequest.toString());
                 else throw new ServiceException("添加失败");
             }
@@ -219,14 +231,25 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             return;
         }
 
-        // 数据清洗：兼容中文逗号、空格，只取第一个ID
+        // 数据清洗：兼容中文逗号、空格，解析所有ID
         String normalized = item.getMaterialString()
                 .replace("，", ",")
                 .replaceAll("\\s+", "");
 
-        String firstId = normalized.split(",")[0].trim();
-        if (!firstId.isEmpty()) {
-            item.setMaterialId(Long.parseLong(firstId));
+        String[] parts = normalized.split(",");
+        List<Long> ids = new ArrayList<>();
+        for (String part : parts) {
+            String trimmed = part.trim();
+            if (!trimmed.isEmpty()) {
+                try {
+                    ids.add(Long.parseLong(trimmed));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+        if (!ids.isEmpty()) {
+            item.setMaterialId(ids.get(0)); // 兼容旧的单值逻辑
+            item.setMaterialIds(ids);
         }
     }
 

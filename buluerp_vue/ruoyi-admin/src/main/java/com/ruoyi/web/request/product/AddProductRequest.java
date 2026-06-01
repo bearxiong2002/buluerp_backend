@@ -34,6 +34,9 @@ public class AddProductRequest {
     @ApiModelProperty(dataType = "Long",value = "物料id",required = false)
     private Long materialId;
 
+    @ApiModelProperty(dataType = "List<Long>",value = "物料id列表（批量绑定）",required = false)
+    private List<Long> materialIds;
+
     private Integer rowNumber;
 
     public String getInnerId() {
@@ -209,6 +212,14 @@ public class AddProductRequest {
 
     public void setMaterialId(Long materialId) {
         this.materialId = materialId;
+    }
+
+    public List<Long> getMaterialIds() {
+        return materialIds;
+    }
+
+    public void setMaterialIds(List<Long> materialIds) {
+        this.materialIds = materialIds;
     }
 
 }
