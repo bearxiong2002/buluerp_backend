@@ -189,11 +189,23 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         if (0 >= erpProductsMapper.updateById(erpProducts)) {
             throw new ServiceException("修改失败");
         }
-        Long materialId = updateProductRequest.getMaterialId();
-        if (materialId != null) {
+        List<Long> materialIds = updateProductRequest.getMaterialIds();
+        if (materialIds != null && !materialIds.isEmpty()) {
+            // 批量绑定：清空旧关联后批量插入
             erpProductsMapper.clearProductMaterial(erpProducts.getId());
-            if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId.intValue())) {
+            List<Integer> intIds = materialIds.stream()
+                    .map(Long::intValue)
+                    .collect(Collectors.toList());
+            if (0 >= erpProductsMapper.insertProductMaterials(erpProducts.getId(), intIds)) {
                 throw new ServiceException("添加失败");
+            }
+        } else {
+            Long materialId = updateProductRequest.getMaterialId();
+            if (materialId != null) {
+                erpProductsMapper.clearProductMaterial(erpProducts.getId());
+                if (0 >= erpProductsMapper.insertProductMaterial(erpProducts.getId(), materialId.intValue())) {
+                    throw new ServiceException("添加失败");
+                }
             }
         }
         
