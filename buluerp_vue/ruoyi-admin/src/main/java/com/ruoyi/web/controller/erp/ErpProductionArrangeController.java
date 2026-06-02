@@ -41,8 +41,8 @@ public class ErpProductionArrangeController extends BaseController {
     @GetMapping("/list")
     @ApiOperation(value = "查询排产列表", notes = "查询排产列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1")
+            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query")
     })
     public TableDataInfo list(ErpProductionArrange erpProductionArrange) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));

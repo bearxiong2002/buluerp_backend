@@ -33,10 +33,10 @@ public class ErpOperationLogController extends BaseController {
     @GetMapping(value = "/list")
     @ApiOperation(value = "搜索操作日志列表", notes = "搜索操作日志列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "string"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "string"),
-            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string"),
-            @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string")
+            @ApiImplicitParam(name = "pageNum", value = "页码", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "isAsc", value = "排序方式(asc/desc)", dataType = "string", paramType = "query")
     })
     public TableDataInfo list(ListOperationLogRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("operationTime"));

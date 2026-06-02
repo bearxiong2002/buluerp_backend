@@ -63,10 +63,10 @@ public class TestController extends BaseController
 
     @ApiOperation("新增用户")
     @ApiImplicitParams({
-        @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer", dataTypeClass = Integer.class),
-        @ApiImplicitParam(name = "username", value = "用户名称", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "password", value = "用户密码", dataType = "String", dataTypeClass = String.class),
-        @ApiImplicitParam(name = "mobile", value = "用户手机", dataType = "String", dataTypeClass = String.class)
+        @ApiImplicitParam(name = "userId", value = "用户id", dataType = "Integer", dataTypeClass = Integer.class, paramType = "query"),
+        @ApiImplicitParam(name = "username", value = "用户名称", dataType = "String", dataTypeClass = String.class, paramType = "query"),
+        @ApiImplicitParam(name = "password", value = "用户密码", dataType = "String", dataTypeClass = String.class, paramType = "query"),
+        @ApiImplicitParam(name = "mobile", value = "用户手机", dataType = "String", dataTypeClass = String.class, paramType = "query")
     })
     @PostMapping("/save")
     public R<String> save(UserEntity user)

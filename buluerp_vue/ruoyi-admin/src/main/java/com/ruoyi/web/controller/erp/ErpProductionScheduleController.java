@@ -43,10 +43,10 @@ public class ErpProductionScheduleController extends BaseController {
     @GetMapping("/list")
     @ApiOperation(value = "查询布产列表", notes = "查询布产列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1"),
-            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime"),
-            @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc")
+            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query"),
+            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime", paramType = "query"),
+            @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc", paramType = "query")
     })
     public TableDataInfo list(ListProductionScheduleRequest request) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));

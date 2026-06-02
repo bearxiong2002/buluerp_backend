@@ -55,10 +55,10 @@ public class ErpPartInventoryController extends BaseController {
             @ApiImplicitParam(name = "operator", value = "操作人", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "inOutQuantity", value = "出入库数量", dataType = "Integer", paramType = "query"),
             @ApiImplicitParam(name = "remarks", value = "备注信息", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
-            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
-            @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date"),
-            @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date")
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date", paramType = "query")
     })
     @GetMapping("/list")
     public TableDataInfo list(
@@ -218,9 +218,9 @@ public class ErpPartInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:part-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "mouldNumber", value = "模具编号", dataType = "String"),
-            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
-            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
+            @ApiImplicitParam(name = "mouldNumber", value = "模具编号", dataType = "String", paramType = "query"),
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date", paramType = "query")
     })
     @GetMapping("/store")
     public TableDataInfo listStore(
@@ -274,8 +274,8 @@ public class ErpPartInventoryController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:part-inventory:edit')")
     @PutMapping("/safe-quantity/{inventoryId}")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "inventoryId", value = "库存编号", dataType = "int"),
-            @ApiImplicitParam(name = "safeQuantity", value = "新安全库存", dataType = "int"),
+            @ApiImplicitParam(name = "inventoryId", value = "库存编号", dataType = "int", paramType = "query"),
+            @ApiImplicitParam(name = "safeQuantity", value = "新安全库存", dataType = "int", paramType = "query"),
     })
     public AjaxResult updateSafeQuantity(
             @PathVariable("inventoryId") Long inventoryId,

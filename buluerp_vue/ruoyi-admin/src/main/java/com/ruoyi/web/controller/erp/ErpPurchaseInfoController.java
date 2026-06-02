@@ -56,8 +56,8 @@ public class ErpPurchaseInfoController extends BaseController
     @GetMapping("/list")
     @ApiOperation(value = "搜索外购资料", notes = "搜索外购资料")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1")
+            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query")
     })
     public TableDataInfo list(ErpPurchaseInfo erpPurchaseInfo)
     {

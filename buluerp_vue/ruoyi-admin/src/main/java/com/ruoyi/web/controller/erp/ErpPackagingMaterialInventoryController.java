@@ -57,10 +57,10 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
             @ApiImplicitParam(name = "storageLocation", value = "存储位置", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "remarks", value = "备注信息", dataType = "String", paramType = "query"),
             @ApiImplicitParam(name = "editAction", value = "操作信息", dataType = "String", paramType = "query"),
-            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date"),
-            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date"),
-            @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date"),
-            @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date")
+            @ApiImplicitParam(name = "createTimeFrom", value = "创建时间起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "createTimeTo", value = "创建时间终止", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "changeDateFrom", value = "变更日期起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "changeDateTo", value = "变更日期结束", dataType = "date", paramType = "query")
     })
     @GetMapping("/list")
     public TableDataInfo list(
@@ -224,10 +224,10 @@ public class ErpPackagingMaterialInventoryController extends BaseController {
     @Anonymous
     //@PreAuthorize("@ss.hasPermi('system:packaging-inventory:store')")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string"),
-            @ApiImplicitParam(name = "packingNumber", value = "分包编号", dataType = "string"),
-            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date"),
-            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date")
+            @ApiImplicitParam(name = "productPartNumber", value = "产品货号", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "packingNumber", value = "分包编号", dataType = "string", paramType = "query"),
+            @ApiImplicitParam(name = "updateTimeFrom", value = "更新时间起始", dataType = "date", paramType = "query"),
+            @ApiImplicitParam(name = "updateTimeTo", value = "更新时间终止", dataType = "date", paramType = "query")
     })
     @GetMapping("/store")
     public TableDataInfo listPackaging(
