@@ -24,6 +24,8 @@ public interface ErpProductsMapper extends BaseMapper<ErpProducts>
 
     int insertProductMaterial(Long productId,Integer materialId);
 
+    int insertProductMaterials(@Param("productId") Long productId, @Param("materialIds") List<Integer> materialIds);
+
     int clearProductMaterial(Long productId);
 
     List<Integer> getProductMaterialIds(Long productId);

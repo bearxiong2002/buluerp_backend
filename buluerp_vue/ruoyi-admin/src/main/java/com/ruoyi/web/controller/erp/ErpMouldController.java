@@ -88,6 +88,14 @@ public class ErpMouldController extends BaseController {
     }
 
     @Anonymous
+    @PostMapping("/with-manufacturer")
+    @ApiOperation(value = "添加模具并自动创建厂商")
+    public AjaxResult addWithManufacturer(@RequestBody @Validated AddMouldRequest request) {
+        mouldService.addWithManufacturer(request);
+        return success();
+    }
+
+    @Anonymous
     @PutMapping
     @ApiOperation(value = "更新模具信息")
     public AjaxResult update(@RequestBody @Validated UpdateMouldRequest request) {

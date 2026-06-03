@@ -17,8 +17,11 @@ public class UpdateProductRequest {
     @ApiModelProperty(dataType = "int",value = "设计状态 1=已完成,0=未完成",required = false)
     private Long designStatus;
 
-    @ApiModelProperty(dataType = "List<Integer>",value = "物料id列表",required = false)
-    private List<Integer> materialIds;
+    @ApiModelProperty(dataType = "Long",value = "物料id",required = false)
+    private Long materialId;
+
+    @ApiModelProperty(dataType = "List<Long>",value = "物料id列表（批量绑定）",required = false)
+    private List<Long> materialIds;
 
     @ApiModelProperty(dataType = "Integer",value = "是否删除图片,1=删除",required = false)
     private Integer deletePicture;
@@ -31,11 +34,19 @@ public class UpdateProductRequest {
         this.deletePicture = deletePicture;
     }
 
-    public List<Integer> getMaterialIds() {
+    public Long getMaterialId() {
+        return materialId;
+    }
+
+    public void setMaterialId(Long materialId) {
+        this.materialId = materialId;
+    }
+
+    public List<Long> getMaterialIds() {
         return materialIds;
     }
 
-    public void setMaterialIds(List<Integer> materialIds) {
+    public void setMaterialIds(List<Long> materialIds) {
         this.materialIds = materialIds;
     }
 

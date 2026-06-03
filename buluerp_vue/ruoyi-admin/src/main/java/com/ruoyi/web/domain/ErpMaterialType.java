@@ -42,7 +42,7 @@ public class ErpMaterialType {
     @NullOrNotBlank(message = "颜色编码不能为空", groups = Update.class)
     private String colorCode;
 
-    @ApiModelProperty(value = "色粉重量", required = true)
+    @ApiModelProperty(value = "色粉重量")
     @Excel(name = "色粉重量")
     @Example("100.00")
     private Double colorWeight;
