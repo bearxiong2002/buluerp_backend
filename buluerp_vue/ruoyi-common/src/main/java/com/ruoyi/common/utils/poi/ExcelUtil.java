@@ -191,6 +191,11 @@ public class ExcelUtil<T>
     private static final DecimalFormat DOUBLE_FORMAT = new DecimalFormat("######0.00");
 
     /**
+     * 超过该行数才使用SXSSF流式工作簿，模板和小数据导出使用XSSF避免依赖临时文件。
+     */
+    private static final int STREAMING_WORKBOOK_ROW_THRESHOLD = 1000;
+
+    /**
      * 实体对象
      */
     public Class<T> clazz;
@@ -658,11 +663,12 @@ public class ExcelUtil<T>
         }
         catch (Exception e)
         {
-            log.error("导出Excel异常{}", e.getMessage());
+            log.error("导出Excel异常", e);
+            throw new UtilException("导出Excel失败，请联系网站管理员！");
         }
         finally
         {
-            IOUtils.closeQuietly(wb);
+            closeWorkbook();
         }
     }
 
@@ -689,7 +695,7 @@ public class ExcelUtil<T>
         }
         finally
         {
-            IOUtils.closeQuietly(wb);
+            closeWorkbook();
             IOUtils.closeQuietly(out);
         }
     }
@@ -1628,12 +1634,31 @@ public class ExcelUtil<T>
     {
         if (this.wb == null)
         {
-            this.wb = new SXSSFWorkbook(500);
+            int dataSize = this.list == null ? 0 : this.list.size();
+            this.wb = dataSize > STREAMING_WORKBOOK_ROW_THRESHOLD ? new SXSSFWorkbook(500) : new XSSFWorkbook();
         }
         int sheetNo = this.wb.getNumberOfSheets();
         this.sheet = wb.createSheet();
         wb.setSheetName(sheetNo, sheetName);
         this.styles = createStyles(wb);
+    }
+
+    /**
+     * 关闭工作簿并清理SXSSF临时文件。
+     */
+    private void closeWorkbook()
+    {
+        try
+        {
+            IOUtils.closeQuietly(wb);
+        }
+        finally
+        {
+            if (wb instanceof SXSSFWorkbook)
+            {
+                ((SXSSFWorkbook) wb).dispose();
+            }
+        }
     }
 
     /**
@@ -1907,7 +1932,11 @@ public class ExcelUtil<T>
             log.error("多sheet导出异常", e);
             throw new UtilException("导出Excel失败，请联系网站管理员！");
         } finally {
-            IOUtils.closeQuietly(workbook);
+            try {
+                IOUtils.closeQuietly(workbook);
+            } finally {
+                workbook.dispose();
+            }
         }
     }
 

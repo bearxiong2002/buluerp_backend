@@ -1,3 +1,13 @@
 .aider*
+.auramate/
+.idea/
+output/
 buluErp_Frontend-main/
 buluErp_Frontend-main.zip
+
+/对话总结.md
+/项目*.md
+/SQL与Mapper表覆盖检查.md
+/buluerp_dump.sql
+/buluerp_dump_err.log
+/create_accounts.sql
