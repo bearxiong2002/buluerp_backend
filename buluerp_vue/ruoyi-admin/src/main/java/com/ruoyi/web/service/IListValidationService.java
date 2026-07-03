@@ -61,4 +61,6 @@ public interface IListValidationService {
     <T> T createExample(Class<T> clazz) throws InstantiationException, IllegalAccessException;
 
     <T> void exportExample(HttpServletResponse response, Class<T> clazz) throws InstantiationException, IllegalAccessException;
+
+    <T> void exportExample(HttpServletResponse response, Class<T> clazz, String fileName) throws InstantiationException, IllegalAccessException;
 }

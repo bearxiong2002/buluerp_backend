@@ -269,6 +269,6 @@ public class ErpDesignStyleController extends BaseController
         // pictureStr通常用于接收导入的Base64数据，模板中可以留空或提示格式
         example.setPictureStr("（此处填入图片或留空）");
         exampleList.add(example);
-        util.exportExcel(response, exampleList, "造型表导入模板");
+        util.exportExcel(response, exampleList, "造型表导入模板", "", "造型表模板");
     }
 }

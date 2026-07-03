@@ -266,12 +266,17 @@ public class ListValidationServiceImpl implements IListValidationService {
 
     @Override
     public <T> void exportExample(HttpServletResponse response, Class<T> clazz) throws InstantiationException, IllegalAccessException {
+        exportExample(response, clazz, null);
+    }
+
+    @Override
+    public <T> void exportExample(HttpServletResponse response, Class<T> clazz, String fileName) throws InstantiationException, IllegalAccessException {
         T example = createExample(clazz);
         ExcelUtil<T> util = createTemplateExcelUtil(clazz);
         String sheetName = "导入模板";
         if (clazz.isAnnotationPresent(ApiModel.class)) {
             sheetName = clazz.getAnnotation(ApiModel.class).value() + sheetName;
         }
-        util.exportExcel(response, Collections.singletonList(example), sheetName);
+        util.exportExcel(response, Collections.singletonList(example), sheetName, "", fileName);
     }
 }

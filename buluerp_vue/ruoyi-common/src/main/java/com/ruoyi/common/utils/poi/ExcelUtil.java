@@ -156,6 +156,11 @@ public class ExcelUtil<T>
     private String title;
 
     /**
+     * 下载文件名，直出Excel响应时用于告知浏览器保存的中文文件名。
+     */
+    private String downloadFileName;
+
+    /**
      * 最大高度
      */
     private short maxHeight;
@@ -593,9 +598,24 @@ public class ExcelUtil<T>
      */
     public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title)
     {
+        exportExcel(response, list, sheetName, title, StringUtils.EMPTY);
+    }
+
+    /**
+     * 对list数据源将其里面的数据导入到excel表单，并指定浏览器下载文件名
+     *
+     * @param response 返回数据
+     * @param list 导出数据集合
+     * @param sheetName 工作表的名称
+     * @param title 标题
+     * @param fileName 下载文件名，不传时默认使用工作表名称
+     */
+    public void exportExcel(HttpServletResponse response, List<T> list, String sheetName, String title, String fileName)
+    {
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setCharacterEncoding("utf-8");
         this.init(list, sheetName, title, Type.EXPORT);
+        this.downloadFileName = fileName;
         exportExcel(response);
     }
 
@@ -659,6 +679,7 @@ public class ExcelUtil<T>
         try
         {
             writeSheet();
+            setExcelResponseHeader(response);
             wb.write(response.getOutputStream());
         }
         catch (Exception e)
@@ -670,6 +691,26 @@ public class ExcelUtil<T>
         {
             closeWorkbook();
         }
+    }
+
+    /**
+     * 设置Excel下载响应头，避免浏览器按URL末段保存为template.xlsx等通用文件名。
+     */
+    private void setExcelResponseHeader(HttpServletResponse response) throws UnsupportedEncodingException
+    {
+        String filename = StringUtils.isNotEmpty(downloadFileName) ? downloadFileName : sheetName;
+        if (StringUtils.isEmpty(filename))
+        {
+            filename = "导出数据";
+        }
+        if (!filename.endsWith(".xlsx"))
+        {
+            filename = filename + ".xlsx";
+        }
+        String encodedFilename = URLEncoder.encode(filename, "UTF-8").replaceAll("\\+", "%20");
+        response.setHeader("Content-Disposition", "attachment;filename*=UTF-8''" + encodedFilename);
+        response.setHeader("download-filename", encodedFilename);
+        response.addHeader("Access-Control-Expose-Headers", "Content-Disposition,download-filename");
     }
 
     /**
