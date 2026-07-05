@@ -1133,7 +1133,8 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             try {
                 ErpOrders order = ordersService.selectByOrderCode(collection.getOrderCode());
                 if (order != null) {
-                    ordersService.updateOrderStatusAutomatic(order.getId(), OrderStatus.MATERIAL_IN_INVENTORY);
+                    // 采购审核只代表单条采购计划通过，是否推进父订单统一交给采购确认逻辑判断。
+                    purchaseCollectionService.tryContinueOrder(order);
                 } else {
                     log.warn("采购计划审核通过后，未找到对应的父订单，订单号: {}", collection.getOrderCode());
                 }
@@ -2121,4 +2122,4 @@ public class ErpAuditRecordServiceImpl implements IErpAuditRecordService
             throw new RuntimeException("根据允许的审核类型查询审核记录失败", e);
         }
     }
-} 
+}

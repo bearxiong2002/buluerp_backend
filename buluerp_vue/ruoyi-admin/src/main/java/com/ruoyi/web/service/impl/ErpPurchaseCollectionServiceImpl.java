@@ -102,12 +102,16 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (order == null) {
             throw new ServiceException("订单不存在");
         }
-        return order.getAllPurchased();
+        return Boolean.TRUE.equals(order.getAllPurchased());
     }
 
     @Override
     public boolean isAllPurchaseCompleted(String orderCode) {
-        if (!isAllPurchased(orderCode)) {
+        ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
+        if (order == null) {
+            throw new ServiceException("订单不存在");
+        }
+        if (!Boolean.TRUE.equals(order.getAllPurchased())) {
             return false;
         }
         ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
@@ -116,6 +120,10 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         for (PurchaseCollectionResult erpPurchaseCollection : collections) {
             if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
                 continue;
+            }
+            // 有采购计划时，必须每条计划审核通过且实际交货日期已满足；无采购计划则表示确认无需采购。
+            if (!Long.valueOf(1L).equals(erpPurchaseCollection.getStatus())) {
+                return false;
             }
             if (erpPurchaseCollection.getDeliveryDate() == null
                     || erpPurchaseCollection.getDeliveryDate().after(DateUtils.getLastSecondOfToday())) {
@@ -133,10 +141,10 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             throw new ServiceException("订单不存在");
         }
         if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)
-                || order.getAllPurchased()) {
+                || Boolean.TRUE.equals(order.getAllPurchased())) {
             throw new ServiceException("订单不在采购阶段");
         }
-        // 新增：校验所有采购都已审核通过
+        // 采购确认复用该接口：有采购计划时校验审核状态；无采购计划时表示该订单无需采购。
         ListPurchaseCollectionRequest collection = new ListPurchaseCollectionRequest();
         collection.setOrderCode(orderCode);
         List<PurchaseCollectionResult> collections = selectErpPurchaseCollectionList(collection);
@@ -144,9 +152,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
             if (!Objects.equals(erpPurchaseCollection.getOrderCode(), orderCode)) {
                 continue;
             }
-            // 只要有一条未审核通过（status!=1），就不允许完成
-            if (erpPurchaseCollection.getStatus() == null || erpPurchaseCollection.getStatus() != 1L) {
-                throw new ServiceException("存在未审核通过的采购计划，无法完成全部采购");
+            // 只要有一条未审核通过（status!=1），就不允许完成采购确认。
+            if (!Long.valueOf(1L).equals(erpPurchaseCollection.getStatus())) {
+                throw new ServiceException("存在未审核通过的采购计划，无法完成采购确认");
             }
         }
         erpOrdersService.updateOrderAllPurchased(order.getId(), true);
