@@ -95,6 +95,11 @@ public class AddProductionScheduleFromMaterialRequest {
     @Example("供应商A")
     private String supplier;
 
+    @ApiModelProperty(value = "布产图片，可在导入模板中插入图片")
+    @Excel(name = "图片", cellType = Excel.ColumnType.IMAGE)
+    @Example
+    private String pictureUrl;
+
     public Long getDesignPatternId() {
         return designPatternId;
     }
@@ -197,5 +202,13 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setMouldNumber(String mouldNumber) {
         this.mouldNumber = mouldNumber;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 }

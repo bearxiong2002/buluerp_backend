@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
@@ -338,7 +339,12 @@ public class ErpProductionScheduleServiceImpl
         schedule.setMouldNumber(materialInfo.getMouldNumber());
         schedule.setMouldCondition(materialInfo.getMouldStatus());
         schedule.setMouldManufacturer(materialInfo.getMouldManufacturer());
-        schedule.setPictureUrl(materialInfo.getDrawingReference());
+        // 布产导入模板允许直接插入图片；未插入时继续沿用物料资料中的图纸引用。
+        if (StringUtils.isNotEmpty(request.getPictureUrl())) {
+            schedule.setPictureUrl(request.getPictureUrl());
+        } else {
+            schedule.setPictureUrl(materialInfo.getDrawingReference());
+        }
 
         schedule.setColorCode(materialType.getColorCode());
         schedule.setUsage(request.getUsage());
