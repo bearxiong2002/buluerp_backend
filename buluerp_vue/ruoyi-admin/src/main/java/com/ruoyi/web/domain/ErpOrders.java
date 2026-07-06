@@ -111,7 +111,7 @@ public class ErpOrders extends BaseEntity
     @ApiModelProperty("是否所有采购已完成；无需采购的订单创建时直接为 true，需要采购的订单在采购确认完成后为 true")
     private Boolean allPurchased;
 
-    @Excel(name = "是否需要采购", type = Excel.Type.IMPORT, combo = {"是", "否"}, prompt = "请填写：是/否")
+    @Excel(name = "是否需要采购", combo = {"是", "否"}, prompt = "请填写：是/否")
     @Example("是")
     @ApiModelProperty("导入订单时使用的是否需要采购中文值：是/否")
     private String purchaseRequiredText;
