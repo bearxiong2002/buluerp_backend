@@ -61,6 +61,32 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Autowired
     private ISysUserService sysUserService;
 
+    /**
+     * 创建订单时必须先确定是否需要采购。
+     * purchaseRequired 保存订单创建时的业务选择，allPurchased 只表示采购是否已经完成。
+     */
+    private void normalizePurchaseRequirementForCreate(ErpOrders erpOrders) {
+        String purchaseRequiredText = erpOrders.getPurchaseRequiredText();
+        if (StringUtils.isNotBlank(purchaseRequiredText)) {
+            String normalized = purchaseRequiredText.trim();
+            if ("是".equals(normalized) || "需要".equals(normalized) || "true".equalsIgnoreCase(normalized)
+                    || "1".equals(normalized)) {
+                erpOrders.setPurchaseRequired(true);
+            } else if ("否".equals(normalized) || "无需".equals(normalized) || "不需要".equals(normalized)
+                    || "false".equalsIgnoreCase(normalized) || "0".equals(normalized)) {
+                erpOrders.setPurchaseRequired(false);
+            } else {
+                throw new ServiceException("是否需要采购只能填写是或否");
+            }
+        }
+        if (erpOrders.getPurchaseRequired() == null) {
+            throw new ServiceException("请先确定订单是否需要采购");
+        }
+        erpOrders.setPurchaseRequiredText(Boolean.TRUE.equals(erpOrders.getPurchaseRequired()) ? "是" : "否");
+        // 无需采购的订单创建时即可视为采购完成；需要采购的订单必须后续走采购确认。
+        erpOrders.setAllPurchased(!Boolean.TRUE.equals(erpOrders.getPurchaseRequired()));
+    }
+
     private ErpOrders fillErpOrders(ErpOrders erpOrders) {
         if (erpOrders == null) {
             return null;
@@ -159,7 +185,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     public int insertErpOrders(ErpOrders erpOrders)
     {
         erpOrders.setCreateTime(DateUtils.getNowDate());
-        erpOrders.setAllPurchased(null);
+        normalizePurchaseRequirementForCreate(erpOrders);
         erpOrders.setAllScheduled(null);
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
@@ -388,6 +414,9 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         erpOrders.setUpdateTime(DateUtils.getNowDate());
         erpOrders.setAllPurchased(null);
         erpOrders.setAllScheduled(null);
+        // 是否需要采购只允许在订单创建或导入创建时确定，后续编辑订单不能改变该业务决策。
+        erpOrders.setPurchaseRequired(null);
+        erpOrders.setPurchaseRequiredText(null);
         LoginUser loginUser = SecurityUtils.getLoginUser();
         if (loginUser != null) {
             erpOrders.setOperator(loginUser.getUsername());

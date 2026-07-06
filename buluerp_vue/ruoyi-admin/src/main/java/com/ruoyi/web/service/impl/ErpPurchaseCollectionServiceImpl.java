@@ -111,6 +111,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (order == null) {
             throw new ServiceException("订单不存在");
         }
+        if (Boolean.FALSE.equals(order.getPurchaseRequired())) {
+            return true;
+        }
         if (!Boolean.TRUE.equals(order.getAllPurchased())) {
             return false;
         }
@@ -139,6 +142,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
         if (order == null) {
             throw new ServiceException("订单不存在");
+        }
+        if (Boolean.FALSE.equals(order.getPurchaseRequired())) {
+            throw new ServiceException("订单创建时已确认无需采购，无需采购确认");
         }
         if (order.getStatus() < OrderStatus.PRODUCTION_SCHEDULE_PENDING.getValue(erpOrdersService)
                 || Boolean.TRUE.equals(order.getAllPurchased())) {
@@ -292,8 +298,12 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Transactional
     public int insertErpPurchaseCollection(ErpPurchaseCollection erpPurchaseCollection) throws IOException {
         check(erpPurchaseCollection);
+        ErpOrders order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
+        if (order != null && Boolean.FALSE.equals(order.getPurchaseRequired())) {
+            throw new ServiceException("订单创建时已确认无需采购，不能新增采购计划");
+        }
         if (isAllPurchased(erpPurchaseCollection.getOrderCode())) {
-            throw new ServiceException("订单已标记全部采购");
+            throw new ServiceException("订单创建时已确认无需采购或采购已完成，不能再新增采购计划");
         }
         // 设置初始状态为待审核
         erpPurchaseCollection.setStatus(0L);
@@ -312,7 +322,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (0 >= erpPurchaseCollectionMapper.insertErpPurchaseCollection(erpPurchaseCollection)) {
             throw new ServiceException("添加失败");
         }
-        ErpOrders order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
+        order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
         if (order == null) {
             throw new ServiceException("订单不存在");
         }

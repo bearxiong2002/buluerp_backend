@@ -108,8 +108,16 @@ public class ErpOrders extends BaseEntity
     @Example("无")
     private String remark;
 
-    @ApiModelProperty("是否所有采购已完成(只读)")
+    @ApiModelProperty("是否所有采购已完成；无需采购的订单创建时直接为 true，需要采购的订单在采购确认完成后为 true")
     private Boolean allPurchased;
+
+    @Excel(name = "是否需要采购", type = Excel.Type.IMPORT, combo = {"是", "否"}, prompt = "请填写：是/否")
+    @Example("是")
+    @ApiModelProperty("导入订单时使用的是否需要采购中文值：是/否")
+    private String purchaseRequiredText;
+
+    @ApiModelProperty("是否需要采购，创建订单时必填")
+    private Boolean purchaseRequired;
 
     @ApiModelProperty("是否所有布产已完成(只读)")
     private Boolean allScheduled;
@@ -320,6 +328,28 @@ public class ErpOrders extends BaseEntity
 
     public void setAllPurchased(Boolean allPurchased) {
         this.allPurchased = allPurchased;
+    }
+
+    public Boolean getPurchaseRequired() {
+        return purchaseRequired;
+    }
+
+    public void setPurchaseRequired(Boolean purchaseRequired) {
+        this.purchaseRequired = purchaseRequired;
+    }
+
+    public String getPurchaseRequiredText() {
+        if (purchaseRequiredText != null) {
+            return purchaseRequiredText;
+        }
+        if (purchaseRequired == null) {
+            return null;
+        }
+        return Boolean.TRUE.equals(purchaseRequired) ? "是" : "否";
+    }
+
+    public void setPurchaseRequiredText(String purchaseRequiredText) {
+        this.purchaseRequiredText = purchaseRequiredText;
     }
 
     public Boolean getAllScheduled() {
