@@ -38,17 +38,15 @@ public class AddProductionScheduleFromMaterialRequest {
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date productionTime;
 
-    // @ApiModelProperty(value = "颜色编码", required = true)
-    // @Excel(name = "颜色编码")
-    // @Example("RED")
-    // @NotNull(message = "颜色编码未填写或无效", groups = Save.class)
-    // private String colorCode;
-    //
-    // @ApiModelProperty(value = "需要色粉数", required = true)
-    // @Excel(name = "需要色粉数")
-    // @Example("100")
-    // @NotNull(groups = Save.class, message = "需要色粉数未填写或无效")
-    // private Long colorPowderNeeded;
+    @ApiModelProperty(value = "颜色编号，导入时优先使用该值，未填写则按物料类型带出")
+    @Excel(name = "颜色编号")
+    @Example("红色")
+    private String colorCode;
+
+    @ApiModelProperty(value = "需要色粉份数，导入时优先使用该值，未填写则按物料类型带出")
+    @Excel(name = "需要色粉份数")
+    @Example("100")
+    private Double colorPowderNeeded;
 
     @ApiModelProperty(value = "用量", required = true)
     @Excel(name = "用量")
@@ -122,6 +120,22 @@ public class AddProductionScheduleFromMaterialRequest {
 
     public void setProductionTime(Date productionTime) {
         this.productionTime = productionTime;
+    }
+
+    public String getColorCode() {
+        return colorCode;
+    }
+
+    public void setColorCode(String colorCode) {
+        this.colorCode = colorCode;
+    }
+
+    public Double getColorPowderNeeded() {
+        return colorPowderNeeded;
+    }
+
+    public void setColorPowderNeeded(Double colorPowderNeeded) {
+        this.colorPowderNeeded = colorPowderNeeded;
     }
 
     public Double getUsage() {

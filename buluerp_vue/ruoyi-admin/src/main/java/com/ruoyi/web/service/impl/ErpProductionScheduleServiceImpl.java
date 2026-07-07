@@ -346,7 +346,10 @@ public class ErpProductionScheduleServiceImpl
             schedule.setPictureUrl(materialInfo.getDrawingReference());
         }
 
-        schedule.setColorCode(materialType.getColorCode());
+        // 布产表导入时颜色以 Excel 内容为准；未填写时再按物料类型默认值带出，避免用户导入的颜色被覆盖成异常值。
+        schedule.setColorCode(StringUtils.isNotBlank(request.getColorCode())
+                ? request.getColorCode().trim()
+                : materialType.getColorCode());
         schedule.setUsage(request.getUsage());
 
         schedule.setMaterialType(materialInfo.getMaterialType());
@@ -356,7 +359,9 @@ public class ErpProductionScheduleServiceImpl
         schedule.setProductionQuantity(request.getProductionQuantity().intValue());
         schedule.setProductionMouldCount(request.getProductionMouldCount().intValue());
         schedule.setProductionWeight(request.getProductionWeight());
-        schedule.setColorPowderNeeded(materialType.getColorWeight());
+        schedule.setColorPowderNeeded(request.getColorPowderNeeded() != null
+                ? request.getColorPowderNeeded()
+                : materialType.getColorWeight());
         schedule.setCycleTime(request.getCycleTime());
         schedule.setTimeHours(request.getTimeHours());
         schedule.setShipmentTime(request.getShipmentTime());
