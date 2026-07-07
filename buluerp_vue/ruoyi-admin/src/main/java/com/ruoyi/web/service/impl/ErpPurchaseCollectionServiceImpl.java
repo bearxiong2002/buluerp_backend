@@ -260,8 +260,14 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         }
 
         ErpPurchaseInfo erpPurchaseInfo = erpPurchaseInfoService.getById(request.getPurchaseInfoId());
+        // 采购计划前端曾把外购编码误传到 purchaseInfoId；这里兼容旧数据格式，先按主键查，不存在再按外购编码查。
+        if (erpPurchaseInfo == null && request.getPurchaseInfoId() != null) {
+            LambdaQueryWrapper<ErpPurchaseInfo> purchaseInfoWrapper = new LambdaQueryWrapper<>();
+            purchaseInfoWrapper.eq(ErpPurchaseInfo::getPurchaseCode, String.valueOf(request.getPurchaseInfoId()));
+            erpPurchaseInfo = erpPurchaseInfoService.getOne(purchaseInfoWrapper, false);
+        }
         if (erpPurchaseInfo == null) {
-            throw new ServiceException("外购资料不存在");
+            throw new ServiceException("外购资料不存在，请选择已有外购资料");
         }
         ErpMaterialInfo erpMaterialInfo = erpMaterialInfoService
                 .selectErpMaterialInfoById(erpPurchaseInfo.getMaterialId());
