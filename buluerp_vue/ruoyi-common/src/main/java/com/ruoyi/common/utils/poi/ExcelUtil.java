@@ -441,7 +441,7 @@ public class ExcelUtil<T>
                     Object val = this.getCellValue(row, entry.getKey());
 
                     // 如果不存在实例则新建.
-                    entity = (entity == null ? clazz.newInstance() : entity);
+                    entity = (entity == null ? clazz.getDeclaredConstructor().newInstance() : entity);
                     // 从map中得到对应列的field.
                     Field field = (Field) entry.getValue()[0];
                     Excel attr = (Excel) entry.getValue()[1];
@@ -2116,7 +2116,7 @@ public class ExcelUtil<T>
      * @return 提取的实体类对象
      */
     public static <Type> Type extractEntityFromSheet(Sheet sheet, Class<Type> clazz, int startRow, int endRow) throws Exception {
-        Type entity = clazz.newInstance();
+        Type entity = clazz.getDeclaredConstructor().newInstance();
         List<Cell> cells = getNonMergedCells(sheet, startRow, endRow);
         Map<String, Field> fieldMap = getExcelNameToFieldMap(clazz);
 

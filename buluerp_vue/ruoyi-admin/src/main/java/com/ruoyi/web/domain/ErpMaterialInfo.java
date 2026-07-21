@@ -95,6 +95,11 @@ public class ErpMaterialInfo extends BaseEntity {
     @Example("-")
     private String spareCode;
 
+    @Excel(name = "颜色编号")
+    @Example("红,蓝,绿")
+    @ApiModelProperty(value = "颜色编号 [list|POST|PUT|response]")
+    private String colorCode;
+
     /** 3D模型文件URL（GLTF格式） */
     private String modelUrl;
 
@@ -243,6 +248,14 @@ public class ErpMaterialInfo extends BaseEntity {
 
     public void setSpareCode(String spareCode) {
         this.spareCode = spareCode;
+    }
+
+    public String getColorCode() {
+        return colorCode;
+    }
+
+    public void setColorCode(String colorCode) {
+        this.colorCode = colorCode;
     }
 
     public MultipartFile getDrawingReferenceFile() {

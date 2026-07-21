@@ -22,6 +22,7 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -201,8 +202,14 @@ public class ListValidationServiceImpl implements IListValidationService {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T> T createExample(Class<T> clazz) throws InstantiationException, IllegalAccessException {
-        T example = clazz.newInstance();
+        T example;
+        try {
+            example = clazz.getDeclaredConstructor().newInstance();
+        } catch (NoSuchMethodException | InvocationTargetException e) {
+            throw new InstantiationException("无法实例化类 " + clazz.getName() + ": " + e.getMessage());
+        }
         List<Field> fields = new ArrayList<>();
         Class<?> superClass = clazz;
         while (superClass != null) {
@@ -229,7 +236,11 @@ public class ListValidationServiceImpl implements IListValidationService {
                         } else if (type == Set.class) {
                             list = new HashSet<>();
                         } else if (!type.isInterface()) {
-                            list = (Collection<Object>) type.newInstance();
+                            try {
+                                list = (Collection<Object>) type.getDeclaredConstructor().newInstance();
+                            } catch (NoSuchMethodException | InvocationTargetException e) {
+                                throw new UnsupportedExampleTypeException("无法实例化集合类型 " + type.getName() + ": " + e.getMessage());
+                            }
                         } else {
                             throw new UnsupportedExampleTypeException("不支持的集合类型");
                         }
