@@ -134,9 +134,8 @@ public class ErpProductionScheduleServiceImpl
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
-        } else {
-            erpProductionSchedule.setPictureUrl(null);
         }
+        // 注意：Excel导入时picture为null但pictureUrl已由ExcelUtil设置，不应覆盖为null
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         erpProductionSchedule.setCreationTime(DateUtils.getNowDate());
         if (0 == getBaseMapper().insert(erpProductionSchedule)) {
@@ -472,9 +471,8 @@ public class ErpProductionScheduleServiceImpl
         if (erpProductionSchedule.getPicture() != null) {
             String url = FileUploadUtils.upload(erpProductionSchedule.getPicture());
             erpProductionSchedule.setPictureUrl(url);
-        } else {
-            erpProductionSchedule.setPictureUrl(null);
         }
+        // 未上传新图片时保留原图片，不覆盖为null
         erpProductionSchedule.setOperator(SecurityUtils.getUsername());
         if (0 == getBaseMapper().updateById(erpProductionSchedule)) {
             throw new ServiceException("操作失败");
