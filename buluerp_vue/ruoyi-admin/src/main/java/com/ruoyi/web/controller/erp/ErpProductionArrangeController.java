@@ -74,7 +74,7 @@ public class ErpProductionArrangeController extends BaseController {
     @ApiOperation(value = "导入排产列表", notes = "导入排产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
         listValidationService.importExcel(file, AddProductionArrangeFromScheduleRequest.class, (request) -> {
-            request.parseScheduleIdsExpr();
+            request.parseScheduleIdExpr();
             return erpProductionArrangeService.insertFromSchedule(request);
         });
         return success();

@@ -9,28 +9,22 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Size;
-import java.util.Arrays;
 import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class AddProductionArrangeFromScheduleRequest {
-    @ApiModelProperty(value = "布产ID列表")
-    // @NotNull(message = "布产ID列表不能为空", groups = {Save.class})
-    @Size(min = 1, message = "布产ID列表不能为空", groups = {Save.class})
-    private List<Long> scheduleIds;
+    @ApiModelProperty(value = "布产ID")
+    @NotNull(message = "布产ID不能为空", groups = {Save.class})
+    private Long scheduleId;
 
-    @ApiModelProperty(value = "布产ID列表表达式(供Excel使用)", hidden = true)
+    @ApiModelProperty(value = "布产ID表达式(供Excel使用)", hidden = true)
     @JsonIgnore
-    @Excel(name = "布产ID列表")
-    @Example("1,2,3")
-    private String scheduleIdsExpr;
+    @Excel(name = "布产ID")
+    @Example("1")
+    private String scheduleIdExpr;
 
-    @AssertTrue(message = "布产ID列表未填写", groups = {Save.class})
-    public boolean isScheduleIdsValid() {
-        return scheduleIds != null || scheduleIdsExpr != null;
+    @AssertTrue(message = "布产ID未填写", groups = {Save.class})
+    public boolean isScheduleIdValid() {
+        return scheduleId != null || scheduleIdExpr != null;
     }
 
     @ApiModelProperty(value = "排产图片URL")
@@ -60,26 +54,22 @@ public class AddProductionArrangeFromScheduleRequest {
     @Example("备注")
     private String remarks;
 
-    public void makeScheduleIdsExpr() {
-        if (scheduleIds != null) {
-            scheduleIdsExpr = String.join(",", scheduleIds.stream().map(Object::toString).toArray(String[]::new));
+    public void makeScheduleIdExpr() {
+        if (scheduleId != null) {
+            scheduleIdExpr = scheduleId.toString();
         }
     }
 
-    public void parseScheduleIdsExpr() {
-        if (scheduleIdsExpr != null) {
-            scheduleIds = Arrays.stream(scheduleIdsExpr.split(","))
-                .map(String::trim)
-                .filter(s -> !s.isEmpty())
-                .map(numString -> {
-                    try {
-                        return Long.parseLong(numString);
-                    } catch (NumberFormatException e) {
-                        return null;
-                    }
-                })
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
+    public void parseScheduleIdExpr() {
+        if (scheduleIdExpr != null) {
+            String trimmed = scheduleIdExpr.trim();
+            if (!trimmed.isEmpty()) {
+                try {
+                    scheduleId = Long.parseLong(trimmed);
+                } catch (NumberFormatException e) {
+                    scheduleId = null;
+                }
+            }
         }
     }
 
@@ -123,20 +113,20 @@ public class AddProductionArrangeFromScheduleRequest {
         this.mouldOutput = mouldOutput;
     }
 
-    public List<Long> getScheduleIds() {
-        return scheduleIds;
+    public Long getScheduleId() {
+        return scheduleId;
     }
 
-    public void setScheduleIds(List<Long> scheduleIds) {
-        this.scheduleIds = scheduleIds;
+    public void setScheduleId(Long scheduleId) {
+        this.scheduleId = scheduleId;
     }
 
-    public String getScheduleIdsExpr() {
-        return scheduleIdsExpr;
+    public String getScheduleIdExpr() {
+        return scheduleIdExpr;
     }
 
-    public void setScheduleIdsExpr(String scheduleIdsExpr) {
-        this.scheduleIdsExpr = scheduleIdsExpr;
+    public void setScheduleIdExpr(String scheduleIdExpr) {
+        this.scheduleIdExpr = scheduleIdExpr;
     }
 
     public Date getCompletionTime() {

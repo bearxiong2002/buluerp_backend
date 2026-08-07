@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
+import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.web.domain.ErpProductionArrange;
 import com.ruoyi.web.domain.ErpProductionSchedule;
@@ -62,74 +63,46 @@ public class ErpProductionArrangeServiceImpl
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    @MarkNotificationsAsRead(businessType = "PRODUCTION_SCHEDULE", businessIdsExpression = "#request.scheduleIds")
+    @MarkNotificationsAsRead(businessType = "PRODUCTION_SCHEDULE", businessIdsExpression = "#request.scheduleId")
     public int insertFromSchedule(AddProductionArrangeFromScheduleRequest request) throws IOException {
-        List<ProductionScheduleResult> schedules = erpProductionScheduleService
-                .listResultByIds(request.getScheduleIds());
-        if (schedules.size() != request.getScheduleIds().size()) {
-            throw new ServiceException("部分布产ID无效");
+        ProductionScheduleResult schedule = erpProductionScheduleService
+                .getResultById(request.getScheduleId());
+        if (schedule == null) {
+            throw new ServiceException("布产ID无效");
         }
-        if (schedules.stream().anyMatch(schedule -> schedule.getArrangeId() != null)) {
-            throw new ServiceException("部分布产已排产");
+        if (schedule.getArrangeId() != null) {
+            throw new ServiceException("此布产已排产");
         }
         ErpProductionArrange erpProductionArrange = new ErpProductionArrange();
         erpProductionArrange.setPicture(request.getPictureFile());
-        erpProductionArrange.setPictureUrl(request.getPictureUrl());
+        // 用户未手动上传图片时，默认沿用布产的图片
+        if (request.getPictureFile() == null && StringUtils.isEmpty(request.getPictureUrl())) {
+            erpProductionArrange.setPictureUrl(schedule.getPictureUrl());
+        } else {
+            erpProductionArrange.setPictureUrl(request.getPictureUrl());
+        }
         erpProductionArrange.setMouldOutput(request.getMouldOutput());
         erpProductionArrange.setScheduledTime(request.getScheduledTime());
         erpProductionArrange.setCompletionTime(request.getCompletionTime());
         erpProductionArrange.setRemarks(request.getRemarks());
 
-        ProductionScheduleResult first = schedules.get(0);
-        String diffField = schedules.stream()
-                .skip(1)
-                .map(schedule -> {
-                    if (!Objects.equals(first.getSingleWeight(), schedule.getSingleWeight())) {
-                        return "单重";
-                    } else if (!Objects.equals(first.getColorCode(), schedule.getColorCode())) {
-                        return "颜色编号";
-                    } else if (!Objects.equals(first.getMouldNumber(), schedule.getMouldNumber())) {
-                        return "模具编码";
-                    } else if (!Objects.equals(first.getMaterialType(), schedule.getMaterialType())) {
-                        return "料别";
-                    }
-                    return null;
-                })
-                .filter(Objects::nonNull)
-                .findFirst()
-                .orElse(null);
-        if (diffField != null) {
-            throw new ServiceException(diffField + "不一致");
-        } else {
-            erpProductionArrange.setSingleWeight(first.getSingleWeight());
-            erpProductionArrange.setColorCode(first.getColorCode());
-            erpProductionArrange.setMouldNumber(first.getMouldNumber());
-            erpProductionArrange.setMaterialType(first.getMaterialType());
-        }
-        double productionWeight = schedules
-                .stream()
-                .filter(schedule -> schedule.getProductionWeight() != null)
-                .mapToDouble(ErpProductionSchedule::getProductionWeight)
-                .sum();
-        long productionMouldCount = schedules
-                .stream()
-                .filter(schedule -> schedule.getProductionMouldCount() != null)
-                .mapToLong(ErpProductionSchedule::getProductionMouldCount)
-                .sum();
-        long productionQuantity = schedules
-                .stream()
-                .filter(schedule -> schedule.getProductionQuantity() != null)
-                .mapToLong(ErpProductionSchedule::getProductionQuantity)
-                .sum();
-        erpProductionArrange.setProductionWeight(productionWeight);
-        erpProductionArrange.setProductionMouldCount(productionMouldCount);
-        erpProductionArrange.setProductionQuantity(productionQuantity);
+        erpProductionArrange.setSingleWeight(schedule.getSingleWeight());
+        erpProductionArrange.setColorCode(schedule.getColorCode());
+        erpProductionArrange.setMouldNumber(schedule.getMouldNumber());
+        erpProductionArrange.setMaterialType(schedule.getMaterialType());
+        erpProductionArrange.setProductionWeight(schedule.getProductionWeight());
+        erpProductionArrange.setProductionMouldCount(schedule.getProductionMouldCount() == null
+                ? null
+                : schedule.getProductionMouldCount().longValue());
+        erpProductionArrange.setProductionQuantity(schedule.getProductionQuantity() == null
+                ? null
+                : schedule.getProductionQuantity().longValue());
 
         if (0 >= insertErpProductionArrangeList(Collections.singletonList(erpProductionArrange))) {
             throw new ServiceException("添加排产失败");
         }
         return erpProductionScheduleService
-                .attachToArrange(erpProductionArrange.getId(), request.getScheduleIds());
+                .attachToArrange(erpProductionArrange.getId(), Collections.singletonList(request.getScheduleId()));
     }
 
     @Override
