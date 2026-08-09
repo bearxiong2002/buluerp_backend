@@ -526,9 +526,14 @@ public class ExcelUtil<T>
                         {
                             val = dataFormatHandlerAdapter(val, attr, null);
                         }
-                        else if (ColumnType.IMAGE == attr.cellType() && StringUtils.isNotEmpty(pictures))
+                        else if (ColumnType.IMAGE == attr.cellType())
                         {
-                            PictureData image = pictures.get(row.getRowNum() + "_" + entry.getKey());
+                            // 仅当能按单元格坐标取到嵌入图片时才写入；
+                            // 取不到一律置空，避免把单元格里的非图片值
+                            // （如 #VALUE! 错误码"15"）当成图片URL入库
+                            PictureData image = StringUtils.isNotEmpty(pictures)
+                                    ? pictures.get(row.getRowNum() + "_" + entry.getKey())
+                                    : null;
                             if (image == null)
                             {
                                 val = "";
