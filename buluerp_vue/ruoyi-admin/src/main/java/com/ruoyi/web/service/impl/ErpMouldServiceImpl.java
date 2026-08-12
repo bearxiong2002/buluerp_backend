@@ -3,6 +3,8 @@ package com.ruoyi.web.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
+import com.ruoyi.common.exception.excel.ListRowErrorInfo;
+import com.ruoyi.common.exception.excel.ListValidationException;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.bean.BeanUtils;
@@ -27,6 +29,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class ErpMouldServiceImpl
@@ -146,6 +156,145 @@ public class ErpMouldServiceImpl
         mould.setStatus(ErpMould.STATUS_CREATED);
         mould.setMouldHouseId(-1L);
         baseMapper.insert(mould);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void importWithManufacturer(List<AddMouldRequest> requests) {
+        if (CollectionUtils.isEmpty(requests)) {
+            throw new ServiceException("导入文件中没有可导入的模具数据");
+        }
+
+        List<ListRowErrorInfo> errors = new ArrayList<>();
+        Map<String, List<Integer>> rowsByMouldNumber = new LinkedHashMap<>();
+        Map<String, List<Integer>> rowsByManufacturerName = new LinkedHashMap<>();
+
+        // 统一修剪文本，并记录同一编号和厂商在 Excel 中出现的行号，后续可以一次性返回全部错误。
+        for (int index = 0; index < requests.size(); index++) {
+            AddMouldRequest request = requests.get(index);
+            int rowNum = index + 1;
+            String mouldNumber = StringUtils.trim(request.getMouldNumber());
+            String manufacturerName = StringUtils.trim(request.getManufacturerName());
+            request.setMouldNumber(mouldNumber);
+            request.setManufacturerName(manufacturerName);
+            if (StringUtils.isBlank(mouldNumber)) {
+                errors.add(createRowError(rowNum, "模具编号不能为空"));
+            } else {
+                rowsByMouldNumber.computeIfAbsent(mouldNumber, key -> new ArrayList<>()).add(rowNum);
+            }
+            if (StringUtils.isBlank(manufacturerName)) {
+                errors.add(createRowError(rowNum, "厂商名称不能为空"));
+            } else {
+                rowsByManufacturerName.computeIfAbsent(manufacturerName, key -> new ArrayList<>()).add(rowNum);
+            }
+        }
+
+        rowsByMouldNumber.forEach((mouldNumber, rowNumbers) -> {
+            if (rowNumbers.size() > 1) {
+                rowNumbers.forEach(rowNum -> errors.add(createRowError(rowNum,
+                        "模具编号" + mouldNumber + "在导入文件中重复")));
+            }
+        });
+
+        Set<String> existingMouldNumbers = selectExistingMouldNumbers(rowsByMouldNumber.keySet());
+        rowsByMouldNumber.forEach((mouldNumber, rowNumbers) -> {
+            if (existingMouldNumbers.contains(mouldNumber)) {
+                rowNumbers.forEach(rowNum -> errors.add(createRowError(rowNum,
+                        "模具编号" + mouldNumber + "已存在")));
+            }
+        });
+
+        Map<String, Long> manufacturerIds = resolveManufacturerIds(rowsByManufacturerName, errors);
+        if (!errors.isEmpty()) {
+            throw new ListValidationException(errors);
+        }
+
+        List<ErpMould> moulds = requests.stream().map(request -> {
+            ErpMould mould = new ErpMould();
+            mould.setMouldNumber(request.getMouldNumber());
+            mould.setStatus(ErpMould.STATUS_CREATED);
+            mould.setManufacturerId(manufacturerIds.get(request.getManufacturerName()));
+            mould.setMouldHouseId(-1L);
+            return mould;
+        }).collect(Collectors.toList());
+
+        // 控制每条 SQL 的参数数量，兼顾大文件导入速度和数据库包大小限制。
+        int importedCount = 0;
+        final int batchSize = 500;
+        for (int start = 0; start < moulds.size(); start += batchSize) {
+            int end = Math.min(start + batchSize, moulds.size());
+            importedCount += erpMouldMapper.insertBatch(moulds.subList(start, end));
+        }
+        if (importedCount != moulds.size()) {
+            throw new ServiceException("模具导入失败，实际写入数量与导入数量不一致");
+        }
+    }
+
+    private Set<String> selectExistingMouldNumbers(Set<String> mouldNumbers) {
+        if (CollectionUtils.isEmpty(mouldNumbers)) {
+            return Collections.emptySet();
+        }
+        List<String> mouldNumberList = new ArrayList<>(mouldNumbers);
+        Set<String> existingMouldNumbers = new HashSet<>();
+        final int queryBatchSize = 500;
+        for (int start = 0; start < mouldNumberList.size(); start += queryBatchSize) {
+            int end = Math.min(start + queryBatchSize, mouldNumberList.size());
+            baseMapper.selectList(new LambdaQueryWrapper<ErpMould>()
+                            .select(ErpMould::getMouldNumber)
+                            .in(ErpMould::getMouldNumber, mouldNumberList.subList(start, end)))
+                    .stream()
+                    .map(ErpMould::getMouldNumber)
+                    .forEach(existingMouldNumbers::add);
+        }
+        return existingMouldNumbers;
+    }
+
+    private Map<String, Long> resolveManufacturerIds(Map<String, List<Integer>> rowsByManufacturerName,
+                                                      List<ListRowErrorInfo> errors) {
+        Set<String> manufacturerNames = rowsByManufacturerName.keySet();
+        if (CollectionUtils.isEmpty(manufacturerNames)) {
+            return Collections.emptyMap();
+        }
+        List<ErpManufacturer> existingManufacturers = manufacturerMapper.selectList(
+                new LambdaQueryWrapper<ErpManufacturer>().in(ErpManufacturer::getName, manufacturerNames));
+        Map<String, List<ErpManufacturer>> manufacturersByName = existingManufacturers.stream()
+                .collect(Collectors.groupingBy(ErpManufacturer::getName));
+        Map<String, Long> manufacturerIds = new HashMap<>();
+
+        manufacturersByName.forEach((name, manufacturers) -> {
+            if (manufacturers.size() > 1) {
+                rowsByManufacturerName.get(name).forEach(rowNum -> errors.add(createRowError(rowNum,
+                        "厂商名称" + name + "匹配到多条记录，请先合并重复厂商")));
+            } else {
+                manufacturerIds.put(name, manufacturers.get(0).getId());
+            }
+        });
+        if (!errors.isEmpty()) {
+            return manufacturerIds;
+        }
+
+        Long currentUserId = getCurrentUserIdOrDefault();
+        for (String manufacturerName : new HashSet<>(manufacturerNames)) {
+            if (manufacturerIds.containsKey(manufacturerName)) {
+                continue;
+            }
+            ErpManufacturer manufacturer = new ErpManufacturer();
+            manufacturer.setName(manufacturerName);
+            manufacturer.setCreateUserId(currentUserId);
+            manufacturer.setCreateTime(DateUtils.getNowDate());
+            if (manufacturerMapper.insert(manufacturer) <= 0 || manufacturer.getId() == null) {
+                throw new ServiceException("厂商" + manufacturerName + "创建失败");
+            }
+            manufacturerIds.put(manufacturerName, manufacturer.getId());
+        }
+        return manufacturerIds;
+    }
+
+    private ListRowErrorInfo createRowError(int rowNum, String message) {
+        ListRowErrorInfo errorInfo = new ListRowErrorInfo();
+        errorInfo.setRowNum(rowNum);
+        errorInfo.setErrorMsg(message);
+        return errorInfo;
     }
 
     private Long getOrCreateManufacturerId(String manufacturerName) {

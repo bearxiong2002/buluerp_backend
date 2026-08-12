@@ -67,8 +67,14 @@ public class ErpMouldController extends BaseController {
     @Anonymous
     @PostMapping("/import/with-manufacturer")
     @ApiOperation(value = "导入模具列表并自动创建厂商")
+    /**
+     * 导入模具 Excel，并在厂商不存在时自动创建厂商。
+     * 该接口先调用通用 Excel 服务解析和校验文件，再调用模具服务批量写入，不依赖远程接口。
+     */
     public AjaxResult importExcelWithManufacturer(@RequestPart MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, AddMouldRequest.class, mouldService::addWithManufacturer);
+        // 先一次性解析并校验 Excel，再交给服务层批量查询和写入，避免逐行访问数据库导致大文件导入超时。
+        List<AddMouldRequest> requests = listValidationService.validateExcel(file, AddMouldRequest.class);
+        mouldService.importWithManufacturer(requests);
         return success();
     }
 
