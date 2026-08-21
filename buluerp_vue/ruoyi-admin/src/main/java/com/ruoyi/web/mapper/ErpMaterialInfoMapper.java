@@ -26,4 +26,6 @@ public interface ErpMaterialInfoMapper {
     int deleteErpMaterialInfoByIds(Long[] ids);
 
     List<ErpMaterialInfo> selectByMaterialType(String materialType);
+
+    List<ErpMaterialInfo> selectByMaterialTypeAndColorCode(String materialType, String colorCode);
 }

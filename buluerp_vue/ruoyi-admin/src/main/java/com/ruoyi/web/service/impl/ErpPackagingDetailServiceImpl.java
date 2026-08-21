@@ -39,7 +39,8 @@ public class ErpPackagingDetailServiceImpl
             if (erpMaterialInfo == null) {
                 throw new ServiceException("物料不存在");
             }
-            ErpMaterialType erpMaterialType = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
+            ErpMaterialType erpMaterialType = erpMaterialTypeService.getByNameAndColorCode(
+                    erpMaterialInfo.getMaterialType(), erpMaterialInfo.getColorCode());
             if (erpMaterialType == null) {
                 throw new ServiceException("物料类型无效");
             }

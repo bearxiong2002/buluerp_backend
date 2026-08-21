@@ -307,6 +307,11 @@
         <include refid="selectErpMaterialInfo"/>
         where m.material_type = #{materialType}
     </select>
+    <select id="selectByMaterialTypeAndColorCode" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialInfo"/>
+        where m.material_type = #{materialType}
+          and m.color_code = #{colorCode}
+    </select>
     <select id="selectByMouldNumber" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
         <include refid="selectErpMaterialInfo"/>
         where m.mould_number = #{mouldNumber}

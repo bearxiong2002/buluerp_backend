@@ -94,7 +94,8 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     private void checkReferences(ErpMaterialInfo erpMaterialInfo) {
         if (erpMaterialInfo.getMaterialType() != null) {
-            ErpMaterialType type = erpMaterialTypeService.getByName(erpMaterialInfo.getMaterialType());
+            ErpMaterialType type = erpMaterialTypeService.getByNameAndColorCode(
+                    erpMaterialInfo.getMaterialType(), erpMaterialInfo.getColorCode());
             if (type == null) {
                 throw new ServiceException("对应物料类型不存在");
             }
@@ -126,6 +127,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Override
     public List<ErpMaterialInfo> listByMaterialType(String materialType) {
         return fill(erpMaterialInfoMapper.selectByMaterialType(materialType));
+    }
+
+    @Override
+    public List<ErpMaterialInfo> listByMaterialTypeAndColorCode(String materialType, String colorCode) {
+        return fill(erpMaterialInfoMapper.selectByMaterialTypeAndColorCode(materialType, colorCode));
     }
 
     @Override

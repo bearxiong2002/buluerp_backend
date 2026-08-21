@@ -15,4 +15,9 @@ public interface IErpMaterialTypeService extends IService<ErpMaterialType> {
     void removeBatchChecked(List<Long> ids);
 
     ErpMaterialType getByName(String name);
+
+    /**
+     * 按料型名称和颜色编号精确获取料型，避免同名不同颜色编号时取错记录。
+     */
+    ErpMaterialType getByNameAndColorCode(String name, String colorCode);
 }
