@@ -2,6 +2,7 @@ package com.ruoyi.web.mapper;
 
 import com.ruoyi.web.domain.ErpMaterialInfo;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -27,5 +28,7 @@ public interface ErpMaterialInfoMapper {
 
     List<ErpMaterialInfo> selectByMaterialType(String materialType);
 
-    List<ErpMaterialInfo> selectByMaterialTypeAndColorCode(String materialType, String colorCode);
+    List<ErpMaterialInfo> selectByMaterialTypeAndColorCode(
+            @Param("materialType") String materialType,
+            @Param("colorCode") String colorCode);
 }
