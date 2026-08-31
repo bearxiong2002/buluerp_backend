@@ -330,7 +330,8 @@ public class ErpProductionScheduleServiceImpl
         if (materialInfo == null) {
             throw new ServiceException("物料信息不存在");
         }
-        ErpMaterialType materialType = erpMaterialTypeService.getByName(materialInfo.getMaterialType());
+        ErpMaterialType materialType = erpMaterialTypeService.getByNameAndColorCode(
+                materialInfo.getMaterialType(), materialInfo.getColorCode());
         if (materialType == null) {
             throw new ServiceException("物料类型无效");
         }
@@ -404,7 +405,8 @@ public class ErpProductionScheduleServiceImpl
                 continue;
             }
 
-            ErpMaterialType materialType = erpMaterialTypeService.getByName(materialInfo.getMaterialType());
+            ErpMaterialType materialType = erpMaterialTypeService.getByNameAndColorCode(
+                    materialInfo.getMaterialType(), materialInfo.getColorCode());
 
             ErpProductionSchedule schedule = new ErpProductionSchedule();
             schedule.setProductId(product.getInnerId());

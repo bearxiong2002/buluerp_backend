@@ -22,6 +22,13 @@ public interface IErpMouldService extends IService<ErpMould> {
 
     void addWithManufacturer(AddMouldRequest request);
 
+    /**
+     * 批量导入模具，并根据 Excel 中的厂商名称复用或创建厂商。
+     *
+     * @param requests 已完成字段校验的模具导入数据
+     */
+    void importWithManufacturer(List<AddMouldRequest> requests);
+
     void update(UpdateMouldRequest request);
 
     void remove(Long id);

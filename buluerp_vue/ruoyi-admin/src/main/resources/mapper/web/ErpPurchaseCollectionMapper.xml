@@ -56,7 +56,8 @@
         from erp_purchase_collection pc
             left join erp_purchase_info pi on pc.purchase_id = pi.id
             left join erp_material_info mi on pi.material_id = mi.id
-            left join erp_material_type mt on mi.material_type = mt.name
+            left join erp_material_type mt
+                on mi.material_type = mt.name and mi.color_code = mt.color_code
     </sql>
 
     <insert id="insertErpPurchaseCollection" useGeneratedKeys="true" keyProperty="id">

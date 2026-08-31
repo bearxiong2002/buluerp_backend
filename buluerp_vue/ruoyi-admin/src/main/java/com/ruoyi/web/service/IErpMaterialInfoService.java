@@ -11,6 +11,11 @@ public interface IErpMaterialInfoService {
     List<ErpMaterialInfo> selectErpMaterialInfoList(ErpMaterialInfo erpMaterialInfo);
     List<ErpMaterialInfo> selectErpMaterialInfoListByIds(Long[] ids);
     List<ErpMaterialInfo> listByMaterialType(String materialType);
+
+    /**
+     * 按料型名称和颜色编号查询物料资料，用于判断具体颜色料型是否仍被业务数据引用。
+     */
+    List<ErpMaterialInfo> listByMaterialTypeAndColorCode(String materialType, String colorCode);
     ErpMaterialInfo selectErpMaterialInfoById(Long id);
     ErpMaterialInfo getByMouldNumber(String mouldNumber);
     Long insertErpMaterialInfo(AddMaterialInfoRequest request) throws IOException;

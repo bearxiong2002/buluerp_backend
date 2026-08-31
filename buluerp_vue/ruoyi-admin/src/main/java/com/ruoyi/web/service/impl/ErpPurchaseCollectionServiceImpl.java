@@ -274,8 +274,8 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         if (erpMaterialInfo.getSingleWeight() == null) {
             throw new ServiceException("请先完善对应物料资料的单重信息");
         }
-        ErpMaterialType erpMaterialType = erpMaterialTypeService
-                .getByName(erpMaterialInfo.getMaterialType());
+        ErpMaterialType erpMaterialType = erpMaterialTypeService.getByNameAndColorCode(
+                erpMaterialInfo.getMaterialType(), erpMaterialInfo.getColorCode());
         if (erpMaterialType == null) {
             throw new ServiceException("物料类型无效");
         }

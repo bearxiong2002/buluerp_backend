@@ -43,7 +43,8 @@
             ps.material_id as material_id
         from erp_production_schedule ps
             left join erp_material_info mi on ps.material_id = mi.id
-            left join erp_material_type mt on mi.material_type = mt.name
+            left join erp_material_type mt
+                on mi.material_type = mt.name and mi.color_code = mt.color_code
             left join erp_mould md on mi.mould_number = md.mould_number
     </sql>
     <select id="selectResultList" resultType="com.ruoyi.web.result.ProductionScheduleResult">

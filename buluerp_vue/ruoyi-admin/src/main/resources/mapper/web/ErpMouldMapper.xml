@@ -55,4 +55,13 @@
         </where>
         order by em.id desc
     </select>
+
+    <insert id="insertBatch">
+        insert into erp_mould
+        (mould_number, status, manufacturer_id, mould_house_id)
+        values
+        <foreach collection="moulds" item="mould" separator=",">
+            (#{mould.mouldNumber}, #{mould.status}, #{mould.manufacturerId}, #{mould.mouldHouseId})
+        </foreach>
+    </insert>
 </mapper>
