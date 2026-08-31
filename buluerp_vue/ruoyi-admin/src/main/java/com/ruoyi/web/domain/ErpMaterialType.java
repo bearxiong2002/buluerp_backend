@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.SqlCondition;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.ruoyi.common.annotation.Example;
 import com.ruoyi.common.annotation.Excel;
 import com.ruoyi.common.core.domain.BaseEntity;
@@ -13,6 +14,7 @@ import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -41,6 +43,21 @@ public class ErpMaterialType {
     @NotNull(message = "颜色编码不能为空", groups = Save.class)
     @NullOrNotBlank(message = "颜色编码不能为空", groups = Update.class)
     private String colorCode;
+
+    @ApiModelProperty(value = "参考颜色图片URL")
+    @Excel(name = "参考颜色", cellType = Excel.ColumnType.IMAGE, height = 100)
+    @Example
+    private String referenceColorUrl;
+
+    @JsonIgnore
+    @TableField(exist = false)
+    @ApiModelProperty(value = "参考颜色图片文件 [POST|PUT]")
+    private MultipartFile referenceColor;
+
+    @JsonIgnore
+    @TableField(exist = false)
+    @ApiModelProperty(value = "是否删除参考颜色图片 [PUT]")
+    private Boolean deleteReferenceColor;
 
     @ApiModelProperty(value = "色粉重量")
     @Excel(name = "色粉重量")
@@ -81,6 +98,30 @@ public class ErpMaterialType {
 
     public void setColorCode(String colorCode) {
         this.colorCode = colorCode;
+    }
+
+    public String getReferenceColorUrl() {
+        return referenceColorUrl;
+    }
+
+    public void setReferenceColorUrl(String referenceColorUrl) {
+        this.referenceColorUrl = referenceColorUrl;
+    }
+
+    public MultipartFile getReferenceColor() {
+        return referenceColor;
+    }
+
+    public void setReferenceColor(MultipartFile referenceColor) {
+        this.referenceColor = referenceColor;
+    }
+
+    public Boolean getDeleteReferenceColor() {
+        return deleteReferenceColor;
+    }
+
+    public void setDeleteReferenceColor(Boolean deleteReferenceColor) {
+        this.deleteReferenceColor = deleteReferenceColor;
     }
 
     public Double getColorWeight() {

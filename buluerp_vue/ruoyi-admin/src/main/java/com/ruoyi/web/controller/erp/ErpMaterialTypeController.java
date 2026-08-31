@@ -14,11 +14,13 @@ import com.ruoyi.web.service.IErpMaterialTypeService;
 import com.ruoyi.web.service.IListValidationService;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,16 +75,18 @@ public class ErpMaterialTypeController extends BaseController {
     }
 
     @Anonymous
-    @PostMapping
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperation(value = "新增物料类型", notes = "新增物料类型")
-    public AjaxResult add(@RequestBody @Validated(Save.class) ErpMaterialType erpMaterialType) {
+    public AjaxResult add(@ModelAttribute @Validated(Save.class) ErpMaterialType erpMaterialType) throws IOException {
+        // 普通新增只接受上传文件生成的URL；Excel导入仍由ExcelUtil直接设置URL。
+        erpMaterialType.setReferenceColorUrl(null);
         return toAjax(erpMaterialTypeService.saveChecked(erpMaterialType));
     }
 
     @Anonymous
-    @PutMapping
+    @PutMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @ApiOperation(value = "编辑物料类型", notes = "编辑物料类型")
-    public AjaxResult edit(@RequestBody @Validated(Update.class) ErpMaterialType erpMaterialType) {
+    public AjaxResult edit(@ModelAttribute @Validated(Update.class) ErpMaterialType erpMaterialType) throws IOException {
         return toAjax(erpMaterialTypeService.updateChecked(erpMaterialType));
     }
 
