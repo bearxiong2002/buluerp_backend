@@ -2,12 +2,13 @@ package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ruoyi.common.config.RuoYiConfig;
+import com.ruoyi.common.constant.Constants;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.exception.file.InvalidExtensionException;
 import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.common.utils.file.FileUploadUtils;
 import com.ruoyi.common.utils.file.MimeTypeUtils;
-import com.ruoyi.common.utils.StringUtils;
 import com.ruoyi.web.domain.ErpMaterialType;
 import com.ruoyi.web.mapper.ErpMaterialTypeMapper;
 import com.ruoyi.web.service.IErpMaterialInfoService;
