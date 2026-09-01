@@ -291,6 +291,10 @@
                 </choose>
             </if>
         </where>
+        order by
+            (m.mould_number is null or m.mould_number = '') asc,
+            m.mould_number asc,
+            m.id asc
     </select>
     <select id="selectErpMaterialInfoById" resultMap="ErpMaterialInfoResult">
         <include refid="selectErpMaterialInfo"/>
