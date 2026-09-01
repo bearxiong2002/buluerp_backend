@@ -1,6 +1,7 @@
 package com.ruoyi.web.domain;
 
 import org.junit.Test;
+import org.apache.ibatis.reflection.Reflector;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
@@ -18,8 +19,6 @@ public class ErpMaterialInfoTest {
         materialInfo.setPurchased(Boolean.TRUE);
 
         assertEquals(Boolean.TRUE, materialInfo.getPurchased());
-        assertEquals(Boolean.TRUE, materialInfo.isPurchased());
-
         PropertyDescriptor purchasedDescriptor = Arrays.stream(
                         Introspector.getBeanInfo(ErpMaterialInfo.class).getPropertyDescriptors())
                 .filter(descriptor -> "purchased".equals(descriptor.getName()))
@@ -30,5 +29,6 @@ public class ErpMaterialInfoTest {
         assertEquals(Boolean.class, purchasedDescriptor.getPropertyType());
         assertTrue("purchased should have a readable getter", purchasedDescriptor.getReadMethod() != null);
         assertTrue("purchased should have a writable setter", purchasedDescriptor.getWriteMethod() != null);
+        assertEquals(Boolean.class, new Reflector(ErpMaterialInfo.class).getGetterType("purchased"));
     }
 }

@@ -282,10 +282,6 @@ public class ErpMaterialInfo extends BaseEntity {
         this.purchaseInfo = purchaseInfo;
     }
 
-    public Boolean isPurchased() {
-        return purchased;
-    }
-
     public Boolean getPurchased() {
         return purchased;
     }

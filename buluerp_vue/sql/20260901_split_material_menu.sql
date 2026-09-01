@@ -25,7 +25,7 @@ UPDATE sys_menu
 SET menu_name = '物料资料表',
     parent_id = @front_menu_id,
     order_num = 4,
-    path = 'Menu',
+    path = '/',
     component = NULL,
     query = NULL,
     route_name = NULL,
