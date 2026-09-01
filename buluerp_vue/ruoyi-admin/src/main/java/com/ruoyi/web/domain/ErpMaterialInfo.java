@@ -111,7 +111,7 @@ public class ErpMaterialInfo extends BaseEntity {
     private ErpPurchaseInfo purchaseInfo;
 
     @ApiModelProperty("是否外购，用于查询参数和结果")
-    private Boolean isPurchased;
+    private Boolean purchased;
 
     @JsonIgnore
     private MultipartFile drawingReferenceFile;
@@ -283,11 +283,15 @@ public class ErpMaterialInfo extends BaseEntity {
     }
 
     public Boolean isPurchased() {
-        return isPurchased;
+        return purchased;
+    }
+
+    public Boolean getPurchased() {
+        return purchased;
     }
 
     public void setPurchased(Boolean purchased) {
-        isPurchased = purchased;
+        this.purchased = purchased;
     }
 
     public String getModelUrl() {
