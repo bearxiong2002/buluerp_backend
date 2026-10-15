@@ -17,6 +17,10 @@ import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.product.UpdateProductRequest;
 import com.ruoyi.web.service.*;
 import com.ruoyi.web.util.ModelConversionUtils;
+import com.ruoyi.web.util.ConversionTask;
+import com.ruoyi.web.util.ConversionTaskProducer;
+import com.ruoyi.web.util.ConversionTaskConsumer;
+import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.framework.config.ServerConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,11 +29,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.ServerException;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 @Service
@@ -65,6 +71,15 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
 
     @Autowired
     private ServerConfig serverConfig;
+
+    @Autowired
+    private ConversionTaskProducer conversionTaskProducer;
+
+    @Autowired
+    private ConversionTaskConsumer conversionTaskConsumer;
+
+    @Autowired
+    private ScheduledExecutorService scheduledExecutorService;
 
     private ErpMaterialInfo fill(ErpMaterialInfo erpMaterialInfo) {
         LambdaQueryWrapper<ErpPurchaseInfo> queryWrapper = new LambdaQueryWrapper<>();
@@ -152,7 +167,8 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             request.setDrawingReference(url);
         }
 
-        // 处理3D模型文件上传与转换
+        // 处理3D模型文件上传与异步转换
+        boolean inserted = false;
         if (request.getModelFile() != null && !request.getModelFile().isEmpty()) {
             String modelSubDir = modelConversionUtils.getModel3dPath();
             String stpUrlPath;
@@ -176,25 +192,31 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
                 String gltfFileName = stpFile.getName().replaceAll("\\.(stp|step)$", ".gltf");
                 String gltfAbsPath = stpFile.getParent() + File.separator + gltfFileName;
 
-                boolean converted = modelConversionUtils.convertStpToGltf(
-                        stpFile.getAbsolutePath(), gltfAbsPath
-                );
-
-                if (converted) {
-                    String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
-                            + "/" + gltfFileName;
-                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
-                    request.setModelUrl(gltfUrl);
-                } else {
-                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
+                // 先入库获取物料ID
+                if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
+                    throw new ServerException("物料新增失败");
                 }
+                inserted = true;
+
+                // 提交异步转换任务
+                ConversionTask task = new ConversionTask(
+                        request.getId(),
+                        stpFile.getAbsolutePath(),
+                        gltfAbsPath,
+                        SecurityUtils.getUserId(),
+                        stpUrlPath
+                );
+                conversionTaskProducer.push(task);
+                log.info("已提交3D模型转换任务: materialId={}", request.getId());
             } else {
                 log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
             }
         }
 
-        if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
-            throw new ServerException("物料新增失败");
+        if (!inserted) {
+            if (0 == erpMaterialInfoMapper.insertErpMaterialInfo(request)) {
+                throw new ServerException("物料新增失败");
+            }
         }
         if (StringUtils.isNotBlank(request.getProductCode())) {
             Long productId = erpProductsService.getIdByInnerId(request.getProductCode());
@@ -279,7 +301,7 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
             erpDesignStyleService.updateDesignStylePictureByMaterialId(erpMaterialInfo.getId(), url);
         }
 
-        // 处理3D模型文件更新
+        // 处理3D模型文件更新（异步转换）
         if (erpMaterialInfo.getModelFile() != null && !erpMaterialInfo.getModelFile().isEmpty()) {
             String modelSubDir = modelConversionUtils.getModel3dPath();
             String stpUrlPath;
@@ -301,18 +323,16 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
                 String gltfFileName = stpFile.getName().replaceAll("\\.(stp|step)$", ".gltf");
                 String gltfAbsPath = stpFile.getParent() + File.separator + gltfFileName;
 
-                boolean converted = modelConversionUtils.convertStpToGltf(
-                        stpFile.getAbsolutePath(), gltfAbsPath
+                // 提交异步转换任务
+                ConversionTask task = new ConversionTask(
+                        erpMaterialInfo.getId(),
+                        stpFile.getAbsolutePath(),
+                        gltfAbsPath,
+                        SecurityUtils.getUserId(),
+                        stpUrlPath
                 );
-
-                if (converted) {
-                    String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
-                            + "/" + gltfFileName;
-                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
-                    erpMaterialInfo.setModelUrl(gltfUrl);
-                } else {
-                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
-                }
+                conversionTaskProducer.push(task);
+                log.info("已提交3D模型转换任务: materialId={}", erpMaterialInfo.getId());
             } else {
                 log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
             }
@@ -344,5 +364,10 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     @Transactional
     public int deleteErpMaterialInfoById(Long id) {
         return deleteErpMaterialInfoByIds(new Long[]{id});
+    }
+
+    @PostConstruct
+    public void startConversionConsumer() {
+        scheduledExecutorService.submit(conversionTaskConsumer);
     }
 }

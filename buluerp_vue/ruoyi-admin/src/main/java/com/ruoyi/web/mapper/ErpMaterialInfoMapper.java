@@ -26,4 +26,6 @@ public interface ErpMaterialInfoMapper {
     int deleteErpMaterialInfoByIds(Long[] ids);
 
     List<ErpMaterialInfo> selectByMaterialType(String materialType);
+
+    int updateModelUrl(@org.apache.ibatis.annotations.Param("id") Long id, @org.apache.ibatis.annotations.Param("modelUrl") String modelUrl);
 }

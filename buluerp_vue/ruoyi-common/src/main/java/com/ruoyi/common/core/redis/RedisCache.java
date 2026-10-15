@@ -154,6 +154,17 @@ public class RedisCache
     }
 
     /**
+     * 从 List 右侧弹出一个元素（用于队列消费）
+     *
+     * @param key 缓存的键值
+     * @return 弹出的元素，队列为空时返回 null
+     */
+    public String rightPop(final String key)
+    {
+        return (String) redisTemplate.opsForList().rightPop(key);
+    }
+
+    /**
      * 缓存Set
      *
      * @param key 缓存键值

@@ -298,4 +298,7 @@
         where m.mould_number = #{mouldNumber}
         limit 1
     </select>
+    <update id="updateModelUrl">
+        update erp_material_info set model_url = #{modelUrl} where id = #{id}
+    </update>
 </mapper>
