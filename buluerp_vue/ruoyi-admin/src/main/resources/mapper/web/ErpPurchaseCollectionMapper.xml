@@ -285,7 +285,10 @@
                 and id like concat('%', #{id}, '%')
             </if>
             <if test="orderCode != null and orderCode != ''">
-                and order_code like concat('%', #{orderCode}, '%')
+                and (order_code like concat('%', #{orderCode}, '%') OR EXISTS (
+                    SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id
+                    WHERE o.inner_id=erp_purchase_collection.order_code AND c.inner_code LIKE CONCAT('%', #{orderCode}, '%')
+                ))
             </if>
             <if test="creationTime != null">
                 and DATE(creation_time) = DATE(#{creationTime})
@@ -294,7 +297,7 @@
                 and operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null and productId != ''">
-                and product_id like concat('%', #{productId}, '%')
+                and (product_id like concat('%', #{productId}, '%') OR EXISTS (SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id WHERE p.inner_id=erp_purchase_collection.product_id AND c.inner_code like concat('%', #{productId}, '%')))
             </if>
             <if test="orderTime != null">
                 and order_time = #{orderTime}
@@ -382,7 +385,7 @@
                 and pc.id like concat('%', #{id}, '%')
             </if>
             <if test="orderCode != null and orderCode != ''">
-                and pc.order_code like concat('%', #{orderCode}, '%')
+                and (pc.order_code like concat('%', #{orderCode}, '%') OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=pc.order_code AND c.inner_code LIKE CONCAT('%', #{orderCode}, '%')))
             </if>
             <if test="creationTime != null">
                 and DATE(pc.creation_time) = DATE(#{creationTime})
@@ -391,7 +394,7 @@
                 and pc.operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null and productId != ''">
-                and pc.product_id like concat('%', #{productId}, '%')
+                and (pc.product_id like concat('%', #{productId}, '%') OR EXISTS (SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id WHERE p.inner_id=pc.product_id AND c.inner_code like concat('%', #{productId}, '%')))
             </if>
             <if test="orderTime != null">
                 and pc.order_time = #{orderTime}
@@ -445,7 +448,7 @@
                 and pc.purchase_id = #{purchaseId}
             </if>
             <if test="orderCodeExact != null">
-                and pc.order_code = #{orderCodeExact}
+                and (pc.order_code = #{orderCodeExact} OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=pc.order_code AND c.inner_code=#{orderCodeExact}))
             </if>
         </where>
     </select>
@@ -462,7 +465,7 @@
     </select>
     <select id="selectResultListByOrderCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>
-        where pc.order_code = #{orderCode}
+        where (pc.order_code = #{orderCode} OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=pc.order_code AND c.inner_code=#{orderCode}))
     </select>
     <select id="selectResultListByPurchaseCode" resultType="com.ruoyi.web.result.PurchaseCollectionResult">
         <include refid="selectResult"/>

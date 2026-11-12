@@ -53,6 +53,34 @@ public class ErpProductionScheduleServiceImpl
     private IErpMaterialInfoService erpMaterialInfoService;
 
     @Autowired
+    private com.ruoyi.web.mapper.ErpMaterialInfoMapper importMaterialMapper;
+
+    @Override
+    public void validateImportMaterials(List<AddProductionScheduleFromMaterialRequest> rows) {
+        List<String> numbers = rows.stream()
+                .filter(row -> row.getMaterialId() == null && StringUtils.isNotBlank(row.getMouldNumber()))
+                .map(AddProductionScheduleFromMaterialRequest::getMouldNumber).distinct()
+                .collect(java.util.stream.Collectors.toList());
+        if (numbers.isEmpty()) return;
+        Set<String> missing = new HashSet<>();
+        for (int start = 0; start < numbers.size(); start += 500) {
+            missing.addAll(importMaterialMapper.selectMissingMouldNumbers(
+                    numbers.subList(start, Math.min(start + 500, numbers.size()))));
+        }
+        List<com.ruoyi.common.exception.excel.ListRowErrorInfo> errors = new ArrayList<>();
+        for (int i = 0; i < rows.size(); i++) {
+            AddProductionScheduleFromMaterialRequest row = rows.get(i);
+            if (row.getMaterialId() == null && missing.contains(row.getMouldNumber())) {
+                com.ruoyi.common.exception.excel.ListRowErrorInfo error = new com.ruoyi.common.exception.excel.ListRowErrorInfo();
+                error.setRowNum(i + 1);
+                error.setErrorMsg("物料信息不存在：模具编号=" + row.getMouldNumber());
+                errors.add(error);
+            }
+        }
+        if (!errors.isEmpty()) throw new com.ruoyi.common.exception.excel.ListValidationException(errors);
+    }
+
+    @Autowired
     private IErpDesignPatternsService erpDesignPatternsService;
 
     @Autowired
@@ -92,18 +120,16 @@ public class ErpProductionScheduleServiceImpl
 
     private void checkReferences(ErpProductionSchedule erpProductionSchedule) {
         if (erpProductionSchedule.getOrderCode() != null) {
+            erpProductionSchedule.setOrderCode(erpOrdersService.requireDefaultInnerCode(erpProductionSchedule.getOrderCode()));
+        }
+        if (erpProductionSchedule.getOrderCode() != null) {
             ErpOrders order = erpOrdersService.selectByOrderCode(erpProductionSchedule.getOrderCode());
             if (order == null) {
                 throw new ServiceException("订单不存在");
             }
         }
         if (erpProductionSchedule.getProductId() != null) {
-            LambdaQueryWrapper<ErpProducts> queryWrapper = new LambdaQueryWrapper<>();
-            queryWrapper.eq(ErpProducts::getInnerId, erpProductionSchedule.getProductId());
-            ErpProducts product = erpProductsService.getOne(queryWrapper);
-            if (product == null) {
-                throw new ServiceException("产品不存在");
-            }
+            erpProductionSchedule.setProductId(erpProductsService.requireDefaultInnerCode(erpProductionSchedule.getProductId()));
         }
         if (erpProductionSchedule.getMaterialId() != null) {
             ErpMaterialInfo materialInfo = erpMaterialInfoService
@@ -115,8 +141,8 @@ public class ErpProductionScheduleServiceImpl
     }
 
     private void check(ErpProductionSchedule erpProductionSchedule) {
-        checkUnique(erpProductionSchedule);
         checkReferences(erpProductionSchedule);
+        checkUnique(erpProductionSchedule);
     }
 
     @Override
@@ -189,6 +215,7 @@ public class ErpProductionScheduleServiceImpl
     @Override
     @Transactional
     public void markAllScheduled(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
         if (order == null) {
             throw new ServiceException("订单不存在");
@@ -212,6 +239,7 @@ public class ErpProductionScheduleServiceImpl
      */
     @Override
     public void executeMarkAllScheduled(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         ErpOrders order = erpOrderService.selectByOrderCode(orderCode);
         erpOrdersService.updateOrderAllScheduled(order.getId(), true);
         if (isAllProduced(orderCode)) {
@@ -249,6 +277,7 @@ public class ErpProductionScheduleServiceImpl
 
     @Override
     public boolean isCurrentlyProduced(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
         List<ErpProductionSchedule> list = getBaseMapper().selectList(queryWrapper);
@@ -262,6 +291,7 @@ public class ErpProductionScheduleServiceImpl
 
     @Override
     public boolean isCurrentlyProducing(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         LambdaQueryWrapper<ErpProductionSchedule> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
         List<ErpProductionSchedule> list = getBaseMapper().selectList(queryWrapper);
@@ -296,7 +326,7 @@ public class ErpProductionScheduleServiceImpl
                 throw new ServiceException("设计总表不存在");
             }
             ErpDesignPatterns designPattern = designPatterns.get(0);
-            schedule.setProductId(designPattern.getProductId());
+            schedule.setProductId(erpProductsService.requireDefaultInnerCode(designPattern.getProductId()));
             ErpOrders order = erpOrdersService.selectByOrderCode(designPattern.getOrderId());
             if (order == null) {
                 throw new ServiceException("设计总表项对应订单不存在或已被删除");
@@ -309,7 +339,7 @@ public class ErpProductionScheduleServiceImpl
                 throw new ServiceException("订单不存在");
             }
             schedule.setOrderCode(order.getInnerId());
-            schedule.setProductId(order.getProductId());
+            schedule.setProductId(erpProductsService.requireDefaultInnerCode(order.getProductId()));
             schedule.setCustomerId(order.getCustomerId());
         } else {
             throw new ServiceException("未指定订单或设计总表");
@@ -322,13 +352,18 @@ public class ErpProductionScheduleServiceImpl
             materialInfo = erpMaterialInfoService.selectErpMaterialInfoById(
                     request.getMaterialId());
         } else if (request.getMouldNumber() != null) {
-            materialInfo = erpMaterialInfoService.getByMouldNumber(
-                    request.getMouldNumber());
+            List<ErpMaterialInfo> matchingMaterials = erpMaterialInfoService
+                    .listByMouldNumber(request.getMouldNumber());
+            if (matchingMaterials.size() > 1) {
+                throw new ServiceException("该模具有多种料别，请指定物料ID");
+            }
+            materialInfo = matchingMaterials.isEmpty() ? null : matchingMaterials.get(0);
         } else {
             throw new ServiceException("未指定物料ID或模具编号");
         }
         if (materialInfo == null) {
-            throw new ServiceException("物料信息不存在");
+            throw new ServiceException("物料信息不存在：" + (request.getMaterialId() != null
+                    ? "物料ID=" + request.getMaterialId() : "模具编号=" + request.getMouldNumber()));
         }
         ErpMaterialType materialType = erpMaterialTypeService.getByNameAndColorCode(
                 materialInfo.getMaterialType(), materialInfo.getColorCode());
@@ -551,7 +586,9 @@ public class ErpProductionScheduleServiceImpl
     @Override
     public List<ErpProductionSchedule> selectSchedulesByOrderCode(String orderCode) {
         LambdaQueryWrapper<ErpProductionSchedule> wrapper = Wrappers.lambdaQuery();
-        wrapper.eq(ErpProductionSchedule::getOrderCode, orderCode);
+        wrapper.and(w -> w.eq(ErpProductionSchedule::getOrderCode, orderCode).or().apply(
+            "EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id " +
+            "WHERE o.inner_id=erp_production_schedule.order_code AND c.inner_code={0})", orderCode));
         return this.list(wrapper);
     }
 }

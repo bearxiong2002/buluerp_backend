@@ -111,11 +111,21 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     {
         LambdaQueryWrapper<ErpDesignPatterns> wrapper= Wrappers.lambdaQuery();
         wrapper.eq(listDesignPatternsRequest.getConfirm()!=null,ErpDesignPatterns::getConfirm,listDesignPatternsRequest.getConfirm())
-                .like(StringUtils.isNotBlank(listDesignPatternsRequest.getProductId()) ,ErpDesignPatterns::getProductId,listDesignPatternsRequest.getProductId())
                 .orderByDesc(ErpDesignPatterns::getCreateTime)
                 .eq(listDesignPatternsRequest.getCreateUserId()!=null,ErpDesignPatterns::getCreateUserId,listDesignPatternsRequest.getCreateUserId())
-                .like(StringUtils.isNotBlank(listDesignPatternsRequest.getOrderId()),ErpDesignPatterns::getOrderId,listDesignPatternsRequest.getOrderId())
                 .like(listDesignPatternsRequest.getId()!=null,ErpDesignPatterns::getId,listDesignPatternsRequest.getId());
+        if (StringUtils.isNotBlank(listDesignPatternsRequest.getProductId())) {
+            String search = listDesignPatternsRequest.getProductId().trim();
+            wrapper.and(w -> w.like(ErpDesignPatterns::getProductId, search).or().apply(
+                "EXISTS (SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id " +
+                "WHERE p.inner_id=erp_design_patterns.product_id AND c.inner_code LIKE {0})", "%" + search + "%"));
+        }
+        if (StringUtils.isNotBlank(listDesignPatternsRequest.getOrderId())) {
+            String search = listDesignPatternsRequest.getOrderId().trim();
+            wrapper.and(w -> w.like(ErpDesignPatterns::getOrderId, search).or().apply(
+                "EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id " +
+                "WHERE o.inner_id=erp_design_patterns.order_id AND c.inner_code LIKE {0})", "%" + search + "%"));
+        }
         return erpDesignPatternsMapper.selectList(wrapper);
     }
 
@@ -135,12 +145,14 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @MarkNotificationsAsRead(businessType = "ORDER", businessIdsExpression = "T(java.util.Collections).singletonList(T(com.ruoyi.web.service.impl.ErpDesignPatternsServiceImpl).getOrderIdByInnerId(#addDesignPatternsRequest.orderId))")
     public int insertErpDesignPatterns(AddDesignPatternsRequest addDesignPatternsRequest)
     {
+        addDesignPatternsRequest.setOrderId(erpOrdersService.requireDefaultInnerCode(addDesignPatternsRequest.getOrderId()));
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         // 直接获取用户ID
         Long userId = loginUser.getUserId();
 
-        ErpDesignPatterns erpDesignPatterns=new ErpDesignPatterns(addDesignPatternsRequest.getProductId(),userId, addDesignPatternsRequest.getOrderId());
+        String defaultCode = erpProductsService.requireDefaultInnerCode(addDesignPatternsRequest.getProductId());
+        ErpDesignPatterns erpDesignPatterns=new ErpDesignPatterns(defaultCode,userId, addDesignPatternsRequest.getOrderId());
         erpDesignPatterns.setCreateTime(LocalDateTime.now());
 
 
@@ -182,15 +194,21 @@ public class ErpDesignPatternsServiceImpl extends ServiceImpl<ErpDesignPatternsM
     @Transactional(rollbackFor = Exception.class)
     public int updateErpDesignPatterns(UpdateDesignPatternsRequest updateDesignPatternsRequest)
     {
+        if (updateDesignPatternsRequest.getOrderId() != null) {
+            updateDesignPatternsRequest.setOrderId(erpOrdersService.requireDefaultInnerCode(updateDesignPatternsRequest.getOrderId()));
+        }
         LambdaQueryWrapper<ErpDesignPatterns> countWrapper =Wrappers.lambdaQuery();
-        countWrapper.eq(ErpDesignPatterns::getOrderId,updateDesignPatternsRequest.getOrderId());
+        countWrapper.eq(ErpDesignPatterns::getOrderId,updateDesignPatternsRequest.getOrderId())
+            .ne(updateDesignPatternsRequest.getId() != null, ErpDesignPatterns::getId, updateDesignPatternsRequest.getId());
         if(erpDesignPatternsMapper.selectCount(countWrapper)>0){
             throw new ServiceException("订单"+updateDesignPatternsRequest.getOrderId()+"已有设计");
         }
         ErpDesignPatterns erpDesignPatterns =new ErpDesignPatterns();
         erpDesignPatterns.setId(updateDesignPatternsRequest.getId());
         erpDesignPatterns.setOrderId(updateDesignPatternsRequest.getOrderId());
-        erpDesignPatterns.setProductId(updateDesignPatternsRequest.getProductId());
+        if (updateDesignPatternsRequest.getProductId() != null) {
+            erpDesignPatterns.setProductId(erpProductsService.requireDefaultInnerCode(updateDesignPatternsRequest.getProductId()));
+        }
         return erpDesignPatternsMapper.updateById(erpDesignPatterns);
     }
 

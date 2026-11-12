@@ -15,6 +15,13 @@ public interface ErpMouldMapper extends BaseMapper<ErpMould> {
 
     List<MouldInfoResult> selectMouldInfoList(ListMouldRequest request);
 
+    List<Long> selectMouldIds(ListMouldRequest request);
+
+    int clearPicture(@Param("id") Long id);
+
+    int updateBatchStatus(@Param("ids") List<Long> ids, @Param("status") String status,
+                          @Param("mouldHouseId") Long mouldHouseId);
+
     /**
      * 批量写入已经完成编号和厂商校验的模具数据。
      *

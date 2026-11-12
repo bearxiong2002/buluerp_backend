@@ -541,7 +541,7 @@ public class ExcelUtil<T>
                             else
                             {
                                 byte[] data = image.getData();
-                                val = FileUtils.writeImportBytes(data);
+                                val = saveImportImage(data);
                             }
                         }
                         ReflectUtils.invokeSetter(entity, propertyName, val);
@@ -2235,6 +2235,11 @@ public class ExcelUtil<T>
             return "";
         }
         byte[] data = image.getData();
+        return saveImportImage(data);
+    }
+
+    /** 允许业务导入在保存图片后登记事务回滚清理，默认沿用原有图片存储方式。 */
+    protected String saveImportImage(byte[] data) throws IOException {
         return FileUtils.writeImportBytes(data);
     }
 

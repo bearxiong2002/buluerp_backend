@@ -135,6 +135,22 @@ public class ErpOrders extends BaseEntity
     @ApiModelProperty(value = "审核状态 0=待审核，1=审核中，-1=审核被拒绝，2=审核通过")
     private Integer auditStatus;
 
+    @ApiModelProperty("全部订单内部编号，第一项为默认编号；编辑不传则保留")
+    private List<String> innerIds;
+
+    @Excel(name = "其他内部编号", prompt = "多个编号在单元格内换行填写")
+    @Example("BLK20250528000001-A\nBLK20250528000001-B")
+    private String additionalInnerCodes;
+
+    public List<String> getInnerIds() { return innerIds; }
+    public void setInnerIds(List<String> value) {
+        innerIds = value;
+    }
+    public String getAdditionalInnerCodes() {
+        return innerIds == null ? additionalInnerCodes : innerIds.size() < 2 ? "" : String.join("\n", innerIds.subList(1, innerIds.size()));
+    }
+    public void setAdditionalInnerCodes(String value) { additionalInnerCodes = value; }
+
     public Integer getAuditStatus() {
         return auditStatus;
     }

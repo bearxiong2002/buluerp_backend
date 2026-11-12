@@ -52,6 +52,21 @@ public class ErpProducts {
     @TableField(exist = false)
     private List<Integer> materialIds;
 
+    @TableField(exist = false)
+    private List<String> innerIds;
+
+    @TableField(exist = false)
+    @Excel(name = "其他内部编号")
+    private String additionalInnerCodes;
+
+    public List<String> getInnerIds() { return innerIds; }
+    public void setInnerIds(List<String> codes) {
+        this.innerIds = codes;
+        this.additionalInnerCodes = codes == null || codes.size() < 2 ? "" :
+            String.join("\n", codes.subList(1, codes.size()));
+    }
+    public String getAdditionalInnerCodes() { return additionalInnerCodes; }
+
     public String getInnerId() {
         return innerId;
     }

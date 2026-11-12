@@ -62,15 +62,12 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
             if (erpOrders == null) {
                 throw new ServiceException("订单不存在");
             } else {
+                erpPackagingList.setOrderCode(erpOrders.getInnerId());
                 erpPackagingList.setProductId(erpOrders.getProductId());
             }
         }
         if (erpPackagingList.getProductId() != null) {
-            LambdaQueryWrapper<ErpProducts> queryWrapper = Wrappers.lambdaQuery();
-            queryWrapper.eq(ErpProducts::getInnerId, erpPackagingList.getProductId());
-            if (erpProductsService.count(queryWrapper) == 0) {
-                throw new ServiceException("产品不存在");
-            }
+            erpPackagingList.setProductId(erpProductsService.requireDefaultInnerCode(erpPackagingList.getProductId()));
         }
     }
 
@@ -128,6 +125,7 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
      */
     @Override
     public void executeMarkPackagingDone(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         // 查找该订单的所有分包记录
         LambdaQueryWrapper<ErpPackagingList> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(ErpPackagingList::getOrderCode, orderCode);
@@ -468,7 +466,9 @@ public class ErpPackagingListServiceImpl implements IErpPackagingListService {
     @Override
     public List<ErpPackagingList> selectErpPackagingListByOrderCode(String orderCode){
         LambdaQueryWrapper<ErpPackagingList> wrapper= Wrappers.lambdaQuery();
-        wrapper.eq(ErpPackagingList::getOrderCode,orderCode);
+        wrapper.and(w -> w.eq(ErpPackagingList::getOrderCode, orderCode).or().apply(
+            "EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id " +
+            "WHERE o.inner_id=erp_packaging_list.order_code AND c.inner_code={0})", orderCode));
         return erpPackagingListMapper.selectList(wrapper);
     }
 }

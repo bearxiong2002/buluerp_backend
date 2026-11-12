@@ -31,6 +31,9 @@ import java.util.ArrayList;
 public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPackagingMaterialInventoryChangeMapper, ErpPackagingMaterialInventoryChange> implements IErpPackagingMaterialInventoryService {
 
     @Autowired
+    private com.ruoyi.web.service.support.OrderCodeResolver orderCodeResolver;
+
+    @Autowired
     private ErpPackagingMaterialInventoryChangeMapper erpPackagingMaterialInventoryChangeMapper;
 
     @Autowired
@@ -41,7 +44,6 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
         LambdaQueryWrapper<ErpPackagingMaterialInventoryChange> query = new LambdaQueryWrapper<>();
         query.eq(request.getId()!=null, ErpPackagingMaterialInventoryChange::getId,request.getId())
                 .orderByDesc(ErpPackagingMaterialInventoryChange::getCreationTime)
-                .eq(StringUtils.isNotBlank(request.getOrderCode()), ErpPackagingMaterialInventoryChange::getOrderCode, request.getOrderCode())
                 .like(StringUtils.isNotBlank(request.getOperator()), ErpPackagingMaterialInventoryChange::getOperator, request.getOperator())
                 .eq(StringUtils.isNotBlank(request.getProductPartNumber()), ErpPackagingMaterialInventoryChange::getProductPartNumber, request.getProductPartNumber())
                 .eq(StringUtils.isNotBlank(request.getEditAction()) , ErpPackagingMaterialInventoryChange::getEditAction, request.getEditAction())
@@ -53,6 +55,11 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
                 .lt(request.getCreateTimeTo()!=null, ErpPackagingMaterialInventoryChange::getCreationTime,request.getCreateTimeTo())
                 .gt(request.getChangeDateFrom()!=null, ErpPackagingMaterialInventoryChange::getChangeDate,request.getChangeDateFrom())
                 .gt(request.getCreateTimeFrom()!=null, ErpPackagingMaterialInventoryChange::getCreationTime,request.getCreateTimeFrom());
+        if (StringUtils.isNotBlank(request.getOrderCode())) {
+            query.and(w -> w.eq(ErpPackagingMaterialInventoryChange::getOrderCode, request.getOrderCode()).or().apply(
+                "EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id " +
+                "WHERE o.inner_id=erp_packaging_material_inventory_change.order_code AND c.inner_code={0})", request.getOrderCode()));
+        }
         List<ErpPackagingMaterialInventoryChange> list = erpPackagingMaterialInventoryChangeMapper.selectList(query);
         
         // 为每条记录填充总库存数量
@@ -67,6 +74,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddPackagingMaterialRequest request) {
+        request.setOrderCode(orderCodeResolver.resolve(request.getOrderCode()));
         ErpPackagingMaterialInventoryChange erpPackagingMaterialInventoryChange = new ErpPackagingMaterialInventoryChange.Builder()
                 .orderCode(request.getOrderCode())
                 .creationTime(LocalDateTime.now())
@@ -88,6 +96,7 @@ public class ErpPackagingMaterialInventoryServiceImpl extends ServiceImpl<ErpPac
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdatePackagingMaterialRequest request) {
+        request.setOrderCode(orderCodeResolver.resolve(request.getOrderCode()));
         ErpPackagingMaterialInventoryChange erpPackagingMaterialInventoryChange = erpPackagingMaterialInventoryChangeMapper.selectById(request.getId());
         if (erpPackagingMaterialInventoryChange == null) {
             throw new RuntimeException("记录不存在");

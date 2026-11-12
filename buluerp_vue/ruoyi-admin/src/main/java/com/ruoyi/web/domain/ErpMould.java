@@ -43,6 +43,12 @@ public class ErpMould {
     @Example(value = "M001")
     private String mouldNumber;
 
+    @Excel(name = "模具图片", cellType = Excel.ColumnType.IMAGE, height = 80)
+    private String pictureUrl;
+
+    public String getPictureUrl() { return pictureUrl; }
+    public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
+
     @TableField(condition = SqlCondition.LIKE)
     @Excel(name = "模具状态")
     private String status;

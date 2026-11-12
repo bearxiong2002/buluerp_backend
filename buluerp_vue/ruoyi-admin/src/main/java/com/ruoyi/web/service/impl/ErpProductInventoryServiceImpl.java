@@ -33,6 +33,9 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     private static final Logger log = LoggerFactory.getLogger(ErpProductInventoryServiceImpl.class);
 
     @Autowired
+    private com.ruoyi.web.service.support.OrderCodeResolver orderCodeResolver;
+
+    @Autowired
     private ErpProductInventoryChangeMapper erpProductInventoryChangeMapper;
 
     @Autowired
@@ -46,7 +49,6 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
         LambdaQueryWrapper<ErpProductInventoryChange> query = new LambdaQueryWrapper<>();
         query.eq(request.getId() != null, ErpProductInventoryChange::getId, request.getId())
                 .orderByDesc(ErpProductInventoryChange::getCreationTime)
-                .eq(StringUtils.isNotBlank(request.getOrderCode()), ErpProductInventoryChange::getOrderCode, request.getOrderCode())
                 .like(StringUtils.isNotBlank(request.getOperator()), ErpProductInventoryChange::getOperator, request.getOperator())
                 .eq(StringUtils.isNotBlank(request.getProductPartNumber()), ErpProductInventoryChange::getProductPartNumber, request.getProductPartNumber())
                 .eq(request.getInOutQuantity() != null, ErpProductInventoryChange::getInOutQuantity, request.getInOutQuantity())
@@ -56,6 +58,11 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
                 .lt(request.getCreateTimeTo()!=null, ErpProductInventoryChange::getCreationTime,request.getCreateTimeTo())
                 .gt(request.getChangeDateFrom()!=null, ErpProductInventoryChange::getChangeDate,request.getChangeDateFrom())
                 .gt(request.getCreateTimeFrom()!=null, ErpProductInventoryChange::getCreationTime,request.getCreateTimeFrom());
+        if (StringUtils.isNotBlank(request.getOrderCode())) {
+            query.and(w -> w.eq(ErpProductInventoryChange::getOrderCode, request.getOrderCode()).or().apply(
+                "EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id " +
+                "WHERE o.inner_id=erp_product_inventory_change.order_code AND c.inner_code={0})", request.getOrderCode()));
+        }
         List<ErpProductInventoryChange> list = erpProductInventoryChangeMapper.selectList(query);
         
         // 为每条记录填充总库存数量
@@ -70,6 +77,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insertRecord(AddProductInventoryRequest request) {
+        request.setOrderCode(orderCodeResolver.resolve(request.getOrderCode()));
         ErpProductInventoryChange entity = new ErpProductInventoryChange();
         entity.setOrderCode(request.getOrderCode());
         entity.setProductPartNumber(request.getProductPartNumber());
@@ -101,6 +109,7 @@ public class ErpProductInventoryServiceImpl extends ServiceImpl<ErpProductInvent
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int updateRecord(UpdateProductInventoryRequest request) {
+        request.setOrderCode(orderCodeResolver.resolve(request.getOrderCode()));
         ErpProductInventoryChange entity = erpProductInventoryChangeMapper.selectById(request.getId());
         if (entity == null) throw new RuntimeException("记录不存在");
 

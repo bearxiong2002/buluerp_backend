@@ -25,4 +25,9 @@ public interface IErpProductsService extends IService<ErpProducts> {
     void processMaterialIds(AddProductRequest item);
 
     Long getIdByInnerId(String innerId);
+
+    ErpProducts selectProductDetail(Long id);
+    ErpProducts findByInnerCode(String code);
+    String requireDefaultInnerCode(String code);
+    int importProducts(List<AddProductRequest> requests) throws IOException;
 }

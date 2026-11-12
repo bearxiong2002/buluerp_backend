@@ -64,7 +64,9 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         <include refid="selectErpOrdersVo"/>
         <where>
             <if test="id != null "> and o.id = #{id}</if>
-            <if test="innerId != null "> and o.inner_id like CONCAT('%', #{innerId}, '%')</if>
+            <if test="innerId != null "> and (o.inner_id like CONCAT('%', #{innerId}, '%') OR EXISTS (
+                SELECT 1 FROM erp_order_inner_code ic WHERE ic.order_id=o.id AND ic.inner_code LIKE CONCAT('%', #{innerId}, '%')
+            ))</if>
             <if test="outerId != null "> and o.outer_id like CONCAT('%', #{outerId}, '%')</if>
             <if test="operator != null "> and o.operator like concat('%',#{operator},'%')</if>
             <if test="quantity != null "> and o.quantity = #{quantity}</if>
@@ -75,7 +77,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="allScheduled != null "> and o.all_scheduled = #{allScheduled}</if>
             <if test="allPurchased != null "> and o.all_purchased = #{allPurchased}</if>
             <if test="purchaseRequired != null "> and o.purchase_required = #{purchaseRequired}</if>
-            <if test="productId != null "> and erp_design_patterns.product_id like concat('%',#{productId},'%')</if>
+            <if test="productId != null "> and (erp_design_patterns.product_id like concat('%', #{productId}, '%') OR EXISTS (
+                    SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id
+                    WHERE p.inner_id=erp_design_patterns.product_id AND c.inner_code like concat('%', #{productId}, '%')
+                ))</if>
             <!--<if test="productionId != null "> and erp_production_schedule.id = #{productionId}</if>-->
             <!--<if test="purchaseId != null "> and erp_purchase_collection.id = #{purchaseId}</if>-->
             <if test="subcontractId != null "> and erp_packaging_list.subcontract_id = #{subcontractId}</if>
@@ -120,11 +125,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectErpOrdersByInnerId" resultType="com.ruoyi.web.domain.ErpOrders">
         <include refid="selectErpOrdersVo"/>
-        where inner_id = #{innerId}
+        where o.inner_id = #{innerId} OR EXISTS (
+            SELECT 1 FROM erp_order_inner_code ic WHERE ic.order_id=o.id AND ic.inner_code=#{innerId}
+        )
     </select>
     <select id="selectErpOrdersByOuterId" resultType="com.ruoyi.web.domain.ErpOrders">
         <include refid="selectErpOrdersVo"/>
-        where outer_id = #{outerId}
+        where o.outer_id = #{outerId}
     </select>
     <select id="getStatusValue" resultType="java.lang.Integer">
         select cast(dict_value as int) from sys_dict_data
@@ -178,10 +185,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </select>
     <select id="selectErpOrdersByInnerIds" resultType="com.ruoyi.web.domain.ErpOrders">
         <include refid="selectErpOrdersVo"/>
-        where inner_id in
+        where o.inner_id in
         <foreach item="item" collection="list" separator="," open="(" close=")" index="">
             #{item}
         </foreach>
+        OR EXISTS (SELECT 1 FROM erp_order_inner_code ic WHERE ic.order_id=o.id AND ic.inner_code IN
+        <foreach item="item" collection="list" separator="," open="(" close=")">
+            #{item}
+        </foreach>)
     </select>
 
     <insert id="insertErpOrders" parameterType="ErpOrders" useGeneratedKeys="true" keyProperty="id">

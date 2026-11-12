@@ -108,10 +108,11 @@ public class ErpProductsController extends BaseController {
         // 单独处理图片 - 使用ExcelImageImportUtil来获取DISPIMG格式的图片
         Map<Integer, String> pictureMap = new HashMap<>();
         try {
-            // 使用工具类直接获取图片，现在图片在第4列（索引3）
+            // 按表头定位，兼容新旧模板的图片列。
+            int pictureColumn = findPictureColumn(file);
             Map<Integer, List<String>> productImages =
                 ExcelImageImportUtil.importInvoiceImages(
-                    file.getInputStream(), 3); // 图片在第4列（索引3）
+                    file.getInputStream(), pictureColumn);
             
             // 将图片数据映射到对应的行（转换为从0开始的索引）
             productImages.forEach((rowIndex, images) -> {
@@ -128,7 +129,8 @@ public class ErpProductsController extends BaseController {
         int rowNumber = 0;
         for (int i = 0; i < requests.size(); i++) {
             AddProductRequest request = requests.get(i);
-            request.setRowNumber(rowNumber++); // 记录行号
+            request.setRowNumber(i + 2); // 第一行为表头，数据从 Excel 第二行开始
+            rowNumber++;
             try {
                 // 1. 设置图片数据
                 if (pictureMap.containsKey(i)) {
@@ -148,7 +150,7 @@ public class ErpProductsController extends BaseController {
                     for (ConstraintViolation<AddProductRequest> violation : violations) {
                         errors.add(violation.getMessage());
                     }
-                    throw new ImportException(rowNumber, String.join("; ", errors), request.toString());
+                    throw new ImportException(request.getRowNumber(), String.join("; ", errors), request.toString());
                 }
                 //物料id校验
 //                // 5. 替换中文逗号并去除空格
@@ -159,14 +161,14 @@ public class ErpProductsController extends BaseController {
 //                }
             } catch (ImportException e) {
                 Map<String, Object> errorEntry = new HashMap<>();
-                errorEntry.put("row", e.getRowNumber());
-                errorEntry.put("error",e.getMessage());
+                errorEntry.put("rowNum", e.getRowNumber());
+                errorEntry.put("errorMsg", e.getErrorMsg());
                 errorEntry.put("data", e.getRawData());
                 errorList.add(errorEntry);
             } catch (Exception e) {
                 Map<String, Object> errorEntry = new HashMap<>();
-                errorEntry.put("row", request.getRowNumber());
-                errorEntry.put("error", "系统错误: " + e.getMessage());
+                errorEntry.put("rowNum", request.getRowNumber());
+                errorEntry.put("errorMsg", "系统错误: " + e.getMessage());
                 errorEntry.put("data", request.toString());
                 errorList.add(errorEntry);
             }
@@ -176,14 +178,25 @@ public class ErpProductsController extends BaseController {
             return new AjaxResult(HttpStatus.CONFLICT, "导入失败", errorList);
         }
         else {
-            for (AddProductRequest request:requests){
-                // 6. 调用Service层处理
-                erpProductsService.processMaterialIds(request);
-                erpProductsService.insertErpProducts(request);
-            }
+            erpProductsService.importProducts(requests);
 
         }
         return AjaxResult.success("导入成功",rowNumber);
+    }
+
+    private int findPictureColumn(MultipartFile file) throws IOException {
+        try (java.io.InputStream input = file.getInputStream();
+             org.apache.poi.ss.usermodel.Workbook workbook = org.apache.poi.ss.usermodel.WorkbookFactory.create(input)) {
+            org.apache.poi.ss.usermodel.Row header = workbook.getSheetAt(0).getRow(0);
+            if (header != null) {
+                org.apache.poi.ss.usermodel.DataFormatter formatter = new org.apache.poi.ss.usermodel.DataFormatter();
+                for (org.apache.poi.ss.usermodel.Cell cell : header) {
+                    String label = formatter.formatCellValue(cell).trim();
+                    if ("产品图片".equals(label) || "图片".equals(label)) return cell.getColumnIndex();
+                }
+            }
+            return 3; // 历史模板的固定列
+        }
     }
 
     @ApiOperation(value = "获得产品详细信息")
@@ -191,7 +204,7 @@ public class ErpProductsController extends BaseController {
     //@PreAuthorize("@ss.hasPermi('system:products:query')")
     @GetMapping(value = "/{id}")
     public AjaxResult getInfo(@PathVariable("id") Long id) {
-        return success(erpProductsService.getById(id));
+        return success(erpProductsService.selectProductDetail(id));
     }
 
     @ApiOperation(value = "新增产品")
@@ -227,9 +240,10 @@ public class ErpProductsController extends BaseController {
         List<AddProductRequest> templateData = new ArrayList<>();
         AddProductRequest example = new AddProductRequest();
         example.setInnerId("inner123");
+        example.setAdditionalInnerCodes("inner123-A\ninner123-B");
         example.setOuterId("outer123");
         example.setName("示例产品"); // 产品名称（非空）
-        example.setPictureStr("请在此单元格插入图片"); // 图片字段提示
+        // 图片列保留空白，避免把提示文字当作图片路径读取。
         templateData.add(example);
 
         // 2. 使用 ExcelUtil 导出

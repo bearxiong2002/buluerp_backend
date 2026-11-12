@@ -30,6 +30,9 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     private ErpPurchaseCollectionMapper erpPurchaseCollectionMapper;
 
     @Autowired
+    private com.ruoyi.web.service.IErpProductsService erpProductsService;
+
+    @Autowired
     private IErpOrdersService erpOrdersService;
 
     @Autowired
@@ -71,9 +74,16 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
         checkValid(erpPurchaseCollection);
         checkReferences(erpPurchaseCollection);
         checkUnique(erpPurchaseCollection);
+        String productCode = erpPurchaseCollection.getProductId();
+        if (productCode != null && !productCode.trim().isEmpty() && !"0".equals(productCode.trim())) {
+            erpPurchaseCollection.setProductId(erpProductsService.requireDefaultInnerCode(productCode));
+        }
     }
 
     private void checkReferences(ErpPurchaseCollection erpPurchaseCollection) {
+        if (erpPurchaseCollection.getOrderCode() != null) {
+            erpPurchaseCollection.setOrderCode(erpOrdersService.requireDefaultInnerCode(erpPurchaseCollection.getOrderCode()));
+        }
         if (erpPurchaseCollection.getOrderCode() != null) {
             ErpOrders order = erpOrdersService.selectByOrderCode(erpPurchaseCollection.getOrderCode());
             if (order == null) {
@@ -107,6 +117,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
 
     @Override
     public boolean isAllPurchaseCompleted(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
         if (order == null) {
             throw new ServiceException("订单不存在");
@@ -139,6 +150,7 @@ public class ErpPurchaseCollectionServiceImpl implements IErpPurchaseCollectionS
     @Override
     @Transactional
     public void markAllPurchased(String orderCode) {
+        orderCode = erpOrdersService.requireDefaultInnerCode(orderCode);
         ErpOrders order = erpOrdersService.selectByOrderCode(orderCode);
         if (order == null) {
             throw new ServiceException("订单不存在");

@@ -1,6 +1,8 @@
 package com.ruoyi.web.request.mould;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.springframework.web.multipart.MultipartFile;
 import com.ruoyi.common.validation.NullOrNotBlank;
 import io.swagger.annotations.ApiModelProperty;
 
@@ -25,6 +27,18 @@ public class UpdateMouldRequest {
 
     @ApiModelProperty(value = "模房ID（传负数代表从模房移除）")
     private Long mouldHouseId;
+
+    @ApiModelProperty(value = "模具图片文件，未上传时保留原图", dataType = "file")
+    @JsonIgnore
+    private MultipartFile picture;
+
+    @ApiModelProperty(value = "是否删除模具图片，上传新图时优先使用新图")
+    private Boolean deletePicture;
+
+    public MultipartFile getPicture() { return picture; }
+    public void setPicture(MultipartFile picture) { this.picture = picture; }
+    public Boolean getDeletePicture() { return deletePicture; }
+    public void setDeletePicture(Boolean deletePicture) { this.deletePicture = deletePicture; }
 
     public Long getMouldHouseId() {
         return mouldHouseId;

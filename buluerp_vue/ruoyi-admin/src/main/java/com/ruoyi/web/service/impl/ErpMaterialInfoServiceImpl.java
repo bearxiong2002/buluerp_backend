@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import java.io.File;
 import java.io.IOException;
 import java.rmi.ServerException;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -82,12 +83,15 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         return erpMaterialInfoList;
     }
 
-    private void checkUnique(ErpMaterialInfo erpMaterialInfo) {
-        if (erpMaterialInfo.getMouldNumber() != null) {
+    void checkUnique(ErpMaterialInfo erpMaterialInfo) {
+        if (StringUtils.isNotBlank(erpMaterialInfo.getMouldNumber())
+                && StringUtils.isNotBlank(erpMaterialInfo.getMaterialType())) {
             ErpMaterialInfo original = erpMaterialInfoMapper
-                    .selectByMouldNumber(erpMaterialInfo.getMouldNumber());
+                    .selectByMouldNumberAndMaterialType(
+                            erpMaterialInfo.getMouldNumber(),
+                            erpMaterialInfo.getMaterialType());
             if (original != null && !Objects.equals(original.getId(), erpMaterialInfo.getId())) {
-                throw new ServiceException("模具编号重复");
+                throw new ServiceException("该模具编号和料别的物料已存在");
             }
         }
     }
@@ -145,6 +149,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
     }
 
     @Override
+    public List<ErpMaterialInfo> listByMouldNumber(String mouldNumber) {
+        return fill(erpMaterialInfoMapper.selectListByMouldNumber(mouldNumber));
+    }
+
+    @Override
     @Transactional
     public Long insertErpMaterialInfo(AddMaterialInfoRequest request) throws IOException {
         request.setCreatTime(DateUtils.getNowDate());
@@ -189,10 +198,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
                 if (converted) {
                     String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
                             + "/" + gltfFileName;
-                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
+                    String gltfUrl = gltfUrlPath;
                     request.setModelUrl(gltfUrl);
                 } else {
-                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
+                    cleanupFailedModelFiles(stpFile, new File(gltfAbsPath));
+                    throw new ServiceException("3D模型转换失败，请确认STP/STEP文件有效，或联系管理员检查模型转换环境");
                 }
             } else {
                 log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
@@ -314,10 +324,11 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
                 if (converted) {
                     String gltfUrlPath = StringUtils.substringBeforeLast(stpUrlPath, "/")
                             + "/" + gltfFileName;
-                    String gltfUrl = serverConfig.getUrl() + gltfUrlPath;
+                    String gltfUrl = gltfUrlPath;
                     erpMaterialInfo.setModelUrl(gltfUrl);
                 } else {
-                    log.warn("3D模型转换失败，仅保存原始STP文件: {}", stpFile.getName());
+                    cleanupFailedModelFiles(stpFile, new File(gltfAbsPath));
+                    throw new ServiceException("3D模型转换失败，请确认STP/STEP文件有效，或联系管理员检查模型转换环境");
                 }
             } else {
                 log.warn("STP文件未找到，跳过转换: {}", stpAbsPath);
@@ -325,6 +336,19 @@ public class ErpMaterialInfoServiceImpl implements IErpMaterialInfoService {
         }
 
         return erpMaterialInfoMapper.updateErpMaterialInfo(erpMaterialInfo);
+    }
+
+    private void cleanupFailedModelFiles(File... files) {
+        for (File file : files) {
+            if (file == null) {
+                continue;
+            }
+            try {
+                Files.deleteIfExists(file.toPath());
+            } catch (IOException e) {
+                log.warn("清理转换失败的3D模型文件失败: {}", file.getAbsolutePath(), e);
+            }
+        }
     }
 
     @Override

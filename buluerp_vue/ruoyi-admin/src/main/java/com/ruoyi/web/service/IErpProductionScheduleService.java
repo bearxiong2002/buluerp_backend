@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 
 public interface IErpProductionScheduleService extends IService<ErpProductionSchedule> {
+    void validateImportMaterials(List<AddProductionScheduleFromMaterialRequest> rows);
     List<ProductionScheduleResult> listResult(ListProductionScheduleRequest request);
     ProductionScheduleResult getResultById(Long id);
     List<ProductionScheduleResult> listResultByIds(List<Long> ids);

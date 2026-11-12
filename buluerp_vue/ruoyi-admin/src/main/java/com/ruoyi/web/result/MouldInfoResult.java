@@ -14,6 +14,12 @@ public class MouldInfoResult {
     @Excel(name = "模具编号")
     private String mouldNumber;
 
+    @Excel(name = "模具图片", cellType = Excel.ColumnType.IMAGE, height = 80)
+    private String pictureUrl;
+
+    public String getPictureUrl() { return pictureUrl; }
+    public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
+
     @Excel(name = "模具状态")
     private String status;
 

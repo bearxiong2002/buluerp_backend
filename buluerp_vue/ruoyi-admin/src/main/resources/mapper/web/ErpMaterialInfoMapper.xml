@@ -319,6 +319,19 @@
     <select id="selectByMouldNumber" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
         <include refid="selectErpMaterialInfo"/>
         where m.mould_number = #{mouldNumber}
+        order by m.id asc
+        limit 1
+    </select>
+    <select id="selectListByMouldNumber" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialInfo"/>
+        where m.mould_number = #{mouldNumber}
+        order by m.id asc
+    </select>
+    <select id="selectByMouldNumberAndMaterialType" resultType="com.ruoyi.web.domain.ErpMaterialInfo">
+        <include refid="selectErpMaterialInfo"/>
+        where m.mould_number = #{mouldNumber}
+          and m.material_type = #{materialType}
+        order by m.id asc
         limit 1
     </select>
 </mapper>

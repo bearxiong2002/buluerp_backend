@@ -83,7 +83,10 @@ public class ErpProductionScheduleController extends BaseController {
     @PostMapping("/import")
     @ApiOperation(value = "导入布产列表", notes = "导入布产列表")
     public AjaxResult importExcel(@RequestPart("file") MultipartFile file) throws IOException {
-        listValidationService.importExcel(file, AddProductionScheduleFromMaterialRequest.class, erpProductionScheduleService::insertFromMaterial);
+        List<AddProductionScheduleFromMaterialRequest> rows = listValidationService.validateExcel(
+                file, AddProductionScheduleFromMaterialRequest.class);
+        erpProductionScheduleService.validateImportMaterials(rows);
+        listValidationService.checkInsertion(rows, erpProductionScheduleService::insertFromMaterial);
         return success();
     }
 

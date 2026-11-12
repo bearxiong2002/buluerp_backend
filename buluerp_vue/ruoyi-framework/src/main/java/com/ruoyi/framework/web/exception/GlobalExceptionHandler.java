@@ -93,7 +93,10 @@ public class GlobalExceptionHandler
     }
 
     @ExceptionHandler(ListValidationException.class)
-    public AjaxResult handleExcelImportException(ListValidationException e) {
+    public AjaxResult handleExcelImportException(ListValidationException e, HttpServletRequest request) {
+        log.error("请求地址'{}',Excel导入失败，错误行数：{}", request.getRequestURI(), e.getErrorInfoList().size());
+        e.getErrorInfoList().forEach(error ->
+                log.error("Excel导入数据第{}行：{}", error.getRowNum(), error.getErrorMsg()));
         return new AjaxResult(HttpStatus.CONFLICT, e.getMessage(), e.getErrorInfoList());
     }
 

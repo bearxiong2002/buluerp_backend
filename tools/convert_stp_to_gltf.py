@@ -28,7 +28,10 @@ def convert_stp_to_gltf(stp_path: str, gltf_path: str) -> bool:
         # 3. Convert STL to GLTF via trimesh
         import trimesh
         mesh = trimesh.load_mesh(temp_stl)
-        mesh.export(gltf_path)
+        # Keep the GLTF self-contained. Trimesh otherwise writes fixed-name
+        # gltf_buffer_*.bin files to the process working directory, where they
+        # are not reachable from the model URL and may overwrite one another.
+        mesh.export(gltf_path, embed_buffers=True)
 
         print(f"Conversion successful: {stp_path} -> {gltf_path}")
         return True

@@ -3,6 +3,7 @@ package com.ruoyi.web.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.ruoyi.web.domain.ErpMould;
 import com.ruoyi.web.request.mould.AddMouldRequest;
+import com.ruoyi.web.request.mould.BatchUpdateMouldStatusRequest;
 import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.mould.UpdateMouldRequest;
 import com.ruoyi.web.result.MouldInfoResult;
@@ -30,6 +31,8 @@ public interface IErpMouldService extends IService<ErpMould> {
     void importWithManufacturer(List<AddMouldRequest> requests);
 
     void update(UpdateMouldRequest request);
+
+    int batchUpdateStatus(BatchUpdateMouldStatusRequest request);
 
     void remove(Long id);
 

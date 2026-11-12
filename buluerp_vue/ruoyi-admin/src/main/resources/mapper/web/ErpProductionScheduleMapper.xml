@@ -54,7 +54,7 @@
                 and ps.id like concat('%', #{id}, '%')
             </if>
             <if test="orderCode != null">
-                and ps.order_code like concat('%', #{orderCode}, '%')
+                and (ps.order_code like concat('%', #{orderCode}, '%') OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=ps.order_code AND c.inner_code LIKE CONCAT('%', #{orderCode}, '%')))
             </if>
             <if test="creationTime != null">
                 and date(ps.creation_time) = date(#{creationTime})
@@ -63,7 +63,10 @@
                 and ps.operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null">
-                and ps.product_id = #{productId}
+                and (ps.product_id = #{productId} OR EXISTS (
+                    SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id
+                    WHERE p.inner_id=ps.product_id AND c.inner_code = #{productId}
+                ))
             </if>
             <if test="arrangeId != null">
                 and ps.arrange_id = #{arrangeId}
@@ -141,7 +144,7 @@
                 and ps.material_id = #{materialId}
             </if>
             <if test="orderCodeExact != null">
-                and ps.order_code = #{orderCodeExact}
+                and (ps.order_code = #{orderCodeExact} OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=ps.order_code AND c.inner_code=#{orderCodeExact}))
             </if>
         </where>
     </select>

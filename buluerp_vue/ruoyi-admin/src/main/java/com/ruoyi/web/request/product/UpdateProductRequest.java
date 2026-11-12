@@ -8,6 +8,13 @@ import java.util.List;
 
 @ApiModel(value = "修改产品请求类")
 public class UpdateProductRequest {
+    @ApiModelProperty("全部内部编号，第一项为默认编号；修改时不传则保留原编号")
+    private List<String> innerIds;
+
+    public List<String> getInnerIds() { return innerIds; }
+    public void setInnerIds(List<String> innerIds) { this.innerIds = innerIds; }
+
+
     @ApiModelProperty(dataType = "Long",value = "需要修改的产品id",required = true)
     private Long id;
     @ApiModelProperty(dataType = "String",value = "产品名称",required = false)

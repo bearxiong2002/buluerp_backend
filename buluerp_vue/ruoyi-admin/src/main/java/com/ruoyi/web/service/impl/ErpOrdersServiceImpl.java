@@ -20,6 +20,9 @@ import com.ruoyi.web.enums.OrderStatus;
 import com.ruoyi.web.util.log.LogUtil;
 import com.ruoyi.web.util.log.OperationLog;
 import com.ruoyi.web.mapper.ErpOrdersMapper;
+import com.ruoyi.web.mapper.ErpOrderInnerCodeMapper;
+import com.ruoyi.web.service.support.ProductInnerCodes;
+import org.springframework.dao.DuplicateKeyException;
 import com.ruoyi.web.request.order.ListOrderRequest;
 import com.ruoyi.web.result.OrderStatisticsResult;
 import com.ruoyi.web.service.*;
@@ -42,6 +45,48 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     private static final Logger log = LoggerFactory.getLogger(ErpOrdersServiceImpl.class);
     @Autowired
     private ErpOrdersMapper erpOrdersMapper;
+
+    @Autowired
+    private ErpOrderInnerCodeMapper innerCodeMapper;
+
+    private void fillInnerCodes(List<ErpOrders> orders) {
+        if (orders.isEmpty()) return;
+        Map<Long, List<String>> codes = new HashMap<>();
+        for (ErpOrderInnerCode code : innerCodeMapper.selectByOrderIds(
+                orders.stream().map(ErpOrders::getId).distinct().collect(Collectors.toList()))) {
+            codes.computeIfAbsent(code.getOrderId(), id -> new ArrayList<>()).add(code.getInnerCode());
+        }
+        for (ErpOrders order : orders) {
+            List<String> values = new ArrayList<>();
+            values.add(order.getInnerId());
+            for (String code : codes.getOrDefault(order.getId(), Collections.emptyList())) {
+                if (!values.contains(code)) values.add(code);
+            }
+            order.setInnerIds(values);
+            order.setAdditionalInnerCodes(values.size() < 2 ? "" : String.join("\n", values.subList(1, values.size())));
+        }
+    }
+
+    private void assertCodesAvailable(Long orderId, List<String> codes) {
+        if (innerCodeMapper.countConflicts(orderId, codes) > 0) {
+            throw new ServiceException("内部编号已被其他订单使用，请检查编号列表");
+        }
+    }
+
+    private void saveCodes(Long orderId, List<String> codes) {
+        try {
+            innerCodeMapper.insertCodes(orderId, codes);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("内部编号已被其他订单使用，请刷新后重试");
+        }
+    }
+
+    @Override
+    public String requireDefaultInnerCode(String code) {
+        ErpOrders order = erpOrdersMapper.selectErpOrdersByInnerId(code == null ? null : code.trim());
+        if (order == null) throw new ServiceException("订单不存在：" + code);
+        return order.getInnerId();
+    }
 
     @Autowired
     private IErpCustomersService erpCustomersService;
@@ -114,9 +159,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         //     }
         // }
         if (erpOrders.getProductId() != null) {
-            LambdaQueryWrapper<ErpProducts> wrapper = new LambdaQueryWrapper<>();
-            wrapper.eq(ErpProducts::getInnerId, erpOrders.getProductId());
-            ErpProducts erpProducts = erpProductsService.getOne(wrapper);
+            ErpProducts erpProducts = erpProductsService.findByInnerCode(erpOrders.getProductId());
             if (erpProducts != null) {
                 erpOrders.setProduct(erpProducts);
             }
@@ -135,20 +178,27 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public ErpOrders selectErpOrdersById(Long id)
     {
-        return fillErpOrders(erpOrdersMapper.selectErpOrdersById(id));
+        ErpOrders order = fillErpOrders(erpOrdersMapper.selectErpOrdersById(id));
+        if (order != null) fillInnerCodes(Collections.singletonList(order));
+        return order;
     }
 
     @Override
     public ErpOrders selectByOrderCode(String orderCode) {
-        return fillErpOrders(erpOrdersMapper.selectErpOrdersByInnerId(orderCode));
+        ErpOrders order = fillErpOrders(erpOrdersMapper.selectErpOrdersByInnerId(orderCode == null ? null : orderCode.trim()));
+        if (order != null) fillInnerCodes(Collections.singletonList(order));
+        return order;
     }
 
     @Override
     public List<ErpOrders> selectByInnerIds(List<String> innerIds) {
-        return erpOrdersMapper.selectErpOrdersByInnerIds(innerIds)
+        if (innerIds == null || innerIds.isEmpty()) return Collections.emptyList();
+        List<ErpOrders> orders = erpOrdersMapper.selectErpOrdersByInnerIds(innerIds)
                 .stream()
                 .map(this::fillErpOrders)
                 .collect(Collectors.toList());
+        fillInnerCodes(orders);
+        return orders;
     }
 
     /**
@@ -160,6 +210,7 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     public List<ErpOrders> selectErpOrdersList(ListOrderRequest request) {
         List<ErpOrders> list = erpOrdersMapper.selectErpOrdersList(request);
+        fillInnerCodes(list);
         for (ErpOrders erpOrders1 : list) {
             fillErpOrders(erpOrders1);
         }
@@ -168,10 +219,12 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
 
     @Override
     public List<ErpOrders> selectErpOrdersListByIds(Long[] ids) {
-        return erpOrdersMapper.selectErpOrdersListByIds(ids)
+        List<ErpOrders> orders = erpOrdersMapper.selectErpOrdersListByIds(ids)
                 .stream()
                 .map(this::fillErpOrders)
                 .collect(Collectors.toList());
+        fillInnerCodes(orders);
+        return orders;
     }
 
     /**
@@ -184,6 +237,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Transactional
     public int insertErpOrders(ErpOrders erpOrders)
     {
+        List<String> codes = ProductInnerCodes.forCreate(erpOrders.getInnerId(), erpOrders.getInnerIds(),
+                erpOrders.getInnerIds() == null ? erpOrders.getAdditionalInnerCodes() : null);
+        erpOrders.setInnerId(codes.get(0));
+        assertCodesAvailable(null, codes);
+        normalizeProductCode(erpOrders);
         erpOrders.setCreateTime(DateUtils.getNowDate());
         normalizePurchaseRequirementForCreate(erpOrders);
         erpOrders.setAllScheduled(null);
@@ -223,8 +281,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
         if (erpOrdersMapper.selectErpOrdersByOuterId(erpOrders.getOuterId()) != null) {
             throw new ServiceException("订单外部ID已存在");
         }
-        if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) {
-            throw new ServiceException("操作失败");
+        try {
+            if (0 == erpOrdersMapper.insertErpOrders(erpOrders)) throw new ServiceException("操作失败");
+            saveCodes(erpOrders.getId(), codes);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("订单编号已存在，请检查内部编号和外部编号");
         }
 
         // ErpOrders erpOrders1 = new ErpOrders();
@@ -381,11 +442,32 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
     @Override
     @Transactional
     public int updateErpOrders(ErpOrders erpOrders) {
+        normalizeProductCode(erpOrders);
         if (erpOrders.getId() == null) {
             throw new ServiceException("订单ID不能为空");
         }
 
         // 1. 获取原始订单数据
+        ErpOrders lockedOrder = innerCodeMapper.lockOrder(erpOrders.getId());
+        if (lockedOrder == null) throw new ServiceException("订单不存在");
+        if (erpOrders.getInnerId() != null && !lockedOrder.getInnerId().equals(erpOrders.getInnerId().trim())) {
+            throw new ServiceException("默认内部编号不能修改或删除，请添加附加编号");
+        }
+        erpOrders.setInnerId(lockedOrder.getInnerId());
+        if (erpOrders.getInnerIds() != null) {
+            List<String> codes = ProductInnerCodes.normalize(erpOrders.getInnerIds());
+            if (!lockedOrder.getInnerId().equals(codes.get(0))) {
+                throw new ServiceException("默认内部编号不能修改或删除，请添加附加编号");
+            }
+            assertCodesAvailable(erpOrders.getId(), codes);
+            for (ErpOrderInnerCode old : innerCodeMapper.selectByOrderIds(Collections.singletonList(erpOrders.getId()))) {
+                if (!codes.contains(old.getInnerCode()) && innerCodeMapper.isReferenced(old.getInnerCode())) {
+                    throw new ServiceException("内部编号已被业务引用，不能修改或删除：" + old.getInnerCode());
+                }
+            }
+            innerCodeMapper.deleteByOrderId(erpOrders.getId());
+            saveCodes(erpOrders.getId(), codes);
+        }
         ErpOrders originalOrder = erpOrdersMapper.selectErpOrdersById(erpOrders.getId());
         if (originalOrder == null) {
             throw new ServiceException("订单不存在");
@@ -663,4 +745,11 @@ public class ErpOrdersServiceImpl implements IErpOrdersService
                        this::getStatusValue
                ));
     }
+    private void normalizeProductCode(ErpOrders order) {
+        String code = order.getProductId();
+        if (code != null && !code.trim().isEmpty() && !"0".equals(code.trim())) {
+            order.setProductId(erpProductsService.requireDefaultInnerCode(code));
+        }
+    }
+
 }

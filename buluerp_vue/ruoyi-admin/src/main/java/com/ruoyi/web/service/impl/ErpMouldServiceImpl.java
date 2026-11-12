@@ -14,6 +14,7 @@ import com.ruoyi.web.domain.ErpMould;
 import com.ruoyi.web.domain.ErpMouldHouse;
 import com.ruoyi.web.mapper.ErpMouldMapper;
 import com.ruoyi.web.request.mould.AddMouldRequest;
+import com.ruoyi.web.request.mould.BatchUpdateMouldStatusRequest;
 import com.ruoyi.web.request.mould.ListMouldRequest;
 import com.ruoyi.web.request.mould.UpdateMouldRequest;
 import com.ruoyi.web.mapper.ErpManufacturerMapper;
@@ -23,6 +24,7 @@ import com.ruoyi.web.service.IErpManufacturerService;
 import com.ruoyi.web.service.IErpMaterialInfoService;
 import com.ruoyi.web.service.IErpMouldHouseService;
 import com.ruoyi.web.service.IErpMouldService;
+import com.ruoyi.web.service.support.MouldImages;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -140,7 +142,10 @@ public class ErpMouldServiceImpl
 
         mould.setStatus(ErpMould.STATUS_CREATED);
         mould.setMouldHouseId(-1L);
-        baseMapper.insert(mould);
+        if (request.getPicture() != null && !request.getPicture().isEmpty()) {
+            mould.setPictureUrl(MouldImages.upload(request.getPicture()));
+        }
+        if (baseMapper.insert(mould) <= 0) throw new ServiceException("添加模具失败");
     }
 
     @Override
@@ -155,7 +160,10 @@ public class ErpMouldServiceImpl
         mould.setManufacturerId(manufacturerId);
         mould.setStatus(ErpMould.STATUS_CREATED);
         mould.setMouldHouseId(-1L);
-        baseMapper.insert(mould);
+        if (request.getPicture() != null && !request.getPicture().isEmpty()) {
+            mould.setPictureUrl(MouldImages.upload(request.getPicture()));
+        }
+        if (baseMapper.insert(mould) <= 0) throw new ServiceException("添加模具失败");
     }
 
     @Override
@@ -215,6 +223,7 @@ public class ErpMouldServiceImpl
             mould.setStatus(ErpMould.STATUS_CREATED);
             mould.setManufacturerId(manufacturerIds.get(request.getManufacturerName()));
             mould.setMouldHouseId(-1L);
+            mould.setPictureUrl(request.getPictureUrl());
             return mould;
         }).collect(Collectors.toList());
 
@@ -334,6 +343,8 @@ public class ErpMouldServiceImpl
     @Override
     @Transactional
     public void update(UpdateMouldRequest request) {
+        ErpMould original = baseMapper.selectById(request.getId());
+        if (original == null) throw new ServiceException("更新模具失败：无效的ID");
         ErpMould mould = new ErpMould();
         BeanUtils.copyProperties(request, mould);
         if (StringUtils.isNotEmpty(request.getManufacturerName())) {
@@ -357,9 +368,68 @@ public class ErpMouldServiceImpl
             // 未分配统一设置为-1便于检索
             mould.setMouldHouseId(-1L);
         }
-        if (baseMapper.updateById(mould) <= 0) {
+        boolean uploaded = request.getPicture() != null && !request.getPicture().isEmpty();
+        if (uploaded) mould.setPictureUrl(MouldImages.upload(request.getPicture()));
+        boolean hasChanges = uploaded || mould.getStatus() != null || mould.getTrialDate() != null
+                || mould.getManufacturerId() != null || mould.getMouldHouseId() != null;
+        if (hasChanges && baseMapper.updateById(mould) <= 0) {
             throw new IllegalArgumentException("更新模具失败：无效的ID");
         }
+        boolean clearPicture = !uploaded && Boolean.TRUE.equals(request.getDeletePicture());
+        if (clearPicture && erpMouldMapper.clearPicture(request.getId()) <= 0) {
+            throw new ServiceException("删除模具图片失败");
+        }
+        if (uploaded || clearPicture) MouldImages.deleteAfterCommit(original.getPictureUrl());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int batchUpdateStatus(BatchUpdateMouldStatusRequest request) {
+        if (request == null || !ErpMould.isStatusValid(request.getStatus())) {
+            throw new ServiceException("无效的模具状态");
+        }
+        boolean selected = "selected".equals(request.getScope());
+        boolean filtered = "filtered".equals(request.getScope());
+        if (!selected && !filtered) {
+            throw new ServiceException("更新范围必须为 selected 或 filtered");
+        }
+        if (selected && (CollectionUtils.isEmpty(request.getIds())
+                || request.getIds().stream().anyMatch(id -> id == null || id <= 0))) {
+            throw new ServiceException("请选择有效的模具记录");
+        }
+        // 缺少 filters 不应意外退化为全表更新；显式传入空对象才表示全部查询结果。
+        if (filtered && (request.getFilters() == null || !CollectionUtils.isEmpty(request.getIds()))) {
+            throw new ServiceException("按查询结果更新时必须提供查询条件，且不能同时提供勾选ID");
+        }
+        Long mouldHouseId = null;
+        if (ErpMould.STATUS_REPAIRING.equals(request.getStatus())) {
+            mouldHouseId = request.getMouldHouseId();
+            if (mouldHouseId == null || mouldHouseId <= 0 || mouldHouseService.getById(mouldHouseId) == null) {
+                throw new ServiceException("状态为模具故障送修中时，必须选择有效的送修模房");
+            }
+        }
+
+        List<Long> ids;
+        final int batchSize = 500;
+        if (selected) {
+            ids = request.getIds().stream().distinct().sorted().collect(Collectors.toList());
+            // 所有勾选记录先校验，再写入，避免部分ID失效却报告整体成功。
+            for (int start = 0; start < ids.size(); start += batchSize) {
+                List<Long> batch = ids.subList(start, Math.min(start + batchSize, ids.size()));
+                if (erpMouldMapper.selectBatchIds(batch).size() != batch.size()) {
+                    throw new ServiceException("部分模具已不存在，请刷新列表后重试");
+                }
+            }
+        } else {
+            // 复用列表筛选条件，只查询ID，不加载物料模型，也不应用列表分页。
+            ids = erpMouldMapper.selectMouldIds(request.getFilters());
+        }
+        int updatedCount = 0;
+        for (int start = 0; start < ids.size(); start += batchSize) {
+            updatedCount += erpMouldMapper.updateBatchStatus(
+                    ids.subList(start, Math.min(start + batchSize, ids.size())), request.getStatus(), mouldHouseId);
+        }
+        return updatedCount;
     }
 
     @Override
@@ -377,6 +447,7 @@ public class ErpMouldServiceImpl
         if (baseMapper.deleteById(id) <= 0) {
             throw new IllegalArgumentException("删除模具失败：无效的ID");
         }
+        MouldImages.deleteAfterCommit(mould.getPictureUrl());
     }
 
     @Override

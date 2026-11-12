@@ -29,13 +29,16 @@
         <where>
             <!-- 字符串字段 - 模糊查询 -->
             <if test="orderCode != null and orderCode != ''">
-                and order_code like concat('%', #{orderCode}, '%')
+                and (order_code like concat('%', #{orderCode}, '%') OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=erp_packaging_list.order_code AND c.inner_code LIKE CONCAT('%', #{orderCode}, '%')))
             </if>
             <if test="operator != null and operator != ''">
                 and operator like concat('%', #{operator}, '%')
             </if>
             <if test="productId != null and productId != ''">
-                and product_id like concat('%', #{productId}, '%')
+                and (erp_packaging_list.product_id like concat('%', #{productId}, '%') OR EXISTS (
+                    SELECT 1 FROM erp_products p JOIN erp_product_inner_code c ON c.product_id=p.id
+                    WHERE p.inner_id=erp_packaging_list.product_id AND c.inner_code like concat('%', #{productId}, '%')
+                ))
             </if>
             <if test="productNameCn != null and productNameCn != ''">
                 and product_name_cn like concat('%', #{productNameCn}, '%')
@@ -70,7 +73,7 @@
                 and is_done = #{isDone}
             </if>
             <if test="orderCodeExact != null and orderCodeExact != ''">
-                and order_code = #{orderCodeExact}
+                and (order_code = #{orderCodeExact} OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=erp_packaging_list.order_code AND c.inner_code=#{orderCodeExact}))
             </if>
         </where>
     </select>
@@ -152,7 +155,9 @@
     <delete id="deleteErpPackagingListByProductId">
         delete p
         from buluerp.erp_packaging_list p
-                 inner join buluerp.erp_products prod on p.product_id = prod.inner_id
+                 inner join buluerp.erp_products prod on (p.product_id = prod.inner_id OR EXISTS (
+                     SELECT 1 FROM erp_product_inner_code c WHERE c.product_id=prod.id AND c.inner_code=p.product_id
+                 ))
         where prod.inner_id = #{productId}
     </delete>
 </mapper>

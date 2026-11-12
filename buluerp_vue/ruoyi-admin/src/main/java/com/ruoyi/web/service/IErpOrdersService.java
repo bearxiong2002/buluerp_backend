@@ -31,6 +31,8 @@ public interface IErpOrdersService extends OrderStatus.StatusMapper
 
     List<ErpOrders> selectByInnerIds(List<String> innerIds);
 
+    String requireDefaultInnerCode(String code);
+
     /**
      * 查询订单列表
      * 

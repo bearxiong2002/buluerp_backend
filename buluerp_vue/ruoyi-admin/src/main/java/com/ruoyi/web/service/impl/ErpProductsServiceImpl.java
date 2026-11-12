@@ -38,6 +38,12 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import com.ruoyi.web.mapper.ErpProductInnerCodeMapper;
+import com.ruoyi.web.domain.ErpProductInnerCode;
+import com.ruoyi.web.service.support.ProductInnerCodes;
+import org.springframework.dao.DuplicateKeyException;
+import java.util.Collections;
+import java.util.Map;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -62,8 +68,33 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     @Autowired
     private SysUserMapper sysUserMapper;
 
+    @Autowired
+    private ErpProductInnerCodeMapper innerCodeMapper;
+
+    private void fillInnerCodes(List<ErpProducts> products) {
+        if (products.isEmpty()) return;
+        List<Long> ids = products.stream().map(ErpProducts::getId).collect(Collectors.toList());
+        Map<Long, List<ErpProductInnerCode>> grouped = innerCodeMapper.selectByProductIds(ids).stream()
+            .collect(Collectors.groupingBy(ErpProductInnerCode::getProductId));
+        for (ErpProducts product : products) {
+            List<String> codes = new ArrayList<>();
+            codes.add(product.getInnerId());
+            for (ErpProductInnerCode code : grouped.getOrDefault(product.getId(), Collections.emptyList())) {
+                if (!codes.contains(code.getInnerCode())) codes.add(code.getInnerCode());
+            }
+            product.setInnerIds(codes);
+        }
+    }
+
+    @Override
+    public ErpProducts selectProductDetail(Long id) {
+        ErpProducts product = erpProductsMapper.selectById(id);
+        return product == null ? null : fillMaterialIds(product);
+    }
+
     private ErpProducts fillMaterialIds(ErpProducts erpProducts) {
         erpProducts.setMaterialIds(erpProductsMapper.getProductMaterialIds(erpProducts.getId()));
+        fillInnerCodes(Collections.singletonList(erpProducts));
         return erpProducts;
     }
 
@@ -71,6 +102,7 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         for(ErpProducts erpProducts:erpProductsList){
             erpProducts.setMaterialIds(erpProductsMapper.getProductMaterialIds(erpProducts.getId()));
         }
+        fillInnerCodes(erpProductsList);
         return erpProductsList;
     }
 
@@ -79,7 +111,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         LambdaQueryWrapper<ErpProducts> wrapper= Wrappers.lambdaQuery();
         wrapper.orderByDesc(ErpProducts::getUpdateTime);
         if(listProductRequest.getId()!=null) wrapper.like(ErpProducts::getId,listProductRequest.getId().toString());
-        if(StringUtils.isNotBlank(listProductRequest.getInnerId())) wrapper.like(ErpProducts::getInnerId,listProductRequest.getInnerId());
+        if (StringUtils.isNotBlank(listProductRequest.getInnerId())) {
+            String search = listProductRequest.getInnerId().trim();
+            wrapper.and(w -> w.like(ErpProducts::getInnerId, search).or().apply(
+                "EXISTS (SELECT 1 FROM erp_product_inner_code c WHERE c.product_id=erp_products.id AND c.inner_code LIKE {0})", "%" + search + "%"));
+        }
         if(StringUtils.isNotBlank(listProductRequest.getOuterId())) wrapper.like(ErpProducts::getOuterId,listProductRequest.getOuterId());
         if(StringUtils.isNotBlank(listProductRequest.getName())) wrapper.like(ErpProducts::getName,listProductRequest.getName());
         if(StringUtils.isNotBlank(listProductRequest.getCreateUsername())) wrapper.like(ErpProducts::getCreateUsername,listProductRequest.getCreateUsername());
@@ -100,8 +136,11 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int insertErpProducts(AddProductRequest addProductRequest) throws IOException {
+        List<String> codes = ProductInnerCodes.forCreate(addProductRequest.getInnerId(),
+            addProductRequest.getInnerIds(), addProductRequest.getAdditionalInnerCodes());
+        assertCodesAvailable(null, codes);
         // 获取当前登录用户信息
         LoginUser loginUser = SecurityUtils.getLoginUser();
         // 直接获取用户ID
@@ -112,27 +151,29 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
             String url=FileUploadUtils.upload(addProductRequest.getPicture());
             erpProducts.setPictureUrl(url);
         }
-        LambdaQueryWrapper<ErpProducts> innerWrapper=Wrappers.lambdaQuery();
-        innerWrapper.eq(ErpProducts::getInnerId,addProductRequest.getInnerId());
         LambdaQueryWrapper<ErpProducts> outerWrapper=Wrappers.lambdaQuery();
         outerWrapper.eq(ErpProducts::getOuterId,addProductRequest.getOuterId());
-        if(erpProductsMapper.selectCount(innerWrapper)>0){
-            throw new RuntimeException("内部编号已存在");
-        }
         if(erpProductsMapper.selectCount(outerWrapper)>0){
             throw new RuntimeException("外部编号已存在");
         }
-        erpProducts.setInnerId(addProductRequest.getInnerId());
+        erpProducts.setInnerId(codes.get(0));
         erpProducts.setOuterId(addProductRequest.getOuterId());
         erpProducts.setCreateUsername(sysUserMapper.selectUserById(userId).getUserName());
         erpProducts.setName(addProductRequest.getName());
         erpProducts.setCreateTime(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Shanghai")));
         erpProducts.setUpdateTime(LocalDateTime.ofInstant(Instant.now(), ZoneId.of("Asia/Shanghai")));
-        if (0 >= erpProductsMapper.insert(erpProducts)) {
+        int inserted;
+        try {
+            inserted = erpProductsMapper.insert(erpProducts);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("内部编号或外部编号已存在，请刷新后重试");
+        }
+        if (0 >= inserted) {
             if(addProductRequest.getRowNumber()!=null)
                 throw new ImportException(addProductRequest.getRowNumber(), "插入产品失败", addProductRequest.toString());
             else throw new ServiceException("添加失败");
         }
+        saveCodes(erpProducts.getId(), codes);
         List<Long> materialIds = addProductRequest.getMaterialIds();
         if (materialIds != null && !materialIds.isEmpty()) {
             // 批量绑定
@@ -156,10 +197,27 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public int updateErpProducts(UpdateProductRequest updateProductRequest) throws IOException {
         ErpProducts erpProducts = new ErpProducts();
         erpProducts.setId(updateProductRequest.getId());
+        ErpProducts original = innerCodeMapper.lockProduct(updateProductRequest.getId());
+        if (original == null) throw new ServiceException("产品不存在");
+        if (updateProductRequest.getInnerIds() != null) {
+            List<String> codes = ProductInnerCodes.normalize(updateProductRequest.getInnerIds());
+            if (!original.getInnerId().equals(codes.get(0))) {
+                throw new ServiceException("默认内部编号不能修改或删除，请添加附加编号");
+            }
+            assertCodesAvailable(original.getId(), codes);
+            List<ErpProductInnerCode> oldCodes = innerCodeMapper.selectByProductIds(Collections.singletonList(original.getId()));
+            for (ErpProductInnerCode oldCode : oldCodes) {
+                if (!codes.contains(oldCode.getInnerCode()) && innerCodeMapper.isReferenced(oldCode.getInnerCode())) {
+                    throw new ServiceException("内部编号已被业务引用，不能修改或删除：" + oldCode.getInnerCode());
+                }
+            }
+            innerCodeMapper.deleteByProductId(original.getId());
+            saveCodes(original.getId(), codes);
+        }
         if(Objects.equals(updateProductRequest.getDeletePicture(), 1)&&updateProductRequest.getPicture()==null){
             //删除原先的图片
             String url1=erpProductsMapper.selectById(erpProducts.getId()).getPictureUrl();
@@ -291,14 +349,61 @@ public class ErpProductsServiceImpl extends ServiceImpl<ErpProductsMapper, ErpPr
         ).toString();
     }
 
-    public Long getIdByInnerId(String innerId){
-        LambdaQueryWrapper<ErpProducts> wrapper=Wrappers.lambdaQuery();
-        wrapper.eq(ErpProducts::getInnerId,innerId);
-        // return erpProductsMapper.selectOne(wrapper).getId();
-        ErpProducts erpProducts = erpProductsMapper.selectOne(wrapper);
-        if (erpProducts == null) {
-            return null;
+    private void assertCodesAvailable(Long productId, List<String> codes) {
+        if (innerCodeMapper.countConflicts(productId, codes) > 0) {
+            throw new ServiceException("内部编号已被其他产品使用，请检查编号列表");
         }
-        return erpProducts.getId();
+    }
+
+    private void saveCodes(Long productId, List<String> codes) {
+        try {
+            innerCodeMapper.insertCodes(productId, codes);
+        } catch (DuplicateKeyException e) {
+            throw new ServiceException("内部编号已被其他产品使用，请刷新后重试");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public int importProducts(List<AddProductRequest> requests) throws IOException {
+        java.util.Set<String> seen = new java.util.HashSet<>();
+        for (int i = 0; i < requests.size(); i++) {
+            AddProductRequest request = requests.get(i);
+            try {
+                List<String> codes = ProductInnerCodes.forCreate(request.getInnerId(), request.getInnerIds(), request.getAdditionalInnerCodes());
+                for (String code : codes) {
+                    if (!seen.add(code)) throw new ServiceException("文件中内部编号重复：" + code);
+                }
+                assertCodesAvailable(null, codes);
+            } catch (ServiceException e) {
+                throw new ServiceException("Excel第" + (i + 2) + "行：" + e.getMessage());
+            }
+        }
+        for (AddProductRequest request : requests) {
+            processMaterialIds(request);
+            insertErpProducts(request);
+        }
+        return requests.size();
+    }
+
+    @Override
+    public ErpProducts findByInnerCode(String code) {
+        if (StringUtils.isBlank(code)) return null;
+        ErpProducts product = innerCodeMapper.selectProductByCode(code.trim());
+        if (product != null) fillInnerCodes(Collections.singletonList(product));
+        return product;
+    }
+
+    @Override
+    public String requireDefaultInnerCode(String code) {
+        ErpProducts product = findByInnerCode(code);
+        if (product == null) throw new ServiceException("产品不存在：" + code);
+        return product.getInnerId();
+    }
+
+    @Override
+    public Long getIdByInnerId(String innerId) {
+        ErpProducts product = findByInnerCode(innerId);
+        return product == null ? null : product.getId();
     }
 }

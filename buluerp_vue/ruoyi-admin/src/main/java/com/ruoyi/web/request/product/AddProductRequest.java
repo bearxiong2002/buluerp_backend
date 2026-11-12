@@ -14,6 +14,16 @@ import java.util.List;
 
 @ApiModel(value = "新增产品请求类")
 public class AddProductRequest {
+    @ApiModelProperty("全部内部编号，第一项为默认编号；修改时不传则保留原编号")
+    private List<String> innerIds;
+
+    public List<String> getInnerIds() { return innerIds; }
+    public void setInnerIds(List<String> innerIds) { this.innerIds = innerIds; }
+
+    public String getAdditionalInnerCodes() { return additionalInnerCodes; }
+    public void setAdditionalInnerCodes(String value) { this.additionalInnerCodes = value; }
+
+
 
     @Excel(name = "内部编号")
     @ApiModelProperty(dataType = "String",value = "内部编号",required = true)
@@ -23,7 +33,7 @@ public class AddProductRequest {
     private String outerId;
     @Excel(name ="产品名")
     @ApiModelProperty(dataType = "Long",value = "产品名称",required = true)
-    @NotBlank
+    @NotBlank(message = "产品名称不能为空")
     private String name;
     @ApiModelProperty(dataType = "File",value = "产品图片",required = true)
     private MultipartFile picture;
@@ -36,6 +46,9 @@ public class AddProductRequest {
 
     @ApiModelProperty(dataType = "List<Long>",value = "物料id列表（批量绑定）",required = false)
     private List<Long> materialIds;
+
+    @Excel(name = "其他内部编号")
+    private String additionalInnerCodes;
 
     private Integer rowNumber;
 
