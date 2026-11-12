@@ -14,7 +14,7 @@ public class UpdateMouldRequest {
     @NotNull(message = "模具ID不能为空")
     private Long id;
 
-    @ApiModelProperty(value = "模具状态：创建(待制作)/制作完成(待验收)/验收通过/维修中/试模完成")
+    @ApiModelProperty(value = "模具状态：新模(排产中)/新模完成(待试模)/验收合格(已入库)/模具故障送修中/维修好返厂待试模/已外发/先生产后修模/已试模")
     @NullOrNotBlank(message = "模具状态不能为空")
     private String status;
 
@@ -27,6 +27,9 @@ public class UpdateMouldRequest {
 
     @ApiModelProperty(value = "模房ID（传负数代表从模房移除）")
     private Long mouldHouseId;
+
+    @ApiModelProperty(value = "备注")
+    private String remark;
 
     @ApiModelProperty(value = "模具图片文件，未上传时保留原图", dataType = "file")
     @JsonIgnore
@@ -66,6 +69,14 @@ public class UpdateMouldRequest {
 
     public String getStatus() {
         return status;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 
     public void setStatus(String status) {

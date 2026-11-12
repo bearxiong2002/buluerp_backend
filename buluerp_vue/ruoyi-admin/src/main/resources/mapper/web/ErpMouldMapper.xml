@@ -11,6 +11,7 @@
             em.mould_number,
             em.picture_url,
             em.status,
+            em.remark,
             em.trial_date,
             emf.name as manufacturer_name,
             em.mould_house_id
@@ -26,6 +27,7 @@
         em.mould_number,
         em.picture_url,
         em.status,
+        em.remark,
         em.trial_date,
         emf.name as manufacturer_name,
         em.mould_house_id
@@ -67,6 +69,9 @@
             <if test="mouldHouseId != null">
                 AND em.mould_house_id = #{mouldHouseId}
             </if>
+            <if test="remark != null and remark != ''">
+                AND em.remark like concat('%', #{remark}, '%')
+            </if>
         </where>
     </sql>
 
@@ -91,10 +96,10 @@
 
     <insert id="insertBatch">
         insert into erp_mould
-        (mould_number, status, manufacturer_id, mould_house_id, picture_url)
+        (mould_number, status, manufacturer_id, mould_house_id, picture_url, remark)
         values
         <foreach collection="moulds" item="mould" separator=",">
-            (#{mould.mouldNumber}, #{mould.status}, #{mould.manufacturerId}, #{mould.mouldHouseId}, #{mould.pictureUrl})
+            (#{mould.mouldNumber}, #{mould.status}, #{mould.manufacturerId}, #{mould.mouldHouseId}, #{mould.pictureUrl}, #{mould.remark})
         </foreach>
     </insert>
     <update id="clearPicture">

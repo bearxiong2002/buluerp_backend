@@ -224,6 +224,7 @@ public class ErpMouldServiceImpl
             mould.setManufacturerId(manufacturerIds.get(request.getManufacturerName()));
             mould.setMouldHouseId(-1L);
             mould.setPictureUrl(request.getPictureUrl());
+            mould.setRemark(request.getRemark());
             return mould;
         }).collect(Collectors.toList());
 
@@ -370,8 +371,8 @@ public class ErpMouldServiceImpl
         }
         boolean uploaded = request.getPicture() != null && !request.getPicture().isEmpty();
         if (uploaded) mould.setPictureUrl(MouldImages.upload(request.getPicture()));
-        boolean hasChanges = uploaded || mould.getStatus() != null || mould.getTrialDate() != null
-                || mould.getManufacturerId() != null || mould.getMouldHouseId() != null;
+        boolean hasChanges = uploaded || mould.getStatus() != null || mould.getRemark() != null
+                || mould.getTrialDate() != null || mould.getManufacturerId() != null || mould.getMouldHouseId() != null;
         if (hasChanges && baseMapper.updateById(mould) <= 0) {
             throw new IllegalArgumentException("更新模具失败：无效的ID");
         }

@@ -23,6 +23,9 @@ public class MouldInfoResult {
     @Excel(name = "模具状态")
     private String status;
 
+    @Excel(name = "备注")
+    private String remark;
+
     @Excel(name = "试模日期")
     @JsonFormat(pattern = "yyyy-MM-dd", timezone = "GMT+8")
     private Date trialDate;
@@ -99,6 +102,14 @@ public class MouldInfoResult {
         this.status = status;
     }
 
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
+    }
+
     /**
      * 获取
      * @return trialDate
@@ -164,6 +175,6 @@ public class MouldInfoResult {
     }
 
     public String toString() {
-        return "MouldInfoResult{id = " + id + ", mouldNumber = " + mouldNumber + ", status = " + status + ", trialDate = " + trialDate + ", manufacturerName = " + manufacturerName + ", mouldHouseId = " + mouldHouseId + "}";
+        return "MouldInfoResult{id = " + id + ", mouldNumber = " + mouldNumber + ", status = " + status + ", remark = " + remark + ", trialDate = " + trialDate + ", manufacturerName = " + manufacturerName + ", mouldHouseId = " + mouldHouseId + "}";
     }
 }

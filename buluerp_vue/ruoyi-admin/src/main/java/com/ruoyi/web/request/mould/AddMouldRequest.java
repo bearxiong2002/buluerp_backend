@@ -30,6 +30,11 @@ public class AddMouldRequest {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     private String pictureUrl;
 
+    @ApiModelProperty(value = "备注")
+    @Excel(name = "备注")
+    @Example
+    private String remark;
+
     @ApiModelProperty(value = "模具图片文件", dataType = "file")
     @JsonIgnore
     private MultipartFile picture;
@@ -53,5 +58,13 @@ public class AddMouldRequest {
 
     public void setManufacturerName(String manufacturerName) {
         this.manufacturerName = manufacturerName;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

@@ -32,6 +32,9 @@ public class ListMouldRequest {
     @ApiModelProperty(value = "模房ID（-1代表未分配）")
     private Long mouldHouseId;
 
+    @ApiModelProperty(value = "备注")
+    private String remark;
+
     public Long getId() {
         return id;
     }
@@ -86,5 +89,13 @@ public class ListMouldRequest {
 
     public void setMouldHouseId(Long mouldHouseId) {
         this.mouldHouseId = mouldHouseId;
+    }
+
+    public String getRemark() {
+        return remark;
+    }
+
+    public void setRemark(String remark) {
+        this.remark = remark;
     }
 }

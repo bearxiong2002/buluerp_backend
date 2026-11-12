@@ -2235,7 +2235,8 @@ public class ExcelUtil<T>
             return "";
         }
         byte[] data = image.getData();
-        return saveImportImage(data);
+        // 静态实体解析路径没有业务子类实例，使用默认图片写入逻辑。
+        return FileUtils.writeImportBytes(data);
     }
 
     /** 允许业务导入在保存图片后登记事务回滚清理，默认沿用原有图片存储方式。 */
