@@ -9,6 +9,18 @@
             #{item}
         </foreach>
     </update>
+    <select id="selectArchiveRecordCounts" resultType="com.ruoyi.web.result.ProductionArchiveRecordCount">
+        select
+            ps.order_code as orderCode,
+            count(distinct ps.id) as scheduleCount,
+            count(distinct ps.arrange_id) as arrangeCount
+        from erp_production_schedule ps
+        where ps.order_code in
+        <foreach item="item" collection="orderCodes" separator="," open="(" close=")">
+            #{item}
+        </foreach>
+        group by ps.order_code
+    </select>
     <sql id="selectResult">
         select
             ps.id as id,
@@ -143,8 +155,33 @@
             <if test="materialId != null">
                 and ps.material_id = #{materialId}
             </if>
+            <if test="!includeCompletedOrders and completedOrderStatus != null">
+                and not exists (
+                    select 1
+                    from erp_orders archive_order
+                    where archive_order.status = #{completedOrderStatus}
+                      and (
+                          archive_order.inner_id = ps.order_code
+                          or exists (
+                              select 1
+                              from erp_order_inner_code archive_code
+                              where archive_code.order_id = archive_order.id
+                                and archive_code.inner_code = ps.order_code
+                          )
+                      )
+                )
+            </if>
             <if test="orderCodeExact != null">
-                and (ps.order_code = #{orderCodeExact} OR EXISTS (SELECT 1 FROM erp_orders o JOIN erp_order_inner_code c ON c.order_id=o.id WHERE o.inner_id=ps.order_code AND c.inner_code=#{orderCodeExact}))
+                and (
+                    ps.order_code = #{orderCodeExact}
+                    or exists (
+                        select 1
+                        from erp_order_inner_code c
+                        join erp_orders matched_order on matched_order.id = c.order_id
+                        where c.inner_code = ps.order_code
+                          and matched_order.inner_id = #{orderCodeExact}
+                    )
+                )
             </if>
         </where>
     </select>

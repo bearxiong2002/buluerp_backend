@@ -185,6 +185,9 @@ public class ErpProductionScheduleServiceImpl
 
     @Override
     public List<ProductionScheduleResult> listResult(ListProductionScheduleRequest request) {
+        request.setCompletedOrderStatus(
+                erpOrdersService.getStatusValue(OrderStatus.COMPLETED.getLabel())
+        );
         return erpProductionScheduleMapper.selectResultList(request);
     }
 

@@ -9,6 +9,10 @@
 	<a href="https://gitee.com/y_project/RuoYi-Vue/blob/master/LICENSE"><img src="https://img.shields.io/github/license/mashape/apistatus.svg"></a>
 </p>
 
+## 项目部署
+
+本项目生产服务器的固定配置、构建发布、验收与回滚步骤见：[服务器部署流程](doc/服务器部署流程.md)。后续部署优先按此文档执行。
+
 ## 平台简介
 
 若依是一套全部开源的快速开发平台，毫无保留给个人及企业免费使用。

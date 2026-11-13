@@ -67,6 +67,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="innerId != null "> and (o.inner_id like CONCAT('%', #{innerId}, '%') OR EXISTS (
                 SELECT 1 FROM erp_order_inner_code ic WHERE ic.order_id=o.id AND ic.inner_code LIKE CONCAT('%', #{innerId}, '%')
             ))</if>
+            <if test="orderCodeKeyword != null">
+                and (o.inner_id like CONCAT('%', #{orderCodeKeyword}, '%')
+                     OR o.outer_id like CONCAT('%', #{orderCodeKeyword}, '%')
+                     OR EXISTS (SELECT 1 FROM erp_order_inner_code ic
+                                WHERE ic.order_id=o.id
+                                  AND ic.inner_code LIKE CONCAT('%', #{orderCodeKeyword}, '%')))
+            </if>
             <if test="outerId != null "> and o.outer_id like CONCAT('%', #{outerId}, '%')</if>
             <if test="operator != null "> and o.operator like concat('%',#{operator},'%')</if>
             <if test="quantity != null "> and o.quantity = #{quantity}</if>

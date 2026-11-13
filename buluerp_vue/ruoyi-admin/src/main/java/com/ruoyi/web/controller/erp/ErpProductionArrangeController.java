@@ -1,6 +1,5 @@
 package com.ruoyi.web.controller.erp;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
@@ -44,10 +43,16 @@ public class ErpProductionArrangeController extends BaseController {
             @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query"),
             @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query")
     })
-    public TableDataInfo list(ErpProductionArrange erpProductionArrange) {
+    public TableDataInfo list(
+            ErpProductionArrange erpProductionArrange,
+            @RequestParam(value = "includeCompletedOrders", defaultValue = "false")
+            boolean includeCompletedOrders
+    ) {
         startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
-        QueryWrapper<ErpProductionArrange> wrapper = new QueryWrapper<>(erpProductionArrange);
-        List<ErpProductionArrange> list = erpProductionArrangeService.list(wrapper);
+        List<ErpProductionArrange> list = erpProductionArrangeService.listForProductionList(
+                erpProductionArrange,
+                includeCompletedOrders
+        );
         return getDataTable(list);
     }
 

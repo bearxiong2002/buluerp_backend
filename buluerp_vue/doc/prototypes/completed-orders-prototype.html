@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>已完成订单 - 布鲁科 ERP 原型</title>
+  <link rel="stylesheet" href="../../buluErp_Frontend/buluerp_front/node_modules/element-plus/dist/index.css" />
+  <link rel="stylesheet" href="../../buluErp_Frontend/buluerp_front/src/assets/style/main.css" />
+  <style>
+    :root { --menu-bg:rgba(0,21,41,1); --menu-head:rgba(0,40,77,1); --menu-active:#1890ff; --page-bg:rgba(240,242,245,1); --text-primary:#303133; --text-regular:#606266; --text-secondary:#909399; }
+    * { box-sizing:border-box; }
+    html,body,#app { width:100%; height:100%; margin:0; }
+    body { overflow:hidden; color:var(--text-primary); font-family:"Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",Arial,sans-serif; font-size:14px; background:#fff; }
+    button,input { font:inherit; }
+    .erp-shell { display:flex; height:100vh; overflow:hidden; }
+    .erp-menu { width:200px; min-width:200px; height:100vh; overflow-y:auto; background:var(--menu-bg); color:white; scrollbar-width:none; }
+    .erp-menu::-webkit-scrollbar { display:none; }
+    .logo-area { height:72px; background:var(--menu-head); display:flex; align-items:center; overflow:hidden; }
+    .logo-area img { width:50px; height:50px; object-fit:contain; margin:6px 15px; }
+    .logo-text { color:white; font-size:25px; white-space:nowrap; letter-spacing:1px; }
+    .menu-group { padding:0 0 5px; }
+    .menu-row { height:56px; display:flex; align-items:center; gap:12px; padding:0 20px; color:#fff; cursor:pointer; transition:background .2s; }
+    .menu-row:hover { background:#0d2a46; }
+    .menu-row.active { background:#1890ff; }
+    .menu-row.sub-root { height:50px; padding-left:34px; color:#d9e3ef; background:#061a2c; font-size:14px; }
+    .menu-row.sub-root:hover { background:#0d2a46; }
+    .menu-row.child { height:48px; padding-left:58px; font-size:14px; color:#c2d1e1; }
+    .menu-row.child.active { background:#1890ff; color:#fff; }
+    .menu-row.child.active::before { content:""; width:4px; height:18px; background:#fff; position:absolute; left:0; }
+    .menu-row.child { position:relative; }
+    .menu-arrow { margin-left:auto; font-size:12px; opacity:.8; transform:rotate(90deg); }
+    .menu-icon { width:18px; height:18px; flex:0 0 18px; }
+    .menu-icon svg { width:18px; height:18px; display:block; }
+    .main-shell { flex:1; min-width:0; height:100vh; display:flex; flex-direction:column; overflow:hidden; background:white; }
+    .topbar { height:60px; min-height:60px; padding:10px 18px 10px 10px; border-bottom:1px solid rgba(240,242,245,1); display:flex; align-items:center; }
+    .collapse-icon { width:20px; height:20px; margin-left:10px; cursor:pointer; opacity:.7; }
+    .topbar-spacer { flex:1; }
+    .top-user-area { width:15vw; min-width:250px; display:flex; align-items:center; justify-content:flex-end; gap:18px; padding-right:20px; }
+    .bell { width:25px; height:25px; color:#909399; cursor:pointer; }
+    .user-profile { display:flex; align-items:center; gap:8px; min-width:170px; }
+    .user-avatar { width:30px; height:30px; border-radius:50%; background:linear-gradient(145deg,#d9ecff,#409eff); color:white; display:grid; place-items:center; font-size:12px; font-weight:600; }
+    .user-name { color:#606266; font-size:14px; }
+    .logout { color:#606266; font-size:14px; cursor:pointer; margin-left:8px; }
+    .tabstrip { height:40px; min-height:40px; border-bottom:1px solid #e4e7ed; background:#fff; display:flex; align-items:flex-end; padding:0 12px; }
+    .tab-item { height:34px; display:flex; align-items:center; gap:9px; padding:0 16px; border:1px solid #dcdfe6; border-bottom:0; border-radius:4px 4px 0 0; margin-right:5px; color:#606266; background:#f5f7fa; cursor:pointer; font-size:13px; }
+    .tab-item.active { height:38px; color:#409eff; background:#fff; border-color:#dcdfe6; }
+    .tab-close { font-size:15px; color:#909399; line-height:1; }
+    .tab-add { width:34px; height:34px; display:grid; place-items:center; color:#606266; cursor:pointer; border:1px solid #dcdfe6; border-bottom:0; border-radius:4px 4px 0 0; }
+    .page-scroll { flex:1; overflow-y:auto; overflow-x:hidden; background:var(--page-bg); }
+    .page-root { min-height:100%; background:#fff; display:flex; flex-direction:column; }
+    .sec-board { height:88px; min-height:88px; padding:0 15px 15px; background:#fff; }
+    .sec-path { margin:10px; color:gray; font-size:14px; }
+    .sec-title { margin:10px; font-weight:bold; font-size:24px; color:black; line-height:1.2; }
+    .grey-back { flex:1; min-height:calc(100vh - 188px); background:var(--page-bg); padding:20px 40px 28px; }
+    .el-card { margin:10px; }
+    .card-header { display:flex; align-items:center; justify-content:space-between; min-height:24px; }
+    .card-title { font-size:14px; color:var(--text-primary); }
+    .query-card .el-card__body { padding:20px; }
+    .query-grid { display:grid; grid-template-columns:repeat(3,minmax(220px,1fr)) 170px; gap:18px 20px; align-items:end; }
+    .field-item { display:flex; align-items:center; min-width:0; }
+    .field-item label { width:100px; flex:0 0 100px; text-align:right; padding-right:12px; color:#606266; font-size:14px; }
+    .field-item .control { flex:1; min-width:0; }
+    .el-input__wrapper,.el-select__wrapper { min-height:32px; }
+    .query-actions { display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-end; gap:10px; }
+    .query-actions .row { display:flex; gap:10px; }
+    .query-actions .el-button { margin:0; min-width:70px; }
+    .table-card .el-card__body { padding:20px; }
+    .archive-rule { color:#909399; font-size:12px; margin-left:14px; font-weight:400; }
+    .table-tools { display:flex; align-items:center; gap:10px; }
+    .selected-count { color:#909399; font-size:12px; margin-right:6px; }
+    .erp-table-wrap { width:100%; overflow-x:auto; }
+    .erp-table { width:100%; min-width:1050px; border-collapse:separate; border-spacing:0; color:#606266; font-size:14px; }
+    .erp-table th { height:40px; padding:8px 12px; text-align:left; font-weight:500; color:#606266; background:#f5f7fa; border-top:1px solid #ebeef5; border-bottom:1px solid #ebeef5; border-left:1px solid #ebeef5; white-space:nowrap; }
+    .erp-table th:last-child { border-right:1px solid #ebeef5; }
+    .erp-table td { height:54px; padding:8px 12px; border-bottom:1px solid #ebeef5; border-left:1px solid #ebeef5; white-space:nowrap; vertical-align:middle; }
+    .erp-table td:last-child { border-right:1px solid #ebeef5; }
+    .erp-table tbody tr:hover { background:#f5f7fa; }
+    .check-col { width:55px; text-align:center!important; color:#606266; }
+    .checkbox { width:14px; height:14px; accent-color:#409eff; vertical-align:middle; }
+    .order-no { color:#303133; font-weight:500; }
+    .order-sub { color:#909399; font-size:12px; margin-top:4px; }
+    .product-name { color:#303133; }
+    .product-sub { color:#909399; font-size:12px; margin-top:3px; }
+    .num { font-variant-numeric:tabular-nums; }
+    .record-pair { display:flex; align-items:center; gap:6px; }
+    .el-button--text { border:0; background:transparent; color:#409eff; padding:0 4px; cursor:pointer; }
+    .el-button--text:hover { color:#66b1ff; }
+    .el-button { height:32px; padding:8px 15px; border-radius:4px; font-size:14px; cursor:pointer; }
+    .el-button--primary { background:#409eff; border-color:#409eff; color:#fff; }
+    .el-button--primary:hover { background:#66b1ff; border-color:#66b1ff; }
+    .el-button--default { background:#fff; border:1px solid #dcdfe6; color:#606266; }
+    .el-button--default:hover { color:#409eff; border-color:#c6e2ff; background:#ecf5ff; }
+    .pagination-bar { margin-top:18px; display:flex; align-items:center; justify-content:flex-end; gap:6px; color:#606266; font-size:14px; }
+    .pager-btn { min-width:32px; height:32px; border:0; border-radius:4px; background:#f4f4f5; color:#606266; cursor:pointer; padding:0 8px; }
+    .pager-btn.active { background:#409eff; color:#fff; }
+    .pager-btn:disabled { color:#a8abb2; cursor:not-allowed; }
+    .page-size { height:32px; border:1px solid #dcdfe6; border-radius:4px; padding:0 9px; color:#606266; background:#fff; margin-left:8px; }
+    .toast { position:fixed; left:50%; top:22px; transform:translate(-50%,-12px); background:#f0f9eb; color:#67c23a; border:1px solid #e1f3d8; border-radius:4px; padding:10px 16px; opacity:0; visibility:hidden; transition:.2s; z-index:99; box-shadow:0 4px 12px rgba(0,0,0,.08); }
+    .toast.show { opacity:1; visibility:visible; transform:translate(-50%,0); }
+    .toast.warning { color:#e6a23c; background:#fdf6ec; border-color:#faecd8; }    .page-root.hide { display:none; }\n    .detail-page { display:none; }
+    .detail-page.show { display:block; }
+    .list-page.hide { display:none; }
+    .detail-toolbar { display:flex; align-items:center; justify-content:space-between; }
+    .detail-toolbar .left-actions { display:flex; align-items:center; gap:10px; }
+    .detail-card .el-card__body { padding:20px; }
+    .order-info-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:20px 28px; }
+    .info-block label { display:block; color:#909399; font-size:12px; margin-bottom:7px; }
+    .info-block .value { color:#303133; font-size:14px; line-height:1.55; }
+    .info-block .value.strong { font-weight:600; }
+    .detail-tabs { margin-top:10px; }
+    .detail-tabs .el-tabs__header { margin:0; }
+    .detail-tabs .el-tabs__nav-wrap::after { height:1px; background:#e4e7ed; }
+    .detail-tabs .el-tabs__item { height:40px; color:#606266; font-size:14px; }
+    .detail-tabs .el-tabs__item.is-active { color:#409eff; }
+    .detail-tabs .el-tabs__active-bar { background:#409eff; height:2px; }
+    .tab-pane { display:none; padding-top:16px; }
+    .tab-pane.active { display:block; }
+    .readonly-hint { background:#f4f4f5; color:#909399; border-radius:4px; padding:8px 12px; margin-bottom:12px; font-size:12px; }
+    .detail-table th { background:#f5f7fa; }
+    .detail-table td { height:48px; }
+    .summary-rule { color:#909399; font-size:12px; line-height:1.7; }
+    .el-tag { display:inline-flex; align-items:center; height:24px; padding:0 9px; border-radius:4px; font-size:12px; border:1px solid transparent; }
+    .el-tag--success { color:#67c23a; background:#f0f9eb; border-color:#e1f3d8; }
+    .el-tag--info { color:#909399; background:#f4f4f5; border-color:#e9e9eb; }
+    .el-tag--warning { color:#e6a23c; background:#fdf6ec; border-color:#faecd8; }
+    .tag-dot { width:6px; height:6px; border-radius:50%; background:currentColor; margin-right:4px; }
+    .inline-note { display:flex; align-items:center; gap:8px; margin-top:12px; color:#909399; font-size:12px; }
+    .inline-note b { color:#606266; font-weight:500; }
+    .up-arrow { width:0; height:0; display:inline-block; border-left:4px solid transparent; border-right:4px solid transparent; border-bottom:6px solid #c0c4cc; }
+    @media (max-width:1180px) { .erp-menu{width:180px;min-width:180px}.logo-text{font-size:21px}.query-grid{grid-template-columns:repeat(2,minmax(220px,1fr))}.order-info-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="erp-shell">
+      <aside class="erp-menu">
+        <div class="logo-area"><img src="../../buluErp_Frontend/buluerp_front/src/assets/img/logo.png" alt="布鲁科" /><div class="logo-text">布鲁科</div></div>
+        <div class="menu-group">
+          <div class="menu-row"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></span><span>首页</span></div>
+          <div class="menu-row"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16v16H4z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span><span>业务管理中心</span><span class="menu-arrow">›</span></div>
+          <div class="menu-row"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M8 12l3 3 5-6"/></svg></span><span>生产管理中心</span><span class="menu-arrow" style="transform:rotate(-90deg)">›</span></div>
+          <div class="menu-row sub-root"><span>生产</span><span class="menu-arrow" style="transform:rotate(-90deg)">›</span></div>
+          <div class="menu-row child" onclick="switchView('list','布产表')">排产表</div>
+          <div class="menu-row child" onclick="switchView('list','布产表')">布产表</div>
+          <div class="menu-row child active" onclick="switchView('list','已完成订单')">已完成订单</div>
+          <div class="menu-row"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 7h16M4 12h16M4 17h16"/></svg></span><span>库存管理中心</span><span class="menu-arrow">›</span></div>
+          <div class="menu-row"><span class="menu-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-7 8-7s8 3 8 7"/></svg></span><span>系统管理</span><span class="menu-arrow">›</span></div>
+        </div>
+      </aside>
+      <section class="main-shell">
+        <header class="topbar">
+          <img class="collapse-icon" src="../../buluErp_Frontend/buluerp_front/src/assets/icon/u35.png" alt="菜单" />
+          <div class="topbar-spacer"></div>
+          <div class="top-user-area">
+            <svg class="bell" viewBox="0 0 1024 1024" fill="currentColor"><path d="M512 235.52c118.57 0 215.04 96.47 215.04 215.04v263.86l19.39 20.68 40.44 43.14H237.13l40.44-43.14L296.96 714.42V450.56c0-118.57 96.47-215.04 215.04-215.04m0-71.68c-158.35 0-286.72 128.37-286.72 286.72v235.52l-56.61 60.38C131.89 785.7 159.71 849.92 213.5 849.92h597.01c53.79 0 81.61-64.22 44.82-103.46L798.72 686.08V450.56c0-158.35-128.37-286.72-286.72-286.72zM583.68 890.88H440.32a35.84 35.84 0 1 0 0 71.68h143.36a35.84 35.84 0 1 0 0-71.68z"/></svg>
+            <div class="user-profile"><span class="user-avatar">管</span><span class="user-name">admin</span><span class="logout">登出</span></div>
+          </div>
+        </header>
+        <div class="tabstrip">
+          <div class="tab-item" onclick="switchView('list','布产表')">布产表 <span class="tab-close">×</span></div>
+          <div class="tab-item active" id="listTab" onclick="switchView('list','已完成订单')">已完成订单 <span class="tab-close">×</span></div>
+          <div class="tab-item" id="detailTab" style="display:none" onclick="switchView('detail','已完成订单详情')">已完成订单详情 <span class="tab-close">×</span></div>
+          <div class="tab-add">×</div>
+        </div>
+        <main class="page-scroll" id="pageScroll">
+          <section class="page-root" id="listPage">
+            <div class="sec-board"><div class="sec-path">生产管理中心/生产/已完成订单</div><div class="sec-title">已完成订单</div></div>
+            <div class="grey-back">
+              <div class="el-card query-card">
+                <div class="el-card__header"><div class="card-header"><span class="card-title">查询</span></div></div>
+                <div class="el-card__body">
+                  <div class="query-grid">
+                    <div class="field-item"><label>订单编号</label><div class="control"><div class="el-input"><div class="el-input__wrapper"><input class="el-input__inner" id="orderKeyword" placeholder="请输入订单内部/外部编号" /></div></div></div></div>
+                    <div class="field-item"><label>客户</label><div class="control"><div class="el-input"><div class="el-input__wrapper"><input class="el-input__inner" id="customerKeyword" placeholder="请输入客户名称" /></div></div></div></div>
+                    <div class="field-item"><label>产品编号</label><div class="control"><div class="el-input"><div class="el-input__wrapper"><input class="el-input__inner" id="productKeyword" placeholder="请输入产品名称/编号" /></div></div></div></div>
+                    <div class="query-actions"><div class="row"><button class="el-button el-button--primary" onclick="applyFilters()"><span>查询</span></button><button class="el-button el-button--default" onclick="resetFilters()"><span>重置</span></button></div></div>
+                  </div>
+                </div>
+              </div>
+              <div class="el-card table-card">
+                <div class="el-card__header"><div class="card-header"><div><span class="card-title">展示</span><span class="archive-rule">归档规则：订单状态为“已完成（14）”时自动归入；已发货（13）仍保留在布产表、排产表。</span></div><div class="table-tools"><span class="selected-count" id="selectedCount">已选 0 条</span><button class="el-button el-button--primary" onclick="exportSelected()"><span>导出</span></button></div></div></div>
+                <div class="el-card__body">
+                  <div class="erp-table-wrap"><table class="erp-table"><thead><tr><th class="check-col"><input type="checkbox" class="checkbox" id="selectAll" onchange="toggleSelectAll(this.checked)" /></th><th>订单编号</th><th>客户</th><th>产品</th><th>数量</th><th>交货时间</th><th>订单状态</th><th>布产 / 排产</th><th>操作</th></tr></thead><tbody id="orderRows"></tbody></table></div>
+                  <div class="pagination-bar"><span>共 <b id="totalCount">6</b> 条</span><button class="pager-btn" disabled>上一页</button><button class="pager-btn active">1</button><button class="pager-btn">2</button><button class="pager-btn">3</button><button class="pager-btn">下一页</button><select class="page-size"><option>10条/页</option><option>20条/页</option></select><span>前往 <input class="el-input__inner" style="width:42px;height:28px;text-align:center;border:1px solid #dcdfe6;border-radius:4px" value="1" /> 页</span></div>
+                </div>
+              </div>
+            </div>
+          </section>          <section class="page-root detail-page" id="detailPage">
+            <div class="sec-board"><div class="sec-path">生产管理中心/生产/已完成订单/详情</div><div class="sec-title" id="detailTitle">已完成订单详情</div></div>
+            <div class="grey-back">
+              <div class="el-card detail-card">
+                <div class="el-card__header"><div class="detail-toolbar"><span class="card-title">订单信息</span><div class="left-actions"><button class="el-button el-button--default" onclick="switchView('list','已完成订单')"><span>返回列表</span></button><button class="el-button el-button--primary" onclick="exportDetail()"><span>导出</span></button></div></div></div>
+                <div class="el-card__body"><div class="order-info-grid" id="orderInfo"></div><div class="inline-note"><span class="el-tag el-tag--info">只读</span><span>该订单已完成归档，布产和排产记录仅供查询与导出，不可编辑或删除。</span></div></div>
+              </div>
+              <div class="el-card detail-card">
+                <div class="el-card__header"><div class="detail-toolbar"><span class="card-title">生产归档记录</span><span class="summary-rule">数据来源：布产表 / 排产表 · 按订单编号自动关联</span></div></div>
+                <div class="el-card__body">
+                  <div class="detail-tabs">
+                    <div class="tabs-header" style="border-bottom:1px solid #e4e7ed;display:flex;gap:30px">
+                      <button class="detail-tab active" data-tab="schedule" onclick="switchDetailTab('schedule')" style="border:0;background:none;padding:0 2px 11px;color:#409eff;font-size:14px;cursor:pointer;position:relative">布产记录 <span id="scheduleCount">3</span><span style="position:absolute;bottom:-1px;left:0;right:0;height:2px;background:#409eff"></span></button>
+                      <button class="detail-tab" data-tab="arrange" onclick="switchDetailTab('arrange')" style="border:0;background:none;padding:0 2px 11px;color:#606266;font-size:14px;cursor:pointer">排产记录 <span id="arrangeCount">3</span></button>
+                    </div>
+                    <div class="tab-pane active" id="panel-schedule">
+                      <div class="readonly-hint">仅展示已归档的布产数据；排产状态根据关联排产记录计算。</div>
+                      <div class="erp-table-wrap"><table class="erp-table detail-table"><thead><tr><th>布产ID</th><th>产品编号</th><th>模具编码</th><th>颜色编号</th><th>料别</th><th>布产数量</th><th>布产时间</th><th>出货时间</th><th>操作人</th><th>排产状态</th></tr></thead><tbody id="scheduleRows"></tbody></table></div>
+                    </div>
+                    <div class="tab-pane" id="panel-arrange">
+                      <div class="readonly-hint">仅展示已归档的排产数据；完成时间来自排产表实际完成记录。</div>
+                      <div class="erp-table-wrap"><table class="erp-table detail-table"><thead><tr><th>排产ID</th><th>模具编号</th><th>颜色编号</th><th>料别</th><th>出模数</th><th>排产数量</th><th>排产重量</th><th>安排时间</th><th>完成时间</th><th>操作人</th></tr></thead><tbody id="arrangeRows"></tbody></table></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </section>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script>
+    const orders = [
+      { id:'X6015', outer:'9623', customer:'华南精工有限公司', product:'枫碘枸', productCode:'X6015', quantity:2400, delivery:'2026-11-08', status:'已完成', scheduleCount:3, arrangeCount:3, operator:'admin', createdAt:'2026-10-26 09:18:40' },
+      { id:'BL202611070016', outer:'OUT-88927', customer:'宁波泰和制造', product:'A2308 外壳组件', productCode:'A2308', quantity:1800, delivery:'2026-11-07', status:'已完成', scheduleCount:4, arrangeCount:4, operator:'ruide', createdAt:'2026-10-25 15:42:11' },
+      { id:'BL202611060012', outer:'OUT-88912', customer:'苏州博越科技有限公司', product:'M8012 连接件', productCode:'M8012', quantity:3600, delivery:'2026-11-06', status:'已完成', scheduleCount:2, arrangeCount:2, operator:'ruide', createdAt:'2026-10-24 11:08:30' },
+      { id:'BL202611050009', outer:'OUT-88896', customer:'东莞启航电子', product:'R5106 精密支架', productCode:'R5106', quantity:1200, delivery:'2026-11-05', status:'已完成', scheduleCount:3, arrangeCount:3, operator:'admin', createdAt:'2026-10-22 16:31:09' },
+      { id:'BL202611030005', outer:'OUT-88871', customer:'佛山新锐工业', product:'T9021 固定座', productCode:'T9021', quantity:900, delivery:'2026-11-03', status:'已完成', scheduleCount:1, arrangeCount:1, operator:'ruide', createdAt:'2026-10-20 10:26:50' },
+      { id:'BL202610310021', outer:'OUT-88840', customer:'中山恒达电器', product:'P7710 面板组件', productCode:'P7710', quantity:2000, delivery:'2026-10-31', status:'已完成', scheduleCount:2, arrangeCount:2, operator:'admin', createdAt:'2026-10-18 14:52:26' }
+    ];
+    const schedules = [
+      { id:'11826', productCode:'X6015', mould:'M-6015-03', color:'BK-01', material:'ABS', quantity:'800 PCS', productionTime:'2026-10-28', shipmentTime:'2026-11-03', operator:'ruide', arrangeStatus:'已完成' },
+      { id:'11827', productCode:'X6015', mould:'M-6015-05', color:'GY-02', material:'PC', quantity:'800 PCS', productionTime:'2026-10-29', shipmentTime:'2026-11-05', operator:'ruide', arrangeStatus:'已完成' },
+      { id:'11828', productCode:'X6015', mould:'M-6015-08', color:'WH-01', material:'ABS', quantity:'800 PCS', productionTime:'2026-10-30', shipmentTime:'2026-11-07', operator:'admin', arrangeStatus:'已完成' }
+    ];
+    const arranges = [
+      { id:'9031', mould:'M-6015-03', color:'BK-01', material:'ABS', mouldOutput:'4', quantity:'800 PCS', weight:'82.4 KG', scheduled:'2026-10-29', completed:'2026-11-02', operator:'ruide' },
+      { id:'9032', mould:'M-6015-05', color:'GY-02', material:'PC', mouldOutput:'4', quantity:'800 PCS', weight:'81.8 KG', scheduled:'2026-10-30', completed:'2026-11-04', operator:'ruide' },
+      { id:'9033', mould:'M-6015-08', color:'WH-01', material:'ABS', mouldOutput:'2', quantity:'800 PCS', weight:'83.1 KG', scheduled:'2026-10-31', completed:'2026-11-06', operator:'admin' }
+    ];
+    let filteredOrders = [...orders];
+    let selectedIds = new Set();
+    let activeOrder = orders[0];    function renderRows(rows) {
+      document.getElementById('orderRows').innerHTML = rows.map(o => `
+        <tr>
+          <td class="check-col"><input class="checkbox row-check" type="checkbox" data-id="${o.id}" ${selectedIds.has(o.id)?'checked':''} onchange="toggleRow('${o.id}',this.checked)" /></td>
+          <td><div class="order-no">${o.id}</div><div class="order-sub">外部编号：${o.outer}</div></td>
+          <td>${o.customer}</td>
+          <td><div class="product-name">${o.product}</div><div class="product-sub">${o.productCode}</div></td>
+          <td class="num">${o.quantity.toLocaleString()} PCS</td>
+          <td>${o.delivery}</td>
+          <td><span class="el-tag el-tag--success"><span class="tag-dot"></span>${o.status}</span></td>
+          <td><div class="record-pair"><span class="el-tag el-tag--info">布产 ${o.scheduleCount}</span><span class="el-tag el-tag--info">排产 ${o.arrangeCount}</span></div></td>
+          <td><button class="el-button--text" onclick="openDetail('${o.id}')">查看</button></td>
+        </tr>`).join('');
+      document.getElementById('totalCount').textContent = rows.length;
+      updateSelectionLabel();
+    }
+    function applyFilters() {
+      const key = document.getElementById('orderKeyword').value.trim().toLowerCase();
+      const customer = document.getElementById('customerKeyword').value.trim().toLowerCase();
+      const product = document.getElementById('productKeyword').value.trim().toLowerCase();
+      filteredOrders = orders.filter(o => (!key || o.id.toLowerCase().includes(key) || o.outer.toLowerCase().includes(key)) && (!customer || o.customer.toLowerCase().includes(customer)) && (!product || o.product.toLowerCase().includes(product) || o.productCode.toLowerCase().includes(product)));
+      selectedIds.clear();
+      document.getElementById('selectAll').checked = false;
+      renderRows(filteredOrders);
+      showToast(`查询完成，共 ${filteredOrders.length} 条已完成订单`);
+    }
+    function resetFilters() {
+      document.getElementById('orderKeyword').value = '';
+      document.getElementById('customerKeyword').value = '';
+      document.getElementById('productKeyword').value = '';
+      filteredOrders = [...orders];
+      selectedIds.clear();
+      document.getElementById('selectAll').checked = false;
+      renderRows(filteredOrders);
+    }
+    function toggleSelectAll(checked) {
+      selectedIds = checked ? new Set(filteredOrders.map(o => o.id)) : new Set();
+      document.querySelectorAll('.row-check').forEach(cb => cb.checked = checked);
+      updateSelectionLabel();
+    }
+    function toggleRow(id, checked) {
+      if (checked) selectedIds.add(id); else selectedIds.delete(id);
+      document.querySelectorAll('.row-check').forEach(cb => { if (cb.dataset.id === id) cb.checked = checked; });
+      document.getElementById('selectAll').checked = selectedIds.size > 0 && selectedIds.size === filteredOrders.length;
+      updateSelectionLabel();
+    }
+    function updateSelectionLabel() { document.getElementById('selectedCount').textContent = `已选 ${selectedIds.size} 条`; }
+    function openDetail(id) {
+      activeOrder = orders.find(o => o.id === id) || orders[0];
+      document.getElementById('detailTitle').textContent = `已完成订单详情`;
+      document.getElementById('orderInfo').innerHTML = `
+        <div class="info-block"><label>订单内部编号</label><div class="value strong">${activeOrder.id}</div></div>
+        <div class="info-block"><label>订单外部编号</label><div class="value">${activeOrder.outer}</div></div>
+        <div class="info-block"><label>客户名称</label><div class="value">${activeOrder.customer}</div></div>
+        <div class="info-block"><label>订单状态</label><div class="value"><span class="el-tag el-tag--success"><span class="tag-dot"></span>已完成</span></div></div>
+        <div class="info-block"><label>产品名称</label><div class="value">${activeOrder.product}</div></div>
+        <div class="info-block"><label>产品编号</label><div class="value">${activeOrder.productCode}</div></div>
+        <div class="info-block"><label>订单数量</label><div class="value">${activeOrder.quantity.toLocaleString()} PCS</div></div>
+        <div class="info-block"><label>交货时间</label><div class="value">${activeOrder.delivery}</div></div>
+        <div class="info-block"><label>创建时间</label><div class="value">${activeOrder.createdAt}</div></div>
+        <div class="info-block"><label>操作人</label><div class="value">${activeOrder.operator}</div></div>
+        <div class="info-block"><label>布产记录</label><div class="value">${activeOrder.scheduleCount} 条</div></div>
+        <div class="info-block"><label>排产记录</label><div class="value">${activeOrder.arrangeCount} 条</div></div>`;
+      document.getElementById('scheduleCount').textContent = activeOrder.scheduleCount;
+      document.getElementById('arrangeCount').textContent = activeOrder.arrangeCount;
+      document.getElementById('scheduleRows').innerHTML = schedules.slice(0,Math.min(activeOrder.scheduleCount,3)).map(r => `<tr><td>${r.id}</td><td>${r.productCode}</td><td>${r.mould}</td><td>${r.color}</td><td>${r.material}</td><td class="num">${r.quantity}</td><td>${r.productionTime}</td><td>${r.shipmentTime}</td><td>${r.operator}</td><td><span class="el-tag el-tag--success"><span class="tag-dot"></span>${r.arrangeStatus}</span></td></tr>`).join('');
+      document.getElementById('arrangeRows').innerHTML = arranges.slice(0,Math.min(activeOrder.arrangeCount,3)).map(r => `<tr><td>${r.id}</td><td>${r.mould}</td><td>${r.color}</td><td>${r.material}</td><td>${r.mouldOutput}</td><td class="num">${r.quantity}</td><td>${r.weight}</td><td>${r.scheduled}</td><td>${r.completed}</td><td>${r.operator}</td></tr>`).join('');
+      switchDetailTab('schedule');
+      switchView('detail','已完成订单详情');
+    }    function switchView(view, tabName) {
+      const isDetail = view === 'detail';
+      document.getElementById('listPage').classList.toggle('hide', isDetail);
+      document.getElementById('detailPage').classList.toggle('show', isDetail);
+      document.getElementById('listTab').classList.toggle('active', !isDetail);
+      document.getElementById('detailTab').style.display = isDetail ? 'flex' : 'none';
+      document.getElementById('detailTab').classList.toggle('active', isDetail);
+      if (isDetail) {
+        document.querySelectorAll('.menu-row.child').forEach((el, index) => el.classList.toggle('active', index === 2));
+        const top = document.querySelector('.page-scroll'); if (top) top.scrollTop = 0;
+      }
+    }
+    function switchDetailTab(name) {
+      document.querySelectorAll('.detail-tab').forEach(tab => {
+        const active = tab.dataset.tab === name;
+        tab.style.color = active ? '#409eff' : '#606266';
+        const bar = tab.querySelector('span:last-child');
+        if (bar && bar.style.height === '2px') bar.style.display = active ? 'block' : 'none';
+        if (active && !tab.querySelector('span[style*="height: 2px"]')) {
+          const line = document.createElement('span'); line.style.cssText = 'position:absolute;bottom:-1px;left:0;right:0;height:2px;background:#409eff'; tab.appendChild(line);
+        }
+      });
+      document.getElementById('panel-schedule').classList.toggle('active', name === 'schedule');
+      document.getElementById('panel-arrange').classList.toggle('active', name === 'arrange');
+    }
+    function exportRows(rows) {
+      if (!rows.length) { showToast('请先选择要导出的记录', true); return; }
+      const headers = ['内部编号','外部编号','客户','产品','产品编号','数量','交货时间','状态'];
+      const lines = rows.map(o => [o.id,o.outer,o.customer,o.product,o.productCode,o.quantity,o.delivery,o.status]);
+      const csv = '\uFEFF' + [headers,...lines].map(row => row.map(v => `"${String(v).replaceAll('"','""')}"`).join(',')).join('\n');
+      const blob = new Blob([csv],{type:'text/csv;charset=utf-8'}), a = document.createElement('a');
+      a.href = URL.createObjectURL(blob); a.download = '已完成订单_导出.csv'; a.click(); URL.revokeObjectURL(a.href);
+      showToast('导出成功（原型演示）');
+    }
+    function exportSelected() { exportRows(filteredOrders.filter(o => selectedIds.has(o.id))); }
+    function exportDetail() { exportRows([activeOrder]); }
+    function showToast(text, warning = false) {
+      const toast = document.getElementById('toast'); toast.textContent = text; toast.classList.toggle('warning', warning); toast.classList.add('show');
+      clearTimeout(window.toastTimer); window.toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+    }
+    renderRows(orders);
+    if (new URLSearchParams(location.search).get('view') === 'detail') setTimeout(() => openDetail('X6015'), 120);
+  </script>
+</body>
+</html>

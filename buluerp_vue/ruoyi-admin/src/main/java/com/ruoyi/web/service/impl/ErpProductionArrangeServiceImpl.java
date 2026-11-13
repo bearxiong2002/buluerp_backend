@@ -1,6 +1,7 @@
 package com.ruoyi.web.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.DateUtils;
@@ -61,6 +62,63 @@ public class ErpProductionArrangeServiceImpl
         return count;
     }
 
+    @Override
+    public List<ErpProductionArrange> listForProductionList(
+            ErpProductionArrange filter,
+            boolean includeCompletedOrders
+    ) {
+        QueryWrapper<ErpProductionArrange> wrapper = new QueryWrapper<>(filter);
+        if (!includeCompletedOrders) {
+            wrapper.apply(
+                    "(NOT EXISTS (" +
+                            "SELECT 1 FROM erp_production_schedule ps " +
+                            "WHERE ps.arrange_id = erp_production_arrange.id" +
+                            ") OR EXISTS (" +
+                            "SELECT 1 FROM erp_production_schedule ps " +
+                            "JOIN erp_orders o ON (" +
+                            "o.inner_id = ps.order_code OR EXISTS (" +
+                            "SELECT 1 FROM erp_order_inner_code ic " +
+                            "WHERE ic.order_id = o.id AND ic.inner_code = ps.order_code" +
+                            ")) " +
+                            "WHERE ps.arrange_id = erp_production_arrange.id AND o.status <> {0}))",
+                    getCompletedOrderStatus()
+            );
+        }
+        return list(wrapper);
+    }
+
+    @Override
+    public List<ErpProductionArrange> listArchivedByOrderCode(
+            String orderCode,
+            ErpProductionArrange filter
+    ) {
+        QueryWrapper<ErpProductionArrange> wrapper = new QueryWrapper<>(filter);
+        wrapper.apply(
+                "EXISTS (SELECT 1 FROM erp_production_schedule ps " +
+                        "WHERE ps.arrange_id = erp_production_arrange.id AND (" +
+                        "ps.order_code = {0} OR EXISTS (" +
+                        "SELECT 1 FROM erp_order_inner_code ic " +
+                        "JOIN erp_orders matched_order ON matched_order.id = ic.order_id " +
+                        "WHERE ic.inner_code = ps.order_code AND matched_order.inner_id = {0}" +
+                        ")))",
+                orderCode
+        );
+        wrapper.apply(
+                "NOT EXISTS (SELECT 1 FROM erp_production_schedule ps " +
+                        "JOIN erp_orders o ON (" +
+                        "o.inner_id = ps.order_code OR EXISTS (" +
+                        "SELECT 1 FROM erp_order_inner_code ic " +
+                        "WHERE ic.order_id = o.id AND ic.inner_code = ps.order_code" +
+                        ")) " +
+                        "WHERE ps.arrange_id = erp_production_arrange.id AND o.status <> {0})",
+                getCompletedOrderStatus()
+        );
+        return list(wrapper);
+    }
+
+    private Integer getCompletedOrderStatus() {
+        return erpOrdersService.getStatusValue(OrderStatus.COMPLETED.getLabel());
+    }
     @Override
     @Transactional(rollbackFor = Exception.class)
     @MarkNotificationsAsRead(businessType = "PRODUCTION_SCHEDULE", businessIdsExpression = "#request.scheduleId")

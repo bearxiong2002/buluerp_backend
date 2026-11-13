@@ -15,6 +15,9 @@ public class ListOrderRequest extends ErpOrders {
     @ApiModelProperty(value = "是否通过审核，true - 已通过，false - 未通过，null - 忽略是否通过")
     private Boolean approved;
 
+    @ApiModelProperty(value = "订单内部编号、外部编号或附加编号关键字")
+    private String orderCodeKeyword;
+
     @ApiModelProperty(value = "状态集合")
     private List<Integer> statusList;
 
@@ -40,6 +43,14 @@ public class ListOrderRequest extends ErpOrders {
 
     public void setApproved(Boolean approved) {
         this.approved = approved;
+    }
+
+    public String getOrderCodeKeyword() {
+        return orderCodeKeyword;
+    }
+
+    public void setOrderCodeKeyword(String orderCodeKeyword) {
+        this.orderCodeKeyword = orderCodeKeyword;
     }
 
     public List<Integer> getStatusList() {
