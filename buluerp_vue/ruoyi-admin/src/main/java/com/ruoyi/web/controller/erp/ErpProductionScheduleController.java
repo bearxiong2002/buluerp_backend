@@ -1,10 +1,12 @@
 package com.ruoyi.web.controller.erp;
 
+import com.github.pagehelper.PageHelper;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
+import com.ruoyi.common.core.page.PageDomain;
 import com.ruoyi.common.core.page.TableDataInfo;
-import com.ruoyi.common.utils.page.PageDefaultOptions;
+import com.ruoyi.common.core.page.TableSupport;
 import com.ruoyi.common.validation.Save;
 import com.ruoyi.common.validation.Update;
 import com.ruoyi.common.utils.poi.ExcelUtil;
@@ -43,13 +45,14 @@ public class ErpProductionScheduleController extends BaseController {
     @GetMapping("/list")
     @ApiOperation(value = "查询布产列表", notes = "查询布产列表")
     @ApiImplicitParams({
-            @ApiImplicitParam(name = "pageNum", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query"),
-            @ApiImplicitParam(name = "pageSize", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query"),
-            @ApiImplicitParam(name = "orderByColumn", value = "排序字段", dataType = "string", defaultValue = "creationTime", paramType = "query"),
-            @ApiImplicitParam(name = "isAsc", value = "排序顺序", dataType = "boolean", defaultValue = "desc", paramType = "query")
+            @ApiImplicitParam(name = "pageNum", value = "当前页码", dataType = "int", defaultValue = "1", paramType = "query"),
+            @ApiImplicitParam(name = "pageSize", value = "每页条目数", dataType = "int", defaultValue = "10", paramType = "query")
     })
     public TableDataInfo list(ListProductionScheduleRequest request) {
-        startPage(PageDefaultOptions.create().orderByColumn("creationTime"));
+        PageDomain pageDomain = TableSupport.buildPageRequest();
+        PageHelper.startPage(pageDomain.getPageNum(), pageDomain.getPageSize(),
+                "ps.order_code ASC, mi.mould_number ASC, ps.id ASC")
+                .setReasonable(pageDomain.getReasonable());
         List<ProductionScheduleResult> list = erpProductionScheduleService.listResult(request);
         return getDataTable(list);
     }
