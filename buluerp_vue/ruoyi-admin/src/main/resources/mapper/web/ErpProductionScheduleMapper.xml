@@ -90,7 +90,7 @@
                 and ps.product_code like concat('%', #{productCode}, '%')
             </if>
             <if test="mouldNumber != null and mouldNumber != ''">
-                and mi.mould_number = trim(#{mouldNumber})
+                and mi.mould_number like concat('%', trim(#{mouldNumber}), '%')
             </if>
             <if test="mouldCondition != null">
                 and mi.mould_status like concat('%', #{mouldCondition}, '%')
